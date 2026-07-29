@@ -19,6 +19,12 @@
     input, textarea, select, button { font-family: inherit; }
     a { color: #A67873; }
     a:hover { color: #8C5F5A; }
+    .madzo-prod-row .madzo-del-btn { opacity: 0; transition: opacity .15s ease; }
+    .madzo-prod-row:hover .madzo-del-btn,
+    .madzo-prod-row .madzo-del-btn:focus-visible { opacity: 1; }
+    @media (hover: none) {
+      .madzo-prod-row .madzo-del-btn { opacity: 1; }
+    }
   </style>
 </helmet>
 
@@ -207,8 +213,8 @@
           </sc-if>
 
           <div style="display: flex; flex-direction: column; gap: 10px;">
-            <sc-for list="{{ adminProducts }}" as="p" hint-placeholder-count="8">
-              <div style="display: flex; flex-direction: column; background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px;">
+            <sc-for list="{{ pagedProducts }}" as="p" hint-placeholder-count="8">
+              <div class="madzo-prod-row" style="display: flex; flex-direction: column; background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px;">
                 <div style="display: flex; align-items: center; gap: 14px; padding: 12px 16px; flex-wrap: wrap;">
                   <div style="position: relative; width: 52px; height: 52px; flex: none;">
                     <image-slot id="prod-{{ p.sku }}" src="{{ p.img }}" shape="rounded" radius="10" placeholder="Photo" style="width: 100%; height: 100%; display: block; background: #F1ECE2;"></image-slot>
@@ -234,8 +240,17 @@
                   </span>
                   <span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{ p.badgeBg }}; color: {{ p.badgeColor }}; min-width: 74px; text-align: center;">{{ p.badge }}</span>
                   <button onClick="{{ p.toggleEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">{{ p.editLabel }}</button>
-                  <button onClick="{{ p.remove }}" aria-label="Delete product" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 19px; padding: 0 4px;" style-hover="color: #C0392B;">×</button>
+                  <button onClick="{{ p.askRemove }}" class="madzo-del-btn" aria-label="Delete product" title="Delete product" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 19px; padding: 0 4px;" style-hover="color: #C0392B;">×</button>
                 </div>
+                <sc-if value="{{ p.confirmingDelete }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border-top: 1px solid #F3D9D6; background: #FCECEA; padding: 12px 16px; border-radius: 0 0 16px 16px;">
+                    <span style="font-size: 13px; color: #96352C;">Delete <strong>{{ p.name }}</strong> permanently? This can't be undone.</span>
+                    <span style="display: flex; gap: 8px; margin-inline-start: auto;">
+                      <button onClick="{{ p.confirmRemove }}" style="background: #C0392B; color: #fff; border: none; border-radius: 999px; padding: 7px 16px; font-size: 12.5px; font-weight: 600; cursor: pointer;" style-hover="background: #A5301F;">Yes, delete</button>
+                      <button onClick="{{ p.cancelRemove }}" style="background: none; border: 1px solid #E3B7B1; color: #96352C; border-radius: 999px; padding: 7px 16px; font-size: 12.5px; cursor: pointer;">Cancel</button>
+                    </span>
+                  </div>
+                </sc-if>
                 <sc-if value="{{ p.editing }}" hint-placeholder-val="{{ false }}">
                   <div style="border-top: 1px solid #E7DECF; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: #FAF5EC; border-radius: 0 0 16px 16px;">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
@@ -284,6 +299,13 @@
               </div>
             </sc-for>
           </div>
+          <sc-if value="{{ prodPager.show }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 18px;">
+              <button onClick="{{ prodPager.prev }}" disabled="{{ prodPager.atStart }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ prodPager.prevOpacity }};" style-hover="border-color: #A67873; color: #A67873;">← Prev</button>
+              <span style="font-size: 12.5px; color: #857D72;">{{ prodPager.label }}</span>
+              <button onClick="{{ prodPager.next }}" disabled="{{ prodPager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ prodPager.nextOpacity }};" style-hover="border-color: #A67873; color: #A67873;">Next →</button>
+            </div>
+          </sc-if>
         </section>
       </sc-if>
 
@@ -367,7 +389,7 @@
             <p style="color: #857D72; text-align: center; padding: 30px 0;">No orders yet.</p>
           </sc-if>
           <div style="display: flex; flex-direction: column; gap: 10px;">
-            <sc-for list="{{ allOrders }}" as="o" hint-placeholder-count="6">
+            <sc-for list="{{ pagedOrders }}" as="o" hint-placeholder-count="6">
               <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 14px 18px; display: flex; flex-direction: column; gap: 8px;">
                 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                   <span style="font-weight: 600; font-size: 14.5px; color: #2E2A26;">{{ o.name }}</span>
@@ -394,6 +416,13 @@
               </div>
             </sc-for>
           </div>
+          <sc-if value="{{ orderPager.show }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 18px;">
+              <button onClick="{{ orderPager.prev }}" disabled="{{ orderPager.atStart }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ orderPager.prevOpacity }};" style-hover="border-color: #A67873; color: #A67873;">← Prev</button>
+              <span style="font-size: 12.5px; color: #857D72;">{{ orderPager.label }}</span>
+              <button onClick="{{ orderPager.next }}" disabled="{{ orderPager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ orderPager.nextOpacity }};" style-hover="border-color: #A67873; color: #A67873;">Next →</button>
+            </div>
+          </sc-if>
         </section>
       </sc-if>
 
@@ -501,6 +530,8 @@ class Component extends DCLogic {
       newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', items: [] },
       newOrderError: '',
       translating: false, transMsg: '',
+      prodPage: 1,
+      orderPage: 1,
       dbProducts: [], dbOrders: [],
       siteImages: {},
       rev: 0
@@ -806,7 +837,11 @@ class Component extends DCLogic {
           this.loadProducts();
         },
 
-        remove: () => {
+        confirmingDelete: this.state.confirmDeleteSku === p.sku,
+        askRemove: () => this.setState({ confirmDeleteSku: p.sku }),
+        cancelRemove: () => this.setState({ confirmDeleteSku: null }),
+        confirmRemove: () => {
+          this.setState({ confirmDeleteSku: null });
           window.getSupabase().from('products').delete().eq('sku', p.sku).then(({ error }) => {
             if (error) console.warn('Madzo admin: delete failed', error);
             this.loadProducts();
@@ -814,6 +849,24 @@ class Component extends DCLogic {
         }
       };
     });
+
+    // ---- Pagination helper ----
+    const PAGE_SIZE = 10;
+    const makePager = (totalLen, pageKey) => {
+      const totalPages = Math.max(1, Math.ceil(totalLen / PAGE_SIZE));
+      const page = Math.min(Math.max(1, this.state[pageKey] || 1), totalPages);
+      return {
+        page, totalPages,
+        show: totalLen > PAGE_SIZE,
+        label: 'Page ' + page + ' of ' + totalPages + ' (' + totalLen + ' total)',
+        atStart: page <= 1, atEnd: page >= totalPages,
+        prevOpacity: page <= 1 ? '0.4' : '1', nextOpacity: page >= totalPages ? '0.4' : '1',
+        prev: () => this.setState({ [pageKey]: Math.max(1, page - 1) }),
+        next: () => this.setState({ [pageKey]: Math.min(totalPages, page + 1) })
+      };
+    };
+    const prodPager = makePager(adminProducts.length, 'prodPage');
+    const pagedProducts = adminProducts.slice((prodPager.page - 1) * PAGE_SIZE, prodPager.page * PAGE_SIZE);
 
     const recentOrders = orders.slice(0, 6).map(o => ({
       name: o.name,
@@ -847,6 +900,10 @@ class Component extends DCLogic {
         });
       }
     }));
+
+    const orderPager = makePager(allOrders.length, 'orderPage');
+    const pagedOrders = allOrders.slice((orderPager.page - 1) * PAGE_SIZE, orderPager.page * PAGE_SIZE);
+
 
     // ---- Manual order form ----
     const no = this.state.newOrder;
@@ -886,6 +943,7 @@ class Component extends DCLogic {
       tDashBg: pd.bg, tDashColor: pd.color, tStockBg: ps.bg, tStockColor: ps.color,
       tImagesBg: pi.bg, tImagesColor: pi.color, tOrdersBg: po.bg, tOrdersColor: po.color, tSettingsBg: pt.bg, tSettingsColor: pt.color,
       allOrders, noOrders: allOrders.length === 0,
+      pagedOrders, orderPager,
       showOrderForm: this.state.showOrderForm,
       orderFormLabel: this.state.showOrderForm ? 'Close' : '+ Add order',
       toggleOrderForm: () => {
@@ -1011,7 +1069,7 @@ class Component extends DCLogic {
       sampleNote: 'live data',
       statRevenue: fmt(revenue), statOrders: String(recent14.length), statItems: String(items),
       statLow: String(lowCount), lowStockColor: lowCount > 0 ? '#B03A2E' : '#1E8A4C',
-      chart, bestSellers, recentOrders, adminProducts,
+      chart, bestSellers, recentOrders, adminProducts, pagedProducts, prodPager,
       imgHero: si['hero'] || 'assets/samples/hero.jpg',
       onUpHero: siteUploader('hero'),
       catSlots, colSlots,

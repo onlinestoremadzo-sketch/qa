@@ -289,22 +289,104 @@
       <!-- ---- ORDERS ---- -->
       <sc-if value="{{ isOrders }}" hint-placeholder-val="{{ false }}">
         <section data-screen-label="Orders Admin">
-          <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0 0 6px;">Orders</h1>
-          <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">All orders placed through the storefront checkout.</p>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; flex-wrap: wrap;">
+            <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Orders</h1>
+            <button onClick="{{ toggleOrderForm }}" style="background: #A67873; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #8C5F5A;">{{ orderFormLabel }}</button>
+          </div>
+          <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Orders from the storefront checkout, plus orders you add manually from other platforms.</p>
+
+          <sc-if value="{{ showOrderForm }}" hint-placeholder-val="{{ false }}">
+            <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
+              <h2 style="font-size: 15px; font-weight: 600; margin: 0;">Add order manually</h2>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Order ID (auto — editable)
+                  <input value="{{ newOrder.id }}" onChange="{{ onNOId }}" placeholder="MZO-0001" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Platform / source
+                  <input value="{{ newOrder.source }}" onChange="{{ onNOSource }}" placeholder="Instagram / WhatsApp / Phone…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Customer name
+                  <input value="{{ newOrder.name }}" onChange="{{ onNOName }}" placeholder="Full name" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Phone
+                  <input value="{{ newOrder.phone }}" onChange="{{ onNOPhone }}" placeholder="+974 …" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Zone / area
+                  <input value="{{ newOrder.zone }}" onChange="{{ onNOZone }}" placeholder="e.g. Zone 25, Al Sadd" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Address
+                  <input value="{{ newOrder.address }}" onChange="{{ onNOAddress }}" placeholder="Street, building, apartment" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Status
+                  <select value="{{ newOrder.status }}" onChange="{{ onNOStatus }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                    <option value="new">New</option>
+                    <option value="delivered">Delivered</option>
+                  </select>
+                </label>
+              </div>
+              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Notes (optional)
+                <input value="{{ newOrder.notes }}" onChange="{{ onNONotes }}" placeholder="Delivery notes…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+              </label>
+
+              <h3 style="font-size: 13.5px; font-weight: 600; margin: 6px 0 0; color: #2E2A26;">Items</h3>
+              <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                <select value="" onChange="{{ onPickProduct }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; outline: none; cursor: pointer; max-width: 320px;">
+                  <option value="">+ Add from products…</option>
+                  <sc-for list="{{ prodOptions }}" as="op" hint-placeholder-count="3">
+                    <option value="{{ op.sku }}">{{ op.label }}</option>
+                  </sc-for>
+                </select>
+                <button onClick="{{ addOrderItem }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 9px 16px; font-size: 12.5px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">+ Add custom item</button>
+              </div>
+              <sc-for list="{{ orderItems }}" as="it" hint-placeholder-count="2">
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: #FAF5EC; border: 1px solid #EDE4D3; border-radius: 12px; padding: 10px 12px;">
+                  <input value="{{ it.name }}" onChange="{{ it.onName }}" placeholder="Item name" style="flex: 2; min-width: 150px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 13.5px; outline: none;" style-focus="border-color: #A67873;">
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #857D72;">Qty
+                    <input value="{{ it.qty }}" onChange="{{ it.onQty }}" type="number" min="1" style="width: 60px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 10px; font-size: 13.5px; outline: none;" style-focus="border-color: #A67873;">
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #857D72;">Price
+                    <input value="{{ it.price }}" onChange="{{ it.onPrice }}" type="number" min="0" style="width: 78px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 10px; font-size: 13.5px; outline: none;" style-focus="border-color: #A67873;">
+                  </label>
+                  <span style="font-size: 13px; color: #2E2A26; font-weight: 600; min-width: 72px; text-align: end;">{{ it.lineTotal }}</span>
+                  <button onClick="{{ it.remove }}" aria-label="Remove item" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 4px;" style-hover="color: #C0392B;">×</button>
+                </div>
+              </sc-for>
+              <div style="display: flex; justify-content: flex-end; font-size: 14.5px; font-weight: 600; color: #2E2A26;">Total: {{ newOrderTotal }}</div>
+              <sc-if value="{{ newOrderError }}" hint-placeholder-val="{{ false }}">
+                <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ newOrderError }}</p>
+              </sc-if>
+              <span style="display: flex; gap: 10px;">
+                <button onClick="{{ saveNewOrder }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 11px 22px; font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="filter: brightness(1.07);">Save order</button>
+                <button onClick="{{ toggleOrderForm }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 11px 22px; font-size: 14px; cursor: pointer;">Cancel</button>
+              </span>
+            </div>
+          </sc-if>
+
           <sc-if value="{{ noOrders }}" hint-placeholder-val="{{ false }}">
             <p style="color: #857D72; text-align: center; padding: 30px 0;">No orders yet.</p>
           </sc-if>
           <div style="display: flex; flex-direction: column; gap: 10px;">
             <sc-for list="{{ allOrders }}" as="o" hint-placeholder-count="6">
-              <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 14px 18px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 14px 18px; display: flex; flex-direction: column; gap: 8px;">
                 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                   <span style="font-weight: 600; font-size: 14.5px; color: #2E2A26;">{{ o.name }}</span>
                   <span style="font-size: 12px; color: #B0A697;">{{ o.meta }}</span>
                   <span style="margin-inline-start: auto; font-weight: 600; font-size: 14.5px;">{{ o.total }}</span>
                 </div>
-                <div style="color: #857D72; font-size: 13px;">{{ o.lines }}</div>
-                <div style="color: #857D72; font-size: 12.5px;">{{ o.contact }}</div>
-                <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;">
+                <div style="display: flex; flex-direction: column; gap: 4px; border: 1px solid #F1E9DA; background: #FBF7EF; border-radius: 10px; padding: 8px 12px;">
+                  <sc-for list="{{ o.itemLines }}" as="ln" hint-placeholder-count="2">
+                    <div style="display: flex; align-items: baseline; gap: 10px; font-size: 13px; color: #5C554B;">
+                      <span style="flex: 1;">{{ ln.qtyName }}</span>
+                      <span style="font-weight: 600; color: #2E2A26; white-space: nowrap;">{{ ln.price }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="color: #857D72; font-size: 12.5px;">📞 {{ o.phone }}</div>
+                <div style="color: #857D72; font-size: 12.5px;">📍 <span style="font-weight: 600; color: #5C554B;">Shipping:</span> {{ o.shipping }}</div>
+                <sc-if value="{{ o.hasNotes }}" hint-placeholder-val="{{ false }}">
+                  <div style="color: #857D72; font-size: 12.5px;">📝 {{ o.notes }}</div>
+                </sc-if>
+                <div style="display: flex; align-items: center; gap: 10px; margin-top: 2px;">
                   <span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{ o.badgeBg }}; color: {{ o.badgeColor }};">{{ o.status }}</span>
                   <button onClick="{{ o.toggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">{{ o.toggleLabel }}</button>
                 </div>
@@ -414,6 +496,9 @@ class Component extends DCLogic {
       editSku: null,
       editDraft: null,
       editError: '',
+      showOrderForm: false,
+      newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', items: [] },
+      newOrderError: '',
       dbProducts: [], dbOrders: [],
       siteImages: {},
       rev: 0
@@ -496,9 +581,23 @@ class Component extends DCLogic {
       if (error) throw error;
       this.setState({ dbOrders: (data || []).map(o => ({
         id: o.id, ts: new Date(o.created_at).getTime(), name: o.customer_name, phone: o.phone,
-        zone: o.zone, address: o.address, notes: o.notes, lines: o.lines || [], total: o.total, status: o.status
+        zone: o.zone, address: o.address, notes: o.notes, lines: o.lines || [], total: o.total, status: o.status,
+        source: o.source || 'storefront'
       })) });
     } catch (e) { console.warn('Madzo admin: could not load orders', e); }
+  }
+
+  async fetchNextOrderId() {
+    try {
+      const { data, error } = await window.getSupabase().rpc('next_order_id');
+      if (!error && data) return data;
+    } catch (e) { /* fall through */ }
+    // Fallback: compute locally from loaded orders
+    const nums = this.state.dbOrders.map(o => {
+      const m = /^MZO-(\d+)$/i.exec(o.id || '');
+      return m ? parseInt(m[1], 10) : 0;
+    });
+    return 'MZO-' + String(Math.max(0, ...nums) + 1).padStart(4, '0');
   }
 
   async loadSettings() {
@@ -700,9 +799,12 @@ class Component extends DCLogic {
 
     const allOrders = orders.map(o => ({
       name: o.name,
-      meta: o.id + ' · ' + new Date(o.ts).toLocaleDateString('en', { day: 'numeric', month: 'short' }),
-      lines: o.lines.map(l => `${l.qty} × ${l.name}`).join(', '),
-      contact: [o.phone, [o.zone, o.address].filter(Boolean).join(' — ')].filter(Boolean).join(' · '),
+      meta: o.id + ' · ' + new Date(o.ts).toLocaleDateString('en', { day: 'numeric', month: 'short' })
+        + (o.source && o.source !== 'storefront' ? ' · via ' + o.source : ''),
+      itemLines: (o.lines || []).map(l => ({ qtyName: `${l.qty} × ${l.name}`, price: fmt(l.total || 0) })),
+      phone: o.phone || '—',
+      shipping: [o.zone, o.address].filter(Boolean).join(' — ') || '—',
+      hasNotes: !!o.notes, notes: o.notes || '',
       total: fmt(o.total),
       status: o.status === 'new' ? 'New' : 'Delivered',
       badgeBg: o.status === 'new' ? '#FBEFD4' : '#DDF0E2',
@@ -715,6 +817,23 @@ class Component extends DCLogic {
         });
       }
     }));
+
+    // ---- Manual order form ----
+    const no = this.state.newOrder;
+    const setNO = (key) => (e) => this.setState(s => ({ newOrder: { ...s.newOrder, [key]: e.target.value }, newOrderError: '' }));
+    const setItem = (i, key) => (e) => this.setState(s => {
+      const items = s.newOrder.items.slice();
+      items[i] = { ...items[i], [key]: e.target.value };
+      return { newOrder: { ...s.newOrder, items }, newOrderError: '' };
+    });
+    const pushItem = (item) => this.setState(s => ({ newOrder: { ...s.newOrder, items: [...s.newOrder.items, item] } }));
+    const orderItems = no.items.map((it, i) => ({
+      name: it.name, qty: it.qty, price: it.price,
+      lineTotal: fmt(Math.round((Number(it.qty) || 0) * (Number(it.price) || 0))),
+      onName: setItem(i, 'name'), onQty: setItem(i, 'qty'), onPrice: setItem(i, 'price'),
+      remove: () => this.setState(s => ({ newOrder: { ...s.newOrder, items: s.newOrder.items.filter((_, j) => j !== i) } }))
+    }));
+    const newOrderTotalNum = no.items.reduce((a, it) => a + Math.round((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
 
     return {
       isLogin: !authed, isConsole: authed,
@@ -737,6 +856,56 @@ class Component extends DCLogic {
       tDashBg: pd.bg, tDashColor: pd.color, tStockBg: ps.bg, tStockColor: ps.color,
       tImagesBg: pi.bg, tImagesColor: pi.color, tOrdersBg: po.bg, tOrdersColor: po.color, tSettingsBg: pt.bg, tSettingsColor: pt.color,
       allOrders, noOrders: allOrders.length === 0,
+      showOrderForm: this.state.showOrderForm,
+      orderFormLabel: this.state.showOrderForm ? 'Close' : '+ Add order',
+      toggleOrderForm: () => {
+        const opening = !this.state.showOrderForm;
+        this.setState(s => ({ showOrderForm: !s.showOrderForm, newOrderError: '' }));
+        if (opening && !this.state.newOrder.id) {
+          this.fetchNextOrderId().then((id) => this.setState(s => ({ newOrder: { ...s.newOrder, id: s.newOrder.id || id } })));
+        }
+      },
+      newOrder: no,
+      newOrderError: this.state.newOrderError,
+      onNOId: setNO('id'), onNOSource: setNO('source'), onNOName: setNO('name'), onNOPhone: setNO('phone'),
+      onNOZone: setNO('zone'), onNOAddress: setNO('address'), onNONotes: setNO('notes'), onNOStatus: setNO('status'),
+      prodOptions: prods.map(p => ({ sku: p.sku, label: p.name + ' — ' + p.price + ' QAR' })),
+      onPickProduct: (e) => {
+        const p = prods.find(x => x.sku === e.target.value);
+        if (p) pushItem({ name: p.name, qty: 1, price: p.price });
+      },
+      addOrderItem: () => pushItem({ name: '', qty: 1, price: '' }),
+      orderItems,
+      newOrderTotal: fmt(newOrderTotalNum),
+      saveNewOrder: async () => {
+        const items = no.items
+          .map(it => ({ qty: Math.max(1, parseInt(it.qty, 10) || 1), name: String(it.name || '').trim(), unit: Number(it.price) || 0 }))
+          .filter(it => it.name);
+        if (!no.name.trim()) { this.setState({ newOrderError: 'Please enter the customer name.' }); return; }
+        if (!items.length) { this.setState({ newOrderError: 'Add at least one item.' }); return; }
+        let id = String(no.id || '').trim();
+        if (!id) id = await this.fetchNextOrderId();
+        if (orders.some(o => o.id === id)) { this.setState({ newOrderError: 'Order ID "' + id + '" already exists.' }); return; }
+        const lines = items.map(it => ({ qty: it.qty, name: it.name, total: Math.round(it.qty * it.unit) }));
+        const total = lines.reduce((a, l) => a + l.total, 0);
+        const { error } = await window.getSupabase().from('orders').insert({
+          id,
+          customer_name: no.name.trim(),
+          phone: no.phone.trim(),
+          zone: no.zone.trim(),
+          address: no.address.trim(),
+          notes: no.notes.trim(),
+          lines, total,
+          status: no.status || 'new',
+          source: no.source.trim() || 'manual'
+        });
+        if (error) { this.setState({ newOrderError: error.message }); return; }
+        this.setState({
+          showOrderForm: false, newOrderError: '',
+          newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', items: [] }
+        });
+        this.loadOrders();
+      },
 
       showAddForm: this.state.showAddForm,
       addFormLabel: this.state.showAddForm ? 'Cancel' : '+ Add product',

@@ -629,28 +629,32 @@ class Component extends DCLogic {
       onName: setForm('name'), onPhone: setForm('phone'), onZone: setForm('zone'), onAddress: setForm('address'), onNotes: setForm('notes'),
       hasError: !!this.state.error, errorMsg: this.state.error,
 
-      placeOrder: () => {
+      placeOrder: async () => {
         const f = this.state.form;
         if (!f.name.trim() || !f.phone.trim() || !(f.zone.trim() || f.address.trim())) {
           this.setState({ error: t.errRequired });
           return;
         }
+        const sb = window.getSupabase();
+        let orderId = '';
+        try {
+          const { data } = await sb.rpc('next_order_id');
+          if (data) orderId = data;
+        } catch (e) { /* fallback below */ }
+        if (!orderId) orderId = 'MZO-' + String(Date.now()).slice(-6);
         const newOrder = {
-          id: 'MZ-' + String(Date.now()).slice(-6),
+          id: orderId,
           lines: cartItems.map(l => ({ qty: l.qty, name: l.name, total: parseInt(l.totalLabel) })),
           total: subtotal,
           name: f.name.trim(), phone: f.phone.trim(), zone: f.zone.trim(), address: f.address.trim(), notes: f.notes.trim()
         };
-        (async () => {
-          try {
-            const sb = window.getSupabase();
-            await sb.from('orders').insert({
-              id: newOrder.id, customer_name: newOrder.name, phone: newOrder.phone,
-              zone: newOrder.zone, address: newOrder.address, notes: newOrder.notes,
-              lines: newOrder.lines, total: newOrder.total, status: 'new'
-            });
-          } catch (e) { console.warn('Madzo: could not save order to Supabase', e); }
-        })();
+        try {
+          await sb.from('orders').insert({
+            id: newOrder.id, customer_name: newOrder.name, phone: newOrder.phone,
+            zone: newOrder.zone, address: newOrder.address, notes: newOrder.notes,
+            lines: newOrder.lines, total: newOrder.total, status: 'new', source: 'storefront'
+          });
+        } catch (e) { console.warn('Madzo: could not save order to Supabase', e); }
         this.setState({ order: newOrder, screen: 'confirm', error: '', cart: {}, form: { name: '', phone: '', zone: '', address: '', notes: '' } }, () => this.persist());
         window.scrollTo(0, 0);
         this.openWa(newOrder);

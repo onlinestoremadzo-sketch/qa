@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="image-slot.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <style>
+    html, body { margin: 0; padding: 0; background: #F1ECE2; }
+    * { box-sizing: border-box; }
+    input, textarea, select, button { font-family: inherit; }
+    a { color: #A67873; }
+    a:hover { color: #8C5F5A; }
+  </style>
+</helmet>
+
+<template id="__bundler_thumbnail"><svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="80" fill="#A67873"></rect><path d="M66 28 A 12 12 0 1 0 66 52 A 9.6 9.6 0 1 1 66 28 Z" fill="#FDF9F4"></path><path d="M72 33 l1.4 3.2 3.2 1.4 -3.2 1.4 -1.4 3.2 -1.4-3.2 -3.2-1.4 3.2-1.4 Z" fill="#FDF9F4"></path></svg></template>
+<div style="min-height: 100vh; background: #F1ECE2; color: #2E2A26; font-family: Poppins, sans-serif; display: flex; flex-direction: column;">
+
+  <!-- ============ LOGIN ============ -->
+  <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+    <section data-screen-label="Manager Login" style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 18px; background: #A67873;">
+      <div style="background: #FDF9F4; border-radius: 22px; padding: 36px 32px; width: 100%; max-width: 380px; box-shadow: 0 20px 50px rgba(60,30,25,.3); display: flex; flex-direction: column; gap: 16px; text-align: center;">
+        <svg width="46" height="30" viewBox="0 0 34 20" fill="none" style="display: block; margin: 0 auto;">
+          <path d="M22 2 A 9 9 0 1 0 22 18 A 7.2 7.2 0 1 1 22 2 Z" fill="#A67873"></path>
+          <path d="M27 6 l1 2.4 2.4 1 -2.4 1 -1 2.4 -1-2.4 -2.4-1 2.4-1 Z" fill="#A67873"></path>
+        </svg>
+        <div>
+          <div style="font-family: Marcellus, serif; font-size: 22px; letter-spacing: 6px; color: #2E2A26;">MADZO</div>
+          <div style="font-size: 12.5px; color: #857D72; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px;">Manager Console</div>
+        </div>
+        <input value="{{ email }}" onChange="{{ onEmail }}" type="email" placeholder="Email" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 12px; padding: 13px 16px; font-size: 15px; color: #2E2A26; outline: none; text-align: center;" style-focus="border-color: #A67873;">
+        <input value="{{ pin }}" onChange="{{ onPin }}" onKeyDown="{{ pinKey }}" type="password" placeholder="Password" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 12px; padding: 13px 16px; font-size: 15px; color: #2E2A26; outline: none; text-align: center;" style-focus="border-color: #A67873;">
+        <sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
+          <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ loginErrorMsg }}</p>
+        </sc-if>
+        <button onClick="{{ doLogin }}" style="background: #A67873; color: #FDF9F4; border: none; border-radius: 999px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer;" style-hover="background: #8C5F5A;">{{ loginLabel }}</button>
+        <a href="index.html" style="font-size: 13px;">← Back to store</a>
+      </div>
+    </section>
+  </sc-if>
+
+  <!-- ============ CONSOLE ============ -->
+  <sc-if value="{{ isConsole }}" hint-placeholder-val="{{ false }}">
+    <header style="position: sticky; top: 0; z-index: 50; background: #A67873; box-shadow: 0 2px 10px rgba(60,30,25,.18);">
+      <div style="max-width: 1100px; margin: 0 auto; padding: 12px 18px; display: flex; align-items: center; gap: 16px;">
+        <svg width="30" height="19" viewBox="0 0 34 20" fill="none"><path d="M22 2 A 9 9 0 1 0 22 18 A 7.2 7.2 0 1 1 22 2 Z" fill="#FDF9F4"></path><path d="M27 6 l1 2.4 2.4 1 -2.4 1 -1 2.4 -1-2.4 -2.4-1 2.4-1 Z" fill="#FDF9F4"></path></svg>
+        <span style="display: flex; flex-direction: column;">
+          <span style="font-family: Marcellus, serif; font-size: 16px; letter-spacing: 4px; color: #FDF9F4;">MADZO</span>
+          <span style="font-size: 10.5px; letter-spacing: 2px; color: #E9D6CE; text-transform: uppercase;">Manager Console</span>
+        </span>
+        <nav style="display: flex; gap: 4px; margin-inline-start: auto; flex-wrap: wrap;">
+          <button onClick="{{ tabDash }}" style="background: {{ tDashBg }}; color: {{ tDashColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Dashboard</button>
+          <button onClick="{{ tabStock }}" style="background: {{ tStockBg }}; color: {{ tStockColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Products</button>
+          <button onClick="{{ tabImages }}" style="background: {{ tImagesBg }}; color: {{ tImagesColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Images</button>
+          <button onClick="{{ tabOrders }}" style="background: {{ tOrdersBg }}; color: {{ tOrdersColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Orders</button>
+          <button onClick="{{ tabSettings }}" style="background: {{ tSettingsBg }}; color: {{ tSettingsColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Settings</button>
+        </nav>
+        <button onClick="{{ doLogout }}" style="background: none; border: 1px solid rgba(253,249,244,.5); color: #FDF9F4; border-radius: 999px; padding: 7px 14px; font-size: 12.5px; cursor: pointer;">Log out</button>
+      </div>
+    </header>
+
+    <main style="flex: 1; max-width: 1100px; margin: 0 auto; width: 100%; padding: 24px 18px 56px;">
+
+      <!-- ---- DASHBOARD ---- -->
+      <sc-if value="{{ isDash }}" hint-placeholder-val="{{ true }}">
+        <section data-screen-label="Dashboard">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px;">
+            <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Dashboard</h1>
+            <span style="color: #857D72; font-size: 13px;">Last 14 days · {{ sampleNote }}</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 22px;">
+            <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 18px 20px;">
+              <div style="color: #857D72; font-size: 12.5px; margin-bottom: 6px;">Revenue</div>
+              <div style="font-family: Marcellus, serif; font-size: 26px; color: #2E2A26;">{{ statRevenue }}</div>
+            </div>
+            <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 18px 20px;">
+              <div style="color: #857D72; font-size: 12.5px; margin-bottom: 6px;">Orders</div>
+              <div style="font-family: Marcellus, serif; font-size: 26px; color: #2E2A26;">{{ statOrders }}</div>
+            </div>
+            <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 18px 20px;">
+              <div style="color: #857D72; font-size: 12.5px; margin-bottom: 6px;">Items sold</div>
+              <div style="font-family: Marcellus, serif; font-size: 26px; color: #2E2A26;">{{ statItems }}</div>
+            </div>
+            <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 18px 20px;">
+              <div style="color: #857D72; font-size: 12.5px; margin-bottom: 6px;">Low / out of stock</div>
+              <div style="font-family: Marcellus, serif; font-size: 26px; color: {{ lowStockColor }};">{{ statLow }}</div>
+            </div>
+          </div>
+
+          <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 22px;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px;">
+              <h2 style="font-size: 15px; font-weight: 600; margin: 0;">Revenue per day (QAR)</h2>
+              <span style="color: #857D72; font-size: 12px;">14 days</span>
+            </div>
+            <div style="display: flex; align-items: flex-end; gap: 6px; height: 160px;">
+              <sc-for list="{{ chart }}" as="bar" hint-placeholder-count="14">
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;" title="{{ bar.tip }}">
+                  <span style="font-size: 10px; color: #857D72;">{{ bar.valLabel }}</span>
+                  <div style="width: 100%; max-width: 34px; border-radius: 6px 6px 2px 2px; background: linear-gradient(180deg, #B98680, #A67873); height: {{ bar.h }};"></div>
+                  <span style="font-size: 10px; color: #B0A697;">{{ bar.day }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px;">
+            <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px;">
+              <h2 style="font-size: 15px; font-weight: 600; margin: 0 0 12px;">Best sellers</h2>
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                <sc-for list="{{ bestSellers }}" as="b" hint-placeholder-count="4">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="flex: 1; font-size: 13.5px; color: #2E2A26; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ b.name }}</span>
+                    <div style="flex: 1.2; background: #F1ECE2; border-radius: 999px; height: 8px; overflow: hidden;"><div style="height: 100%; background: #A67873; border-radius: 999px; width: {{ b.w }};"></div></div>
+                    <span style="font-size: 12.5px; color: #857D72; min-width: 46px; text-align: end;">{{ b.qty }} sold</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px;">
+              <h2 style="font-size: 15px; font-weight: 600; margin: 0 0 12px;">Recent orders</h2>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <sc-for list="{{ recentOrders }}" as="o" hint-placeholder-count="5">
+                  <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #F1ECE2; padding-bottom: 8px;">
+                    <span style="flex: 1; display: flex; flex-direction: column;">
+                      <span style="font-size: 13.5px; color: #2E2A26;">{{ o.name }}</span>
+                      <span style="font-size: 11.5px; color: #B0A697;">{{ o.meta }}</span>
+                    </span>
+                    <span style="font-size: 13.5px; font-weight: 600;">{{ o.total }}</span>
+                    <span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{ o.badgeBg }}; color: {{ o.badgeColor }};">{{ o.status }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- ---- PRODUCTS / STOCK ---- -->
+      <sc-if value="{{ isStock }}" hint-placeholder-val="{{ false }}">
+        <section data-screen-label="Products Admin">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px;">
+            <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Products & stock</h1>
+            <button onClick="{{ toggleAddForm }}" style="background: #A67873; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #8C5F5A;">{{ addFormLabel }}</button>
+          </div>
+          <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Changes apply to the storefront immediately.</p>
+
+          <sc-if value="{{ showAddForm }}" hint-placeholder-val="{{ false }}">
+            <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
+              <h2 style="font-size: 15px; font-weight: 600; margin: 0;">New product</h2>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Product ID (auto — editable)
+                  <input value="{{ newProd.id }}" onChange="{{ onNewId }}" placeholder="MZ-0001" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Main category
+                  <select value="{{ newProd.mainCat }}" onChange="{{ onNewMainCat }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                    <option value="cosmetics">Cosmetics</option>
+                  </select>
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Subcategory
+                  <select value="{{ newProd.cat }}" onChange="{{ onNewCat }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                    <option value="skincare">Skin Care</option>
+                    <option value="haircare">Hair Care</option>
+                    <option value="makeup">Makeup</option>
+                    <option value="accessories">Accessories</option>
+                  </select>
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Brand (optional)
+                  <input value="{{ newProd.brand }}" onChange="{{ onNewBrand }}" placeholder="e.g. The Ordinary" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Name (English)
+                  <input value="{{ newProd.name }}" onChange="{{ onNewName }}" placeholder="e.g. Vitamin C Serum" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Name (Arabic, optional)
+                  <input value="{{ newProd.nameAr }}" onChange="{{ onNewNameAr }}" placeholder="اسم المنتج" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: rtl;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Price (QAR)
+                  <input value="{{ newProd.price }}" onChange="{{ onNewPrice }}" type="number" min="0" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Stock
+                  <input value="{{ newProd.stock }}" onChange="{{ onNewStock }}" type="number" min="0" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+              </div>
+              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Description (English) — shown to customers
+                <textarea value="{{ newProd.desc }}" onChange="{{ onNewDesc }}" rows="2" placeholder="Short product description…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; resize: vertical;" style-focus="border-color: #A67873;"></textarea>
+              </label>
+              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Description (Arabic, optional)
+                <textarea value="{{ newProd.descAr }}" onChange="{{ onNewDescAr }}" rows="2" placeholder="وصف المنتج…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; resize: vertical; direction: rtl;" style-focus="border-color: #A67873;"></textarea>
+              </label>
+              <sc-if value="{{ newProdError }}" hint-placeholder-val="{{ false }}">
+                <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ newProdError }}</p>
+              </sc-if>
+              <p style="color: #B0A697; font-size: 12px; margin: 0;">Add the product first, then drop its photo onto the image slot in the list below or on the Images tab.</p>
+              <span style="display: flex; gap: 10px;">
+                <button onClick="{{ saveNewProd }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 11px 22px; font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="filter: brightness(1.07);">Save product</button>
+                <button onClick="{{ toggleAddForm }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 11px 22px; font-size: 14px; cursor: pointer;">Cancel</button>
+              </span>
+            </div>
+          </sc-if>
+
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <sc-for list="{{ adminProducts }}" as="p" hint-placeholder-count="8">
+              <div style="display: flex; flex-direction: column; background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px;">
+                <div style="display: flex; align-items: center; gap: 14px; padding: 12px 16px; flex-wrap: wrap;">
+                  <div style="position: relative; width: 52px; height: 52px; flex: none;">
+                    <image-slot id="prod-{{ p.sku }}" src="{{ p.img }}" shape="rounded" radius="10" placeholder="Photo" style="width: 100%; height: 100%; display: block; background: #F1ECE2;"></image-slot>
+                    <label style="position: absolute; inset: 0; cursor: pointer;" title="Click to upload photo">
+                      <input type="file" accept="image/*" onChange="{{ p.onUpload }}" style="display: none;">
+                    </label>
+                  </div>
+                  <span style="flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 2px;">
+                    <span style="font-size: 14px; color: #2E2A26;">{{ p.name }}</span>
+                    <span style="font-size: 11.5px; color: #B0A697;">{{ p.metaLine }}</span>
+                    <span style="font-size: 11px; color: #A67873; letter-spacing: .5px; direction: ltr;">ID: {{ p.sku }}</span>
+                  </span>
+                  <label style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #857D72;">Price
+                    <input value="{{ p.price }}" onChange="{{ p.onPrice }}" type="number" min="0" style="width: 78px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 8px 10px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                    <span style="color: #B0A697;">QAR</span>
+                  </label>
+                  <span style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #857D72;">Stock
+                    <span style="display: inline-flex; align-items: center; gap: 8px; border: 1px solid #D8CCBC; border-radius: 999px; padding: 4px 8px; background: #F1ECE2;">
+                      <button onClick="{{ p.decStock }}" style="background: none; border: none; color: #A67873; font-size: 16px; cursor: pointer; padding: 0 5px;">−</button>
+                      <span style="font-size: 14px; min-width: 22px; text-align: center; color: {{ p.stockColor }}; font-weight: 600;">{{ p.stock }}</span>
+                      <button onClick="{{ p.incStock }}" style="background: none; border: none; color: #A67873; font-size: 16px; cursor: pointer; padding: 0 5px;">+</button>
+                    </span>
+                  </span>
+                  <span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{ p.badgeBg }}; color: {{ p.badgeColor }}; min-width: 74px; text-align: center;">{{ p.badge }}</span>
+                  <button onClick="{{ p.toggleEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">{{ p.editLabel }}</button>
+                  <button onClick="{{ p.remove }}" aria-label="Delete product" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 19px; padding: 0 4px;" style-hover="color: #C0392B;">×</button>
+                </div>
+                <sc-if value="{{ p.editing }}" hint-placeholder-val="{{ false }}">
+                  <div style="border-top: 1px solid #E7DECF; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: #FAF5EC; border-radius: 0 0 16px 16px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Product ID
+                        <input value="{{ p.edId }}" onChange="{{ p.onEdId }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #A67873;">
+                      </label>
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Main category
+                        <select value="{{ p.edMainCat }}" onChange="{{ p.onEdMainCat }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                          <option value="cosmetics">Cosmetics</option>
+                        </select>
+                      </label>
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Subcategory
+                        <select value="{{ p.edCat }}" onChange="{{ p.onEdCat }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                          <option value="skincare">Skin Care</option>
+                          <option value="haircare">Hair Care</option>
+                          <option value="makeup">Makeup</option>
+                          <option value="accessories">Accessories</option>
+                        </select>
+                      </label>
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Brand
+                        <input value="{{ p.edBrand }}" onChange="{{ p.onEdBrand }}" placeholder="Brand name" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                      </label>
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Name (English)
+                        <input value="{{ p.edName }}" onChange="{{ p.onEdName }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                      </label>
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Name (Arabic)
+                        <input value="{{ p.edNameAr }}" onChange="{{ p.onEdNameAr }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; direction: rtl;" style-focus="border-color: #A67873;">
+                      </label>
+                    </div>
+                    <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Description (English)
+                      <textarea value="{{ p.edDesc }}" onChange="{{ p.onEdDesc }}" rows="2" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; resize: vertical;" style-focus="border-color: #A67873;"></textarea>
+                    </label>
+                    <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Description (Arabic)
+                      <textarea value="{{ p.edDescAr }}" onChange="{{ p.onEdDescAr }}" rows="2" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; resize: vertical; direction: rtl;" style-focus="border-color: #A67873;"></textarea>
+                    </label>
+                    <sc-if value="{{ editError }}" hint-placeholder-val="{{ false }}">
+                      <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ editError }}</p>
+                    </sc-if>
+                    <span style="display: flex; gap: 10px;">
+                      <button onClick="{{ p.saveEdit }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 10px 20px; font-size: 13.5px; font-weight: 600; cursor: pointer;" style-hover="filter: brightness(1.07);">Save changes</button>
+                      <button onClick="{{ p.toggleEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 10px 20px; font-size: 13.5px; cursor: pointer;">Cancel</button>
+                    </span>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- ---- ORDERS ---- -->
+      <sc-if value="{{ isOrders }}" hint-placeholder-val="{{ false }}">
+        <section data-screen-label="Orders Admin">
+          <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0 0 6px;">Orders</h1>
+          <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">All orders placed through the storefront checkout.</p>
+          <sc-if value="{{ noOrders }}" hint-placeholder-val="{{ false }}">
+            <p style="color: #857D72; text-align: center; padding: 30px 0;">No orders yet.</p>
+          </sc-if>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <sc-for list="{{ allOrders }}" as="o" hint-placeholder-count="6">
+              <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 14px 18px; display: flex; flex-direction: column; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                  <span style="font-weight: 600; font-size: 14.5px; color: #2E2A26;">{{ o.name }}</span>
+                  <span style="font-size: 12px; color: #B0A697;">{{ o.meta }}</span>
+                  <span style="margin-inline-start: auto; font-weight: 600; font-size: 14.5px;">{{ o.total }}</span>
+                </div>
+                <div style="color: #857D72; font-size: 13px;">{{ o.lines }}</div>
+                <div style="color: #857D72; font-size: 12.5px;">{{ o.contact }}</div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;">
+                  <span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{ o.badgeBg }}; color: {{ o.badgeColor }};">{{ o.status }}</span>
+                  <button onClick="{{ o.toggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">{{ o.toggleLabel }}</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- ---- IMAGES ---- -->
+      <sc-if value="{{ isImages }}" hint-placeholder-val="{{ false }}">
+        <section data-screen-label="Image Manager">
+          <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0 0 6px;">Store images</h1>
+          <p style="color: #857D72; font-size: 13px; margin: 0 0 20px;">Click any image to upload a new photo — the storefront uses the same image instantly.</p>
+          <h2 style="font-size: 15px; font-weight: 600; margin: 0 0 12px;">Hero banner</h2>
+          <div style="position: relative; width: 100%; height: 200px; margin-bottom: 24px;">
+            <image-slot id="v3-hero" src="{{ imgHero }}" shape="rounded" radius="14" placeholder="Click to upload hero banner" style="width: 100%; height: 100%; display: block; background: #E4D7C4;"></image-slot>
+            <label style="position: absolute; inset: 0; cursor: pointer;" title="Click to upload photo">
+              <input type="file" accept="image/*" onChange="{{ onUpHero }}" style="display: none;">
+            </label>
+          </div>
+          <h2 style="font-size: 15px; font-weight: 600; margin: 0 0 12px;">Category circles</h2>
+          <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 24px;">
+            <sc-for list="{{ catSlots }}" as="cs" hint-placeholder-count="5">
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                <div style="position: relative; width: 96px; height: 96px;">
+                  <image-slot id="{{ cs.slotId }}" src="{{ cs.img }}" shape="circle" placeholder="Photo" style="width: 100%; height: 100%; display: block; background: #FDF9F4; border-radius: 50%;"></image-slot>
+                  <label style="position: absolute; inset: 0; cursor: pointer; border-radius: 50%;" title="Click to upload photo">
+                    <input type="file" accept="image/*" onChange="{{ cs.onUpload }}" style="display: none;">
+                  </label>
+                </div>
+                <span style="font-size: 12.5px; color: #857D72;">{{ cs.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <h2 style="font-size: 15px; font-weight: 600; margin: 0 0 12px;">Collections</h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; margin-bottom: 24px;">
+            <sc-for list="{{ colSlots }}" as="cl" hint-placeholder-count="6">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="position: relative; width: 100%; aspect-ratio: 1;">
+                  <image-slot id="{{ cl.slotId }}" src="{{ cl.img }}" shape="rounded" radius="14" placeholder="Photo" style="width: 100%; height: 100%; display: block; background: #FDF9F4;"></image-slot>
+                  <label style="position: absolute; inset: 0; cursor: pointer;" title="Click to upload photo">
+                    <input type="file" accept="image/*" onChange="{{ cl.onUpload }}" style="display: none;">
+                  </label>
+                </div>
+                <span style="font-size: 12.5px; color: #857D72; text-align: center;">{{ cl.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <h2 style="font-size: 15px; font-weight: 600; margin: 0 0 12px;">Product photos</h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px;">
+            <sc-for list="{{ adminProducts }}" as="p" hint-placeholder-count="8">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="position: relative; width: 100%; aspect-ratio: .85;">
+                  <image-slot id="prod-{{ p.sku }}" src="{{ p.img }}" shape="rounded" radius="14" placeholder="Photo" style="width: 100%; height: 100%; display: block; background: #FDF9F4;"></image-slot>
+                  <label style="position: absolute; inset: 0; cursor: pointer;" title="Click to upload photo">
+                    <input type="file" accept="image/*" onChange="{{ p.onUpload }}" style="display: none;">
+                  </label>
+                </div>
+                <span style="font-size: 12.5px; color: #857D72; text-align: center;">{{ p.name }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- ---- SETTINGS ---- -->
+      <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+        <section data-screen-label="Settings" style="max-width: 520px;">
+          <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0 0 18px;">Settings</h1>
+          <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 16px;">
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #857D72;">Owner WhatsApp number (orders are sent here)
+              <input value="{{ setWa }}" onChange="{{ onSetWa }}" placeholder="+974 …" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 12px 14px; font-size: 15px; outline: none; direction: ltr;" style-focus="border-color: #A67873;">
+            </label>
+            <button onClick="{{ saveSettings }}" style="background: #A67873; color: #FDF9F4; border: none; border-radius: 999px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer;" style-hover="background: #8C5F5A;">Save settings</button>
+            <sc-if value="{{ savedMsg }}" hint-placeholder-val="{{ false }}">
+              <p style="color: #1E8A4C; font-size: 13px; margin: 0; text-align: center;">Saved ✓</p>
+            </sc-if>
+          </div>
+          <div style="background: #F6EDDB; border: 1px solid #E0C9A2; border-radius: 14px; padding: 14px 18px; margin-top: 16px; color: #7A5F27; font-size: 13px; line-height: 1.6;">
+            Password &amp; login are managed in the Supabase dashboard (Authentication → Users) — reset the owner password there.
+          </div>
+        </section>
+      </sc-if>
+
+    </main>
+  </sc-if>
+
+  <footer style="background: #A67873; color: #F3E8E1; text-align: center; padding: 16px; font-size: 12px;">
+    MADZO Manager Console · <a href="index.html" style="color: #FDF9F4;">View storefront</a>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      authChecked: false, authed: false,
+      email: '', pin: '', loginError: false, loginErrorMsg: '',
+      tab: 'dash',
+      savedMsg: false,
+      setWa: '',
+      showAddForm: false,
+      newProd: { id: '', name: '', nameAr: '', mainCat: 'cosmetics', cat: 'skincare', brand: '', desc: '', descAr: '', price: '', stock: '' },
+      newProdError: '',
+      editSku: null,
+      editDraft: null,
+      editError: '',
+      dbProducts: [], dbOrders: [],
+      siteImages: {},
+      rev: 0
+    };
+  }
+
+  componentDidMount() {
+    const sb = window.getSupabase();
+    sb.auth.getSession().then(({ data }) => {
+      this.setState({ authChecked: true, authed: !!(data && data.session) });
+      if (data && data.session) this.loadAll();
+    });
+    sb.auth.onAuthStateChange((_event, session) => {
+      this.setState({ authed: !!session });
+      if (session) this.loadAll();
+    });
+  }
+
+  async loadAll() {
+    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages()]);
+  }
+
+  async loadSiteImages() {
+    try {
+      const sb = window.getSupabase();
+      const { data, error } = await sb.from('site_images').select('*');
+      if (error) throw error;
+      const map = {};
+      (data || []).forEach(r => { map[r.key] = r.url; });
+      this.setState({ siteImages: map });
+    } catch (e) { console.warn('Madzo admin: could not load site images', e); }
+  }
+
+  async uploadSiteImage(key, file) {
+    try {
+      const sb = window.getSupabase();
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = 'site-' + key + '-' + Date.now() + '.' + ext;
+      const { error: upErr } = await sb.storage.from('product-images').upload(path, file, { upsert: true });
+      if (upErr) throw upErr;
+      const { data: pub } = sb.storage.from('product-images').getPublicUrl(path);
+      const url = pub && pub.publicUrl;
+      const { error: updErr } = await sb.from('site_images').upsert({ key, url });
+      if (updErr) throw updErr;
+      this.loadSiteImages();
+    } catch (e) { console.warn('Madzo admin: site image upload failed', e); alert('Image upload failed: ' + (e.message || e)); }
+  }
+
+  async loadProducts() {
+    try {
+      const sb = window.getSupabase();
+      const { data, error } = await sb.from('products').select('*').order('created_at', { ascending: true });
+      if (error) throw error;
+      this.setState({ dbProducts: (data || []).map(p => ({
+        sku: p.sku, name: p.name, nameAr: p.name_ar,
+        mainCat: p.main_category || 'cosmetics', catKey: p.category,
+        brand: p.brand || '', desc: p.description || '', descAr: p.description_ar || '',
+        price: p.price, stock: p.stock, img: p.image_url
+      })) });
+    } catch (e) { console.warn('Madzo admin: could not load products', e); }
+  }
+
+  catLabel(key) {
+    return ({ skincare: 'Skin Care', haircare: 'Hair Care', makeup: 'Makeup', accessories: 'Accessories' })[key] || key || '—';
+  }
+
+  nextId() {
+    const nums = this.state.dbProducts.map(p => {
+      const m = /^MZ-(\d+)$/i.exec(p.sku || '');
+      return m ? parseInt(m[1], 10) : 0;
+    });
+    const n = Math.max(0, ...nums, this.state.dbProducts.length) + 1;
+    return 'MZ-' + String(n).padStart(4, '0');
+  }
+
+  async loadOrders() {
+    try {
+      const sb = window.getSupabase();
+      const { data, error } = await sb.from('orders').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      this.setState({ dbOrders: (data || []).map(o => ({
+        id: o.id, ts: new Date(o.created_at).getTime(), name: o.customer_name, phone: o.phone,
+        zone: o.zone, address: o.address, notes: o.notes, lines: o.lines || [], total: o.total, status: o.status
+      })) });
+    } catch (e) { console.warn('Madzo admin: could not load orders', e); }
+  }
+
+  async loadSettings() {
+    try {
+      const sb = window.getSupabase();
+      const { data, error } = await sb.from('settings').select('whatsapp').eq('id', 1).single();
+      if (error) throw error;
+      this.setState({ setWa: (data && data.whatsapp) || '+974 3082 5852' });
+    } catch (e) { console.warn('Madzo admin: could not load settings', e); }
+  }
+
+  products() { return this.state.dbProducts; }
+
+  slugify(name) {
+    return String(name).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'product';
+  }
+
+  orders() { return this.state.dbOrders; }
+
+  async uploadProductImage(sku, file) {
+    try {
+      const sb = window.getSupabase();
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = sku + '-' + Date.now() + '.' + ext;
+      const { error: upErr } = await sb.storage.from('product-images').upload(path, file, { upsert: true });
+      if (upErr) throw upErr;
+      const { data: pub } = sb.storage.from('product-images').getPublicUrl(path);
+      const url = pub && pub.publicUrl;
+      const { error: updErr } = await sb.from('products').update({ image_url: url }).eq('sku', sku);
+      if (updErr) throw updErr;
+      this.loadProducts();
+    } catch (e) { console.warn('Madzo admin: image upload failed', e); }
+  }
+
+  renderVals() {
+    const authed = this.state.authed;
+    const tab = this.state.tab;
+    const fmt = (n) => n + ' QAR';
+
+    const doLogin = async () => {
+      const sb = window.getSupabase();
+      const { error } = await sb.auth.signInWithPassword({ email: this.state.email.trim(), password: this.state.pin });
+      if (error) this.setState({ loginError: true, loginErrorMsg: error.message });
+      else this.setState({ pin: '', loginError: false });
+    };
+
+    const orders = this.orders().slice().sort((a, b) => b.ts - a.ts);
+    const cutoff = Date.now() - 14 * 86400000;
+    const recent14 = orders.filter(o => o.ts >= cutoff);
+    const revenue = recent14.reduce((a, o) => a + o.total, 0);
+    const items = recent14.reduce((a, o) => a + o.lines.reduce((x, l) => x + l.qty, 0), 0);
+
+    // chart: last 14 days
+    const days = [];
+    for (let d = 13; d >= 0; d--) {
+      const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+      const start = t0.getTime() - d * 86400000;
+      const val = orders.filter(o => o.ts >= start && o.ts < start + 86400000).reduce((a, o) => a + o.total, 0);
+      days.push({ start, val });
+    }
+    const maxVal = Math.max(1, ...days.map(x => x.val));
+    const chart = days.map(x => ({
+      h: Math.max(3, Math.round((x.val / maxVal) * 100)) + '%',
+      valLabel: x.val > 0 ? String(x.val) : '',
+      day: new Date(x.start).toLocaleDateString('en', { day: 'numeric' }),
+      tip: new Date(x.start).toLocaleDateString('en', { day: 'numeric', month: 'short' }) + ' — ' + fmt(x.val)
+    }));
+
+    // best sellers
+    const tally = {};
+    recent14.forEach(o => o.lines.forEach(l => { tally[l.name] = (tally[l.name] || 0) + l.qty; }));
+    const best = Object.entries(tally).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const maxQ = Math.max(1, ...(best.map(b => b[1])));
+    const bestSellers = best.map(([name, qty]) => ({ name, qty, w: Math.round((qty / maxQ) * 100) + '%' }));
+
+    const prods = this.products();
+    const lowCount = prods.filter(p => p.stock <= 2).length;
+
+    const badge = (p) => p.stock === 0
+      ? { badge: 'Out of stock', badgeBg: '#F9E0DC', badgeColor: '#B03A2E' }
+      : p.stock <= 2
+        ? { badge: 'Low stock', badgeBg: '#FBEFD4', badgeColor: '#9A6E12' }
+        : { badge: 'In stock', badgeBg: '#DDF0E2', badgeColor: '#1E8A4C' };
+
+    const updateProduct = (sku, patch) => {
+      window.getSupabase().from('products').update(patch).eq('sku', sku).then(({ error }) => {
+        if (error) console.warn('Madzo admin: update failed', error);
+        this.loadProducts();
+      });
+    };
+
+    const si = this.state.siteImages || {};
+    const siteUploader = (key) => (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (f) this.uploadSiteImage(key, f);
+      e.target.value = '';
+    };
+    const mkSlot = (x) => ({
+      ...x,
+      slotId: 'v3-' + x.key,
+      img: si[x.key] || ('assets/samples/' + x.key + '.jpg'),
+      onUpload: siteUploader(x.key)
+    });
+    const catSlots = [
+      { key: 'cat-new', label: 'Newly launched' },
+      { key: 'cat-skin', label: 'Skin Care' },
+      { key: 'cat-hair', label: 'Hair Care' },
+      { key: 'cat-makeup', label: 'Makeup' },
+      { key: 'cat-acc', label: 'Accessories' }
+    ].map(mkSlot);
+    const colSlots = [
+      { key: 'col-new', label: 'Newly launched' },
+      { key: 'col-skin', label: 'Skin Care' },
+      { key: 'col-hair', label: 'Hair Care' },
+      { key: 'col-makeup', label: 'Makeup' },
+      { key: 'col-acc', label: 'Accessories' },
+      { key: 'col-gift', label: 'Gift sets' }
+    ].map(mkSlot);
+
+    const setDraft = (key) => (e) => this.setState(s => ({ editDraft: { ...s.editDraft, [key]: e.target.value }, editError: '' }));
+
+    const adminProducts = prods.map(p => {
+      const editing = this.state.editSku === p.sku;
+      const d = editing ? (this.state.editDraft || {}) : {};
+      return {
+        sku: p.sku, name: p.name,
+        metaLine: 'Cosmetics · ' + this.catLabel(p.catKey) + (p.brand ? ' · ' + p.brand : ''),
+        img: p.img || '',
+        price: p.price, stock: p.stock,
+        stockColor: p.stock === 0 ? '#B03A2E' : p.stock <= 2 ? '#9A6E12' : '#2E2A26',
+        ...badge(p),
+        onPrice: (e) => updateProduct(p.sku, { price: Math.max(0, parseInt(e.target.value || '0', 10)) }),
+        incStock: () => updateProduct(p.sku, { stock: p.stock + 1 }),
+        decStock: () => updateProduct(p.sku, { stock: Math.max(0, p.stock - 1) }),
+        onUpload: (e) => { const f = e.target.files && e.target.files[0]; if (f) this.uploadProductImage(p.sku, f); },
+
+        editing,
+        editLabel: editing ? 'Close' : 'Edit',
+        toggleEdit: () => this.setState({
+          editSku: editing ? null : p.sku,
+          editError: '',
+          editDraft: editing ? null : {
+            id: p.sku, name: p.name || '', nameAr: p.nameAr || '',
+            mainCat: p.mainCat || 'cosmetics', cat: p.catKey || 'skincare',
+            brand: p.brand || '', desc: p.desc || '', descAr: p.descAr || ''
+          }
+        }),
+        edId: d.id || '', onEdId: setDraft('id'),
+        edMainCat: d.mainCat || 'cosmetics', onEdMainCat: setDraft('mainCat'),
+        edCat: d.cat || 'skincare', onEdCat: setDraft('cat'),
+        edBrand: d.brand || '', onEdBrand: setDraft('brand'),
+        edName: d.name || '', onEdName: setDraft('name'),
+        edNameAr: d.nameAr || '', onEdNameAr: setDraft('nameAr'),
+        edDesc: d.desc || '', onEdDesc: setDraft('desc'),
+        edDescAr: d.descAr || '', onEdDescAr: setDraft('descAr'),
+        saveEdit: async () => {
+          const dr = this.state.editDraft || {};
+          const newId = String(dr.id || '').trim();
+          if (!newId) { this.setState({ editError: 'Product ID cannot be empty.' }); return; }
+          if (!String(dr.name || '').trim()) { this.setState({ editError: 'Product name cannot be empty.' }); return; }
+          if (newId !== p.sku && prods.some(x => x.sku === newId)) {
+            this.setState({ editError: 'Product ID "' + newId + '" is already used by another product.' }); return;
+          }
+          const { error } = await window.getSupabase().from('products').update({
+            sku: newId,
+            name: String(dr.name).trim(),
+            name_ar: String(dr.nameAr || '').trim() || null,
+            main_category: dr.mainCat || 'cosmetics',
+            category: dr.cat || 'skincare',
+            brand: String(dr.brand || '').trim() || null,
+            description: String(dr.desc || '').trim() || null,
+            description_ar: String(dr.descAr || '').trim() || null
+          }).eq('sku', p.sku);
+          if (error) { this.setState({ editError: error.message }); return; }
+          this.setState({ editSku: null, editDraft: null, editError: '' });
+          this.loadProducts();
+        },
+
+        remove: () => {
+          window.getSupabase().from('products').delete().eq('sku', p.sku).then(({ error }) => {
+            if (error) console.warn('Madzo admin: delete failed', error);
+            this.loadProducts();
+          });
+        }
+      };
+    });
+
+    const recentOrders = orders.slice(0, 6).map(o => ({
+      name: o.name,
+      meta: o.id + ' · ' + new Date(o.ts).toLocaleDateString('en', { day: 'numeric', month: 'short' }),
+      total: fmt(o.total),
+      status: o.status === 'new' ? 'New' : 'Delivered',
+      badgeBg: o.status === 'new' ? '#FBEFD4' : '#DDF0E2',
+      badgeColor: o.status === 'new' ? '#9A6E12' : '#1E8A4C'
+    }));
+
+    const pill = (active) => ({ bg: active ? '#FDF9F4' : 'transparent', color: active ? '#A67873' : '#FDF9F4' });
+    const pd = pill(tab === 'dash'), ps = pill(tab === 'stock'), pi = pill(tab === 'images'), po = pill(tab === 'orders'), pt = pill(tab === 'settings');
+
+    const allOrders = orders.map(o => ({
+      name: o.name,
+      meta: o.id + ' · ' + new Date(o.ts).toLocaleDateString('en', { day: 'numeric', month: 'short' }),
+      lines: o.lines.map(l => `${l.qty} × ${l.name}`).join(', '),
+      contact: [o.phone, [o.zone, o.address].filter(Boolean).join(' — ')].filter(Boolean).join(' · '),
+      total: fmt(o.total),
+      status: o.status === 'new' ? 'New' : 'Delivered',
+      badgeBg: o.status === 'new' ? '#FBEFD4' : '#DDF0E2',
+      badgeColor: o.status === 'new' ? '#9A6E12' : '#1E8A4C',
+      toggleLabel: o.status === 'new' ? 'Mark delivered' : 'Mark new',
+      toggle: () => {
+        window.getSupabase().from('orders').update({ status: o.status === 'new' ? 'delivered' : 'new' }).eq('id', o.id).then(({ error }) => {
+          if (error) console.warn('Madzo admin: order update failed', error);
+          this.loadOrders();
+        });
+      }
+    }));
+
+    return {
+      isLogin: !authed, isConsole: authed,
+      email: this.state.email,
+      onEmail: (e) => this.setState({ email: e.target.value, loginError: false }),
+      pin: this.state.pin,
+      onPin: (e) => this.setState({ pin: e.target.value, loginError: false }),
+      pinKey: (e) => { if (e.key === 'Enter') doLogin(); },
+      loginError: this.state.loginError, loginErrorMsg: this.state.loginErrorMsg || 'Sign-in failed — check email and password.',
+      loginLabel: 'Sign in',
+      doLogin,
+      doLogout: () => { window.getSupabase().auth.signOut(); this.setState({ authed: false }); },
+
+      isDash: tab === 'dash', isStock: tab === 'stock', isImages: tab === 'images', isOrders: tab === 'orders', isSettings: tab === 'settings',
+      tabDash: () => this.setState({ tab: 'dash' }),
+      tabStock: () => this.setState({ tab: 'stock' }),
+      tabImages: () => this.setState({ tab: 'images' }),
+      tabOrders: () => this.setState({ tab: 'orders' }),
+      tabSettings: () => this.setState({ tab: 'settings', savedMsg: false }),
+      tDashBg: pd.bg, tDashColor: pd.color, tStockBg: ps.bg, tStockColor: ps.color,
+      tImagesBg: pi.bg, tImagesColor: pi.color, tOrdersBg: po.bg, tOrdersColor: po.color, tSettingsBg: pt.bg, tSettingsColor: pt.color,
+      allOrders, noOrders: allOrders.length === 0,
+
+      showAddForm: this.state.showAddForm,
+      addFormLabel: this.state.showAddForm ? 'Cancel' : '+ Add product',
+      toggleAddForm: () => this.setState(s => ({
+        showAddForm: !s.showAddForm,
+        newProdError: '',
+        newProd: s.showAddForm ? s.newProd : { ...s.newProd, id: s.newProd.id || this.nextId() }
+      })),
+      newProd: this.state.newProd,
+      newProdError: this.state.newProdError,
+      onNewId: (e) => this.setState(s => ({ newProd: { ...s.newProd, id: e.target.value } })),
+      onNewMainCat: (e) => this.setState(s => ({ newProd: { ...s.newProd, mainCat: e.target.value } })),
+      onNewName: (e) => this.setState(s => ({ newProd: { ...s.newProd, name: e.target.value } })),
+      onNewNameAr: (e) => this.setState(s => ({ newProd: { ...s.newProd, nameAr: e.target.value } })),
+      onNewCat: (e) => this.setState(s => ({ newProd: { ...s.newProd, cat: e.target.value } })),
+      onNewBrand: (e) => this.setState(s => ({ newProd: { ...s.newProd, brand: e.target.value } })),
+      onNewDesc: (e) => this.setState(s => ({ newProd: { ...s.newProd, desc: e.target.value } })),
+      onNewDescAr: (e) => this.setState(s => ({ newProd: { ...s.newProd, descAr: e.target.value } })),
+      onNewPrice: (e) => this.setState(s => ({ newProd: { ...s.newProd, price: e.target.value } })),
+      onNewStock: (e) => this.setState(s => ({ newProd: { ...s.newProd, stock: e.target.value } })),
+      saveNewProd: async () => {
+        const np = this.state.newProd;
+        if (!np.name.trim()) { this.setState({ newProdError: 'Please enter a product name.' }); return; }
+        const price = Math.max(0, parseInt(np.price || '0', 10));
+        const stock = Math.max(0, parseInt(np.stock || '0', 10));
+        const existing = prods.map(p => p.sku);
+        let sku = String(np.id || '').trim() || this.nextId();
+        if (existing.includes(sku)) { this.setState({ newProdError: 'Product ID "' + sku + '" already exists — choose another.' }); return; }
+        const { error } = await window.getSupabase().from('products').insert({
+          sku,
+          name: np.name.trim(),
+          name_ar: np.nameAr.trim() || null,
+          main_category: np.mainCat || 'cosmetics',
+          category: np.cat,
+          brand: np.brand.trim() || null,
+          description: np.desc.trim() || null,
+          description_ar: np.descAr.trim() || null,
+          price, stock
+        });
+        if (error) { this.setState({ newProdError: error.message }); return; }
+        this.setState({ newProd: { id: '', name: '', nameAr: '', mainCat: 'cosmetics', cat: 'skincare', brand: '', desc: '', descAr: '', price: '', stock: '' }, newProdError: '', showAddForm: false });
+        this.loadProducts();
+      },
+      editError: this.state.editError,
+
+      sampleNote: 'live data',
+      statRevenue: fmt(revenue), statOrders: String(recent14.length), statItems: String(items),
+      statLow: String(lowCount), lowStockColor: lowCount > 0 ? '#B03A2E' : '#1E8A4C',
+      chart, bestSellers, recentOrders, adminProducts,
+      imgHero: si['hero'] || 'assets/samples/hero.jpg',
+      onUpHero: siteUploader('hero'),
+      catSlots, colSlots,
+
+      setWa: this.state.setWa,
+      onSetWa: (e) => this.setState({ setWa: e.target.value, savedMsg: false }),
+      savedMsg: this.state.savedMsg,
+      saveSettings: () => {
+        window.getSupabase().from('settings').update({ whatsapp: this.state.setWa.trim() }).eq('id', 1).then(({ error }) => {
+          if (error) console.warn('Madzo admin: settings save failed', error);
+        });
+        this.setState({ savedMsg: true });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

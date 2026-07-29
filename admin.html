@@ -176,11 +176,8 @@
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Brand (optional)
                   <input value="{{ newProd.brand }}" onChange="{{ onNewBrand }}" placeholder="e.g. The Ordinary" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
                 </label>
-                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Name (English)
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Product name
                   <input value="{{ newProd.name }}" onChange="{{ onNewName }}" placeholder="e.g. Vitamin C Serum" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
-                </label>
-                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Name (Arabic, optional)
-                  <input value="{{ newProd.nameAr }}" onChange="{{ onNewNameAr }}" placeholder="اسم المنتج" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: rtl;" style-focus="border-color: #A67873;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Price (QAR)
                   <input value="{{ newProd.price }}" onChange="{{ onNewPrice }}" type="number" min="0" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
@@ -189,11 +186,8 @@
                   <input value="{{ newProd.stock }}" onChange="{{ onNewStock }}" type="number" min="0" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
                 </label>
               </div>
-              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Description (English) — shown to customers
+              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Description — shown to customers
                 <textarea value="{{ newProd.desc }}" onChange="{{ onNewDesc }}" rows="2" placeholder="Short product description…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; resize: vertical;" style-focus="border-color: #A67873;"></textarea>
-              </label>
-              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Description (Arabic, optional)
-                <textarea value="{{ newProd.descAr }}" onChange="{{ onNewDescAr }}" rows="2" placeholder="وصف المنتج…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; resize: vertical; direction: rtl;" style-focus="border-color: #A67873;"></textarea>
               </label>
               <sc-if value="{{ newProdError }}" hint-placeholder-val="{{ false }}">
                 <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ newProdError }}</p>
@@ -258,18 +252,12 @@
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Brand
                         <input value="{{ p.edBrand }}" onChange="{{ p.onEdBrand }}" placeholder="Brand name" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
                       </label>
-                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Name (English)
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Product name
                         <input value="{{ p.edName }}" onChange="{{ p.onEdName }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
                       </label>
-                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Name (Arabic)
-                        <input value="{{ p.edNameAr }}" onChange="{{ p.onEdNameAr }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; direction: rtl;" style-focus="border-color: #A67873;">
-                      </label>
                     </div>
-                    <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Description (English)
+                    <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Description
                       <textarea value="{{ p.edDesc }}" onChange="{{ p.onEdDesc }}" rows="2" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; resize: vertical;" style-focus="border-color: #A67873;"></textarea>
-                    </label>
-                    <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Description (Arabic)
-                      <textarea value="{{ p.edDescAr }}" onChange="{{ p.onEdDescAr }}" rows="2" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; resize: vertical; direction: rtl;" style-focus="border-color: #A67873;"></textarea>
                     </label>
                     <sc-if value="{{ editError }}" hint-placeholder-val="{{ false }}">
                       <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ editError }}</p>
@@ -491,7 +479,7 @@ class Component extends DCLogic {
       savedMsg: false,
       setWa: '',
       showAddForm: false,
-      newProd: { id: '', name: '', nameAr: '', mainCat: 'cosmetics', cat: 'skincare', brand: '', desc: '', descAr: '', price: '', stock: '' },
+      newProd: { id: '', name: '', mainCat: 'cosmetics', cat: 'skincare', brand: '', desc: '', price: '', stock: '' },
       newProdError: '',
       editSku: null,
       editDraft: null,
@@ -553,9 +541,9 @@ class Component extends DCLogic {
       const { data, error } = await sb.from('products').select('*').order('created_at', { ascending: true });
       if (error) throw error;
       this.setState({ dbProducts: (data || []).map(p => ({
-        sku: p.sku, name: p.name, nameAr: p.name_ar,
+        sku: p.sku, name: p.name,
         mainCat: p.main_category || 'cosmetics', catKey: p.category,
-        brand: p.brand || '', desc: p.description || '', descAr: p.description_ar || '',
+        brand: p.brand || '', desc: p.description || '',
         price: p.price, stock: p.stock, img: p.image_url
       })) });
     } catch (e) { console.warn('Madzo admin: could not load products', e); }
@@ -740,9 +728,9 @@ class Component extends DCLogic {
           editSku: editing ? null : p.sku,
           editError: '',
           editDraft: editing ? null : {
-            id: p.sku, name: p.name || '', nameAr: p.nameAr || '',
+            id: p.sku, name: p.name || '',
             mainCat: p.mainCat || 'cosmetics', cat: p.catKey || 'skincare',
-            brand: p.brand || '', desc: p.desc || '', descAr: p.descAr || ''
+            brand: p.brand || '', desc: p.desc || ''
           }
         }),
         edId: d.id || '', onEdId: setDraft('id'),
@@ -750,9 +738,7 @@ class Component extends DCLogic {
         edCat: d.cat || 'skincare', onEdCat: setDraft('cat'),
         edBrand: d.brand || '', onEdBrand: setDraft('brand'),
         edName: d.name || '', onEdName: setDraft('name'),
-        edNameAr: d.nameAr || '', onEdNameAr: setDraft('nameAr'),
         edDesc: d.desc || '', onEdDesc: setDraft('desc'),
-        edDescAr: d.descAr || '', onEdDescAr: setDraft('descAr'),
         saveEdit: async () => {
           const dr = this.state.editDraft || {};
           const newId = String(dr.id || '').trim();
@@ -764,12 +750,10 @@ class Component extends DCLogic {
           const { error } = await window.getSupabase().from('products').update({
             sku: newId,
             name: String(dr.name).trim(),
-            name_ar: String(dr.nameAr || '').trim() || null,
             main_category: dr.mainCat || 'cosmetics',
             category: dr.cat || 'skincare',
             brand: String(dr.brand || '').trim() || null,
-            description: String(dr.desc || '').trim() || null,
-            description_ar: String(dr.descAr || '').trim() || null
+            description: String(dr.desc || '').trim() || null
           }).eq('sku', p.sku);
           if (error) { this.setState({ editError: error.message }); return; }
           this.setState({ editSku: null, editDraft: null, editError: '' });
@@ -919,11 +903,9 @@ class Component extends DCLogic {
       onNewId: (e) => this.setState(s => ({ newProd: { ...s.newProd, id: e.target.value } })),
       onNewMainCat: (e) => this.setState(s => ({ newProd: { ...s.newProd, mainCat: e.target.value } })),
       onNewName: (e) => this.setState(s => ({ newProd: { ...s.newProd, name: e.target.value } })),
-      onNewNameAr: (e) => this.setState(s => ({ newProd: { ...s.newProd, nameAr: e.target.value } })),
       onNewCat: (e) => this.setState(s => ({ newProd: { ...s.newProd, cat: e.target.value } })),
       onNewBrand: (e) => this.setState(s => ({ newProd: { ...s.newProd, brand: e.target.value } })),
       onNewDesc: (e) => this.setState(s => ({ newProd: { ...s.newProd, desc: e.target.value } })),
-      onNewDescAr: (e) => this.setState(s => ({ newProd: { ...s.newProd, descAr: e.target.value } })),
       onNewPrice: (e) => this.setState(s => ({ newProd: { ...s.newProd, price: e.target.value } })),
       onNewStock: (e) => this.setState(s => ({ newProd: { ...s.newProd, stock: e.target.value } })),
       saveNewProd: async () => {
@@ -937,16 +919,14 @@ class Component extends DCLogic {
         const { error } = await window.getSupabase().from('products').insert({
           sku,
           name: np.name.trim(),
-          name_ar: np.nameAr.trim() || null,
           main_category: np.mainCat || 'cosmetics',
           category: np.cat,
           brand: np.brand.trim() || null,
           description: np.desc.trim() || null,
-          description_ar: np.descAr.trim() || null,
           price, stock
         });
         if (error) { this.setState({ newProdError: error.message }); return; }
-        this.setState({ newProd: { id: '', name: '', nameAr: '', mainCat: 'cosmetics', cat: 'skincare', brand: '', desc: '', descAr: '', price: '', stock: '' }, newProdError: '', showAddForm: false });
+        this.setState({ newProd: { id: '', name: '', mainCat: 'cosmetics', cat: 'skincare', brand: '', desc: '', price: '', stock: '' }, newProdError: '', showAddForm: false });
         this.loadProducts();
       },
       editError: this.state.editError,

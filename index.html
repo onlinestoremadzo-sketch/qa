@@ -154,8 +154,8 @@
       <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 16px;">
         <sc-for list="{{ shopList }}" as="item" hint-placeholder-count="8">
           <div style="background: #FAF6EE; border: 1px solid #E7DECF; border-radius: 18px; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
-            <div style="position: relative;">
-              <image-slot id="prod-{{ item.sku }}" src="{{ item.img }}" shape="rounded" radius="14" placeholder="Product photo" style="width: 100%; aspect-ratio: .85; display: block; background: #F1E9DC;"></image-slot>
+            <div onClick="{{ item.openDetail }}" style="position: relative; cursor: pointer;">
+              <image-slot id="prod-{{ item.sku }}" src="{{ item.img }}" shape="rounded" radius="14" placeholder="Product photo" style="width: 100%; aspect-ratio: .85; display: block; background: #F1E9DC; pointer-events: none;"></image-slot>
               <sc-if value="{{ item.oos }}" hint-placeholder-val="{{ false }}">
                 <span style="position: absolute; bottom: 10px; inset-inline-start: 50%; transform: translateX(-50%); background: #F0B428; color: #3D3013; font-size: 12.5px; font-weight: 600; padding: 6px 14px; border-radius: 10px; white-space: nowrap;">{{ t.outOfStock }}</span>
               </sc-if>
@@ -163,7 +163,7 @@
             <sc-if value="{{ item.hasBrand }}" hint-placeholder-val="{{ false }}">
               <span style="font-size: 11px; color: #A67873; letter-spacing: 1.2px; text-transform: uppercase; font-weight: 600;">{{ item.brand }}</span>
             </sc-if>
-            <span style="font-size: 14.5px; color: #2E2A26; line-height: 1.4;">{{ item.name }}</span>
+            <span onClick="{{ item.openDetail }}" style="font-size: 14.5px; color: #2E2A26; line-height: 1.4; cursor: pointer;">{{ item.name }}</span>
             <sc-if value="{{ item.hasDesc }}" hint-placeholder-val="{{ false }}">
               <span style="font-size: 12.5px; color: #857D72; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ item.desc }}</span>
             </sc-if>
@@ -328,6 +328,59 @@
   </main>
 
   <!-- Footer -->
+  <!-- ============ PRODUCT DETAIL OVERLAY ============ -->
+  <sc-if value="{{ hasDetail }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeDetail }}" style="position: fixed; inset: 0; background: rgba(46,42,38,.55); z-index: 90; display: flex; align-items: center; justify-content: center; padding: 18px;">
+      <div onClick="{{ stopClick }}" style="background: #FDF9F4; border-radius: 22px; max-width: 440px; width: 100%; max-height: 88vh; overflow-y: auto; position: relative; display: flex; flex-direction: column; box-shadow: 0 24px 60px rgba(46,30,25,.35);">
+        <button onClick="{{ closeDetail }}" aria-label="Close" style="position: absolute; top: 12px; inset-inline-end: 12px; z-index: 2; background: rgba(253,249,244,.92); border: 1px solid #D8CCBC; color: #5C554B; border-radius: 50%; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px;" style-hover="color: #A67873; border-color: #A67873;">×</button>
+        <sc-if value="{{ d.hasImg }}" hint-placeholder-val="{{ true }}">
+          <img src="{{ d.realImg }}" alt="{{ d.name }}" style="width: 100%; aspect-ratio: .95; object-fit: cover; border-radius: 22px 22px 0 0; display: block; background: #F1E9DC;">
+        </sc-if>
+        <sc-if value="{{ d.noImg }}" hint-placeholder-val="{{ false }}">
+          <div style="width: 100%; aspect-ratio: 1.4; border-radius: 22px 22px 0 0; background: #F1E9DC; display: flex; align-items: center; justify-content: center; color: #B0A697; font-size: 13px;">{{ t.noPhoto }}</div>
+        </sc-if>
+        <div style="padding: 20px 22px 24px; display: flex; flex-direction: column; gap: 10px;">
+          <sc-if value="{{ d.hasBrand }}" hint-placeholder-val="{{ false }}">
+            <span style="font-size: 12px; color: #A67873; letter-spacing: 1.4px; text-transform: uppercase; font-weight: 600;">{{ d.brand }}</span>
+          </sc-if>
+          <h2 style="font-family: Marcellus, serif; font-weight: 400; font-size: 22px; margin: 0; color: #2E2A26; line-height: 1.35;">{{ d.name }}</h2>
+          <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+            <span style="font-size: 20px; font-weight: 600; color: #2E2A26;">{{ d.priceLabel }}</span>
+            <sc-if value="{{ d.hasCompare }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size: 14px; color: #9B9184; text-decoration: line-through;">{{ d.compareLabel }}</span>
+            </sc-if>
+          </div>
+          <sc-if value="{{ d.oos }}" hint-placeholder-val="{{ false }}">
+            <span style="align-self: flex-start; background: #F0B428; color: #3D3013; font-size: 12.5px; font-weight: 600; padding: 6px 14px; border-radius: 10px;">{{ t.outOfStock }}</span>
+          </sc-if>
+          <sc-if value="{{ d.lowStock }}" hint-placeholder-val="{{ false }}">
+            <span style="color: #E8731A; font-size: 13px; font-weight: 600;">{{ d.lowStockLabel }}</span>
+          </sc-if>
+          <sc-if value="{{ d.hasDesc }}" hint-placeholder-val="{{ false }}">
+            <p style="color: #5C554B; font-size: 14px; line-height: 1.7; margin: 4px 0 0; white-space: pre-line;">{{ d.desc }}</p>
+          </sc-if>
+          <sc-if value="{{ d.notOos }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top: 10px;">
+              <sc-if value="{{ d.notInCart }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ d.add }}" style="width: 100%; background: {{ headerBg }}; color: #FDF9F4; border: none; border-radius: 999px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer;" style-hover="background: {{ headerBgDark }};">{{ t.addToCart }}</button>
+              </sc-if>
+              <sc-if value="{{ d.inCart }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                  <span style="display: inline-flex; align-items: center; gap: 12px; border: 1px solid #A67873; border-radius: 999px; padding: 8px 14px; background: #FDF9F4;">
+                    <button onClick="{{ d.dec }}" style="background: none; border: none; color: #A67873; font-size: 19px; cursor: pointer; padding: 0 6px;">−</button>
+                    <span style="font-size: 15px; min-width: 18px; text-align: center; font-weight: 600;">{{ d.qty }}</span>
+                    <button onClick="{{ d.add }}" style="background: none; border: none; color: #A67873; font-size: 19px; cursor: pointer; padding: 0 6px;">+</button>
+                  </span>
+                  <button onClick="{{ detailGoCart }}" style="flex: 1; background: {{ headerBg }}; color: #FDF9F4; border: none; border-radius: 999px; padding: 13px; font-size: 14.5px; font-weight: 600; cursor: pointer;" style-hover="background: {{ headerBgDark }};">{{ t.viewCart }}</button>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
   <footer style="background: {{ headerBg }}; color: #F3E8E1; margin-top: auto;">
     <div style="max-width: 1100px; margin: 0 auto; padding: 26px 18px; text-align: center; display: flex; flex-direction: column; gap: 8px;">
       <span style="font-family: Marcellus, serif; letter-spacing: 5px; font-size: 16px; color: #FDF9F4;">MADZO</span>
@@ -375,6 +428,7 @@ class Component extends DCLogic {
       order: null,
       dbProducts: [],
       siteImages: {},
+      detail: null,
       waFromDb: ''
     };
   }
@@ -403,8 +457,8 @@ class Component extends DCLogic {
       if (error) throw error;
       this.setState({ dbProducts: (data || []).map(p => ({
         sku: p.sku, mainCat: p.main_category || 'cosmetics', cat: p.category, price: p.price, compare: p.compare_price, stock: p.stock,
-        name: p.name, nameAr: p.name_ar || p.name, img: p.image_url,
-        brand: p.brand || '', desc: p.description || '', descAr: p.description_ar || ''
+        name: p.name, img: p.image_url,
+        brand: p.brand || '', desc: p.description || ''
       })) });
     } catch (e) { console.warn('Madzo: could not load products from Supabase', e); }
   }
@@ -437,6 +491,7 @@ class Component extends DCLogic {
         bcHome: 'Home', bcCategories: 'Categories',
         sortDefault: 'Default (Priority)', sortLow: 'Price: low to high', sortHigh: 'Price: high to low',
         outOfStock: 'Out of Stock', onlyLeft: 'Only {n} item left', onlyLeftPl: 'Only {n} items left',
+        addToCart: 'Add to cart', viewCart: 'View cart', noPhoto: 'Photo coming soon',
         searchPh: 'Search products…', noResults: 'No products found.',
         shopAllTitle: 'All products',
         cartTitle: 'Your Cart', cartEmptyMsg: 'Your cart is still empty — the collection awaits.', startShopping: 'Start shopping',
@@ -462,6 +517,7 @@ class Component extends DCLogic {
         bcHome: 'الرئيسية', bcCategories: 'الفئات',
         sortDefault: 'الافتراضي', sortLow: 'السعر: من الأقل للأعلى', sortHigh: 'السعر: من الأعلى للأقل',
         outOfStock: 'نفدت الكمية', onlyLeft: 'بقي {n} فقط', onlyLeftPl: 'بقي {n} فقط',
+        addToCart: 'أضف إلى السلة', viewCart: 'عرض السلة', noPhoto: 'الصورة قريباً',
         searchPh: 'ابحث عن المنتجات…', noResults: 'لا توجد منتجات.',
         shopAllTitle: 'جميع المنتجات',
         cartTitle: 'سلة التسوق', cartEmptyMsg: 'سلتك فارغة — المجموعة بانتظارك.', startShopping: 'ابدأ التسوق',
@@ -516,8 +572,8 @@ class Component extends DCLogic {
     const lang = this.state.lang;
     const t = this.strings()[lang];
     const cart = this.state.cart;
-    const fmt = (n) => `${n} QAR`;
-    const go = (screen, extra) => () => { this.setState({ screen, error: '', menuOpen: false, searchOpen: false, query: '', ...(extra || {}) }); window.scrollTo(0, 0); };
+    const fmt = (n) => lang === 'ar' ? `${n} ر.ق` : `${n} QAR`;
+    const go = (screen, extra) => () => { this.setState({ screen, error: '', menuOpen: false, searchOpen: false, query: '', detail: null, ...(extra || {}) }); window.scrollTo(0, 0); };
 
     const decorate = (p) => {
       const qty = cart[p.sku] || 0;
@@ -525,10 +581,11 @@ class Component extends DCLogic {
       return {
         sku: p.sku,
         img: p.img || ('assets/samples/' + p.sku + '.jpg'),
-        name: lang === 'ar' ? p.nameAr : p.name,
+        name: p.name,
         brand: p.brand, hasBrand: !!p.brand,
-        desc: lang === 'ar' ? (p.descAr || p.desc) : p.desc,
-        hasDesc: !!(lang === 'ar' ? (p.descAr || p.desc) : p.desc),
+        desc: p.desc,
+        hasDesc: !!p.desc,
+        openDetail: () => this.setState({ detail: p.sku }),
         priceLabel: fmt(p.price),
         hasCompare: !!p.compare,
         compareLabel: p.compare ? fmt(p.compare) : '',
@@ -544,10 +601,13 @@ class Component extends DCLogic {
     const all = this.products();
     const q = this.state.query.trim().toLowerCase();
     let filtered = this.state.filter === 'all' ? all : all.filter(p => p.cat === this.state.filter);
-    if (q) filtered = filtered.filter(p => (p.name + ' ' + p.nameAr + ' ' + (p.brand || '') + ' ' + (p.desc || '') + ' ' + (p.descAr || '')).toLowerCase().includes(q));
+    if (q) filtered = filtered.filter(p => (p.name + ' ' + (p.brand || '') + ' ' + (p.desc || '')).toLowerCase().includes(q));
     if (this.state.sort === 'low') filtered = [...filtered].sort((a, b) => a.price - b.price);
     if (this.state.sort === 'high') filtered = [...filtered].sort((a, b) => b.price - a.price);
     const shopList = filtered.map(decorate);
+
+    const dp = this.state.detail ? all.find(p => p.sku === this.state.detail) : null;
+    const detailItem = dp ? { ...decorate(dp), hasImg: !!dp.img, noImg: !dp.img, realImg: dp.img || '' } : null;
 
     const cartItems = all.filter(p => cart[p.sku]).map(p => {
       const qty = cart[p.sku];
@@ -665,6 +725,11 @@ class Component extends DCLogic {
       orderTotalLabel: order ? fmt(order.total) : '',
       orderMeta: order ? `${order.name} · ${order.phone} · ${[order.zone, order.address].filter(Boolean).join(' — ')}` : '',
       openWhatsApp: () => { if (order) this.openWa(order); },
+      hasDetail: !!detailItem,
+      d: detailItem || {},
+      closeDetail: () => this.setState({ detail: null }),
+      stopClick: (e) => e.stopPropagation(),
+      detailGoCart: () => { this.setState({ detail: null, screen: 'cart', menuOpen: false, searchOpen: false }); window.scrollTo(0, 0); },
       contactWhatsApp: () => window.open('https://wa.me/' + this.waDigits(), '_blank')
     };
   }

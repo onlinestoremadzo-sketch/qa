@@ -457,8 +457,8 @@ class Component extends DCLogic {
       if (error) throw error;
       this.setState({ dbProducts: (data || []).map(p => ({
         sku: p.sku, mainCat: p.main_category || 'cosmetics', cat: p.category, price: p.price, compare: p.compare_price, stock: p.stock,
-        name: p.name, img: p.image_url,
-        brand: p.brand || '', desc: p.description || ''
+        name: p.name, nameAr: p.name_ar || p.name, img: p.image_url,
+        brand: p.brand || '', desc: p.description || '', descAr: p.description_ar || p.description || ''
       })) });
     } catch (e) { console.warn('Madzo: could not load products from Supabase', e); }
   }
@@ -581,10 +581,10 @@ class Component extends DCLogic {
       return {
         sku: p.sku,
         img: p.img || ('assets/samples/' + p.sku + '.jpg'),
-        name: p.name,
+        name: lang === 'ar' ? (p.nameAr || p.name) : p.name,
         brand: p.brand, hasBrand: !!p.brand,
-        desc: p.desc,
-        hasDesc: !!p.desc,
+        desc: lang === 'ar' ? (p.descAr || p.desc) : p.desc,
+        hasDesc: !!(lang === 'ar' ? (p.descAr || p.desc) : p.desc),
         openDetail: () => this.setState({ detail: p.sku }),
         priceLabel: fmt(p.price),
         hasCompare: !!p.compare,
@@ -601,7 +601,7 @@ class Component extends DCLogic {
     const all = this.products();
     const q = this.state.query.trim().toLowerCase();
     let filtered = this.state.filter === 'all' ? all : all.filter(p => p.cat === this.state.filter);
-    if (q) filtered = filtered.filter(p => (p.name + ' ' + (p.brand || '') + ' ' + (p.desc || '')).toLowerCase().includes(q));
+    if (q) filtered = filtered.filter(p => (p.name + ' ' + (p.nameAr || '') + ' ' + (p.brand || '') + ' ' + (p.desc || '') + ' ' + (p.descAr || '')).toLowerCase().includes(q));
     if (this.state.sort === 'low') filtered = [...filtered].sort((a, b) => a.price - b.price);
     if (this.state.sort === 'high') filtered = [...filtered].sort((a, b) => b.price - a.price);
     const shopList = filtered.map(decorate);

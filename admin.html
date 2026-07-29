@@ -151,6 +151,12 @@
             <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Products & stock</h1>
             <button onClick="{{ toggleAddForm }}" style="background: #A67873; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #8C5F5A;">{{ addFormLabel }}</button>
           </div>
+          <sc-if value="{{ untranslatedCount }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #F6EDDB; border: 1px solid #E0C9A2; border-radius: 12px; padding: 10px 14px; margin-bottom: 14px;">
+              <span style="color: #7A5F27; font-size: 12.5px;">{{ untranslatedCount }} product(s) don't have an Arabic name/description yet.</span>
+              <button onClick="{{ translateAllMissing }}" disabled="{{ bulkTranslating }}" style="background: none; border: 1px solid #C9A45F; color: #7A5F27; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer; font-weight: 600;">{{ bulkTranslateLabel }}</button>
+            </div>
+          </sc-if>
           <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Changes apply to the storefront immediately.</p>
 
           <sc-if value="{{ showAddForm }}" hint-placeholder-val="{{ false }}">
@@ -192,9 +198,9 @@
               <sc-if value="{{ newProdError }}" hint-placeholder-val="{{ false }}">
                 <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ newProdError }}</p>
               </sc-if>
-              <p style="color: #B0A697; font-size: 12px; margin: 0;">Add the product first, then drop its photo onto the image slot in the list below or on the Images tab.</p>
+              <p style="color: #B0A697; font-size: 12px; margin: 0;">Arabic name &amp; description are translated automatically when you save — edit them any time from "Edit" on the product. Add the photo after saving, from the list below or the Images tab.</p>
               <span style="display: flex; gap: 10px;">
-                <button onClick="{{ saveNewProd }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 11px 22px; font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="filter: brightness(1.07);">Save product</button>
+                <button onClick="{{ saveNewProd }}" disabled="{{ savingProd }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 11px 22px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: {{ savingProdOpacity }};" style-hover="filter: brightness(1.07);">{{ saveProdLabel }}</button>
                 <button onClick="{{ toggleAddForm }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 11px 22px; font-size: 14px; cursor: pointer;">Cancel</button>
               </span>
             </div>
@@ -252,18 +258,25 @@
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Brand
                         <input value="{{ p.edBrand }}" onChange="{{ p.onEdBrand }}" placeholder="Brand name" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
                       </label>
-                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Product name
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Product name (English)
                         <input value="{{ p.edName }}" onChange="{{ p.onEdName }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
                       </label>
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Product name (Arabic — auto-translated, editable)
+                        <input value="{{ p.edNameAr }}" onChange="{{ p.onEdNameAr }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; direction: rtl;" style-focus="border-color: #A67873;">
+                      </label>
                     </div>
-                    <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Description
+                    <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Description (English)
                       <textarea value="{{ p.edDesc }}" onChange="{{ p.onEdDesc }}" rows="2" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; resize: vertical;" style-focus="border-color: #A67873;"></textarea>
+                    </label>
+                    <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Description (Arabic — auto-translated, editable)
+                      <textarea value="{{ p.edDescAr }}" onChange="{{ p.onEdDescAr }}" rows="2" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; resize: vertical; direction: rtl;" style-focus="border-color: #A67873;"></textarea>
                     </label>
                     <sc-if value="{{ editError }}" hint-placeholder-val="{{ false }}">
                       <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ editError }}</p>
                     </sc-if>
-                    <span style="display: flex; gap: 10px;">
-                      <button onClick="{{ p.saveEdit }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 10px 20px; font-size: 13.5px; font-weight: 600; cursor: pointer;" style-hover="filter: brightness(1.07);">Save changes</button>
+                    <span style="display: flex; gap: 10px; flex-wrap: wrap;">
+                      <button onClick="{{ p.saveEdit }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 10px 20px; font-size: 13.5px; font-weight: 600; cursor: pointer;" style-hover="filter: brightness(1.07);">{{ p.saveEditLabel }}</button>
+                      <button onClick="{{ p.retranslate }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 10px 18px; font-size: 13px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">{{ p.retranslateLabel }}</button>
                       <button onClick="{{ p.toggleEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 10px 20px; font-size: 13.5px; cursor: pointer;">Cancel</button>
                     </span>
                   </div>
@@ -487,6 +500,7 @@ class Component extends DCLogic {
       showOrderForm: false,
       newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', items: [] },
       newOrderError: '',
+      translating: false, transMsg: '',
       dbProducts: [], dbOrders: [],
       siteImages: {},
       rev: 0
@@ -541,12 +555,25 @@ class Component extends DCLogic {
       const { data, error } = await sb.from('products').select('*').order('created_at', { ascending: true });
       if (error) throw error;
       this.setState({ dbProducts: (data || []).map(p => ({
-        sku: p.sku, name: p.name,
+        sku: p.sku, name: p.name, nameAr: p.name_ar || '',
         mainCat: p.main_category || 'cosmetics', catKey: p.category,
-        brand: p.brand || '', desc: p.description || '',
+        brand: p.brand || '', desc: p.description || '', descAr: p.description_ar || '',
         price: p.price, stock: p.stock, img: p.image_url
       })) });
     } catch (e) { console.warn('Madzo admin: could not load products', e); }
+  }
+
+  // Free machine translation (MyMemory API) — EN -> AR, used once at save time.
+  async translateAr(text) {
+    const q = String(text || '').trim();
+    if (!q) return '';
+    try {
+      const res = await fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(q.slice(0, 480)) + '&langpair=en|ar');
+      const j = await res.json();
+      const out = j && j.responseData && j.responseData.translatedText;
+      if (out && String(j.responseStatus) === '200') return out;
+    } catch (e) { console.warn('Madzo admin: translation failed', e); }
+    return '';
   }
 
   catLabel(key) {
@@ -728,9 +755,9 @@ class Component extends DCLogic {
           editSku: editing ? null : p.sku,
           editError: '',
           editDraft: editing ? null : {
-            id: p.sku, name: p.name || '',
+            id: p.sku, name: p.name || '', nameAr: p.nameAr || '',
             mainCat: p.mainCat || 'cosmetics', cat: p.catKey || 'skincare',
-            brand: p.brand || '', desc: p.desc || ''
+            brand: p.brand || '', desc: p.desc || '', descAr: p.descAr || ''
           }
         }),
         edId: d.id || '', onEdId: setDraft('id'),
@@ -738,7 +765,20 @@ class Component extends DCLogic {
         edCat: d.cat || 'skincare', onEdCat: setDraft('cat'),
         edBrand: d.brand || '', onEdBrand: setDraft('brand'),
         edName: d.name || '', onEdName: setDraft('name'),
+        edNameAr: d.nameAr || '', onEdNameAr: setDraft('nameAr'),
         edDesc: d.desc || '', onEdDesc: setDraft('desc'),
+        edDescAr: d.descAr || '', onEdDescAr: setDraft('descAr'),
+        saveEditLabel: this.state.savingEditSku === p.sku ? 'Saving…' : 'Save changes',
+        retranslateLabel: this.state.retranslatingSku === p.sku ? 'Translating…' : 'Re-translate to Arabic',
+        retranslate: async () => {
+          const dr = this.state.editDraft || {};
+          this.setState({ retranslatingSku: p.sku, editError: '' });
+          const [nameAr, descAr] = await Promise.all([this.translateAr(dr.name), this.translateAr(dr.desc)]);
+          this.setState(s => ({
+            retranslatingSku: null,
+            editDraft: { ...s.editDraft, nameAr: nameAr || s.editDraft.nameAr, descAr: descAr || s.editDraft.descAr }
+          }));
+        },
         saveEdit: async () => {
           const dr = this.state.editDraft || {};
           const newId = String(dr.id || '').trim();
@@ -747,14 +787,20 @@ class Component extends DCLogic {
           if (newId !== p.sku && prods.some(x => x.sku === newId)) {
             this.setState({ editError: 'Product ID "' + newId + '" is already used by another product.' }); return;
           }
+          this.setState({ savingEditSku: p.sku });
+          const nameAr = String(dr.nameAr || '').trim() || await this.translateAr(dr.name);
+          const descAr = String(dr.descAr || '').trim() || await this.translateAr(dr.desc);
           const { error } = await window.getSupabase().from('products').update({
             sku: newId,
             name: String(dr.name).trim(),
+            name_ar: nameAr || null,
             main_category: dr.mainCat || 'cosmetics',
             category: dr.cat || 'skincare',
             brand: String(dr.brand || '').trim() || null,
-            description: String(dr.desc || '').trim() || null
+            description: String(dr.desc || '').trim() || null,
+            description_ar: descAr || null
           }).eq('sku', p.sku);
+          this.setState({ savingEditSku: null });
           if (error) { this.setState({ editError: error.message }); return; }
           this.setState({ editSku: null, editDraft: null, editError: '' });
           this.loadProducts();
@@ -893,6 +939,28 @@ class Component extends DCLogic {
 
       showAddForm: this.state.showAddForm,
       addFormLabel: this.state.showAddForm ? 'Cancel' : '+ Add product',
+      untranslatedCount: prods.filter(p => !p.nameAr).length,
+      bulkTranslating: !!this.state.bulkTranslating,
+      bulkTranslateLabel: this.state.bulkTranslating
+        ? ('Translating ' + (this.state.bulkTranslateDone || 0) + '/' + (this.state.bulkTranslateTotal || 0) + '…')
+        : 'Translate all now',
+      translateAllMissing: async () => {
+        if (this.state.bulkTranslating) return;
+        const todo = prods.filter(p => !p.nameAr);
+        if (!todo.length) return;
+        this.setState({ bulkTranslating: true, bulkTranslateDone: 0, bulkTranslateTotal: todo.length });
+        for (let i = 0; i < todo.length; i++) {
+          const p = todo[i];
+          const [nameAr, descAr] = await Promise.all([this.translateAr(p.name), this.translateAr(p.desc)]);
+          await window.getSupabase().from('products').update({
+            name_ar: nameAr || null,
+            description_ar: descAr || null
+          }).eq('sku', p.sku);
+          this.setState({ bulkTranslateDone: i + 1 });
+        }
+        this.setState({ bulkTranslating: false });
+        this.loadProducts();
+      },
       toggleAddForm: () => this.setState(s => ({
         showAddForm: !s.showAddForm,
         newProdError: '',
@@ -900,6 +968,9 @@ class Component extends DCLogic {
       })),
       newProd: this.state.newProd,
       newProdError: this.state.newProdError,
+      savingProd: !!this.state.savingProd,
+      savingProdOpacity: this.state.savingProd ? '0.6' : '1',
+      saveProdLabel: this.state.savingProd ? 'Translating & saving…' : 'Save product',
       onNewId: (e) => this.setState(s => ({ newProd: { ...s.newProd, id: e.target.value } })),
       onNewMainCat: (e) => this.setState(s => ({ newProd: { ...s.newProd, mainCat: e.target.value } })),
       onNewName: (e) => this.setState(s => ({ newProd: { ...s.newProd, name: e.target.value } })),
@@ -909,6 +980,7 @@ class Component extends DCLogic {
       onNewPrice: (e) => this.setState(s => ({ newProd: { ...s.newProd, price: e.target.value } })),
       onNewStock: (e) => this.setState(s => ({ newProd: { ...s.newProd, stock: e.target.value } })),
       saveNewProd: async () => {
+        if (this.state.savingProd) return;
         const np = this.state.newProd;
         if (!np.name.trim()) { this.setState({ newProdError: 'Please enter a product name.' }); return; }
         const price = Math.max(0, parseInt(np.price || '0', 10));
@@ -916,15 +988,20 @@ class Component extends DCLogic {
         const existing = prods.map(p => p.sku);
         let sku = String(np.id || '').trim() || this.nextId();
         if (existing.includes(sku)) { this.setState({ newProdError: 'Product ID "' + sku + '" already exists — choose another.' }); return; }
+        this.setState({ newProdError: '', savingProd: true });
+        const [nameAr, descAr] = await Promise.all([this.translateAr(np.name), this.translateAr(np.desc)]);
         const { error } = await window.getSupabase().from('products').insert({
           sku,
           name: np.name.trim(),
+          name_ar: nameAr || null,
           main_category: np.mainCat || 'cosmetics',
           category: np.cat,
           brand: np.brand.trim() || null,
           description: np.desc.trim() || null,
+          description_ar: descAr || null,
           price, stock
         });
+        this.setState({ savingProd: false });
         if (error) { this.setState({ newProdError: error.message }); return; }
         this.setState({ newProd: { id: '', name: '', mainCat: 'cosmetics', cat: 'skincare', brand: '', desc: '', price: '', stock: '' }, newProdError: '', showAddForm: false });
         this.loadProducts();

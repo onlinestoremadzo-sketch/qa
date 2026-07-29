@@ -25,6 +25,13 @@
     @media (hover: none) {
       .madzo-prod-row .madzo-del-btn { opacity: 1; }
     }
+    @media print {
+      body * { visibility: hidden; }
+      .madzo-invoice-sheet, .madzo-invoice-sheet * { visibility: visible; }
+      .madzo-invoice-sheet { position: absolute; top: 0; left: 0; width: 100%; padding: 0 8px; }
+      .madzo-invoice-backdrop { position: static !important; background: none !important; padding: 0 !important; }
+      .madzo-invoice-toolbar { display: none !important; }
+    }
   </style>
 </helmet>
 
@@ -412,6 +419,7 @@
                 <div style="display: flex; align-items: center; gap: 10px; margin-top: 2px;">
                   <span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{ o.badgeBg }}; color: {{ o.badgeColor }};">{{ o.status }}</span>
                   <button onClick="{{ o.toggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">{{ o.toggleLabel }}</button>
+                  <button onClick="{{ o.openInvoice }}" style="background: none; border: 1px solid #A67873; color: #A67873; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="background: #A67873; color: #FDF9F4;">🖨 Invoice</button>
                 </div>
               </div>
             </sc-for>
@@ -502,6 +510,80 @@
         </section>
       </sc-if>
 
+      <!-- ---- PRINTABLE INVOICE OVERLAY ---- -->
+      <sc-if value="{{ hasInvoice }}" hint-placeholder-val="{{ false }}">
+        <div class="madzo-invoice-backdrop" onClick="{{ closeInvoice }}" style="position: fixed; inset: 0; background: rgba(46,42,38,.6); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px;">
+          <div onClick="{{ stopClick }}" style="background: #fff; width: 100%; max-width: 420px; max-height: 92vh; overflow-y: auto; border-radius: 14px; box-shadow: 0 24px 60px rgba(0,0,0,.35); position: relative;">
+            <div class="madzo-invoice-toolbar" style="position: sticky; top: 0; display: flex; justify-content: flex-end; gap: 8px; padding: 10px; background: #fff; border-bottom: 1px solid #eee; z-index: 2;">
+              <button onClick="{{ doPrint }}" style="background: #A67873; color: #fff; border: none; border-radius: 999px; padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer;">🖨 Print</button>
+              <button onClick="{{ closeInvoice }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer;">Close</button>
+            </div>
+
+            <div class="madzo-invoice-sheet" style="padding: 26px 22px; font-family: 'Poppins', Arial, sans-serif; color: #222;">
+              <div style="text-align: center; margin-bottom: 14px;">
+                <div style="font-family: Marcellus, serif; font-size: 22px; letter-spacing: 2px;">MADZO</div>
+                <div style="font-size: 13px; color: #555;">مدزو للمستحضرات التجميلية</div>
+                <div style="font-size: 11.5px; color: #777; margin-top: 2px;">Doha, Qatar · {{ inv.waLine }}</div>
+                <div style="font-size: 12.5px; font-weight: 600; margin-top: 8px; border-top: 1px dashed #bbb; border-bottom: 1px dashed #bbb; padding: 5px 0;">Cash / COD Invoice &nbsp;·&nbsp; فاتورة</div>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px;">
+                <span><strong>Invoice No. / رقم الفاتورة</strong></span>
+                <span>{{ inv.id }}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 10px;">
+                <span><strong>Date / التاريخ</strong></span>
+                <span>{{ inv.date }}</span>
+              </div>
+
+              <div style="border-top: 1px dashed #bbb; padding-top: 8px; margin-bottom: 8px; font-size: 12.5px;">
+                <div><strong>Customer / العميل:</strong> {{ inv.name }}</div>
+                <div><strong>Phone / الهاتف:</strong> {{ inv.phone }}</div>
+                <div><strong>Address / العنوان:</strong> {{ inv.shipping }}</div>
+              </div>
+
+              <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px;">
+                <thead>
+                  <tr style="border-top: 1px solid #333; border-bottom: 1px solid #333;">
+                    <th style="text-align: start; padding: 6px 2px; font-weight: 700;">Item / الصنف</th>
+                    <th style="text-align: center; padding: 6px 2px; font-weight: 700;">Qty</th>
+                    <th style="text-align: end; padding: 6px 2px; font-weight: 700;">Price</th>
+                    <th style="text-align: end; padding: 6px 2px; font-weight: 700;">Amt</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <sc-for list="{{ inv.rows }}" as="r" hint-placeholder-count="3">
+                    <tr style="border-bottom: 1px solid #eee;">
+                      <td style="padding: 6px 2px;">{{ r.name }}</td>
+                      <td style="text-align: center; padding: 6px 2px;">{{ r.qty }}</td>
+                      <td style="text-align: end; padding: 6px 2px; white-space: nowrap;">{{ r.unit }}</td>
+                      <td style="text-align: end; padding: 6px 2px; white-space: nowrap;">{{ r.amt }}</td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+
+              <div style="border-top: 1px solid #333; margin-top: 8px; padding-top: 8px;">
+                <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 2px 0;">
+                  <span>Product Value / قيمة المنتج</span><span>{{ inv.total }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; padding: 4px 0; border-top: 1px solid #333; margin-top: 4px;">
+                  <span>TOTAL / المجموع</span><span>{{ inv.total }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 12px; color: #555; padding: 4px 0;">
+                  <span>Payment / الدفع</span><span>Cash on Delivery</span>
+                </div>
+              </div>
+
+              <div style="text-align: center; margin-top: 18px; padding-top: 10px; border-top: 1px dashed #bbb; font-size: 12px; color: #444;">
+                THANK YOU FOR SHOPPING WITH US<br>
+                <span dir="rtl">شكراً لتسوقكم معنا</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
     </main>
   </sc-if>
 
@@ -532,6 +614,7 @@ class Component extends DCLogic {
       translating: false, transMsg: '',
       prodPage: 1,
       orderPage: 1,
+      invoiceOrderId: null,
       dbProducts: [], dbOrders: [],
       siteImages: {},
       rev: 0
@@ -898,12 +981,29 @@ class Component extends DCLogic {
           if (error) console.warn('Madzo admin: order update failed', error);
           this.loadOrders();
         });
-      }
+      },
+      openInvoice: () => this.setState({ invoiceOrderId: o.id })
     }));
 
     const orderPager = makePager(allOrders.length, 'orderPage');
     const pagedOrders = allOrders.slice((orderPager.page - 1) * PAGE_SIZE, orderPager.page * PAGE_SIZE);
 
+    const invOrder = this.state.invoiceOrderId ? orders.find(o => o.id === this.state.invoiceOrderId) : null;
+    const inv = invOrder ? {
+      id: invOrder.id,
+      date: new Date(invOrder.ts).toLocaleDateString('en-GB'),
+      name: invOrder.name || '—',
+      phone: invOrder.phone || '—',
+      shipping: [invOrder.zone, invOrder.address].filter(Boolean).join(' — ') || '—',
+      waLine: this.state.setWa ? ('Tel: ' + this.state.setWa) : '',
+      rows: (invOrder.lines || []).map(l => ({
+        name: l.name,
+        qty: l.qty,
+        unit: fmt(Math.round((l.total || 0) / (l.qty || 1))),
+        amt: fmt(l.total || 0)
+      })),
+      total: fmt(invOrder.total)
+    } : null;
 
     // ---- Manual order form ----
     const no = this.state.newOrder;
@@ -944,6 +1044,10 @@ class Component extends DCLogic {
       tImagesBg: pi.bg, tImagesColor: pi.color, tOrdersBg: po.bg, tOrdersColor: po.color, tSettingsBg: pt.bg, tSettingsColor: pt.color,
       allOrders, noOrders: allOrders.length === 0,
       pagedOrders, orderPager,
+      hasInvoice: !!inv, inv: inv || {},
+      closeInvoice: () => this.setState({ invoiceOrderId: null }),
+      stopClick: (e) => e.stopPropagation(),
+      doPrint: () => window.print(),
       showOrderForm: this.state.showOrderForm,
       orderFormLabel: this.state.showOrderForm ? 'Close' : '+ Add order',
       toggleOrderForm: () => {

@@ -557,7 +557,7 @@
                   <thead>
                     <tr style="text-align: start; color: #857D72;">
                       <th style="padding: 6px 4px; font-weight: 600;">Code</th>
-                      <th style="padding: 6px 4px; font-weight: 600;">Description</th>
+                      <th style="padding: 6px 4px; font-weight: 600;">Product Name</th>
                       <th style="padding: 6px 4px; font-weight: 600;">Unit</th>
                       <th style="padding: 6px 4px; font-weight: 600;">Qty</th>
                       <th style="padding: 6px 4px; font-weight: 600;">Bonus</th>
@@ -598,7 +598,7 @@
                 </datalist>
               </div>
 
-              <p style="color: #B0A697; font-size: 11.5px; margin: 0;">Descriptions that match your product catalog are detected automatically and linked by SKU. New items can be added to the catalog with one click.</p>
+              <p style="color: #B0A697; font-size: 11.5px; margin: 0;">Product names that match your catalog are detected automatically and linked by SKU. New products can be added to the catalog with one click.</p>
 
               <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px; font-size: 13px; color: #5C554B; margin-top: 4px;">
                 <span>Amount: {{ poAmount }}</span>
@@ -1021,7 +1021,16 @@ class Component extends DCLogic {
     document.body.appendChild(holder);
     try {
       await new Promise((r) => setTimeout(r, 60)); // let layout/fonts settle
-      const canvas = await html2canvas(holder, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+      const fullHeight = Math.ceil(holder.scrollHeight);
+      // windowWidth/windowHeight force html2canvas's internal render viewport to match
+      // our intended layout width — without this it silently falls back to the
+      // device's actual (much narrower) screen width and clips everything past it.
+      const canvas = await html2canvas(holder, {
+        scale: 2, backgroundColor: '#ffffff', useCORS: true,
+        width: widthPx, height: fullHeight,
+        windowWidth: widthPx, windowHeight: fullHeight,
+        x: 0, y: 0
+      });
       const { jsPDF } = window.jspdf;
       const cssWidthPx = canvas.width / 2;   // undo the 2x render scale
       const cssHeightPx = canvas.height / 2;
@@ -1111,7 +1120,7 @@ class Component extends DCLogic {
       <col style="width:9%"><col style="width:26%"><col style="width:6%"><col style="width:6%">
       <col style="width:7%"><col style="width:11%"><col style="width:10%"><col style="width:11%"><col style="width:14%">
     </colgroup>
-    <thead><tr style="border-top:1.5px solid #333;border-bottom:1.5px solid #333;"><th style="text-align:start;padding:7px 4px;font-weight:700;">Code</th><th style="text-align:start;padding:7px 4px;font-weight:700;">Description</th><th style="text-align:center;padding:7px 4px;font-weight:700;">Unit</th><th style="text-align:center;padding:7px 4px;font-weight:700;">Qty</th><th style="text-align:center;padding:7px 4px;font-weight:700;">Bonus</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Unit Price</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Discount</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Net</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Total</th></tr></thead>
+    <thead><tr style="border-top:1.5px solid #333;border-bottom:1.5px solid #333;"><th style="text-align:start;padding:7px 4px;font-weight:700;">Code</th><th style="text-align:start;padding:7px 4px;font-weight:700;">Product Name</th><th style="text-align:center;padding:7px 4px;font-weight:700;">Unit</th><th style="text-align:center;padding:7px 4px;font-weight:700;">Qty</th><th style="text-align:center;padding:7px 4px;font-weight:700;">Bonus</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Unit Price</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Discount</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Net</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Total</th></tr></thead>
     <tbody>${rowsHtml}</tbody>
   </table>
   <div style="display:flex;justify-content:flex-end;margin-top:10px;">

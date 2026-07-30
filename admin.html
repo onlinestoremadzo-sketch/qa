@@ -514,7 +514,15 @@
                   <input value="{{ newPO.id }}" onChange="{{ onPOId }}" placeholder="PO-0001" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #A67873;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier name (M/S)
-                  <input value="{{ newPO.supplier }}" onChange="{{ onPOSupplier }}" placeholder="e.g. Care N Cure Trading" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                  <input value="{{ newPO.supplier }}" onChange="{{ onPOSupplier }}" list="madzo-supplier-names" placeholder="Type or pick a saved supplier…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                  <sc-if value="{{ poSupplierMatched }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size: 11px; color: #1E8A4C;">✓ Using saved contact details — edit below if they've changed</span>
+                  </sc-if>
+                  <datalist id="madzo-supplier-names">
+                    <sc-for list="{{ supplierOptions }}" as="sn" hint-placeholder-count="3">
+                      <option value="{{ sn.name }}"></option>
+                    </sc-for>
+                  </datalist>
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier email
                   <input value="{{ newPO.email }}" onChange="{{ onPOEmail }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #A67873;">
@@ -851,7 +859,7 @@ class Component extends DCLogic {
       poError: '',
       confirmDeletePO: null,
       editingPOOriginalId: null,
-      dbProducts: [], dbOrders: [], dbPOs: [],
+      dbProducts: [], dbOrders: [], dbPOs: [], dbSuppliers: [],
       siteImages: {},
       rev: 0
     };
@@ -870,7 +878,30 @@ class Component extends DCLogic {
   }
 
   async loadAll() {
-    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs()]);
+    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadSuppliers()]);
+  }
+
+  async loadSuppliers() {
+    try {
+      const sb = window.getSupabase();
+      const { data, error } = await sb.from('suppliers').select('*').order('name', { ascending: true });
+      if (error) throw error;
+      this.setState({ dbSuppliers: (data || []).map(s => ({ name: s.name, email: s.email || '', phone: s.phone || '' })) });
+    } catch (e) { console.warn('Madzo admin: could not load suppliers', e); }
+  }
+
+  // Saves/updates a supplier's contact details so they're remembered for next time —
+  // called automatically whenever a purchase order is saved.
+  async upsertSupplier(name, email, phone) {
+    const n = String(name || '').trim();
+    if (!n) return;
+    try {
+      await window.getSupabase().from('suppliers').upsert({
+        name: n, email: String(email || '').trim() || null, phone: String(phone || '').trim() || null,
+        updated_at: new Date().toISOString()
+      });
+      this.loadSuppliers();
+    } catch (e) { console.warn('Madzo admin: could not save supplier', e); }
   }
 
   async loadPOs() {
@@ -1617,6 +1648,24 @@ class Component extends DCLogic {
     const today = new Date().toISOString().slice(0, 10);
 
     const setPO = (key) => (e) => this.setState(s => ({ newPO: { ...s.newPO, [key]: e.target.value }, poError: '' }));
+    const suppliers = this.state.dbSuppliers || [];
+    const findSupplierByName = (name) => {
+      const n = String(name || '').trim().toLowerCase();
+      if (!n) return null;
+      return suppliers.find(s => s.name.trim().toLowerCase() === n) || null;
+    };
+    const onPOSupplierSmart = (e) => {
+      const val = e.target.value;
+      const matched = findSupplierByName(val);
+      this.setState(s => ({
+        newPO: {
+          ...s.newPO, supplier: val,
+          email: matched && !s.newPO.email ? matched.email : s.newPO.email,
+          phone: matched && !s.newPO.phone ? matched.phone : s.newPO.phone
+        },
+        poError: ''
+      }));
+    };
     const setPOItem = (i, key) => (e) => this.setState(s => {
       const items = s.newPO.items.slice();
       items[i] = { ...items[i], [key]: e.target.value };
@@ -1812,12 +1861,14 @@ class Component extends DCLogic {
       },
       newPO: npo,
       poError: this.state.poError,
-      onPOId: setPO('id'), onPOSupplier: setPO('supplier'), onPOEmail: setPO('email'), onPOPhone: setPO('phone'),
+      onPOId: setPO('id'), onPOSupplier: onPOSupplierSmart, onPOEmail: setPO('email'), onPOPhone: setPO('phone'),
       onPODate: setPO('date'), onPODelivery: setPO('delivery'), onPOTerms: setPO('terms'), onPOStatus: setPO('status'),
       onPOPreparedBy: setPO('preparedBy'), onPOApprovedBy: setPO('approvedBy'), onPORemarks: setPO('remarks'),
       addPOItem: pushPOItem,
       poItems,
       poProductOptions: prods.map(p => ({ name: p.name })),
+      supplierOptions: suppliers.map(s => ({ name: s.name })),
+      poSupplierMatched: !!findSupplierByName(npo.supplier),
       poAmount: npoTotals.amount.toFixed(2) + ' QAR',
       poDiscount: npoTotals.discount.toFixed(2) + ' QAR',
       poNetAmount: npoTotals.netAmount.toFixed(2) + ' QAR',
@@ -1863,6 +1914,7 @@ class Component extends DCLogic {
           : await sb.from('purchase_orders').insert(payload);
         this.setState({ savingPO: false });
         if (error) { this.setState({ poError: error.message }); return; }
+        this.upsertSupplier(npo.supplier, npo.email, npo.phone);
         this.setState({ showPOForm: false, poError: '', newPO: { id: '', supplier: '', email: '', phone: '', date: '', delivery: '', terms: 'As Per Agreement', status: 'draft', preparedBy: '', approvedBy: '', remarks: '', items: [] } });
         this.loadPOs();
       },

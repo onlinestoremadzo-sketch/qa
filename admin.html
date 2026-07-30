@@ -68,6 +68,7 @@
           <button onClick="{{ tabStock }}" style="background: {{ tStockBg }}; color: {{ tStockColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Products</button>
           <button onClick="{{ tabImages }}" style="background: {{ tImagesBg }}; color: {{ tImagesColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Images</button>
           <button onClick="{{ tabOrders }}" style="background: {{ tOrdersBg }}; color: {{ tOrdersColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Orders</button>
+          <button onClick="{{ tabPO }}" style="background: {{ tPOBg }}; color: {{ tPOColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Purchase</button>
           <button onClick="{{ tabSettings }}" style="background: {{ tSettingsBg }}; color: {{ tSettingsColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Settings</button>
         </nav>
         <button onClick="{{ doLogout }}" style="background: none; border: 1px solid rgba(253,249,244,.5); color: #FDF9F4; border-radius: 999px; padding: 7px 14px; font-size: 12.5px; cursor: pointer;">Log out</button>
@@ -494,6 +495,147 @@
         </section>
       </sc-if>
 
+      <!-- ---- PURCHASE ORDERS ---- -->
+      <sc-if value="{{ isPO }}" hint-placeholder-val="{{ false }}">
+        <section data-screen-label="Purchase Orders Admin">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; flex-wrap: wrap;">
+            <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Purchase orders</h1>
+            <button onClick="{{ togglePOForm }}" style="background: #A67873; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #8C5F5A;">{{ poFormLabel }}</button>
+          </div>
+          <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Orders you place with suppliers to restock — not visible to customers.</p>
+
+          <sc-if value="{{ showPOForm }}" hint-placeholder-val="{{ false }}">
+            <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
+              <h2 style="font-size: 15px; font-weight: 600; margin: 0;">{{ poFormTitle }}</h2>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">PO # (auto — editable)
+                  <input value="{{ newPO.id }}" onChange="{{ onPOId }}" placeholder="PO-0001" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier name (M/S)
+                  <input value="{{ newPO.supplier }}" onChange="{{ onPOSupplier }}" placeholder="e.g. Care N Cure Trading" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier email
+                  <input value="{{ newPO.email }}" onChange="{{ onPOEmail }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier phone
+                  <input value="{{ newPO.phone }}" onChange="{{ onPOPhone }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Date
+                  <input value="{{ newPO.date }}" onChange="{{ onPODate }}" type="date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Delivery expected
+                  <input value="{{ newPO.delivery }}" onChange="{{ onPODelivery }}" type="date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Terms
+                  <input value="{{ newPO.terms }}" onChange="{{ onPOTerms }}" placeholder="As Per Agreement" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Status
+                  <select value="{{ newPO.status }}" onChange="{{ onPOStatus }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                    <option value="draft">Draft</option>
+                    <option value="sent">Sent to supplier</option>
+                    <option value="received">Received</option>
+                  </select>
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Prepared by
+                  <input value="{{ newPO.preparedBy }}" onChange="{{ onPOPreparedBy }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Approved by
+                  <input value="{{ newPO.approvedBy }}" onChange="{{ onPOApprovedBy }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+              </div>
+              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Remarks
+                <input value="{{ newPO.remarks }}" onChange="{{ onPORemarks }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+              </label>
+
+              <h3 style="font-size: 13.5px; font-weight: 600; margin: 6px 0 0; color: #2E2A26;">Items</h3>
+              <button onClick="{{ addPOItem }}" style="align-self: flex-start; background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 12.5px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">+ Add item</button>
+
+              <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 680px;">
+                  <thead>
+                    <tr style="text-align: start; color: #857D72;">
+                      <th style="padding: 6px 4px; font-weight: 600;">Code</th>
+                      <th style="padding: 6px 4px; font-weight: 600;">Description</th>
+                      <th style="padding: 6px 4px; font-weight: 600;">Unit</th>
+                      <th style="padding: 6px 4px; font-weight: 600;">Qty</th>
+                      <th style="padding: 6px 4px; font-weight: 600;">Bonus</th>
+                      <th style="padding: 6px 4px; font-weight: 600;">Unit Price</th>
+                      <th style="padding: 6px 4px; font-weight: 600;">Discount</th>
+                      <th style="padding: 6px 4px; font-weight: 600; text-align: end;">Total</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <sc-for list="{{ poItems }}" as="it" hint-placeholder-count="2">
+                      <tr style="border-top: 1px solid #EDE4D3;">
+                        <td style="padding: 5px 4px;"><input value="{{ it.code }}" onChange="{{ it.onCode }}" style="width: 66px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
+                        <td style="padding: 5px 4px;"><input value="{{ it.desc }}" onChange="{{ it.onDesc }}" placeholder="Item description" style="width: 100%; min-width: 160px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
+                        <td style="padding: 5px 4px;"><input value="{{ it.unit }}" onChange="{{ it.onUnit }}" placeholder="PC" style="width: 56px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
+                        <td style="padding: 5px 4px;"><input value="{{ it.qty }}" onChange="{{ it.onQty }}" type="number" min="0" style="width: 56px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
+                        <td style="padding: 5px 4px;"><input value="{{ it.bonus }}" onChange="{{ it.onBonus }}" type="number" min="0" style="width: 52px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
+                        <td style="padding: 5px 4px;"><input value="{{ it.unitPrice }}" onChange="{{ it.onUnitPrice }}" type="number" min="0" step="0.01" style="width: 74px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
+                        <td style="padding: 5px 4px;"><input value="{{ it.discount }}" onChange="{{ it.onDiscount }}" type="number" min="0" step="0.01" style="width: 68px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
+                        <td style="padding: 5px 4px; text-align: end; font-weight: 600; white-space: nowrap;">{{ it.lineTotal }}</td>
+                        <td style="padding: 5px 4px;"><button onClick="{{ it.remove }}" aria-label="Remove item" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 17px;" style-hover="color: #C0392B;">×</button></td>
+                      </tr>
+                    </sc-for>
+                  </tbody>
+                </table>
+              </div>
+
+              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px; font-size: 13px; color: #5C554B; margin-top: 4px;">
+                <span>Amount: {{ poAmount }}</span>
+                <span>Discount: {{ poDiscount }}</span>
+                <span style="font-size: 15px; font-weight: 700; color: #2E2A26;">Net Amount: {{ poNetAmount }}</span>
+              </div>
+
+              <sc-if value="{{ poError }}" hint-placeholder-val="{{ false }}">
+                <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ poError }}</p>
+              </sc-if>
+              <span style="display: flex; gap: 10px;">
+                <button onClick="{{ savePO }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 11px 22px; font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="filter: brightness(1.07);">{{ savePOLabel }}</button>
+                <button onClick="{{ togglePOForm }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 11px 22px; font-size: 14px; cursor: pointer;">Cancel</button>
+              </span>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ noPOs }}" hint-placeholder-val="{{ false }}">
+            <p style="color: #857D72; text-align: center; padding: 30px 0;">No purchase orders yet.</p>
+          </sc-if>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <sc-for list="{{ pagedPOs }}" as="po" hint-placeholder-count="6">
+              <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <span style="display: flex; flex-direction: column; gap: 2px; min-width: 160px;">
+                  <span style="font-weight: 600; font-size: 14.5px; color: #2E2A26;">{{ po.supplier }}</span>
+                  <span style="font-size: 11.5px; color: #B0A697;">{{ po.meta }}</span>
+                </span>
+                <span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{ po.badgeBg }}; color: {{ po.badgeColor }};">{{ po.statusLabel }}</span>
+                <span style="margin-inline-start: auto; font-weight: 600; font-size: 14.5px;">{{ po.netAmount }}</span>
+                <button onClick="{{ po.openPrint }}" style="background: none; border: 1px solid #A67873; color: #A67873; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="background: #A67873; color: #FDF9F4;">🖨 Print</button>
+                <button onClick="{{ po.startEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">Edit</button>
+                <button onClick="{{ po.askRemove }}" class="madzo-del-btn" aria-label="Delete purchase order" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 19px; padding: 0 4px;" style-hover="color: #C0392B;">×</button>
+                <sc-if value="{{ po.confirmingDelete }}" hint-placeholder-val="{{ false }}">
+                  <div style="width: 100%; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #FCECEA; border: 1px solid #F3D9D6; border-radius: 10px; padding: 10px 14px;">
+                    <span style="font-size: 13px; color: #96352C;">Delete PO for <strong>{{ po.supplier }}</strong> permanently?</span>
+                    <span style="display: flex; gap: 8px; margin-inline-start: auto;">
+                      <button onClick="{{ po.confirmRemove }}" style="background: #C0392B; color: #fff; border: none; border-radius: 999px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer;">Yes, delete</button>
+                      <button onClick="{{ po.cancelRemove }}" style="background: none; border: 1px solid #E3B7B1; color: #96352C; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer;">Cancel</button>
+                    </span>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ poPager.show }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 18px;">
+              <button onClick="{{ poPager.prev }}" disabled="{{ poPager.atStart }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ poPager.prevOpacity }};" style-hover="border-color: #A67873; color: #A67873;">← Prev</button>
+              <span style="font-size: 12.5px; color: #857D72;">{{ poPager.label }}</span>
+              <button onClick="{{ poPager.next }}" disabled="{{ poPager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ poPager.nextOpacity }};" style-hover="border-color: #A67873; color: #A67873;">Next →</button>
+            </div>
+          </sc-if>
+        </section>
+      </sc-if>
+
       <!-- ---- IMAGES ---- -->
       <sc-if value="{{ isImages }}" hint-placeholder-val="{{ false }}">
         <section data-screen-label="Image Manager">
@@ -678,7 +820,14 @@ class Component extends DCLogic {
       editOrderId: null,
       editOrderDraft: null,
       editOrderErr: '',
-      dbProducts: [], dbOrders: [],
+      poPage: 1,
+      showPOForm: false,
+      poFormMode: 'new',
+      newPO: { id: '', supplier: '', email: '', phone: '', date: '', delivery: '', terms: 'As Per Agreement', status: 'draft', preparedBy: '', approvedBy: '', remarks: '', items: [] },
+      poError: '',
+      confirmDeletePO: null,
+      editingPOOriginalId: null,
+      dbProducts: [], dbOrders: [], dbPOs: [],
       siteImages: {},
       rev: 0
     };
@@ -697,7 +846,35 @@ class Component extends DCLogic {
   }
 
   async loadAll() {
-    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages()]);
+    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs()]);
+  }
+
+  async loadPOs() {
+    try {
+      const sb = window.getSupabase();
+      const { data, error } = await sb.from('purchase_orders').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      this.setState({ dbPOs: (data || []).map(p => ({
+        id: p.id, ts: new Date(p.created_at).getTime(),
+        supplier: p.supplier_name, email: p.supplier_email || '', phone: p.supplier_phone || '',
+        date: p.po_date, delivery: p.delivery_expect, terms: p.terms || '',
+        status: p.status || 'draft', preparedBy: p.prepared_by || '', approvedBy: p.approved_by || '',
+        remarks: p.remarks || '', items: p.items || [],
+        amount: p.amount || 0, discount: p.discount || 0, netAmount: p.net_amount || 0
+      })) });
+    } catch (e) { console.warn('Madzo admin: could not load purchase orders', e); }
+  }
+
+  async fetchNextPoId() {
+    try {
+      const { data, error } = await window.getSupabase().rpc('next_po_id');
+      if (!error && data) return data;
+    } catch (e) { /* fall through */ }
+    const nums = this.state.dbPOs.map(p => {
+      const m = /^PO-(\d+)$/i.exec(p.id || '');
+      return m ? parseInt(m[1], 10) : 0;
+    });
+    return 'PO-' + String(Math.max(0, ...nums) + 1).padStart(4, '0');
   }
 
   async loadSiteImages() {
@@ -796,6 +973,77 @@ class Component extends DCLogic {
 </body></html>`;
     const win = window.open('', '_blank', 'width=480,height=720');
     if (!win) { alert('Please allow pop-ups for this site to print the invoice.'); return; }
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+  }
+
+  // Purchase order — printable A4-style document, same reliable new-window technique.
+  printPO(po) {
+    const rowsHtml = po.items.map(it => `
+      <tr style="border-bottom:1px solid #eee;">
+        <td style="padding:6px 4px;">${this.esc(it.code)}</td>
+        <td style="padding:6px 4px;">${this.esc(it.desc)}</td>
+        <td style="text-align:center;padding:6px 4px;">${this.esc(it.unit)}</td>
+        <td style="text-align:center;padding:6px 4px;">${this.esc(it.qty)}</td>
+        <td style="text-align:center;padding:6px 4px;">${this.esc(it.bonus)}</td>
+        <td style="text-align:end;padding:6px 4px;white-space:nowrap;">${Number(it.unitPrice || 0).toFixed(2)}</td>
+        <td style="text-align:end;padding:6px 4px;white-space:nowrap;">${Number(it.discount || 0).toFixed(2)}</td>
+        <td style="text-align:end;padding:6px 4px;white-space:nowrap;">${Number(it.net || 0).toFixed(2)}</td>
+        <td style="text-align:end;padding:6px 4px;white-space:nowrap;font-weight:600;">${Number(it.total || 0).toFixed(2)}</td>
+      </tr>`).join('');
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Purchase Order ${this.esc(po.id)}</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; color: #222; margin: 0; padding: 26px 24px; max-width: 760px; margin: 0 auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 10px; }
+  th { text-align: start; padding: 7px 4px; font-weight: 700; border-top: 1.5px solid #333; border-bottom: 1.5px solid #333; }
+  @media print { body { padding: 10px; } }
+</style></head>
+<body>
+  <div style="text-align:center;margin-bottom:16px;">
+    <div style="font-size:24px;letter-spacing:3px;font-family: Georgia, serif;">MADZO</div>
+    <div style="font-size:13px;color:#555;">مدزو للمستحضرات التجميلية</div>
+    <div style="font-size:12px;color:#777;margin-top:2px;">Doha, Qatar${po.waLine ? ' · ' + this.esc(po.waLine) : ''}</div>
+    <div style="font-size:15px;font-weight:700;margin-top:12px;letter-spacing:1px;">PURCHASE ORDER</div>
+  </div>
+  <div style="display:flex;justify-content:space-between;gap:20px;border:1px solid #ccc;border-radius:6px;padding:14px 16px;font-size:13px;margin-bottom:10px;">
+    <div style="flex:1;">
+      <div style="margin-bottom:4px;"><strong>M/S:</strong> ${this.esc(po.supplier)}</div>
+      <div style="margin-bottom:4px;"><strong>Email:</strong> ${this.esc(po.email)}</div>
+      <div><strong>Tel:</strong> ${this.esc(po.phone)}</div>
+    </div>
+    <div style="flex:1;">
+      <div style="margin-bottom:4px;"><strong>PO #:</strong> ${this.esc(po.id)}</div>
+      <div style="margin-bottom:4px;"><strong>Currency:</strong> QATAR RIYAL</div>
+      <div><strong>Terms:</strong> ${this.esc(po.terms)}</div>
+    </div>
+    <div style="flex:1;">
+      <div style="margin-bottom:4px;"><strong>Date:</strong> ${this.esc(po.date)}</div>
+      <div><strong>Delivery expect:</strong> ${this.esc(po.delivery)}</div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Code</th><th>Description</th><th style="text-align:center;">Unit</th><th style="text-align:center;">Qty</th><th style="text-align:center;">Bonus</th><th style="text-align:end;">Unit Price</th><th style="text-align:end;">Discount</th><th style="text-align:end;">Net</th><th style="text-align:end;">Total</th></tr></thead>
+    <tbody>${rowsHtml}</tbody>
+  </table>
+  <div style="display:flex;justify-content:flex-end;margin-top:10px;">
+    <div style="min-width:220px;">
+      <div style="display:flex;justify-content:space-between;padding:4px 0;border-top:1px solid #333;font-size:13px;"><span>Amount</span><span>${Number(po.amount || 0).toFixed(2)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;"><span>Discount</span><span>${Number(po.discount || 0).toFixed(2)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid #333;font-size:15px;font-weight:700;"><span>Net Amount</span><span>${Number(po.netAmount || 0).toFixed(2)}</span></div>
+    </div>
+  </div>
+  ${po.remarks ? `<div style="margin-top:14px;font-size:12.5px;color:#444;"><strong>Remarks:</strong> ${this.esc(po.remarks)}</div>` : ''}
+  <div style="display:flex;justify-content:space-between;margin-top:56px;font-size:13px;">
+    <div>Prepared By<br><br>${this.esc(po.preparedBy)}</div>
+    <div>Approved By<br><br>${this.esc(po.approvedBy)}</div>
+  </div>
+  <script>window.onload = function () { setTimeout(function () { window.print(); }, 150); };<\/script>
+</body></html>`;
+    const win = window.open('', '_blank', 'width=820,height=900');
+    if (!win) { alert('Please allow pop-ups for this site to print the purchase order.'); return; }
     win.document.open();
     win.document.write(html);
     win.document.close();
@@ -1086,7 +1334,7 @@ class Component extends DCLogic {
     }));
 
     const pill = (active) => ({ bg: active ? '#FDF9F4' : 'transparent', color: active ? '#A67873' : '#FDF9F4' });
-    const pd = pill(tab === 'dash'), ps = pill(tab === 'stock'), pi = pill(tab === 'images'), po = pill(tab === 'orders'), pt = pill(tab === 'settings');
+    const pd = pill(tab === 'dash'), ps = pill(tab === 'stock'), pi = pill(tab === 'images'), po = pill(tab === 'orders'), ppo = pill(tab === 'po'), pt = pill(tab === 'settings');
 
     const setEd = (key) => (e) => this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, [key]: e.target.value }, editOrderErr: '' }));
     const setEdItem = (i, key) => (e) => this.setState(s => {
@@ -1211,6 +1459,97 @@ class Component extends DCLogic {
       total: fmt(invOrder.total)
     } : null;
 
+    // ---- Purchase Orders ----
+    const pos = this.state.dbPOs.slice().sort((a, b) => b.ts - a.ts);
+    const today = new Date().toISOString().slice(0, 10);
+
+    const setPO = (key) => (e) => this.setState(s => ({ newPO: { ...s.newPO, [key]: e.target.value }, poError: '' }));
+    const setPOItem = (i, key) => (e) => this.setState(s => {
+      const items = s.newPO.items.slice();
+      items[i] = { ...items[i], [key]: e.target.value };
+      return { newPO: { ...s.newPO, items }, poError: '' };
+    });
+    const pushPOItem = () => this.setState(s => ({ newPO: { ...s.newPO, items: [...s.newPO.items, { code: '', desc: '', unit: 'PC', qty: 1, bonus: 0, unitPrice: '', discount: 0 }] } }));
+
+    const poLineCalc = (it) => {
+      const qty = Number(it.qty) || 0;
+      const unitPrice = Number(it.unitPrice) || 0;
+      const discount = Number(it.discount) || 0;
+      const net = Math.max(0, unitPrice - discount);
+      const total = net * qty;
+      return { qty, unitPrice, discount, net, total, lineDiscount: discount * qty };
+    };
+
+    const npo = this.state.newPO;
+    const poItems = npo.items.map((it, i) => {
+      const c = poLineCalc(it);
+      return {
+        code: it.code, desc: it.desc, unit: it.unit, qty: it.qty, bonus: it.bonus,
+        unitPrice: it.unitPrice, discount: it.discount,
+        lineTotal: c.total.toFixed(2),
+        onCode: setPOItem(i, 'code'), onDesc: setPOItem(i, 'desc'), onUnit: setPOItem(i, 'unit'),
+        onQty: setPOItem(i, 'qty'), onBonus: setPOItem(i, 'bonus'),
+        onUnitPrice: setPOItem(i, 'unitPrice'), onDiscount: setPOItem(i, 'discount'),
+        remove: () => this.setState(s => ({ newPO: { ...s.newPO, items: s.newPO.items.filter((_, j) => j !== i) } }))
+      };
+    });
+    const poCalcTotals = (items) => {
+      let amount = 0, discount = 0;
+      items.forEach(it => {
+        const c = poLineCalc(it);
+        amount += c.unitPrice * c.qty;
+        discount += c.lineDiscount;
+      });
+      return { amount, discount, netAmount: amount - discount };
+    };
+    const npoTotals = poCalcTotals(npo.items);
+
+    const poPager = makePager(pos.length, 'poPage');
+    const pagedPOsRaw = pos.slice((poPager.page - 1) * PAGE_SIZE, poPager.page * PAGE_SIZE);
+
+    const poStatusMeta = (status) => status === 'received'
+      ? { label: 'Received', bg: '#DDF0E2', color: '#1E8A4C' }
+      : status === 'sent'
+        ? { label: 'Sent to supplier', bg: '#DCE8F6', color: '#2A5C99' }
+        : { label: 'Draft', bg: '#F1ECE2', color: '#857D72' };
+
+    const pagedPOs = pagedPOsRaw.map(prow => {
+      const sm = poStatusMeta(prow.status);
+      return {
+        supplier: prow.supplier || '—',
+        meta: prow.id + ' · ' + (prow.date || '—'),
+        statusLabel: sm.label, badgeBg: sm.bg, badgeColor: sm.color,
+        netAmount: prow.netAmount.toFixed(2) + ' QAR',
+        openPrint: () => this.printPO({
+          id: prow.id, supplier: prow.supplier, email: prow.email, phone: prow.phone,
+          date: prow.date, delivery: prow.delivery, terms: prow.terms,
+          waLine: this.state.setWa ? ('Tel: ' + this.state.setWa) : '',
+          items: prow.items.map(it => { const c = poLineCalc(it); return { ...it, net: c.net, total: c.total }; }),
+          amount: prow.amount, discount: prow.discount, netAmount: prow.netAmount,
+          remarks: prow.remarks, preparedBy: prow.preparedBy, approvedBy: prow.approvedBy
+        }),
+        startEdit: () => this.setState({
+          showPOForm: true, poFormMode: 'edit', poError: '', editingPOOriginalId: prow.id,
+          newPO: {
+            id: prow.id, supplier: prow.supplier, email: prow.email, phone: prow.phone,
+            date: prow.date || today, delivery: prow.delivery || '', terms: prow.terms || 'As Per Agreement',
+            status: prow.status || 'draft', preparedBy: prow.preparedBy, approvedBy: prow.approvedBy,
+            remarks: prow.remarks, items: prow.items.length ? prow.items : [{ code: '', desc: '', unit: 'PC', qty: 1, bonus: 0, unitPrice: '', discount: 0 }]
+          }
+        }),
+        confirmingDelete: this.state.confirmDeletePO === prow.id,
+        askRemove: () => this.setState({ confirmDeletePO: prow.id }),
+        cancelRemove: () => this.setState({ confirmDeletePO: null }),
+        confirmRemove: () => {
+          this.setState({ confirmDeletePO: null });
+          window.getSupabase().from('purchase_orders').delete().eq('id', prow.id).then(({ error }) => {
+            if (error) console.warn('Madzo admin: PO delete failed', error);
+            this.loadPOs();
+          });
+        }
+      };
+    });
+
     // ---- Manual order form ----
     const no = this.state.newOrder;
     const setNO = (key) => (e) => this.setState(s => ({ newOrder: { ...s.newOrder, [key]: e.target.value }, newOrderError: '' }));
@@ -1240,16 +1579,90 @@ class Component extends DCLogic {
       doLogin,
       doLogout: () => { window.getSupabase().auth.signOut(); this.setState({ authed: false }); },
 
-      isDash: tab === 'dash', isStock: tab === 'stock', isImages: tab === 'images', isOrders: tab === 'orders', isSettings: tab === 'settings',
+      isDash: tab === 'dash', isStock: tab === 'stock', isImages: tab === 'images', isOrders: tab === 'orders', isPO: tab === 'po', isSettings: tab === 'settings',
       tabDash: () => this.setState({ tab: 'dash' }),
       tabStock: () => this.setState({ tab: 'stock' }),
       tabImages: () => this.setState({ tab: 'images' }),
       tabOrders: () => this.setState({ tab: 'orders' }),
       tabSettings: () => this.setState({ tab: 'settings', savedMsg: false }),
+      tabPO: () => this.setState({ tab: 'po' }),
+      tPOBg: ppo.bg, tPOColor: ppo.color,
       tDashBg: pd.bg, tDashColor: pd.color, tStockBg: ps.bg, tStockColor: ps.color,
       tImagesBg: pi.bg, tImagesColor: pi.color, tOrdersBg: po.bg, tOrdersColor: po.color, tSettingsBg: pt.bg, tSettingsColor: pt.color,
       allOrders, noOrders: allOrders.length === 0,
       pagedOrders, orderPager,
+
+      pagedPOs, noPOs: pos.length === 0, poPager,
+      showPOForm: this.state.showPOForm,
+      poFormLabel: this.state.showPOForm ? 'Close' : '+ New purchase order',
+      poFormTitle: this.state.poFormMode === 'edit' ? 'Edit purchase order' : 'New purchase order',
+      togglePOForm: () => {
+        const opening = !this.state.showPOForm;
+        if (opening) {
+          this.setState({
+            showPOForm: true, poFormMode: 'new', poError: '',
+            newPO: { id: this.state.newPO.id, supplier: '', email: '', phone: '', date: today, delivery: '', terms: 'As Per Agreement', status: 'draft', preparedBy: '', approvedBy: '', remarks: '', items: [{ code: '', desc: '', unit: 'PC', qty: 1, bonus: 0, unitPrice: '', discount: 0 }] }
+          });
+          this.fetchNextPoId().then((id) => this.setState(s => ({ newPO: { ...s.newPO, id: s.newPO.id || id } })));
+        } else {
+          this.setState({ showPOForm: false, poError: '' });
+        }
+      },
+      newPO: npo,
+      poError: this.state.poError,
+      onPOId: setPO('id'), onPOSupplier: setPO('supplier'), onPOEmail: setPO('email'), onPOPhone: setPO('phone'),
+      onPODate: setPO('date'), onPODelivery: setPO('delivery'), onPOTerms: setPO('terms'), onPOStatus: setPO('status'),
+      onPOPreparedBy: setPO('preparedBy'), onPOApprovedBy: setPO('approvedBy'), onPORemarks: setPO('remarks'),
+      addPOItem: pushPOItem,
+      poItems,
+      poAmount: npoTotals.amount.toFixed(2) + ' QAR',
+      poDiscount: npoTotals.discount.toFixed(2) + ' QAR',
+      poNetAmount: npoTotals.netAmount.toFixed(2) + ' QAR',
+      savePOLabel: this.state.savingPO ? 'Saving…' : 'Save purchase order',
+      savePO: async () => {
+        if (!npo.supplier.trim()) { this.setState({ poError: 'Please enter the supplier name.' }); return; }
+        const cleanItems = npo.items
+          .map(it => ({
+            code: String(it.code || '').trim(), desc: String(it.desc || '').trim(), unit: String(it.unit || '').trim() || 'PC',
+            qty: Math.max(0, Number(it.qty) || 0), bonus: Math.max(0, Number(it.bonus) || 0),
+            unitPrice: Math.max(0, Number(it.unitPrice) || 0), discount: Math.max(0, Number(it.discount) || 0)
+          }))
+          .filter(it => it.desc && it.qty > 0);
+        if (!cleanItems.length) { this.setState({ poError: 'Add at least one item with a description and quantity.' }); return; }
+        let id = String(npo.id || '').trim();
+        if (!id) id = await this.fetchNextPoId();
+        const origId = this.state.editingPOOriginalId;
+        if ((this.state.poFormMode === 'new' || id !== origId) && pos.some(p => p.id === id)) {
+          this.setState({ poError: 'PO # "' + id + '" already exists.' }); return;
+        }
+        const totals = poCalcTotals(cleanItems);
+        this.setState({ savingPO: true });
+        const payload = {
+          id,
+          supplier_name: npo.supplier.trim(),
+          supplier_email: npo.email.trim(),
+          supplier_phone: npo.phone.trim(),
+          po_date: npo.date || today,
+          delivery_expect: npo.delivery || null,
+          terms: npo.terms.trim(),
+          remarks: npo.remarks.trim(),
+          items: cleanItems,
+          amount: totals.amount,
+          discount: totals.discount,
+          net_amount: totals.netAmount,
+          prepared_by: npo.preparedBy.trim(),
+          approved_by: npo.approvedBy.trim(),
+          status: npo.status || 'draft'
+        };
+        const sb = window.getSupabase();
+        const { error } = this.state.poFormMode === 'edit'
+          ? await sb.from('purchase_orders').update(payload).eq('id', origId)
+          : await sb.from('purchase_orders').insert(payload);
+        this.setState({ savingPO: false });
+        if (error) { this.setState({ poError: error.message }); return; }
+        this.setState({ showPOForm: false, poError: '', newPO: { id: '', supplier: '', email: '', phone: '', date: '', delivery: '', terms: 'As Per Agreement', status: 'draft', preparedBy: '', approvedBy: '', remarks: '', items: [] } });
+        this.loadPOs();
+      },
       hasInvoice: !!inv, inv: inv || {},
       closeInvoice: () => this.setState({ invoiceOrderId: null }),
       stopClick: (e) => e.stopPropagation(),

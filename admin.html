@@ -13,6 +13,8 @@
   <script src="image-slot.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     html, body { margin: 0; padding: 0; background: #F1ECE2; }
     * { box-sizing: border-box; }
@@ -628,7 +630,7 @@
                 <span style="margin-inline-start: auto; font-weight: 600; font-size: 14.5px;">{{ po.netAmount }}</span>
                 <sc-if value="{{ po.canPrintShare }}" hint-placeholder-val="{{ true }}">
                   <button onClick="{{ po.openPrint }}" style="background: none; border: 1px solid #A67873; color: #A67873; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="background: #A67873; color: #FDF9F4;">🖨 Print</button>
-                  <button onClick="{{ po.shareWa }}" style="background: none; border: 1px solid #1E8A4C; color: #1E8A4C; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="background: #1E8A4C; color: #FDF9F4;">💬 Share</button>
+                  <button onClick="{{ po.sharePdf }}" style="background: none; border: 1px solid #1E8A4C; color: #1E8A4C; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="background: #1E8A4C; color: #FDF9F4;">📄 Share PDF</button>
                 </sc-if>
                 <sc-if value="{{ po.missingInfo }}" hint-placeholder-val="{{ false }}">
                   <span style="font-size: 11px; color: #B0A697;">Add supplier name, item, quantity and unit price to enable print &amp; share</span>
@@ -739,6 +741,7 @@
           <div onClick="{{ stopClick }}" style="background: #fff; width: 100%; max-width: 420px; max-height: 92vh; overflow-y: auto; border-radius: 14px; box-shadow: 0 24px 60px rgba(0,0,0,.35); position: relative;">
             <div class="madzo-invoice-toolbar" style="position: sticky; top: 0; display: flex; justify-content: flex-end; gap: 8px; padding: 10px; background: #fff; border-bottom: 1px solid #eee; z-index: 2;">
               <button onClick="{{ doPrint }}" style="background: #A67873; color: #fff; border: none; border-radius: 999px; padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer;">🖨 Print</button>
+              <button onClick="{{ doShare }}" style="background: #1E8A4C; color: #fff; border: none; border-radius: 999px; padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer;">📄 Share PDF</button>
               <button onClick="{{ closeInvoice }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer;">Close</button>
             </div>
 
@@ -942,9 +945,8 @@ class Component extends DCLogic {
     return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
-  // Opens a clean, standalone print window for an invoice — avoids the well-known
-  // browser bug where fixed-position overlay content prints blank.
-  printInvoice(inv) {
+  // Inner content shared by the print window and the PDF-for-WhatsApp export.
+  invoiceBodyHtml(inv) {
     const rowsHtml = inv.rows.map(r => `
       <tr style="border-bottom:1px solid #eee;">
         <td style="padding:6px 2px;">${this.esc(r.name)}</td>
@@ -952,15 +954,7 @@ class Component extends DCLogic {
         <td style="text-align:end;padding:6px 2px;white-space:nowrap;">${this.esc(r.unit)}</td>
         <td style="text-align:end;padding:6px 2px;white-space:nowrap;">${this.esc(r.amt)}</td>
       </tr>`).join('');
-    const html = `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Invoice ${this.esc(inv.id)}</title>
-<style>
-  body { font-family: Arial, Helvetica, sans-serif; color: #222; margin: 0; padding: 22px 20px; max-width: 420px; margin: 0 auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
-  th { text-align: start; padding: 6px 2px; font-weight: 700; border-top: 1px solid #333; border-bottom: 1px solid #333; }
-  @media print { body { padding: 8px; } }
-</style></head>
-<body>
+    return `
   <div style="text-align:center;margin-bottom:14px;">
     <div style="font-size:22px;letter-spacing:2px;font-family: Georgia, serif;">MADZO</div>
     <div style="font-size:13px;color:#555;">مدزو للمستحضرات التجميلية</div>
@@ -978,8 +972,8 @@ class Component extends DCLogic {
     <div><strong>Phone / الهاتف:</strong> ${this.esc(inv.phone)}</div>
     <div><strong>Address / العنوان:</strong> ${this.esc(inv.shipping)}</div>
   </div>
-  <table>
-    <thead><tr><th>Item / الصنف</th><th style="text-align:center;">Qty</th><th style="text-align:end;">Price</th><th style="text-align:end;">Amt</th></tr></thead>
+  <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px;">
+    <thead><tr style="border-top:1px solid #333;border-bottom:1px solid #333;"><th style="text-align:start;padding:6px 2px;font-weight:700;">Item / الصنف</th><th style="text-align:center;padding:6px 2px;font-weight:700;">Qty</th><th style="text-align:end;padding:6px 2px;font-weight:700;">Price</th><th style="text-align:end;padding:6px 2px;font-weight:700;">Amt</th></tr></thead>
     <tbody>${rowsHtml}</tbody>
   </table>
   <div style="border-top:1px solid #333;margin-top:8px;padding-top:8px;">
@@ -989,7 +983,19 @@ class Component extends DCLogic {
   </div>
   <div style="text-align:center;margin-top:18px;padding-top:10px;border-top:1px dashed #bbb;font-size:12px;color:#444;">
     THANK YOU FOR SHOPPING WITH US<br><span dir="rtl">شكراً لتسوقكم معنا</span>
-  </div>
+  </div>`;
+  }
+
+  // Opens a clean, standalone print window for an invoice — avoids the well-known
+  // browser bug where fixed-position overlay content prints blank.
+  printInvoice(inv) {
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Invoice ${this.esc(inv.id)}</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; color: #222; margin: 0; padding: 22px 20px; max-width: 420px; margin: 0 auto; }
+  @media print { body { padding: 8px; } }
+</style></head>
+<body>${this.invoiceBodyHtml(inv)}
   <script>window.onload = function () { setTimeout(function () { window.print(); }, 150); };<\/script>
 </body></html>`;
     const win = window.open('', '_blank', 'width=480,height=720');
@@ -1000,34 +1006,70 @@ class Component extends DCLogic {
     win.focus();
   }
 
-  // Purchase order — printable A4-style document, same reliable new-window technique.
-  // Shares a purchase order summary to WhatsApp — opens the supplier's chat directly
-  // when a supplier phone number is on file, otherwise opens WhatsApp's share picker.
-  sharePOWa(po) {
-    const lines = (po.items || []).map(it => {
-      const c = { net: Math.max(0, (Number(it.unitPrice) || 0) - (Number(it.discount) || 0)) };
-      const total = c.net * (Number(it.qty) || 0);
-      return `• ${it.qty} × ${it.desc}${it.unit ? ' (' + it.unit + ')' : ''} — ${total.toFixed(2)} QAR`;
-    }).join('\n');
-    const msg = [
-      `📋 *Purchase Order ${po.id}*`, '',
-      `Supplier: ${po.supplier}`, '',
-      lines, '',
-      `*Net Amount: ${(po.netAmount || 0).toFixed(2)} QAR*`, '',
-      po.delivery ? `📅 Delivery expected: ${po.delivery}` : '',
-      po.terms ? `📝 Terms: ${po.terms}` : ''
-    ].filter(Boolean).join('\n');
-    const digits = String(po.phone || '').replace(/\D/g, '');
-    // A real international number is at least 8 digits. Anything shorter (test data,
-    // typos, partial entries) makes WhatsApp reject the link outright, so fall back
-    // to the generic share picker instead of guessing.
-    const url = digits.length >= 8
-      ? 'https://wa.me/' + digits + '?text=' + encodeURIComponent(msg)
-      : 'https://wa.me/?text=' + encodeURIComponent(msg);
-    window.open(url, '_blank');
+  // Renders a document's print HTML off-screen, converts it to a real PDF file, and
+  // hands it to the device's native share sheet (WhatsApp shows up there directly on
+  // phones). Falls back to downloading the PDF if native file-sharing isn't available.
+  async shareBodyAsPdf({ bodyHtml, filename, widthPx, shareTitle, shareText }) {
+    if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+      alert('PDF sharing isn\'t available right now — please check your internet connection and try again.');
+      return;
+    }
+    const holder = document.createElement('div');
+    holder.style.cssText = `position:fixed; left:-9999px; top:0; width:${widthPx}px; background:#fff; font-family: Arial, Helvetica, sans-serif; color:#222; padding:22px 20px;`;
+    holder.innerHTML = bodyHtml;
+    document.body.appendChild(holder);
+    try {
+      await new Promise((r) => setTimeout(r, 60)); // let layout/fonts settle
+      const canvas = await html2canvas(holder, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+      const { jsPDF } = window.jspdf;
+      const cssWidthPx = canvas.width / 2;   // undo the 2x render scale
+      const cssHeightPx = canvas.height / 2;
+      const widthPt = cssWidthPx * 0.75;      // 1 CSS px = 0.75 pt at 96dpi
+      const heightPt = cssHeightPx * 0.75;
+      const pdf = new jsPDF({ unit: 'pt', format: [widthPt, heightPt] });
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, widthPt, heightPt);
+      const blob = pdf.output('blob');
+      const file = new File([blob], filename, { type: 'application/pdf' });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: shareTitle, text: shareText });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        alert('Your browser can\'t share files directly, so the PDF has been downloaded — attach it to WhatsApp manually.');
+      }
+    } catch (e) {
+      if (e && e.name !== 'AbortError') { console.warn('Madzo admin: PDF share failed', e); alert('Could not create the PDF: ' + (e.message || e)); }
+    } finally {
+      document.body.removeChild(holder);
+    }
   }
 
-  printPO(po) {
+  shareInvoicePdf(inv) {
+    this.shareBodyAsPdf({
+      bodyHtml: this.invoiceBodyHtml(inv),
+      filename: 'Invoice-' + inv.id + '.pdf',
+      widthPx: 420,
+      shareTitle: 'Invoice ' + inv.id,
+      shareText: 'Invoice ' + inv.id + ' from MADZO'
+    });
+  }
+
+  sharePOPdf(po) {
+    this.shareBodyAsPdf({
+      bodyHtml: this.poBodyHtml(po),
+      filename: 'PO-' + po.id + '.pdf',
+      widthPx: 760,
+      shareTitle: 'Purchase Order ' + po.id,
+      shareText: 'Purchase Order ' + po.id + ' — ' + po.supplier
+    });
+  }
+
+  // Inner content shared by the print window and the PDF-for-WhatsApp export.
+  poBodyHtml(po) {
     const rowsHtml = po.items.map(it => `
       <tr style="border-bottom:1px solid #eee;">
         <td style="padding:6px 4px;">${this.esc(it.code)}</td>
@@ -1040,15 +1082,7 @@ class Component extends DCLogic {
         <td style="text-align:end;padding:6px 4px;white-space:nowrap;">${Number(it.net || 0).toFixed(2)}</td>
         <td style="text-align:end;padding:6px 4px;white-space:nowrap;font-weight:600;">${Number(it.total || 0).toFixed(2)}</td>
       </tr>`).join('');
-    const html = `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Purchase Order ${this.esc(po.id)}</title>
-<style>
-  body { font-family: Arial, Helvetica, sans-serif; color: #222; margin: 0; padding: 26px 24px; max-width: 760px; margin: 0 auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 10px; }
-  th { text-align: start; padding: 7px 4px; font-weight: 700; border-top: 1.5px solid #333; border-bottom: 1.5px solid #333; }
-  @media print { body { padding: 10px; } }
-</style></head>
-<body>
+    return `
   <div style="text-align:center;margin-bottom:16px;">
     <div style="font-size:24px;letter-spacing:3px;font-family: Georgia, serif;">MADZO</div>
     <div style="font-size:13px;color:#555;">مدزو للمستحضرات التجميلية</div>
@@ -1071,8 +1105,8 @@ class Component extends DCLogic {
       <div><strong>Delivery expect:</strong> ${this.esc(po.delivery)}</div>
     </div>
   </div>
-  <table>
-    <thead><tr><th>Code</th><th>Description</th><th style="text-align:center;">Unit</th><th style="text-align:center;">Qty</th><th style="text-align:center;">Bonus</th><th style="text-align:end;">Unit Price</th><th style="text-align:end;">Discount</th><th style="text-align:end;">Net</th><th style="text-align:end;">Total</th></tr></thead>
+  <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 10px;">
+    <thead><tr style="border-top:1.5px solid #333;border-bottom:1.5px solid #333;"><th style="text-align:start;padding:7px 4px;font-weight:700;">Code</th><th style="text-align:start;padding:7px 4px;font-weight:700;">Description</th><th style="text-align:center;padding:7px 4px;font-weight:700;">Unit</th><th style="text-align:center;padding:7px 4px;font-weight:700;">Qty</th><th style="text-align:center;padding:7px 4px;font-weight:700;">Bonus</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Unit Price</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Discount</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Net</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Total</th></tr></thead>
     <tbody>${rowsHtml}</tbody>
   </table>
   <div style="display:flex;justify-content:flex-end;margin-top:10px;">
@@ -1086,7 +1120,17 @@ class Component extends DCLogic {
   <div style="display:flex;justify-content:space-between;margin-top:56px;font-size:13px;">
     <div>Prepared By<br><br>${this.esc(po.preparedBy)}</div>
     <div>Approved By<br><br>${this.esc(po.approvedBy)}</div>
-  </div>
+  </div>`;
+  }
+
+  printPO(po) {
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Purchase Order ${this.esc(po.id)}</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; color: #222; margin: 0; padding: 26px 24px; max-width: 760px; margin: 0 auto; }
+  @media print { body { padding: 10px; } }
+</style></head>
+<body>${this.poBodyHtml(po)}
   <script>window.onload = function () { setTimeout(function () { window.print(); }, 150); };<\/script>
 </body></html>`;
     const win = window.open('', '_blank', 'width=820,height=900');
@@ -1616,7 +1660,14 @@ class Component extends DCLogic {
           amount: prow.amount, discount: prow.discount, netAmount: prow.netAmount,
           remarks: prow.remarks, preparedBy: prow.preparedBy, approvedBy: prow.approvedBy
         }),
-        shareWa: () => this.sharePOWa(prow),
+        sharePdf: () => this.sharePOPdf({
+          id: prow.id, supplier: prow.supplier, email: prow.email, phone: prow.phone,
+          date: prow.date, delivery: prow.delivery, terms: prow.terms,
+          waLine: this.state.setWa ? ('Tel: ' + this.state.setWa) : '',
+          items: prow.items.map(it => { const c = poLineCalc(it); return { ...it, net: c.net, total: c.total }; }),
+          amount: prow.amount, discount: prow.discount, netAmount: prow.netAmount,
+          remarks: prow.remarks, preparedBy: prow.preparedBy, approvedBy: prow.approvedBy
+        }),
         startEdit: () => this.setState({
           showPOForm: true, poFormMode: 'edit', poError: '', editingPOOriginalId: prow.id,
           newPO: {
@@ -1757,6 +1808,7 @@ class Component extends DCLogic {
       closeInvoice: () => this.setState({ invoiceOrderId: null }),
       stopClick: (e) => e.stopPropagation(),
       doPrint: () => this.printInvoice(inv),
+      doShare: () => this.shareInvoicePdf(inv),
       showOrderForm: this.state.showOrderForm,
       orderFormLabel: this.state.showOrderForm ? 'Close' : '+ Add order',
       toggleOrderForm: () => {

@@ -569,7 +569,15 @@
                     <sc-for list="{{ poItems }}" as="it" hint-placeholder-count="2">
                       <tr style="border-top: 1px solid #EDE4D3;">
                         <td style="padding: 5px 4px;"><input value="{{ it.code }}" onChange="{{ it.onCode }}" style="width: 66px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
-                        <td style="padding: 5px 4px;"><input value="{{ it.desc }}" onChange="{{ it.onDesc }}" placeholder="Item description" style="width: 100%; min-width: 160px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
+                        <td style="padding: 5px 4px;">
+                          <input value="{{ it.desc }}" onChange="{{ it.onDesc }}" list="madzo-po-product-names" placeholder="Type or pick a product…" style="width: 100%; min-width: 160px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;">
+                          <sc-if value="{{ it.isMatched }}" hint-placeholder-val="{{ false }}">
+                            <div style="font-size: 11px; color: #1E8A4C; margin-top: 3px;">✓ In catalog · {{ it.matchedSku }}</div>
+                          </sc-if>
+                          <sc-if value="{{ it.canAddToCatalog }}" hint-placeholder-val="{{ false }}">
+                            <button onClick="{{ it.addToCatalog }}" style="margin-top: 3px; background: none; border: none; color: #A67873; font-size: 11px; cursor: pointer; padding: 0; text-decoration: underline;">+ Add "{{ it.desc }}" to product catalog</button>
+                          </sc-if>
+                        </td>
                         <td style="padding: 5px 4px;"><input value="{{ it.unit }}" onChange="{{ it.onUnit }}" placeholder="PC" style="width: 56px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
                         <td style="padding: 5px 4px;"><input value="{{ it.qty }}" onChange="{{ it.onQty }}" type="number" min="0" style="width: 56px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
                         <td style="padding: 5px 4px;"><input value="{{ it.bonus }}" onChange="{{ it.onBonus }}" type="number" min="0" style="width: 52px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
@@ -581,7 +589,14 @@
                     </sc-for>
                   </tbody>
                 </table>
+                <datalist id="madzo-po-product-names">
+                  <sc-for list="{{ poProductOptions }}" as="pn" hint-placeholder-count="5">
+                    <option value="{{ pn.name }}"></option>
+                  </sc-for>
+                </datalist>
               </div>
+
+              <p style="color: #B0A697; font-size: 11.5px; margin: 0;">Descriptions that match your product catalog are detected automatically and linked by SKU. New items can be added to the catalog with one click.</p>
 
               <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px; font-size: 13px; color: #5C554B; margin-top: 4px;">
                 <span>Amount: {{ poAmount }}</span>
@@ -611,7 +626,13 @@
                 </span>
                 <span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{ po.badgeBg }}; color: {{ po.badgeColor }};">{{ po.statusLabel }}</span>
                 <span style="margin-inline-start: auto; font-weight: 600; font-size: 14.5px;">{{ po.netAmount }}</span>
-                <button onClick="{{ po.openPrint }}" style="background: none; border: 1px solid #A67873; color: #A67873; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="background: #A67873; color: #FDF9F4;">🖨 Print</button>
+                <sc-if value="{{ po.notDraft }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ po.openPrint }}" style="background: none; border: 1px solid #A67873; color: #A67873; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="background: #A67873; color: #FDF9F4;">🖨 Print</button>
+                  <button onClick="{{ po.shareWa }}" style="background: none; border: 1px solid #1E8A4C; color: #1E8A4C; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="background: #1E8A4C; color: #FDF9F4;">💬 Share</button>
+                </sc-if>
+                <sc-if value="{{ po.isDraft }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size: 11px; color: #B0A697;">Set status to "Sent" or "Received" to print or share</span>
+                </sc-if>
                 <button onClick="{{ po.startEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">Edit</button>
                 <button onClick="{{ po.askRemove }}" class="madzo-del-btn" aria-label="Delete purchase order" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 19px; padding: 0 4px;" style-hover="color: #C0392B;">×</button>
                 <sc-if value="{{ po.confirmingDelete }}" hint-placeholder-val="{{ false }}">
@@ -980,6 +1001,27 @@ class Component extends DCLogic {
   }
 
   // Purchase order — printable A4-style document, same reliable new-window technique.
+  // Shares a purchase order summary to WhatsApp — opens the supplier's chat directly
+  // when a supplier phone number is on file, otherwise opens WhatsApp's share picker.
+  sharePOWa(po) {
+    const lines = (po.items || []).map(it => {
+      const c = { net: Math.max(0, (Number(it.unitPrice) || 0) - (Number(it.discount) || 0)) };
+      const total = c.net * (Number(it.qty) || 0);
+      return `• ${it.qty} × ${it.desc}${it.unit ? ' (' + it.unit + ')' : ''} — ${total.toFixed(2)} QAR`;
+    }).join('\n');
+    const msg = [
+      `📋 *Purchase Order ${po.id}*`, '',
+      `Supplier: ${po.supplier}`, '',
+      lines, '',
+      `*Net Amount: ${(po.netAmount || 0).toFixed(2)} QAR*`, '',
+      po.delivery ? `📅 Delivery expected: ${po.delivery}` : '',
+      po.terms ? `📝 Terms: ${po.terms}` : ''
+    ].filter(Boolean).join('\n');
+    const digits = String(po.phone || '').replace(/\D/g, '');
+    const url = 'https://wa.me/' + digits + '?text=' + encodeURIComponent(msg);
+    window.open(url, '_blank');
+  }
+
   printPO(po) {
     const rowsHtml = po.items.map(it => `
       <tr style="border-bottom:1px solid #eee;">
@@ -1481,13 +1523,50 @@ class Component extends DCLogic {
     };
 
     const npo = this.state.newPO;
+    const findProdByName = (name) => {
+      const n = String(name || '').trim().toLowerCase();
+      if (!n) return null;
+      return prods.find(p => p.name.trim().toLowerCase() === n) || null;
+    };
+    const onDescSmart = (i) => (e) => {
+      const val = e.target.value;
+      const matched = findProdByName(val);
+      this.setState(s => {
+        const items = s.newPO.items.slice();
+        const cur = items[i] || {};
+        items[i] = {
+          ...cur, desc: val,
+          code: matched && !cur.code ? matched.sku : cur.code,
+          unitPrice: matched && !cur.unitPrice ? matched.price : cur.unitPrice
+        };
+        return { newPO: { ...s.newPO, items }, poError: '' };
+      });
+    };
     const poItems = npo.items.map((it, i) => {
       const c = poLineCalc(it);
+      const matched = findProdByName(it.desc);
       return {
         code: it.code, desc: it.desc, unit: it.unit, qty: it.qty, bonus: it.bonus,
         unitPrice: it.unitPrice, discount: it.discount,
+        isMatched: !!matched, matchedSku: matched ? matched.sku : '',
+        canAddToCatalog: !matched && !!String(it.desc || '').trim(),
+        addToCatalog: async () => {
+          const name = String(it.desc || '').trim();
+          if (!name) return;
+          const sku = this.nextId();
+          const price = Math.max(0, Number(it.unitPrice) || 0);
+          const [nameAr] = await Promise.all([this.translateAr(name)]);
+          const { error } = await window.getSupabase().from('products').insert({
+            sku, name, name_ar: nameAr || null,
+            main_category: 'cosmetics', category: 'skincare',
+            price, stock: 0
+          });
+          if (error) { console.warn('Madzo admin: quick add-to-catalog failed', error); alert('Could not add product: ' + error.message); return; }
+          setPOItem(i, 'code')({ target: { value: sku } });
+          this.loadProducts();
+        },
         lineTotal: c.total.toFixed(2),
-        onCode: setPOItem(i, 'code'), onDesc: setPOItem(i, 'desc'), onUnit: setPOItem(i, 'unit'),
+        onCode: setPOItem(i, 'code'), onDesc: onDescSmart(i), onUnit: setPOItem(i, 'unit'),
         onQty: setPOItem(i, 'qty'), onBonus: setPOItem(i, 'bonus'),
         onUnitPrice: setPOItem(i, 'unitPrice'), onDiscount: setPOItem(i, 'discount'),
         remove: () => this.setState(s => ({ newPO: { ...s.newPO, items: s.newPO.items.filter((_, j) => j !== i) } }))
@@ -1520,6 +1599,8 @@ class Component extends DCLogic {
         meta: prow.id + ' · ' + (prow.date || '—'),
         statusLabel: sm.label, badgeBg: sm.bg, badgeColor: sm.color,
         netAmount: prow.netAmount.toFixed(2) + ' QAR',
+        notDraft: prow.status !== 'draft',
+        isDraft: prow.status === 'draft',
         openPrint: () => this.printPO({
           id: prow.id, supplier: prow.supplier, email: prow.email, phone: prow.phone,
           date: prow.date, delivery: prow.delivery, terms: prow.terms,
@@ -1528,6 +1609,7 @@ class Component extends DCLogic {
           amount: prow.amount, discount: prow.discount, netAmount: prow.netAmount,
           remarks: prow.remarks, preparedBy: prow.preparedBy, approvedBy: prow.approvedBy
         }),
+        shareWa: () => this.sharePOWa(prow),
         startEdit: () => this.setState({
           showPOForm: true, poFormMode: 'edit', poError: '', editingPOOriginalId: prow.id,
           newPO: {
@@ -1615,6 +1697,7 @@ class Component extends DCLogic {
       onPOPreparedBy: setPO('preparedBy'), onPOApprovedBy: setPO('approvedBy'), onPORemarks: setPO('remarks'),
       addPOItem: pushPOItem,
       poItems,
+      poProductOptions: prods.map(p => ({ name: p.name })),
       poAmount: npoTotals.amount.toFixed(2) + ' QAR',
       poDiscount: npoTotals.discount.toFixed(2) + ' QAR',
       poNetAmount: npoTotals.netAmount.toFixed(2) + ' QAR',

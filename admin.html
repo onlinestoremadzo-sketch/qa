@@ -517,8 +517,8 @@
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier email
                   <input value="{{ newPO.email }}" onChange="{{ onPOEmail }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #A67873;">
                 </label>
-                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier phone
-                  <input value="{{ newPO.phone }}" onChange="{{ onPOPhone }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #A67873;">
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier phone (with country code, for WhatsApp)
+                  <input value="{{ newPO.phone }}" onChange="{{ onPOPhone }}" placeholder="+974 XXXX XXXX" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #A67873;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Date
                   <input value="{{ newPO.date }}" onChange="{{ onPODate }}" type="date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
@@ -1018,7 +1018,12 @@ class Component extends DCLogic {
       po.terms ? `📝 Terms: ${po.terms}` : ''
     ].filter(Boolean).join('\n');
     const digits = String(po.phone || '').replace(/\D/g, '');
-    const url = 'https://wa.me/' + digits + '?text=' + encodeURIComponent(msg);
+    // A real international number is at least 8 digits. Anything shorter (test data,
+    // typos, partial entries) makes WhatsApp reject the link outright, so fall back
+    // to the generic share picker instead of guessing.
+    const url = digits.length >= 8
+      ? 'https://wa.me/' + digits + '?text=' + encodeURIComponent(msg)
+      : 'https://wa.me/?text=' + encodeURIComponent(msg);
     window.open(url, '_blank');
   }
 

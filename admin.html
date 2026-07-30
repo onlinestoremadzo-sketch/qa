@@ -71,6 +71,7 @@
           <button onClick="{{ tabImages }}" style="background: {{ tImagesBg }}; color: {{ tImagesColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Images</button>
           <button onClick="{{ tabOrders }}" style="background: {{ tOrdersBg }}; color: {{ tOrdersColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Orders</button>
           <button onClick="{{ tabPO }}" style="background: {{ tPOBg }}; color: {{ tPOColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Purchase</button>
+          <button onClick="{{ tabInv }}" style="background: {{ tInvBg }}; color: {{ tInvColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Inventory</button>
           <button onClick="{{ tabSettings }}" style="background: {{ tSettingsBg }}; color: {{ tSettingsColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Settings</button>
         </nav>
         <button onClick="{{ doLogout }}" style="background: none; border: 1px solid rgba(253,249,244,.5); color: #FDF9F4; border-radius: 999px; padding: 7px 14px; font-size: 12.5px; cursor: pointer;">Log out</button>
@@ -215,36 +216,37 @@
             </div>
           </sc-if>
 
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            <sc-for list="{{ pagedProducts }}" as="p" hint-placeholder-count="8">
-              <div class="madzo-prod-row" style="display: flex; flex-direction: column; background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px;">
-                <div style="display: flex; align-items: center; gap: 14px; padding: 12px 16px; flex-wrap: wrap;">
-                  <div style="position: relative; width: 52px; height: 52px; flex: none;">
-                    <image-slot id="prod-{{ p.sku }}" src="{{ p.img }}" shape="rounded" radius="10" placeholder="Photo" style="width: 100%; height: 100%; display: block; background: #F1ECE2;"></image-slot>
-                    <label style="position: absolute; inset: 0; cursor: pointer;" title="Click to upload photo">
-                      <input type="file" accept="image/*" onChange="{{ p.onUpload }}" style="display: none;">
-                    </label>
-                  </div>
-                  <span style="flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 2px;">
-                    <span style="font-size: 14px; color: #2E2A26;">{{ p.name }}</span>
-                    <span style="font-size: 11.5px; color: #B0A697;">{{ p.metaLine }}</span>
-                    <span style="font-size: 11px; color: #A67873; letter-spacing: .5px; direction: ltr;">ID: {{ p.sku }}</span>
-                  </span>
-                  <label style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #857D72;">Price
-                    <input value="{{ p.price }}" onChange="{{ p.onPrice }}" type="number" min="0" style="width: 78px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 8px 10px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
-                    <span style="color: #B0A697;">QAR</span>
-                  </label>
-                  <span style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #857D72;">Stock
-                    <span style="display: inline-flex; align-items: center; gap: 8px; border: 1px solid #D8CCBC; border-radius: 999px; padding: 4px 8px; background: #F1ECE2;">
-                      <button onClick="{{ p.decStock }}" style="background: none; border: none; color: #A67873; font-size: 16px; cursor: pointer; padding: 0 5px;">−</button>
-                      <span style="font-size: 14px; min-width: 22px; text-align: center; color: {{ p.stockColor }}; font-weight: 600;">{{ p.stock }}</span>
-                      <button onClick="{{ p.incStock }}" style="background: none; border: none; color: #A67873; font-size: 16px; cursor: pointer; padding: 0 5px;">+</button>
+          <div style="overflow-x: auto;">
+            <div style="min-width: 860px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: grid; grid-template-columns: 44px minmax(170px,1fr) 84px 96px 92px 118px 88px 110px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                <span></span><span>Product</span><span>ID</span><span>Category</span><span>Price</span><span>Stock</span><span>Status</span><span></span>
+              </div>
+              <sc-for list="{{ pagedProducts }}" as="p" hint-placeholder-count="8">
+                <div class="madzo-prod-row" style="display: flex; flex-direction: column; background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px;">
+                  <div style="display: grid; grid-template-columns: 44px minmax(170px,1fr) 84px 96px 92px 118px 88px 110px; gap: 10px; align-items: center; padding: 8px 14px;">
+                    <div style="position: relative; width: 40px; height: 40px; flex: none;">
+                      <image-slot id="prod-{{ p.sku }}" src="{{ p.img }}" shape="rounded" radius="8" placeholder="Photo" style="width: 100%; height: 100%; display: block; background: #F1ECE2;"></image-slot>
+                      <label style="position: absolute; inset: 0; cursor: pointer;" title="Click to upload photo">
+                        <input type="file" accept="image/*" onChange="{{ p.onUpload }}" style="display: none;">
+                      </label>
+                    </div>
+                    <span style="font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ p.name }}">{{ p.name }}</span>
+                    <span style="font-size: 11px; color: #A67873; direction: ltr; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.sku }}</span>
+                    <span style="font-size: 12px; color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.catLabel }}</span>
+                    <span style="display: flex; align-items: center; gap: 4px;">
+                      <input value="{{ p.price }}" onChange="{{ p.onPrice }}" type="number" min="0" style="width: 58px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 6px 6px; font-size: 13px; outline: none;" style-focus="border-color: #A67873;">
                     </span>
-                  </span>
-                  <span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{ p.badgeBg }}; color: {{ p.badgeColor }}; min-width: 74px; text-align: center;">{{ p.badge }}</span>
-                  <button onClick="{{ p.toggleEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">{{ p.editLabel }}</button>
-                  <button onClick="{{ p.askRemove }}" class="madzo-del-btn" aria-label="Delete product" title="Delete product" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 19px; padding: 0 4px;" style-hover="color: #C0392B;">×</button>
-                </div>
+                    <span style="display: inline-flex; align-items: center; gap: 6px; border: 1px solid #D8CCBC; border-radius: 999px; padding: 3px 6px; background: #F1ECE2; justify-self: start;">
+                      <button onClick="{{ p.decStock }}" style="background: none; border: none; color: #A67873; font-size: 15px; cursor: pointer; padding: 0 4px; line-height: 1;">−</button>
+                      <span style="font-size: 13px; min-width: 18px; text-align: center; color: {{ p.stockColor }}; font-weight: 600;">{{ p.stock }}</span>
+                      <button onClick="{{ p.incStock }}" style="background: none; border: none; color: #A67873; font-size: 15px; cursor: pointer; padding: 0 4px; line-height: 1;">+</button>
+                    </span>
+                    <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ p.badgeBg }}; color: {{ p.badgeColor }}; text-align: center; white-space: nowrap;">{{ p.badge }}</span>
+                    <span style="display: flex; gap: 6px; justify-self: end;">
+                      <button onClick="{{ p.toggleEdit }}" title="Edit" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">{{ p.editLabel }}</button>
+                      <button onClick="{{ p.askRemove }}" class="madzo-del-btn" aria-label="Delete product" title="Delete product" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px; line-height: 1;">×</button>
+                    </span>
+                  </div>
                 <sc-if value="{{ p.confirmingDelete }}" hint-placeholder-val="{{ false }}">
                   <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border-top: 1px solid #F3D9D6; background: #FCECEA; padding: 12px 16px; border-radius: 0 0 16px 16px;">
                     <span style="font-size: 13px; color: #96352C;">Delete <strong>{{ p.name }}</strong> permanently? This can't be undone.</span>
@@ -301,6 +303,7 @@
                 </sc-if>
               </div>
             </sc-for>
+            </div>
           </div>
           <sc-if value="{{ prodPager.show }}" hint-placeholder-val="{{ false }}">
             <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 18px;">
@@ -391,33 +394,44 @@
           <sc-if value="{{ noOrders }}" hint-placeholder-val="{{ false }}">
             <p style="color: #857D72; text-align: center; padding: 30px 0;">No orders yet.</p>
           </sc-if>
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            <sc-for list="{{ pagedOrders }}" as="o" hint-placeholder-count="6">
-              <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 14px 18px; display: flex; flex-direction: column; gap: 8px;">
-                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                  <span style="font-weight: 600; font-size: 14.5px; color: #2E2A26;">{{ o.name }}</span>
-                  <span style="font-size: 12px; color: #B0A697;">{{ o.meta }}</span>
-                  <span style="margin-inline-start: auto; font-weight: 600; font-size: 14.5px;">{{ o.total }}</span>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 4px; border: 1px solid #F1E9DA; background: #FBF7EF; border-radius: 10px; padding: 8px 12px;">
-                  <sc-for list="{{ o.itemLines }}" as="ln" hint-placeholder-count="2">
-                    <div style="display: flex; align-items: baseline; gap: 10px; font-size: 13px; color: #5C554B;">
-                      <span style="flex: 1;">{{ ln.qtyName }}</span>
-                      <span style="font-weight: 600; color: #2E2A26; white-space: nowrap;">{{ ln.price }}</span>
+          <div style="overflow-x: auto;">
+            <div style="min-width: 720px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: grid; grid-template-columns: 18px minmax(140px,1fr) 120px 84px 92px 88px auto; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                <span></span><span>Customer</span><span>Order</span><span>Items</span><span>Total</span><span>Status</span><span></span>
+              </div>
+              <sc-for list="{{ pagedOrders }}" as="o" hint-placeholder-count="6">
+                <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px;">
+                  <div onClick="{{ o.toggleDetails }}" style="display: grid; grid-template-columns: 18px minmax(140px,1fr) 120px 84px 92px 88px auto; gap: 10px; align-items: center; padding: 9px 14px; cursor: pointer;">
+                    <span style="color: #A67873; font-size: 11px;">{{ o.chevron }}</span>
+                    <span style="font-weight: 600; font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ o.name }}</span>
+                    <span style="font-size: 11.5px; color: #B0A697; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ o.meta }}</span>
+                    <span style="font-size: 12px; color: #5C554B;">{{ o.itemCount }}</span>
+                    <span style="font-weight: 600; font-size: 13.5px; color: #2E2A26;">{{ o.total }}</span>
+                    <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ o.badgeBg }}; color: {{ o.badgeColor }}; text-align: center; white-space: nowrap;">{{ o.status }}</span>
+                    <span onClick="{{ stopClick }}" style="display: flex; gap: 6px; justify-self: end; flex-wrap: wrap;">
+                      <button onClick="{{ o.toggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">{{ o.toggleLabel }}</button>
+                      <button onClick="{{ o.openInvoice }}" style="background: none; border: 1px solid #A67873; color: #A67873; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="background: #A67873; color: #FDF9F4;">🖨 Invoice</button>
+                      <button onClick="{{ o.toggleEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">{{ o.editLabel }}</button>
+                    </span>
+                  </div>
+
+                  <sc-if value="{{ o.detailsOpen }}" hint-placeholder-val="{{ false }}">
+                    <div style="border-top: 1px solid #E7DECF; padding: 12px 16px 14px; display: flex; flex-direction: column; gap: 8px;">
+                      <div style="display: flex; flex-direction: column; gap: 4px; border: 1px solid #F1E9DA; background: #FBF7EF; border-radius: 10px; padding: 8px 12px;">
+                        <sc-for list="{{ o.itemLines }}" as="ln" hint-placeholder-count="2">
+                          <div style="display: flex; align-items: baseline; gap: 10px; font-size: 13px; color: #5C554B;">
+                            <span style="flex: 1;">{{ ln.qtyName }}</span>
+                            <span style="font-weight: 600; color: #2E2A26; white-space: nowrap;">{{ ln.price }}</span>
+                          </div>
+                        </sc-for>
+                      </div>
+                      <div style="color: #857D72; font-size: 12.5px;">📞 {{ o.phone }}</div>
+                      <div style="color: #857D72; font-size: 12.5px;">📍 <span style="font-weight: 600; color: #5C554B;">Shipping:</span> {{ o.shipping }}</div>
+                      <sc-if value="{{ o.hasNotes }}" hint-placeholder-val="{{ false }}">
+                        <div style="color: #857D72; font-size: 12.5px;">📝 {{ o.notes }}</div>
+                      </sc-if>
                     </div>
-                  </sc-for>
-                </div>
-                <div style="color: #857D72; font-size: 12.5px;">📞 {{ o.phone }}</div>
-                <div style="color: #857D72; font-size: 12.5px;">📍 <span style="font-weight: 600; color: #5C554B;">Shipping:</span> {{ o.shipping }}</div>
-                <sc-if value="{{ o.hasNotes }}" hint-placeholder-val="{{ false }}">
-                  <div style="color: #857D72; font-size: 12.5px;">📝 {{ o.notes }}</div>
-                </sc-if>
-                <div style="display: flex; align-items: center; gap: 10px; margin-top: 2px;">
-                  <span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{ o.badgeBg }}; color: {{ o.badgeColor }};">{{ o.status }}</span>
-                  <button onClick="{{ o.toggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">{{ o.toggleLabel }}</button>
-                  <button onClick="{{ o.openInvoice }}" style="background: none; border: 1px solid #A67873; color: #A67873; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="background: #A67873; color: #FDF9F4;">🖨 Invoice</button>
-                  <button onClick="{{ o.toggleEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">{{ o.editLabel }}</button>
-                </div>
+                  </sc-if>
 
                 <sc-if value="{{ o.editing }}" hint-placeholder-val="{{ false }}">
                   <div style="border-top: 1px solid #E7DECF; margin-top: 6px; padding-top: 14px; display: flex; flex-direction: column; gap: 12px;">
@@ -486,6 +500,7 @@
                 </sc-if>
               </div>
             </sc-for>
+            </div>
           </div>
           <sc-if value="{{ orderPager.show }}" hint-placeholder-val="{{ false }}">
             <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 18px;">
@@ -627,24 +642,31 @@
           <sc-if value="{{ noPOs }}" hint-placeholder-val="{{ false }}">
             <p style="color: #857D72; text-align: center; padding: 30px 0;">No purchase orders yet.</p>
           </sc-if>
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            <sc-for list="{{ pagedPOs }}" as="po" hint-placeholder-count="6">
-              <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                <span style="display: flex; flex-direction: column; gap: 2px; min-width: 160px;">
-                  <span style="font-weight: 600; font-size: 14.5px; color: #2E2A26;">{{ po.supplier }}</span>
-                  <span style="font-size: 11.5px; color: #B0A697;">{{ po.meta }}</span>
-                </span>
-                <span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{ po.badgeBg }}; color: {{ po.badgeColor }};">{{ po.statusLabel }}</span>
-                <span style="margin-inline-start: auto; font-weight: 600; font-size: 14.5px;">{{ po.netAmount }}</span>
-                <sc-if value="{{ po.canPrintShare }}" hint-placeholder-val="{{ true }}">
-                  <button onClick="{{ po.openPrint }}" style="background: none; border: 1px solid #A67873; color: #A67873; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="background: #A67873; color: #FDF9F4;">🖨 Print</button>
-                  <button onClick="{{ po.sharePdf }}" style="background: none; border: 1px solid #1E8A4C; color: #1E8A4C; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="background: #1E8A4C; color: #FDF9F4;">📄 Share PDF</button>
-                </sc-if>
-                <sc-if value="{{ po.missingInfo }}" hint-placeholder-val="{{ false }}">
-                  <span style="font-size: 11px; color: #B0A697;">Add supplier name, item, quantity and unit price to enable print &amp; share</span>
-                </sc-if>
-                <button onClick="{{ po.startEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">Edit</button>
-                <button onClick="{{ po.askRemove }}" class="madzo-del-btn" aria-label="Delete purchase order" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 19px; padding: 0 4px;" style-hover="color: #C0392B;">×</button>
+          <div style="overflow-x: auto;">
+            <div style="min-width: 620px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: grid; grid-template-columns: minmax(150px,1fr) 130px 110px 100px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                <span>Supplier</span><span>PO # / Date</span><span>Status</span><span>Net Amount</span>
+              </div>
+              <sc-for list="{{ pagedPOs }}" as="po" hint-placeholder-count="6">
+                <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px;">
+                  <div style="display: grid; grid-template-columns: minmax(150px,1fr) 130px 110px 100px; gap: 10px; align-items: center;">
+                    <span style="font-weight: 600; font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ po.supplier }}</span>
+                    <span style="font-size: 11.5px; color: #B0A697;">{{ po.meta }}</span>
+                    <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ po.badgeBg }}; color: {{ po.badgeColor }}; text-align: center; justify-self: start; white-space: nowrap;">{{ po.statusLabel }}</span>
+                    <span style="font-weight: 600; font-size: 13.5px;">{{ po.netAmount }}</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <sc-if value="{{ po.canPrintShare }}" hint-placeholder-val="{{ true }}">
+                      <button onClick="{{ po.openPrint }}" style="background: none; border: 1px solid #A67873; color: #A67873; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="background: #A67873; color: #FDF9F4;">🖨 Print</button>
+                      <button onClick="{{ po.sharePdf }}" style="background: none; border: 1px solid #1E8A4C; color: #1E8A4C; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="background: #1E8A4C; color: #FDF9F4;">📄 Share PDF</button>
+                      <button onClick="{{ po.savePdf }}" style="background: none; border: 1px solid #A67873; color: #A67873; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="background: #A67873; color: #FDF9F4;">💾 Save PDF</button>
+                    </sc-if>
+                    <sc-if value="{{ po.missingInfo }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size: 11px; color: #B0A697;">Add supplier name, item, quantity and unit price to enable print &amp; share</span>
+                    </sc-if>
+                    <button onClick="{{ po.startEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">Edit</button>
+                    <button onClick="{{ po.askRemove }}" class="madzo-del-btn" aria-label="Delete purchase order" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px; margin-inline-start: auto;" style-hover="color: #C0392B;">×</button>
+                  </div>
                 <sc-if value="{{ po.confirmingDelete }}" hint-placeholder-val="{{ false }}">
                   <div style="width: 100%; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #FCECEA; border: 1px solid #F3D9D6; border-radius: 10px; padding: 10px 14px;">
                     <span style="font-size: 13px; color: #96352C;">Delete PO for <strong>{{ po.supplier }}</strong> permanently?</span>
@@ -656,12 +678,134 @@
                 </sc-if>
               </div>
             </sc-for>
+            </div>
           </div>
           <sc-if value="{{ poPager.show }}" hint-placeholder-val="{{ false }}">
             <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 18px;">
               <button onClick="{{ poPager.prev }}" disabled="{{ poPager.atStart }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ poPager.prevOpacity }};" style-hover="border-color: #A67873; color: #A67873;">← Prev</button>
               <span style="font-size: 12.5px; color: #857D72;">{{ poPager.label }}</span>
               <button onClick="{{ poPager.next }}" disabled="{{ poPager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ poPager.nextOpacity }};" style-hover="border-color: #A67873; color: #A67873;">Next →</button>
+            </div>
+          </sc-if>
+        </section>
+      </sc-if>
+
+      <!-- ---- INVENTORY ---- -->
+      <sc-if value="{{ isInv }}" hint-placeholder-val="{{ false }}">
+        <section data-screen-label="Inventory Admin">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; flex-wrap: wrap;">
+            <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Inventory</h1>
+            <button onClick="{{ toggleBatchForm }}" style="background: #A67873; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #8C5F5A;">{{ batchFormLabel }}</button>
+          </div>
+          <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Track stock by batch — expiry, supplier, and cost. A product's total stock updates automatically from its batches.</p>
+
+          <sc-if value="{{ showBatchForm }}" hint-placeholder-val="{{ false }}">
+            <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
+              <h2 style="font-size: 15px; font-weight: 600; margin: 0;">{{ batchFormTitle }}</h2>
+
+              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Product
+                <input value="{{ newBatch.productName }}" onChange="{{ onBatchProduct }}" list="madzo-inv-product-names" placeholder="Type or pick a product…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                <sc-if value="{{ batchProductMatched }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size: 11px; color: #1E8A4C;">✓ In catalog · {{ batchMatchedSku }}</span>
+                </sc-if>
+                <sc-if value="{{ batchCanAddToCatalog }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ batchAddToCatalog }}" style="align-self: flex-start; background: none; border: none; color: #A67873; font-size: 11px; cursor: pointer; padding: 0; text-decoration: underline;">+ Add "{{ newBatch.productName }}" to product catalog</button>
+                </sc-if>
+                <datalist id="madzo-inv-product-names">
+                  <sc-for list="{{ poProductOptions }}" as="pn" hint-placeholder-count="5">
+                    <option value="{{ pn.name }}"></option>
+                  </sc-for>
+                </datalist>
+              </label>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Batch No.
+                  <input value="{{ newBatch.batchNo }}" onChange="{{ onBatchNo }}" placeholder="e.g. B-2026-014" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Expiry date
+                  <input value="{{ newBatch.expiry }}" onChange="{{ onBatchExpiry }}" type="date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Received date
+                  <input value="{{ newBatch.received }}" onChange="{{ onBatchReceived }}" type="date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier
+                  <input value="{{ newBatch.supplier }}" onChange="{{ onBatchSupplier }}" list="madzo-inv-supplier-names" placeholder="Type or pick a saved supplier…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                  <datalist id="madzo-inv-supplier-names">
+                    <sc-for list="{{ supplierOptions }}" as="sn" hint-placeholder-count="3">
+                      <option value="{{ sn.name }}"></option>
+                    </sc-for>
+                  </datalist>
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Quantity received
+                  <input value="{{ newBatch.qty }}" onChange="{{ onBatchQty }}" type="number" min="0" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Buying price (QAR)
+                  <input value="{{ newBatch.buyPrice }}" onChange="{{ onBatchBuyPrice }}" type="number" min="0" step="0.01" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Selling price (QAR)
+                  <input value="{{ newBatch.sellPrice }}" onChange="{{ onBatchSellPrice }}" type="number" min="0" step="0.01" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                </label>
+              </div>
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #857D72;">
+                <input type="checkbox" checked="{{ newBatch.updatePrice }}" onChange="{{ onBatchUpdatePrice }}" style="width: 16px; height: 16px; accent-color: #A67873;">
+                Also update this product's storefront selling price to match
+              </label>
+              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Notes
+                <input value="{{ newBatch.notes }}" onChange="{{ onBatchNotes }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+              </label>
+
+              <sc-if value="{{ batchError }}" hint-placeholder-val="{{ false }}">
+                <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ batchError }}</p>
+              </sc-if>
+              <span style="display: flex; gap: 10px;">
+                <button onClick="{{ saveBatch }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 11px 22px; font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="filter: brightness(1.07);">{{ saveBatchLabel }}</button>
+                <button onClick="{{ toggleBatchForm }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 11px 22px; font-size: 14px; cursor: pointer;">Cancel</button>
+              </span>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ noBatches }}" hint-placeholder-val="{{ false }}">
+            <p style="color: #857D72; text-align: center; padding: 30px 0;">No inventory batches yet.</p>
+          </sc-if>
+          <div style="overflow-x: auto;">
+            <div style="min-width: 900px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: grid; grid-template-columns: minmax(160px,1fr) 84px 150px 56px minmax(100px,120px) 74px 74px 104px 90px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                <span>Product</span><span>SKU</span><span>Batch / Received</span><span>Qty</span><span>Supplier</span><span>Buy</span><span>Sell</span><span>Expiry</span><span></span>
+              </div>
+              <sc-for list="{{ pagedBatches }}" as="b2" hint-placeholder-count="6">
+                <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px;">
+                  <div style="display: grid; grid-template-columns: minmax(160px,1fr) 84px 150px 56px minmax(100px,120px) 74px 74px 104px 90px; gap: 10px; align-items: center; padding: 9px 14px;">
+                    <span style="font-weight: 600; font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ b2.productName }}">{{ b2.productName }}</span>
+                    <span style="font-size: 11px; color: #A67873; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ b2.sku }}</span>
+                    <span style="font-size: 11.5px; color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ b2.batchNo }} · {{ b2.received }}</span>
+                    <span style="font-size: 13px; font-weight: 600; color: #2E2A26;">{{ b2.qty }}</span>
+                    <span style="font-size: 12px; color: #5C554B; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ b2.supplier }}</span>
+                    <span style="font-size: 12px; color: #5C554B;">{{ b2.buyPrice }}</span>
+                    <span style="font-size: 12px; color: #5C554B;">{{ b2.sellPrice }}</span>
+                    <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ b2.expiryBg }}; color: {{ b2.expiryColor }}; text-align: center; white-space: nowrap;">{{ b2.expiryLabel }}</span>
+                    <span style="display: flex; gap: 6px; justify-self: end;">
+                      <button onClick="{{ b2.startEdit }}" title="Edit" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 10px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">Edit</button>
+                      <button onClick="{{ b2.askRemove }}" class="madzo-del-btn" aria-label="Delete batch" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px; line-height: 1;">×</button>
+                    </span>
+                  </div>
+                <sc-if value="{{ b2.confirmingDelete }}" hint-placeholder-val="{{ false }}">
+                  <div style="width: 100%; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #FCECEA; border: 1px solid #F3D9D6; border-radius: 10px; padding: 10px 14px;">
+                    <span style="font-size: 13px; color: #96352C;">Delete this batch of <strong>{{ b2.productName }}</strong>? Stock will update accordingly.</span>
+                    <span style="display: flex; gap: 8px; margin-inline-start: auto;">
+                      <button onClick="{{ b2.confirmRemove }}" style="background: #C0392B; color: #fff; border: none; border-radius: 999px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer;">Yes, delete</button>
+                      <button onClick="{{ b2.cancelRemove }}" style="background: none; border: 1px solid #E3B7B1; color: #96352C; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer;">Cancel</button>
+                    </span>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+            </div>
+          </div>
+          <sc-if value="{{ batchPager.show }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 18px;">
+              <button onClick="{{ batchPager.prev }}" disabled="{{ batchPager.atStart }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ batchPager.prevOpacity }};" style-hover="border-color: #A67873; color: #A67873;">← Prev</button>
+              <span style="font-size: 12.5px; color: #857D72;">{{ batchPager.label }}</span>
+              <button onClick="{{ batchPager.next }}" disabled="{{ batchPager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ batchPager.nextOpacity }};" style-hover="border-color: #A67873; color: #A67873;">Next →</button>
             </div>
           </sc-if>
         </section>
@@ -750,6 +894,7 @@
             <div class="madzo-invoice-toolbar" style="position: sticky; top: 0; display: flex; justify-content: flex-end; gap: 8px; padding: 10px; background: #fff; border-bottom: 1px solid #eee; z-index: 2;">
               <button onClick="{{ doPrint }}" style="background: #A67873; color: #fff; border: none; border-radius: 999px; padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer;">🖨 Print</button>
               <button onClick="{{ doShare }}" style="background: #1E8A4C; color: #fff; border: none; border-radius: 999px; padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer;">📄 Share PDF</button>
+              <button onClick="{{ doSavePdf }}" style="background: none; border: 1px solid #A67873; color: #A67873; border-radius: 999px; padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer;">💾 Save PDF</button>
               <button onClick="{{ closeInvoice }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer;">Close</button>
             </div>
 
@@ -852,6 +997,7 @@ class Component extends DCLogic {
       editOrderId: null,
       editOrderDraft: null,
       editOrderErr: '',
+      openOrderIds: {},
       poPage: 1,
       showPOForm: false,
       poFormMode: 'new',
@@ -859,7 +1005,14 @@ class Component extends DCLogic {
       poError: '',
       confirmDeletePO: null,
       editingPOOriginalId: null,
-      dbProducts: [], dbOrders: [], dbPOs: [], dbSuppliers: [],
+      batchPage: 1,
+      showBatchForm: false,
+      batchFormMode: 'new',
+      editingBatchId: null,
+      newBatch: { productName: '', batchNo: '', expiry: '', received: '', supplier: '', qty: '', buyPrice: '', sellPrice: '', updatePrice: false, notes: '' },
+      batchError: '',
+      confirmDeleteBatch: null,
+      dbProducts: [], dbOrders: [], dbPOs: [], dbSuppliers: [], dbBatches: [],
       siteImages: {},
       rev: 0
     };
@@ -878,7 +1031,20 @@ class Component extends DCLogic {
   }
 
   async loadAll() {
-    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadSuppliers()]);
+    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadSuppliers(), this.loadBatches()]);
+  }
+
+  async loadBatches() {
+    try {
+      const sb = window.getSupabase();
+      const { data, error } = await sb.from('inventory_batches').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      this.setState({ dbBatches: (data || []).map(b => ({
+        id: b.id, sku: b.sku, batchNo: b.batch_no || '', expiry: b.expiry_date || '',
+        supplier: b.supplier_name || '', buyPrice: b.buying_price || 0, sellPrice: b.selling_price || 0,
+        qty: b.quantity || 0, received: b.received_date || '', notes: b.notes || ''
+      })) });
+    } catch (e) { console.warn('Madzo admin: could not load inventory batches', e); }
   }
 
   async loadSuppliers() {
@@ -1041,10 +1207,11 @@ class Component extends DCLogic {
   // Renders a document's print HTML off-screen, converts it to a real PDF file, and
   // hands it to the device's native share sheet (WhatsApp shows up there directly on
   // phones). Falls back to downloading the PDF if native file-sharing isn't available.
-  async shareBodyAsPdf({ bodyHtml, filename, widthPx, shareTitle, shareText }) {
+  // Renders a document's print HTML off-screen and converts it to a real PDF blob.
+  async buildPdfBlob({ bodyHtml, widthPx }) {
     if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
-      alert('PDF sharing isn\'t available right now — please check your internet connection and try again.');
-      return;
+      alert('PDF generation isn\'t available right now — please check your internet connection and try again.');
+      return null;
     }
     const holder = document.createElement('div');
     holder.style.cssText = `position:fixed; left:-9999px; top:0; width:${widthPx}px; box-sizing:border-box; background:#fff; font-family: Arial, Helvetica, sans-serif; color:#222; padding:22px 20px;`;
@@ -1070,9 +1237,34 @@ class Component extends DCLogic {
       const heightPt = cssHeightPx * 0.75;
       const pdf = new jsPDF({ unit: 'pt', format: [widthPt, heightPt] });
       pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, widthPt, heightPt);
-      const blob = pdf.output('blob');
-      const file = new File([blob], filename, { type: 'application/pdf' });
+      return pdf.output('blob');
+    } catch (e) {
+      console.warn('Madzo admin: PDF generation failed', e);
+      alert('Could not create the PDF: ' + (e.message || e));
+      return null;
+    } finally {
+      document.body.removeChild(holder);
+    }
+  }
 
+  // Always downloads the PDF to the device — for saving a copy locally.
+  async downloadBodyAsPdf({ bodyHtml, filename, widthPx }) {
+    const blob = await this.buildPdfBlob({ bodyHtml, widthPx });
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }
+
+  // Builds the PDF and hands it to the device's native share sheet (WhatsApp shows up
+  // there directly on phones). Falls back to downloading if native sharing isn't available.
+  async shareBodyAsPdf({ bodyHtml, filename, widthPx, shareTitle, shareText }) {
+    const blob = await this.buildPdfBlob({ bodyHtml, widthPx });
+    if (!blob) return;
+    try {
+      const file = new File([blob], filename, { type: 'application/pdf' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file], title: shareTitle, text: shareText });
       } else {
@@ -1085,8 +1277,6 @@ class Component extends DCLogic {
       }
     } catch (e) {
       if (e && e.name !== 'AbortError') { console.warn('Madzo admin: PDF share failed', e); alert('Could not create the PDF: ' + (e.message || e)); }
-    } finally {
-      document.body.removeChild(holder);
     }
   }
 
@@ -1155,6 +1345,17 @@ class Component extends DCLogic {
       shareTitle: 'Purchase Order ' + po.id,
       shareText: 'Purchase Order ' + po.id + ' — ' + po.supplier
     });
+  }
+
+  // "Save PDF" downloads the same compact, reliably-fitting layout used for sharing
+  // (rather than the wide print layout) — that wide layout goes through the same
+  // off-screen capture pipeline, which only reliably avoids clipping at phone width.
+  saveInvoicePdf(inv) {
+    this.downloadBodyAsPdf({ bodyHtml: this.invoiceBodyHtml(inv), filename: 'Invoice-' + inv.id + '.pdf', widthPx: 380 });
+  }
+
+  savePOPdf(po) {
+    this.downloadBodyAsPdf({ bodyHtml: this.poShareBodyHtml(po), filename: 'PO-' + po.id + '.pdf', widthPx: 380 });
   }
 
   // Inner content shared by the print window and the PDF-for-WhatsApp export.
@@ -1411,6 +1612,7 @@ class Component extends DCLogic {
       return {
         sku: p.sku, name: p.name,
         metaLine: 'Cosmetics · ' + this.catLabel(p.catKey) + (p.brand ? ' · ' + p.brand : ''),
+        catLabel: this.catLabel(p.catKey),
         img: p.img || '',
         price: p.price, stock: p.stock,
         stockColor: p.stock === 0 ? '#B03A2E' : p.stock <= 2 ? '#9A6E12' : '#2E2A26',
@@ -1518,7 +1720,7 @@ class Component extends DCLogic {
     }));
 
     const pill = (active) => ({ bg: active ? '#FDF9F4' : 'transparent', color: active ? '#A67873' : '#FDF9F4' });
-    const pd = pill(tab === 'dash'), ps = pill(tab === 'stock'), pi = pill(tab === 'images'), po = pill(tab === 'orders'), ppo = pill(tab === 'po'), pt = pill(tab === 'settings');
+    const pd = pill(tab === 'dash'), ps = pill(tab === 'stock'), pi = pill(tab === 'images'), po = pill(tab === 'orders'), ppo = pill(tab === 'po'), pinv = pill(tab === 'inv'), pt = pill(tab === 'settings');
 
     const setEd = (key) => (e) => this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, [key]: e.target.value }, editOrderErr: '' }));
     const setEdItem = (i, key) => (e) => this.setState(s => {
@@ -1545,6 +1747,10 @@ class Component extends DCLogic {
         name: o.name,
         meta: o.id + ' · ' + new Date(o.ts).toLocaleDateString('en', { day: 'numeric', month: 'short' })
           + (o.source && o.source !== 'storefront' ? ' · via ' + o.source : ''),
+        itemCount: (o.lines || []).length + (((o.lines || []).length === 1) ? ' item' : ' items'),
+        detailsOpen: !!(this.state.openOrderIds || {})[o.id],
+        chevron: (this.state.openOrderIds || {})[o.id] ? '▾' : '▸',
+        toggleDetails: () => this.setState(s => ({ openOrderIds: { ...(s.openOrderIds || {}), [o.id]: !(s.openOrderIds || {})[o.id] } })),
         itemLines: (o.lines || []).map(l => ({ qtyName: `${l.qty} × ${l.name}`, price: fmt(l.total || 0) })),
         phone: o.phone || '—',
         shipping: [o.zone, o.address].filter(Boolean).join(' — ') || '—',
@@ -1779,6 +1985,14 @@ class Component extends DCLogic {
           amount: prow.amount, discount: prow.discount, netAmount: prow.netAmount,
           remarks: prow.remarks, preparedBy: prow.preparedBy, approvedBy: prow.approvedBy
         }),
+        savePdf: () => this.savePOPdf({
+          id: prow.id, supplier: prow.supplier, email: prow.email, phone: prow.phone,
+          date: prow.date, delivery: prow.delivery, terms: prow.terms,
+          waLine: this.state.setWa ? ('Tel: ' + this.state.setWa) : '',
+          items: prow.items.map(it => { const c = poLineCalc(it); return { ...it, net: c.net, total: c.total }; }),
+          amount: prow.amount, discount: prow.discount, netAmount: prow.netAmount,
+          remarks: prow.remarks, preparedBy: prow.preparedBy, approvedBy: prow.approvedBy
+        }),
         startEdit: () => this.setState({
           showPOForm: true, poFormMode: 'edit', poError: '', editingPOOriginalId: prow.id,
           newPO: {
@@ -1798,6 +2012,58 @@ class Component extends DCLogic {
             this.loadPOs();
           });
         }
+      };
+    });
+
+    // ---- Inventory batches ----
+    const batches = this.state.dbBatches.slice();
+    const setBatch = (key) => (e) => this.setState(s => ({
+      newBatch: { ...s.newBatch, [key]: e.target.type === 'checkbox' ? e.target.checked : e.target.value },
+      batchError: ''
+    }));
+    const nb = this.state.newBatch;
+    const batchMatched = findProdByName(nb.productName);
+    const onBatchProductSmart = (e) => {
+      const val = e.target.value;
+      this.setState(s => ({ newBatch: { ...s.newBatch, productName: val }, batchError: '' }));
+    };
+    const expiryStatus = (dateStr) => {
+      if (!dateStr) return { label: 'No expiry set', bg: '#F1ECE2', color: '#857D72' };
+      const days = Math.ceil((new Date(dateStr) - new Date(new Date().toDateString())) / 86400000);
+      if (days < 0) return { label: 'Expired', bg: '#FCE3E0', color: '#B03A2E' };
+      if (days <= 30) return { label: 'Expires in ' + days + 'd', bg: '#FBEFD4', color: '#9A6E12' };
+      return { label: 'Exp ' + dateStr, bg: '#DDF0E2', color: '#1E8A4C' };
+    };
+
+    const batchPager = makePager(batches.length, 'batchPage');
+    const pagedBatchesRaw = batches.slice((batchPager.page - 1) * PAGE_SIZE, batchPager.page * PAGE_SIZE);
+    const pagedBatches = pagedBatchesRaw.map(b => {
+      const prod = prods.find(p => p.sku === b.sku);
+      const es = expiryStatus(b.expiry);
+      return {
+        productName: prod ? prod.name : b.sku,
+        sku: b.sku, batchNo: b.batchNo || '—', received: b.received || '—',
+        qty: b.qty, supplier: b.supplier || '—',
+        buyPrice: Number(b.buyPrice || 0).toFixed(2), sellPrice: Number(b.sellPrice || 0).toFixed(2),
+        expiryLabel: es.label, expiryBg: es.bg, expiryColor: es.color,
+        confirmingDelete: this.state.confirmDeleteBatch === b.id,
+        askRemove: () => this.setState({ confirmDeleteBatch: b.id }),
+        cancelRemove: () => this.setState({ confirmDeleteBatch: null }),
+        confirmRemove: () => {
+          this.setState({ confirmDeleteBatch: null });
+          window.getSupabase().from('inventory_batches').delete().eq('id', b.id).then(({ error }) => {
+            if (error) console.warn('Madzo admin: batch delete failed', error);
+            this.loadBatches(); this.loadProducts();
+          });
+        },
+        startEdit: () => this.setState({
+          showBatchForm: true, batchFormMode: 'edit', editingBatchId: b.id, batchError: '',
+          newBatch: {
+            productName: prod ? prod.name : b.sku, batchNo: b.batchNo, expiry: b.expiry, received: b.received,
+            supplier: b.supplier, qty: b.qty, buyPrice: b.buyPrice, sellPrice: b.sellPrice,
+            updatePrice: false, notes: b.notes
+          }
+        })
       };
     });
 
@@ -1830,7 +2096,7 @@ class Component extends DCLogic {
       doLogin,
       doLogout: () => { window.getSupabase().auth.signOut(); this.setState({ authed: false }); },
 
-      isDash: tab === 'dash', isStock: tab === 'stock', isImages: tab === 'images', isOrders: tab === 'orders', isPO: tab === 'po', isSettings: tab === 'settings',
+      isDash: tab === 'dash', isStock: tab === 'stock', isImages: tab === 'images', isOrders: tab === 'orders', isPO: tab === 'po', isInv: tab === 'inv', isSettings: tab === 'settings',
       tabDash: () => this.setState({ tab: 'dash' }),
       tabStock: () => this.setState({ tab: 'stock' }),
       tabImages: () => this.setState({ tab: 'images' }),
@@ -1838,6 +2104,8 @@ class Component extends DCLogic {
       tabSettings: () => this.setState({ tab: 'settings', savedMsg: false }),
       tabPO: () => this.setState({ tab: 'po' }),
       tPOBg: ppo.bg, tPOColor: ppo.color,
+      tabInv: () => this.setState({ tab: 'inv' }),
+      tInvBg: pinv.bg, tInvColor: pinv.color,
       tDashBg: pd.bg, tDashColor: pd.color, tStockBg: ps.bg, tStockColor: ps.color,
       tImagesBg: pi.bg, tImagesColor: pi.color, tOrdersBg: po.bg, tOrdersColor: po.color, tSettingsBg: pt.bg, tSettingsColor: pt.color,
       allOrders, noOrders: allOrders.length === 0,
@@ -1918,11 +2186,82 @@ class Component extends DCLogic {
         this.setState({ showPOForm: false, poError: '', newPO: { id: '', supplier: '', email: '', phone: '', date: '', delivery: '', terms: 'As Per Agreement', status: 'draft', preparedBy: '', approvedBy: '', remarks: '', items: [] } });
         this.loadPOs();
       },
+
+      pagedBatches, noBatches: batches.length === 0, batchPager,
+      showBatchForm: this.state.showBatchForm,
+      batchFormLabel: this.state.showBatchForm ? 'Close' : '+ Add batch',
+      batchFormTitle: this.state.batchFormMode === 'edit' ? 'Edit batch' : 'New batch',
+      toggleBatchForm: () => {
+        const opening = !this.state.showBatchForm;
+        this.setState({
+          showBatchForm: opening,
+          batchFormMode: 'new', editingBatchId: null, batchError: '',
+          newBatch: opening ? { productName: '', batchNo: '', expiry: '', received: today, supplier: '', qty: '', buyPrice: '', sellPrice: '', updatePrice: false, notes: '' } : this.state.newBatch
+        });
+      },
+      newBatch: nb,
+      batchError: this.state.batchError,
+      batchProductMatched: !!batchMatched,
+      batchMatchedSku: batchMatched ? batchMatched.sku : '',
+      batchCanAddToCatalog: !batchMatched && !!String(nb.productName || '').trim(),
+      batchAddToCatalog: async () => {
+        const name = String(nb.productName || '').trim();
+        if (!name) return;
+        const sku = this.nextId();
+        const price = Math.max(0, Number(nb.sellPrice) || 0);
+        const nameAr = await this.translateAr(name);
+        const { error } = await window.getSupabase().from('products').insert({
+          sku, name, name_ar: nameAr || null, main_category: 'cosmetics', category: 'skincare', price, stock: 0
+        });
+        if (error) { this.setState({ batchError: error.message }); return; }
+        this.loadProducts();
+      },
+      onBatchProduct: onBatchProductSmart,
+      onBatchNo: setBatch('batchNo'), onBatchExpiry: setBatch('expiry'), onBatchReceived: setBatch('received'),
+      onBatchSupplier: setBatch('supplier'), onBatchQty: setBatch('qty'),
+      onBatchBuyPrice: setBatch('buyPrice'), onBatchSellPrice: setBatch('sellPrice'),
+      onBatchUpdatePrice: setBatch('updatePrice'), onBatchNotes: setBatch('notes'),
+      saveBatchLabel: this.state.savingBatch ? 'Saving…' : 'Save batch',
+      saveBatch: async () => {
+        const prod = findProdByName(nb.productName);
+        if (!prod) { this.setState({ batchError: 'Pick a product from the list, or add it to the catalog first.' }); return; }
+        const qty = Math.max(0, parseInt(nb.qty, 10) || 0);
+        if (!nb.received) { this.setState({ batchError: 'Please set a received date.' }); return; }
+        this.setState({ savingBatch: true });
+        const payload = {
+          sku: prod.sku,
+          batch_no: String(nb.batchNo || '').trim() || null,
+          expiry_date: nb.expiry || null,
+          supplier_name: String(nb.supplier || '').trim() || null,
+          buying_price: Math.max(0, Number(nb.buyPrice) || 0),
+          selling_price: Math.max(0, Number(nb.sellPrice) || 0),
+          quantity: qty,
+          received_date: nb.received,
+          notes: String(nb.notes || '').trim() || null
+        };
+        const sb = window.getSupabase();
+        const { error } = this.state.batchFormMode === 'edit'
+          ? await sb.from('inventory_batches').update(payload).eq('id', this.state.editingBatchId)
+          : await sb.from('inventory_batches').insert(payload);
+        this.setState({ savingBatch: false });
+        if (error) { this.setState({ batchError: error.message }); return; }
+        if (nb.updatePrice && Number(nb.sellPrice) > 0) {
+          await sb.from('products').update({ price: Math.max(0, Number(nb.sellPrice) || 0) }).eq('sku', prod.sku);
+        }
+        if (nb.supplier && nb.supplier.trim()) this.upsertSupplier(nb.supplier, '', '');
+        this.setState({
+          showBatchForm: false, batchError: '', editingBatchId: null,
+          newBatch: { productName: '', batchNo: '', expiry: '', received: '', supplier: '', qty: '', buyPrice: '', sellPrice: '', updatePrice: false, notes: '' }
+        });
+        this.loadBatches(); this.loadProducts();
+      },
+
       hasInvoice: !!inv, inv: inv || {},
       closeInvoice: () => this.setState({ invoiceOrderId: null }),
       stopClick: (e) => e.stopPropagation(),
       doPrint: () => this.printInvoice(inv),
       doShare: () => this.shareInvoicePdf(inv),
+      doSavePdf: () => this.saveInvoicePdf(inv),
       showOrderForm: this.state.showOrderForm,
       orderFormLabel: this.state.showOrderForm ? 'Close' : '+ Add order',
       toggleOrderForm: () => {

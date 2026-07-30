@@ -1020,16 +1020,17 @@ class Component extends DCLogic {
     holder.innerHTML = '<style>*{box-sizing:border-box;}</style>' + bodyHtml;
     document.body.appendChild(holder);
     try {
+      window.scrollTo(0, 0);
       await new Promise((r) => setTimeout(r, 60)); // let layout/fonts settle
       const fullHeight = Math.ceil(holder.scrollHeight);
       // windowWidth/windowHeight force html2canvas's internal render viewport to match
-      // our intended layout width — without this it silently falls back to the
-      // device's actual (much narrower) screen width and clips everything past it.
+      // our intended layout width — without this it can fall back to the device's
+      // actual (much narrower) screen width and clip everything past it.
       const canvas = await html2canvas(holder, {
         scale: 2, backgroundColor: '#ffffff', useCORS: true,
         width: widthPx, height: fullHeight,
         windowWidth: widthPx, windowHeight: fullHeight,
-        x: 0, y: 0
+        x: 0, y: 0, scrollX: 0, scrollY: 0
       });
       const { jsPDF } = window.jspdf;
       const cssWidthPx = canvas.width / 2;   // undo the 2x render scale
@@ -1058,11 +1059,58 @@ class Component extends DCLogic {
     }
   }
 
+  // Compact, single-column layout for the WhatsApp-shared PDF — narrow enough to
+  // never need more width than a phone screen actually has, avoiding the capture
+  // clipping that a wide multi-column table risks on-device.
+  poShareBodyHtml(po) {
+    const itemsHtml = po.items.map(it => `
+      <div style="border:1px solid #eee; border-radius:8px; padding:10px 12px; margin-bottom:8px;">
+        <div style="font-weight:700; font-size:13px; margin-bottom:2px; word-break:break-word;">${this.esc(it.desc)}</div>
+        <div style="font-size:11px; color:#777; margin-bottom:6px;">${this.esc(it.code)}${it.unit ? ' · ' + this.esc(it.unit) : ''}</div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:#444;">
+          <span>Qty: ${this.esc(it.qty)}</span><span>Bonus: ${this.esc(it.bonus)}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:#444; margin-top:3px;">
+          <span>Unit: ${Number(it.unitPrice || 0).toFixed(2)}</span><span>Disc: ${Number(it.discount || 0).toFixed(2)}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700; margin-top:6px; border-top:1px dashed #ddd; padding-top:6px;">
+          <span>Total</span><span>${Number(it.total || 0).toFixed(2)} QAR</span>
+        </div>
+      </div>`).join('');
+    return `
+  <div style="text-align:center;margin-bottom:14px;">
+    <div style="font-size:20px;letter-spacing:2px;font-family: Georgia, serif;">MADZO</div>
+    <div style="font-size:12px;color:#555;">مدزو للمستحضرات التجميلية</div>
+    <div style="font-size:11px;color:#777;margin-top:2px;">Doha, Qatar${po.waLine ? ' · ' + this.esc(po.waLine) : ''}</div>
+    <div style="font-size:13px;font-weight:700;margin-top:8px;letter-spacing:1px;">PURCHASE ORDER</div>
+  </div>
+  <div style="border:1px solid #ccc;border-radius:6px;padding:10px 12px;font-size:12px;margin-bottom:12px;word-break:break-word;">
+    <div style="margin-bottom:3px;"><strong>M/S:</strong> ${this.esc(po.supplier)}</div>
+    <div style="margin-bottom:3px;"><strong>PO #:</strong> ${this.esc(po.id)}</div>
+    <div style="margin-bottom:3px;"><strong>Date:</strong> ${this.esc(po.date)}</div>
+    <div style="margin-bottom:3px;"><strong>Delivery expect:</strong> ${this.esc(po.delivery)}</div>
+    <div style="margin-bottom:3px;"><strong>Terms:</strong> ${this.esc(po.terms)}</div>
+    <div><strong>Tel:</strong> ${this.esc(po.phone)}</div>
+  </div>
+  <div style="font-size:12.5px;font-weight:700;margin-bottom:6px;">Items</div>
+  ${itemsHtml}
+  <div style="border-top:1px solid #333;margin-top:6px;padding-top:8px;">
+    <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:2px 0;"><span>Amount</span><span>${Number(po.amount || 0).toFixed(2)} QAR</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:2px 0;"><span>Discount</span><span>${Number(po.discount || 0).toFixed(2)} QAR</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;padding:5px 0;border-top:1px solid #333;margin-top:3px;"><span>Net Amount</span><span>${Number(po.netAmount || 0).toFixed(2)} QAR</span></div>
+  </div>
+  ${po.remarks ? `<div style="margin-top:12px;font-size:12px;color:#444;word-break:break-word;"><strong>Remarks:</strong> ${this.esc(po.remarks)}</div>` : ''}
+  <div style="display:flex;justify-content:space-between;margin-top:36px;font-size:12px;">
+    <div>Prepared By<br><br>${this.esc(po.preparedBy)}</div>
+    <div>Approved By<br><br>${this.esc(po.approvedBy)}</div>
+  </div>`;
+  }
+
   shareInvoicePdf(inv) {
     this.shareBodyAsPdf({
       bodyHtml: this.invoiceBodyHtml(inv),
       filename: 'Invoice-' + inv.id + '.pdf',
-      widthPx: 420,
+      widthPx: 380,
       shareTitle: 'Invoice ' + inv.id,
       shareText: 'Invoice ' + inv.id + ' from MADZO'
     });
@@ -1070,9 +1118,9 @@ class Component extends DCLogic {
 
   sharePOPdf(po) {
     this.shareBodyAsPdf({
-      bodyHtml: this.poBodyHtml(po),
+      bodyHtml: this.poShareBodyHtml(po),
       filename: 'PO-' + po.id + '.pdf',
-      widthPx: 760,
+      widthPx: 380,
       shareTitle: 'Purchase Order ' + po.id,
       shareText: 'Purchase Order ' + po.id + ' — ' + po.supplier
     });

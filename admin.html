@@ -25,13 +25,6 @@
     @media (hover: none) {
       .madzo-prod-row .madzo-del-btn { opacity: 1; }
     }
-    @media print {
-      body * { visibility: hidden; }
-      .madzo-invoice-sheet, .madzo-invoice-sheet * { visibility: visible; }
-      .madzo-invoice-sheet { position: absolute; top: 0; left: 0; width: 100%; padding: 0 8px; }
-      .madzo-invoice-backdrop { position: static !important; background: none !important; padding: 0 !important; }
-      .madzo-invoice-toolbar { display: none !important; }
-    }
   </style>
 </helmet>
 
@@ -420,7 +413,74 @@
                   <span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{ o.badgeBg }}; color: {{ o.badgeColor }};">{{ o.status }}</span>
                   <button onClick="{{ o.toggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">{{ o.toggleLabel }}</button>
                   <button onClick="{{ o.openInvoice }}" style="background: none; border: 1px solid #A67873; color: #A67873; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="background: #A67873; color: #FDF9F4;">🖨 Invoice</button>
+                  <button onClick="{{ o.toggleEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">{{ o.editLabel }}</button>
                 </div>
+
+                <sc-if value="{{ o.editing }}" hint-placeholder-val="{{ false }}">
+                  <div style="border-top: 1px solid #E7DECF; margin-top: 6px; padding-top: 14px; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Order ID
+                        <input value="{{ o.edId }}" onChange="{{ o.onEdId }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #A67873;">
+                      </label>
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Platform / source
+                        <input value="{{ o.edSource }}" onChange="{{ o.onEdSource }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                      </label>
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Customer name
+                        <input value="{{ o.edName }}" onChange="{{ o.onEdName }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                      </label>
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Phone
+                        <input value="{{ o.edPhone }}" onChange="{{ o.onEdPhone }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #A67873;">
+                      </label>
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Zone / area
+                        <input value="{{ o.edZone }}" onChange="{{ o.onEdZone }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                      </label>
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Address
+                        <input value="{{ o.edAddress }}" onChange="{{ o.onEdAddress }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                      </label>
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Status
+                        <select value="{{ o.edStatus }}" onChange="{{ o.onEdStatus }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                          <option value="new">New</option>
+                          <option value="delivered">Delivered</option>
+                        </select>
+                      </label>
+                    </div>
+                    <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Notes
+                      <input value="{{ o.edNotes }}" onChange="{{ o.onEdNotes }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+                    </label>
+
+                    <h3 style="font-size: 13px; font-weight: 600; margin: 4px 0 0; color: #2E2A26;">Items</h3>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                      <select value="" onChange="{{ o.onEdPickProduct }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 13px; outline: none; cursor: pointer; max-width: 300px;">
+                        <option value="">+ Add from products…</option>
+                        <sc-for list="{{ prodOptions }}" as="op" hint-placeholder-count="3">
+                          <option value="{{ op.sku }}">{{ op.label }}</option>
+                        </sc-for>
+                      </select>
+                      <button onClick="{{ o.addEdItem }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">+ Add custom item</button>
+                    </div>
+                    <sc-for list="{{ o.edItems }}" as="it" hint-placeholder-count="2">
+                      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: #FAF5EC; border: 1px solid #EDE4D3; border-radius: 12px; padding: 9px 12px;">
+                        <input value="{{ it.name }}" onChange="{{ it.onName }}" placeholder="Item name" style="flex: 2; min-width: 150px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 8px 12px; font-size: 13px; outline: none;" style-focus="border-color: #A67873;">
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #857D72;">Qty
+                          <input value="{{ it.qty }}" onChange="{{ it.onQty }}" type="number" min="1" style="width: 58px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 8px 10px; font-size: 13px; outline: none;" style-focus="border-color: #A67873;">
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #857D72;">Price
+                          <input value="{{ it.price }}" onChange="{{ it.onPrice }}" type="number" min="0" style="width: 74px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 8px 10px; font-size: 13px; outline: none;" style-focus="border-color: #A67873;">
+                        </label>
+                        <span style="font-size: 13px; color: #2E2A26; font-weight: 600; min-width: 68px; text-align: end;">{{ it.lineTotal }}</span>
+                        <button onClick="{{ it.remove }}" aria-label="Remove item" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 17px; padding: 0 4px;" style-hover="color: #C0392B;">×</button>
+                      </div>
+                    </sc-for>
+                    <div style="display: flex; justify-content: flex-end; font-size: 14px; font-weight: 600; color: #2E2A26;">Total: {{ o.edTotal }}</div>
+                    <sc-if value="{{ o.editErr }}" hint-placeholder-val="{{ false }}">
+                      <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ o.editErr }}</p>
+                    </sc-if>
+                    <span style="display: flex; gap: 10px;">
+                      <button onClick="{{ o.saveEditOrder }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 10px 20px; font-size: 13.5px; font-weight: 600; cursor: pointer;" style-hover="filter: brightness(1.07);">{{ o.saveEditLabel }}</button>
+                      <button onClick="{{ o.toggleEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 10px 20px; font-size: 13.5px; cursor: pointer;">Cancel</button>
+                    </span>
+                  </div>
+                </sc-if>
               </div>
             </sc-for>
           </div>
@@ -615,6 +675,9 @@ class Component extends DCLogic {
       prodPage: 1,
       orderPage: 1,
       invoiceOrderId: null,
+      editOrderId: null,
+      editOrderDraft: null,
+      editOrderErr: '',
       dbProducts: [], dbOrders: [],
       siteImages: {},
       rev: 0
@@ -675,6 +738,68 @@ class Component extends DCLogic {
         price: p.price, stock: p.stock, img: p.image_url
       })) });
     } catch (e) { console.warn('Madzo admin: could not load products', e); }
+  }
+
+  esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  // Opens a clean, standalone print window for an invoice — avoids the well-known
+  // browser bug where fixed-position overlay content prints blank.
+  printInvoice(inv) {
+    const rowsHtml = inv.rows.map(r => `
+      <tr style="border-bottom:1px solid #eee;">
+        <td style="padding:6px 2px;">${this.esc(r.name)}</td>
+        <td style="text-align:center;padding:6px 2px;">${this.esc(r.qty)}</td>
+        <td style="text-align:end;padding:6px 2px;white-space:nowrap;">${this.esc(r.unit)}</td>
+        <td style="text-align:end;padding:6px 2px;white-space:nowrap;">${this.esc(r.amt)}</td>
+      </tr>`).join('');
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Invoice ${this.esc(inv.id)}</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; color: #222; margin: 0; padding: 22px 20px; max-width: 420px; margin: 0 auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
+  th { text-align: start; padding: 6px 2px; font-weight: 700; border-top: 1px solid #333; border-bottom: 1px solid #333; }
+  @media print { body { padding: 8px; } }
+</style></head>
+<body>
+  <div style="text-align:center;margin-bottom:14px;">
+    <div style="font-size:22px;letter-spacing:2px;font-family: Georgia, serif;">MADZO</div>
+    <div style="font-size:13px;color:#555;">مدزو للمستحضرات التجميلية</div>
+    <div style="font-size:11.5px;color:#777;margin-top:2px;">Doha, Qatar${inv.waLine ? ' · ' + this.esc(inv.waLine) : ''}</div>
+    <div style="font-size:12.5px;font-weight:600;margin-top:8px;border-top:1px dashed #bbb;border-bottom:1px dashed #bbb;padding:5px 0;">Cash / COD Invoice &nbsp;·&nbsp; فاتورة</div>
+  </div>
+  <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px;">
+    <span><strong>Invoice No. / رقم الفاتورة</strong></span><span>${this.esc(inv.id)}</span>
+  </div>
+  <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:10px;">
+    <span><strong>Date / التاريخ</strong></span><span>${this.esc(inv.date)}</span>
+  </div>
+  <div style="border-top:1px dashed #bbb;padding-top:8px;margin-bottom:8px;font-size:13px;">
+    <div style="margin-bottom:2px;"><strong>Customer / العميل:</strong> ${this.esc(inv.name)}</div>
+    <div><strong>Phone / الهاتف:</strong> ${this.esc(inv.phone)}</div>
+    <div><strong>Address / العنوان:</strong> ${this.esc(inv.shipping)}</div>
+  </div>
+  <table>
+    <thead><tr><th>Item / الصنف</th><th style="text-align:center;">Qty</th><th style="text-align:end;">Price</th><th style="text-align:end;">Amt</th></tr></thead>
+    <tbody>${rowsHtml}</tbody>
+  </table>
+  <div style="border-top:1px solid #333;margin-top:8px;padding-top:8px;">
+    <div style="display:flex;justify-content:space-between;font-size:13px;padding:2px 0;"><span>Product Value / قيمة المنتج</span><span>${this.esc(inv.total)}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;padding:4px 0;border-top:1px solid #333;margin-top:4px;"><span>TOTAL / المجموع</span><span>${this.esc(inv.total)}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:#555;padding:4px 0;"><span>Payment / الدفع</span><span>Cash on Delivery</span></div>
+  </div>
+  <div style="text-align:center;margin-top:18px;padding-top:10px;border-top:1px dashed #bbb;font-size:12px;color:#444;">
+    THANK YOU FOR SHOPPING WITH US<br><span dir="rtl">شكراً لتسوقكم معنا</span>
+  </div>
+  <script>window.onload = function () { setTimeout(function () { window.print(); }, 150); };<\/script>
+</body></html>`;
+    const win = window.open('', '_blank', 'width=480,height=720');
+    if (!win) { alert('Please allow pop-ups for this site to print the invoice.'); return; }
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+    win.focus();
   }
 
   // Free machine translation (MyMemory API) — EN -> AR, used once at save time.
@@ -963,27 +1088,108 @@ class Component extends DCLogic {
     const pill = (active) => ({ bg: active ? '#FDF9F4' : 'transparent', color: active ? '#A67873' : '#FDF9F4' });
     const pd = pill(tab === 'dash'), ps = pill(tab === 'stock'), pi = pill(tab === 'images'), po = pill(tab === 'orders'), pt = pill(tab === 'settings');
 
-    const allOrders = orders.map(o => ({
-      name: o.name,
-      meta: o.id + ' · ' + new Date(o.ts).toLocaleDateString('en', { day: 'numeric', month: 'short' })
-        + (o.source && o.source !== 'storefront' ? ' · via ' + o.source : ''),
-      itemLines: (o.lines || []).map(l => ({ qtyName: `${l.qty} × ${l.name}`, price: fmt(l.total || 0) })),
-      phone: o.phone || '—',
-      shipping: [o.zone, o.address].filter(Boolean).join(' — ') || '—',
-      hasNotes: !!o.notes, notes: o.notes || '',
-      total: fmt(o.total),
-      status: o.status === 'new' ? 'New' : 'Delivered',
-      badgeBg: o.status === 'new' ? '#FBEFD4' : '#DDF0E2',
-      badgeColor: o.status === 'new' ? '#9A6E12' : '#1E8A4C',
-      toggleLabel: o.status === 'new' ? 'Mark delivered' : 'Mark new',
-      toggle: () => {
-        window.getSupabase().from('orders').update({ status: o.status === 'new' ? 'delivered' : 'new' }).eq('id', o.id).then(({ error }) => {
-          if (error) console.warn('Madzo admin: order update failed', error);
+    const setEd = (key) => (e) => this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, [key]: e.target.value }, editOrderErr: '' }));
+    const setEdItem = (i, key) => (e) => this.setState(s => {
+      const items = s.editOrderDraft.items.slice();
+      items[i] = { ...items[i], [key]: e.target.value };
+      return { editOrderDraft: { ...s.editOrderDraft, items }, editOrderErr: '' };
+    });
+    const pushEdItem = (item) => this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, items: [...s.editOrderDraft.items, item] } }));
+
+    const allOrders = orders.map(o => {
+      const editing = this.state.editOrderId === o.id;
+      const ed = editing ? (this.state.editOrderDraft || {}) : {};
+      const edItemsRaw = ed.items || [];
+      const edItems = edItemsRaw.map((it, i) => ({
+        name: it.name, qty: it.qty, price: it.price,
+        lineTotal: fmt(Math.round((Number(it.qty) || 0) * (Number(it.price) || 0))),
+        onName: setEdItem(i, 'name'), onQty: setEdItem(i, 'qty'), onPrice: setEdItem(i, 'price'),
+        remove: () => this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, items: s.editOrderDraft.items.filter((_, j) => j !== i) } }))
+      }));
+      const edTotalNum = edItemsRaw.reduce((a, it) => a + Math.round((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
+
+      return {
+        id: o.id,
+        name: o.name,
+        meta: o.id + ' · ' + new Date(o.ts).toLocaleDateString('en', { day: 'numeric', month: 'short' })
+          + (o.source && o.source !== 'storefront' ? ' · via ' + o.source : ''),
+        itemLines: (o.lines || []).map(l => ({ qtyName: `${l.qty} × ${l.name}`, price: fmt(l.total || 0) })),
+        phone: o.phone || '—',
+        shipping: [o.zone, o.address].filter(Boolean).join(' — ') || '—',
+        hasNotes: !!o.notes, notes: o.notes || '',
+        total: fmt(o.total),
+        status: o.status === 'new' ? 'New' : 'Delivered',
+        badgeBg: o.status === 'new' ? '#FBEFD4' : '#DDF0E2',
+        badgeColor: o.status === 'new' ? '#9A6E12' : '#1E8A4C',
+        toggleLabel: o.status === 'new' ? 'Mark delivered' : 'Mark new',
+        toggle: () => {
+          window.getSupabase().from('orders').update({ status: o.status === 'new' ? 'delivered' : 'new' }).eq('id', o.id).then(({ error }) => {
+            if (error) console.warn('Madzo admin: order update failed', error);
+            this.loadOrders();
+          });
+        },
+        openInvoice: () => this.setState({ invoiceOrderId: o.id }),
+
+        editing,
+        editLabel: editing ? 'Close' : 'Edit',
+        toggleEdit: () => this.setState({
+          editOrderId: editing ? null : o.id,
+          editOrderErr: '',
+          editOrderDraft: editing ? null : {
+            id: o.id, source: o.source && o.source !== 'storefront' ? o.source : '',
+            name: o.name || '', phone: o.phone || '', zone: o.zone || '', address: o.address || '',
+            notes: o.notes || '', status: o.status || 'new',
+            items: (o.lines || []).map(l => ({ name: l.name, qty: l.qty, price: Math.round((l.total || 0) / (l.qty || 1)) }))
+          }
+        }),
+        edId: ed.id || '', onEdId: setEd('id'),
+        edSource: ed.source || '', onEdSource: setEd('source'),
+        edName: ed.name || '', onEdName: setEd('name'),
+        edPhone: ed.phone || '', onEdPhone: setEd('phone'),
+        edZone: ed.zone || '', onEdZone: setEd('zone'),
+        edAddress: ed.address || '', onEdAddress: setEd('address'),
+        edNotes: ed.notes || '', onEdNotes: setEd('notes'),
+        edStatus: ed.status || 'new', onEdStatus: setEd('status'),
+        onEdPickProduct: (e) => {
+          const pr = prods.find(x => x.sku === e.target.value);
+          if (pr) pushEdItem({ name: pr.name, qty: 1, price: pr.price });
+        },
+        addEdItem: () => pushEdItem({ name: '', qty: 1, price: '' }),
+        edItems,
+        edTotal: fmt(edTotalNum),
+        editErr: this.state.editOrderErr && editing ? this.state.editOrderErr : '',
+        saveEditLabel: this.state.savingOrderId === o.id ? 'Saving…' : 'Save changes',
+        saveEditOrder: async () => {
+          const dr = this.state.editOrderDraft || {};
+          const newId = String(dr.id || '').trim();
+          if (!newId) { this.setState({ editOrderErr: 'Order ID cannot be empty.' }); return; }
+          if (!String(dr.name || '').trim()) { this.setState({ editOrderErr: 'Please enter the customer name.' }); return; }
+          if (newId !== o.id && orders.some(x => x.id === newId)) { this.setState({ editOrderErr: 'Order ID "' + newId + '" already exists.' }); return; }
+          const items = (dr.items || [])
+            .map(it => ({ qty: Math.max(1, parseInt(it.qty, 10) || 1), name: String(it.name || '').trim(), unit: Number(it.price) || 0 }))
+            .filter(it => it.name);
+          if (!items.length) { this.setState({ editOrderErr: 'Add at least one item.' }); return; }
+          const lines = items.map(it => ({ qty: it.qty, name: it.name, total: Math.round(it.qty * it.unit) }));
+          const total = lines.reduce((a, l) => a + l.total, 0);
+          this.setState({ savingOrderId: o.id });
+          const { error } = await window.getSupabase().from('orders').update({
+            id: newId,
+            customer_name: String(dr.name).trim(),
+            phone: String(dr.phone || '').trim(),
+            zone: String(dr.zone || '').trim(),
+            address: String(dr.address || '').trim(),
+            notes: String(dr.notes || '').trim(),
+            lines, total,
+            status: dr.status || 'new',
+            source: String(dr.source || '').trim() || 'storefront'
+          }).eq('id', o.id);
+          this.setState({ savingOrderId: null });
+          if (error) { this.setState({ editOrderErr: error.message }); return; }
+          this.setState({ editOrderId: null, editOrderDraft: null, editOrderErr: '' });
           this.loadOrders();
-        });
-      },
-      openInvoice: () => this.setState({ invoiceOrderId: o.id })
-    }));
+        }
+      };
+    });
 
     const orderPager = makePager(allOrders.length, 'orderPage');
     const pagedOrders = allOrders.slice((orderPager.page - 1) * PAGE_SIZE, orderPager.page * PAGE_SIZE);
@@ -1047,7 +1253,7 @@ class Component extends DCLogic {
       hasInvoice: !!inv, inv: inv || {},
       closeInvoice: () => this.setState({ invoiceOrderId: null }),
       stopClick: (e) => e.stopPropagation(),
-      doPrint: () => window.print(),
+      doPrint: () => this.printInvoice(inv),
       showOrderForm: this.state.showOrderForm,
       orderFormLabel: this.state.showOrderForm ? 'Close' : '+ Add order',
       toggleOrderForm: () => {

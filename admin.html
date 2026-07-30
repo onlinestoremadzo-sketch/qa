@@ -626,12 +626,12 @@
                 </span>
                 <span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{ po.badgeBg }}; color: {{ po.badgeColor }};">{{ po.statusLabel }}</span>
                 <span style="margin-inline-start: auto; font-weight: 600; font-size: 14.5px;">{{ po.netAmount }}</span>
-                <sc-if value="{{ po.notDraft }}" hint-placeholder-val="{{ true }}">
+                <sc-if value="{{ po.canPrintShare }}" hint-placeholder-val="{{ true }}">
                   <button onClick="{{ po.openPrint }}" style="background: none; border: 1px solid #A67873; color: #A67873; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="background: #A67873; color: #FDF9F4;">🖨 Print</button>
                   <button onClick="{{ po.shareWa }}" style="background: none; border: 1px solid #1E8A4C; color: #1E8A4C; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="background: #1E8A4C; color: #FDF9F4;">💬 Share</button>
                 </sc-if>
-                <sc-if value="{{ po.isDraft }}" hint-placeholder-val="{{ false }}">
-                  <span style="font-size: 11px; color: #B0A697;">Set status to "Sent" or "Received" to print or share</span>
+                <sc-if value="{{ po.missingInfo }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size: 11px; color: #B0A697;">Add supplier name, item, quantity and unit price to enable print &amp; share</span>
                 </sc-if>
                 <button onClick="{{ po.startEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">Edit</button>
                 <button onClick="{{ po.askRemove }}" class="madzo-del-btn" aria-label="Delete purchase order" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 19px; padding: 0 4px;" style-hover="color: #C0392B;">×</button>
@@ -1594,13 +1594,15 @@ class Component extends DCLogic {
 
     const pagedPOs = pagedPOsRaw.map(prow => {
       const sm = poStatusMeta(prow.status);
+      const isComplete = !!(prow.supplier && prow.supplier.trim()) && prow.items.length > 0 &&
+        prow.items.every(it => it.desc && Number(it.qty) > 0 && Number(it.unitPrice) > 0);
       return {
         supplier: prow.supplier || '—',
         meta: prow.id + ' · ' + (prow.date || '—'),
         statusLabel: sm.label, badgeBg: sm.bg, badgeColor: sm.color,
         netAmount: prow.netAmount.toFixed(2) + ' QAR',
-        notDraft: prow.status !== 'draft',
-        isDraft: prow.status === 'draft',
+        canPrintShare: isComplete,
+        missingInfo: !isComplete,
         openPrint: () => this.printPO({
           id: prow.id, supplier: prow.supplier, email: prow.email, phone: prow.phone,
           date: prow.date, delivery: prow.delivery, terms: prow.terms,

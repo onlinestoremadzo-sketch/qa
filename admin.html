@@ -167,7 +167,7 @@
               <button onClick="{{ translateAllMissing }}" disabled="{{ bulkTranslating }}" style="background: none; border: 1px solid #C9A45F; color: #7A5F27; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer; font-weight: 600;">{{ bulkTranslateLabel }}</button>
             </div>
           </sc-if>
-          <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Changes apply to the storefront immediately.</p>
+          <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Changes apply to the storefront immediately. Stock quantity and stock status now live in the <strong>Inventory</strong> tab.</p>
 
           <sc-if value="{{ showAddForm }}" hint-placeholder-val="{{ false }}">
             <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
@@ -217,13 +217,13 @@
           </sc-if>
 
           <div style="overflow-x: auto;">
-            <div style="min-width: 860px; display: flex; flex-direction: column; gap: 6px;">
-              <div style="display: grid; grid-template-columns: 44px minmax(170px,1fr) 84px 96px 92px 118px 88px 110px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
-                <span></span><span>Product</span><span>ID</span><span>Category</span><span>Price</span><span>Stock</span><span>Status</span><span></span>
+            <div style="min-width: 760px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: grid; grid-template-columns: 44px minmax(170px,1fr) 84px 96px 92px 100px 110px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                <span></span><span>Product</span><span>ID</span><span>Category</span><span>Price</span><span>Active</span><span></span>
               </div>
               <sc-for list="{{ pagedProducts }}" as="p" hint-placeholder-count="8">
                 <div class="madzo-prod-row" style="display: flex; flex-direction: column; background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px;">
-                  <div style="display: grid; grid-template-columns: 44px minmax(170px,1fr) 84px 96px 92px 118px 88px 110px; gap: 10px; align-items: center; padding: 8px 14px;">
+                  <div style="display: grid; grid-template-columns: 44px minmax(170px,1fr) 84px 96px 92px 100px 110px; gap: 10px; align-items: center; padding: 8px 14px;">
                     <div style="position: relative; width: 40px; height: 40px; flex: none;">
                       <image-slot id="prod-{{ p.sku }}" src="{{ p.img }}" shape="rounded" radius="8" placeholder="Photo" style="width: 100%; height: 100%; display: block; background: #F1ECE2;"></image-slot>
                       <label style="position: absolute; inset: 0; cursor: pointer;" title="Click to upload photo">
@@ -236,12 +236,7 @@
                     <span style="display: flex; align-items: center; gap: 4px;">
                       <input value="{{ p.price }}" onChange="{{ p.onPrice }}" type="number" min="0" style="width: 58px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 6px 6px; font-size: 13px; outline: none;" style-focus="border-color: #A67873;">
                     </span>
-                    <span style="display: inline-flex; align-items: center; gap: 6px; border: 1px solid #D8CCBC; border-radius: 999px; padding: 3px 6px; background: #F1ECE2; justify-self: start;">
-                      <button onClick="{{ p.decStock }}" style="background: none; border: none; color: #A67873; font-size: 15px; cursor: pointer; padding: 0 4px; line-height: 1;">−</button>
-                      <span style="font-size: 13px; min-width: 18px; text-align: center; color: {{ p.stockColor }}; font-weight: 600;">{{ p.stock }}</span>
-                      <button onClick="{{ p.incStock }}" style="background: none; border: none; color: #A67873; font-size: 15px; cursor: pointer; padding: 0 4px; line-height: 1;">+</button>
-                    </span>
-                    <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ p.badgeBg }}; color: {{ p.badgeColor }}; text-align: center; white-space: nowrap;">{{ p.badge }}</span>
+                    <button onClick="{{ p.toggleActive }}" title="Click to toggle visibility on the storefront" style="font-size: 10.5px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: {{ p.activeBg }}; color: {{ p.activeColor }}; border: none; cursor: pointer; white-space: nowrap; justify-self: start;">{{ p.activeLabel }}</button>
                     <span style="display: flex; gap: 6px; justify-self: end;">
                       <button onClick="{{ p.toggleEdit }}" title="Edit" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">{{ p.editLabel }}</button>
                       <button onClick="{{ p.askRemove }}" class="madzo-del-btn" aria-label="Delete product" title="Delete product" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px; line-height: 1;">×</button>
@@ -699,6 +694,37 @@
           </div>
           <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Track stock by batch — expiry, supplier, and cost. A product's total stock updates automatically from its batches.</p>
 
+          <h2 style="font-size: 15px; font-weight: 600; margin: 0 0 4px; color: #2E2A26;">Stock levels</h2>
+          <p style="color: #B0A697; font-size: 12px; margin: 0 0 10px;">Current stock and status per product. Adjust directly here, or add a batch below for full batch tracking.</p>
+          <div style="overflow-x: auto; margin-bottom: 26px;">
+            <div style="min-width: 560px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: grid; grid-template-columns: 40px minmax(170px,1fr) 84px 140px 110px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                <span></span><span>Product</span><span>ID</span><span>Stock</span><span>Status</span>
+              </div>
+              <sc-for list="{{ pagedProducts }}" as="p" hint-placeholder-count="8">
+                <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; display: grid; grid-template-columns: 40px minmax(170px,1fr) 84px 140px 110px; gap: 10px; align-items: center; padding: 8px 14px;">
+                  <image-slot id="stk-{{ p.sku }}" src="{{ p.img }}" shape="rounded" radius="8" placeholder="Photo" style="width: 36px; height: 36px; display: block; background: #F1ECE2;"></image-slot>
+                  <span style="font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ p.name }}">{{ p.name }}</span>
+                  <span style="font-size: 11px; color: #A67873; direction: ltr; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.sku }}</span>
+                  <span style="display: inline-flex; align-items: center; gap: 6px; border: 1px solid #D8CCBC; border-radius: 999px; padding: 3px 6px; background: #F1ECE2; justify-self: start;">
+                    <button onClick="{{ p.decStock }}" style="background: none; border: none; color: #A67873; font-size: 15px; cursor: pointer; padding: 0 4px; line-height: 1;">−</button>
+                    <span style="font-size: 13px; min-width: 18px; text-align: center; color: {{ p.stockColor }}; font-weight: 600;">{{ p.stock }}</span>
+                    <button onClick="{{ p.incStock }}" style="background: none; border: none; color: #A67873; font-size: 15px; cursor: pointer; padding: 0 4px; line-height: 1;">+</button>
+                  </span>
+                  <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ p.badgeBg }}; color: {{ p.badgeColor }}; text-align: center; white-space: nowrap; justify-self: start;">{{ p.badge }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <sc-if value="{{ prodPager.show }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin: -14px 0 26px;">
+              <button onClick="{{ prodPager.prev }}" disabled="{{ prodPager.atStart }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ prodPager.prevOpacity }};" style-hover="border-color: #A67873; color: #A67873;">← Prev</button>
+              <span style="font-size: 12.5px; color: #857D72;">{{ prodPager.label }}</span>
+              <button onClick="{{ prodPager.next }}" disabled="{{ prodPager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ prodPager.nextOpacity }};" style-hover="border-color: #A67873; color: #A67873;">Next →</button>
+            </div>
+          </sc-if>
+
+          <h2 style="font-size: 15px; font-weight: 600; margin: 8px 0 4px; color: #2E2A26;">Batches</h2>
           <sc-if value="{{ showBatchForm }}" hint-placeholder-val="{{ false }}">
             <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
               <h2 style="font-size: 15px; font-weight: 600; margin: 0;">{{ batchFormTitle }}</h2>
@@ -1133,7 +1159,7 @@ class Component extends DCLogic {
         sku: p.sku, name: p.name, nameAr: p.name_ar || '',
         mainCat: p.main_category || 'cosmetics', catKey: p.category,
         brand: p.brand || '', desc: p.description || '', descAr: p.description_ar || '',
-        price: p.price, stock: p.stock, img: p.image_url
+        price: p.price, stock: p.stock, img: p.image_url, active: p.active !== false
       })) });
     } catch (e) { console.warn('Madzo admin: could not load products', e); }
   }
@@ -1617,6 +1643,11 @@ class Component extends DCLogic {
         price: p.price, stock: p.stock,
         stockColor: p.stock === 0 ? '#B03A2E' : p.stock <= 2 ? '#9A6E12' : '#2E2A26',
         ...badge(p),
+        active: p.active,
+        activeLabel: p.active ? 'Active' : 'Inactive',
+        activeBg: p.active ? '#DDF0E2' : '#F1ECE2',
+        activeColor: p.active ? '#1E8A4C' : '#857D72',
+        toggleActive: () => updateProduct(p.sku, { active: !p.active }),
         onPrice: (e) => updateProduct(p.sku, { price: Math.max(0, parseInt(e.target.value || '0', 10)) }),
         incStock: () => updateProduct(p.sku, { stock: p.stock + 1 }),
         decStock: () => updateProduct(p.sku, { stock: Math.max(0, p.stock - 1) }),

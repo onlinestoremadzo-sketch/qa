@@ -453,7 +453,7 @@ class Component extends DCLogic {
   async loadProducts() {
     try {
       const sb = window.getSupabase();
-      const { data, error } = await sb.from('products').select('*').order('created_at', { ascending: true });
+      const { data, error } = await sb.from('products').select('*').eq('active', true).order('created_at', { ascending: true });
       if (error) throw error;
       this.setState({ dbProducts: (data || []).map(p => ({
         sku: p.sku, mainCat: p.main_category || 'cosmetics', cat: p.category, price: p.price, compare: p.compare_price, stock: p.stock,

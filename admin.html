@@ -216,14 +216,18 @@
             </div>
           </sc-if>
 
+          <div style="position: relative; margin-bottom: 14px; max-width: 320px;">
+            <input value="{{ prodSearch }}" onChange="{{ onProdSearch }}" placeholder="Search by name, ID, brand, category…" style="width: 100%; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13.5px; outline: none; box-sizing: border-box;" style-focus="border-color: #A67873;">
+          </div>
+
           <div style="overflow-x: auto;">
-            <div style="min-width: 760px; display: flex; flex-direction: column; gap: 6px;">
-              <div style="display: grid; grid-template-columns: 44px minmax(170px,1fr) 84px 96px 92px 100px 110px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
-                <span></span><span>Product</span><span>ID</span><span>Category</span><span>Price</span><span>Active</span><span></span>
+            <div style="min-width: 850px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: grid; grid-template-columns: 44px minmax(150px,1fr) 84px 90px 96px 92px 100px 110px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                <span></span><span>Product</span><span>ID</span><span>Brand</span><span>Category</span><span>Price</span><span>Active</span><span></span>
               </div>
               <sc-for list="{{ pagedProducts }}" as="p" hint-placeholder-count="8">
                 <div class="madzo-prod-row" style="display: flex; flex-direction: column; background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px;">
-                  <div style="display: grid; grid-template-columns: 44px minmax(170px,1fr) 84px 96px 92px 100px 110px; gap: 10px; align-items: center; padding: 8px 14px;">
+                  <div style="display: grid; grid-template-columns: 44px minmax(150px,1fr) 84px 90px 96px 92px 100px 110px; gap: 10px; align-items: center; padding: 8px 14px;">
                     <div style="position: relative; width: 40px; height: 40px; flex: none;">
                       <image-slot id="prod-{{ p.sku }}" src="{{ p.img }}" shape="rounded" radius="8" placeholder="Photo" style="width: 100%; height: 100%; display: block; background: #F1ECE2;"></image-slot>
                       <label style="position: absolute; inset: 0; cursor: pointer;" title="Click to upload photo">
@@ -232,6 +236,7 @@
                     </div>
                     <span style="font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ p.name }}">{{ p.name }}</span>
                     <span style="font-size: 11px; color: #A67873; direction: ltr; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.sku }}</span>
+                    <span style="font-size: 12px; color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.brand }}</span>
                     <span style="font-size: 12px; color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.catLabel }}</span>
                     <span style="display: flex; align-items: center; gap: 4px;">
                       <input value="{{ p.price }}" onChange="{{ p.onPrice }}" type="number" min="0" style="width: 58px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 6px 6px; font-size: 13px; outline: none;" style-focus="border-color: #A67873;">
@@ -318,6 +323,9 @@
             <button onClick="{{ toggleOrderForm }}" style="background: #A67873; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #8C5F5A;">{{ orderFormLabel }}</button>
           </div>
           <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Orders from the storefront checkout, plus orders you add manually from other platforms.</p>
+          <div style="position: relative; margin-bottom: 14px; max-width: 320px;">
+            <input value="{{ orderSearch }}" onChange="{{ onOrderSearch }}" placeholder="Search by customer, order ID, phone, item…" style="width: 100%; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13.5px; outline: none; box-sizing: border-box;" style-focus="border-color: #A67873;">
+          </div>
 
           <sc-if value="{{ showOrderForm }}" hint-placeholder-val="{{ false }}">
             <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
@@ -515,6 +523,9 @@
             <button onClick="{{ togglePOForm }}" style="background: #A67873; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #8C5F5A;">{{ poFormLabel }}</button>
           </div>
           <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Orders you place with suppliers to restock — not visible to customers.</p>
+          <div style="position: relative; margin-bottom: 14px; max-width: 320px;">
+            <input value="{{ poSearch }}" onChange="{{ onPoSearch }}" placeholder="Search by supplier or PO number…" style="width: 100%; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13.5px; outline: none; box-sizing: border-box;" style-focus="border-color: #A67873;">
+          </div>
 
           <sc-if value="{{ showPOForm }}" hint-placeholder-val="{{ false }}">
             <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
@@ -694,18 +705,23 @@
           </div>
           <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Track stock by batch — expiry, supplier, and cost. A product's total stock updates automatically from its batches.</p>
 
+          <div style="position: relative; margin-bottom: 14px; max-width: 320px;">
+            <input value="{{ invSearch }}" onChange="{{ onInvSearch }}" placeholder="Search by product, SKU, brand, batch, supplier…" style="width: 100%; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13.5px; outline: none; box-sizing: border-box;" style-focus="border-color: #A67873;">
+          </div>
+
           <h2 style="font-size: 15px; font-weight: 600; margin: 0 0 4px; color: #2E2A26;">Stock levels</h2>
           <p style="color: #B0A697; font-size: 12px; margin: 0 0 10px;">Current stock and status per product. Adjust directly here, or add a batch below for full batch tracking.</p>
           <div style="overflow-x: auto; margin-bottom: 26px;">
-            <div style="min-width: 560px; display: flex; flex-direction: column; gap: 6px;">
-              <div style="display: grid; grid-template-columns: 40px minmax(170px,1fr) 84px 140px 110px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
-                <span></span><span>Product</span><span>ID</span><span>Stock</span><span>Status</span>
+            <div style="min-width: 660px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: grid; grid-template-columns: 40px minmax(150px,1fr) 84px 100px 140px 110px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                <span></span><span>Product</span><span>ID</span><span>Brand</span><span>Stock</span><span>Status</span>
               </div>
-              <sc-for list="{{ pagedProducts }}" as="p" hint-placeholder-count="8">
-                <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; display: grid; grid-template-columns: 40px minmax(170px,1fr) 84px 140px 110px; gap: 10px; align-items: center; padding: 8px 14px;">
+              <sc-for list="{{ pagedInvStock }}" as="p" hint-placeholder-count="8">
+                <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; display: grid; grid-template-columns: 40px minmax(150px,1fr) 84px 100px 140px 110px; gap: 10px; align-items: center; padding: 8px 14px;">
                   <image-slot id="stk-{{ p.sku }}" src="{{ p.img }}" shape="rounded" radius="8" placeholder="Photo" style="width: 36px; height: 36px; display: block; background: #F1ECE2;"></image-slot>
                   <span style="font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ p.name }}">{{ p.name }}</span>
                   <span style="font-size: 11px; color: #A67873; direction: ltr; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.sku }}</span>
+                  <span style="font-size: 12px; color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.brand }}</span>
                   <span style="display: inline-flex; align-items: center; gap: 6px; border: 1px solid #D8CCBC; border-radius: 999px; padding: 3px 6px; background: #F1ECE2; justify-self: start;">
                     <button onClick="{{ p.decStock }}" style="background: none; border: none; color: #A67873; font-size: 15px; cursor: pointer; padding: 0 4px; line-height: 1;">−</button>
                     <span style="font-size: 13px; min-width: 18px; text-align: center; color: {{ p.stockColor }}; font-weight: 600;">{{ p.stock }}</span>
@@ -716,11 +732,11 @@
               </sc-for>
             </div>
           </div>
-          <sc-if value="{{ prodPager.show }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ invStockPager.show }}" hint-placeholder-val="{{ false }}">
             <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin: -14px 0 26px;">
-              <button onClick="{{ prodPager.prev }}" disabled="{{ prodPager.atStart }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ prodPager.prevOpacity }};" style-hover="border-color: #A67873; color: #A67873;">← Prev</button>
-              <span style="font-size: 12.5px; color: #857D72;">{{ prodPager.label }}</span>
-              <button onClick="{{ prodPager.next }}" disabled="{{ prodPager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ prodPager.nextOpacity }};" style-hover="border-color: #A67873; color: #A67873;">Next →</button>
+              <button onClick="{{ invStockPager.prev }}" disabled="{{ invStockPager.atStart }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ invStockPager.prevOpacity }};" style-hover="border-color: #A67873; color: #A67873;">← Prev</button>
+              <span style="font-size: 12.5px; color: #857D72;">{{ invStockPager.label }}</span>
+              <button onClick="{{ invStockPager.next }}" disabled="{{ invStockPager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ invStockPager.nextOpacity }};" style-hover="border-color: #A67873; color: #A67873;">Next →</button>
             </div>
           </sc-if>
 
@@ -1019,6 +1035,11 @@ class Component extends DCLogic {
       translating: false, transMsg: '',
       prodPage: 1,
       orderPage: 1,
+      invStockPage: 1,
+      prodSearch: '',
+      invSearch: '',
+      orderSearch: '',
+      poSearch: '',
       invoiceOrderId: null,
       editOrderId: null,
       editOrderDraft: null,
@@ -1558,6 +1579,12 @@ class Component extends DCLogic {
     };
 
     const orders = this.orders().slice().sort((a, b) => b.ts - a.ts);
+    const orderQ = this.state.orderSearch.trim().toLowerCase();
+    const filteredOrders = orderQ
+      ? orders.filter(o => (
+          o.id + ' ' + (o.name || '') + ' ' + (o.phone || '') + ' ' + (o.lines || []).map(l => l.name).join(' ')
+        ).toLowerCase().includes(orderQ))
+      : orders;
     const cutoff = Date.now() - 14 * 86400000;
     const recent14 = orders.filter(o => o.ts >= cutoff);
     const revenue = recent14.reduce((a, o) => a + o.total, 0);
@@ -1639,6 +1666,7 @@ class Component extends DCLogic {
         sku: p.sku, name: p.name,
         metaLine: 'Cosmetics · ' + this.catLabel(p.catKey) + (p.brand ? ' · ' + p.brand : ''),
         catLabel: this.catLabel(p.catKey),
+        brand: p.brand || '—',
         img: p.img || '',
         price: p.price, stock: p.stock,
         stockColor: p.stock === 0 ? '#B03A2E' : p.stock <= 2 ? '#9A6E12' : '#2E2A26',
@@ -1738,8 +1766,19 @@ class Component extends DCLogic {
         next: () => this.setState({ [pageKey]: Math.min(totalPages, page + 1) })
       };
     };
-    const prodPager = makePager(adminProducts.length, 'prodPage');
-    const pagedProducts = adminProducts.slice((prodPager.page - 1) * PAGE_SIZE, prodPager.page * PAGE_SIZE);
+    const prodQ = this.state.prodSearch.trim().toLowerCase();
+    const filteredProducts = prodQ
+      ? adminProducts.filter(p => (p.name + ' ' + p.sku + ' ' + p.brand + ' ' + p.catLabel).toLowerCase().includes(prodQ))
+      : adminProducts;
+    const prodPager = makePager(filteredProducts.length, 'prodPage');
+    const pagedProducts = filteredProducts.slice((prodPager.page - 1) * PAGE_SIZE, prodPager.page * PAGE_SIZE);
+
+    const invQ = this.state.invSearch.trim().toLowerCase();
+    const filteredStock = invQ
+      ? adminProducts.filter(p => (p.name + ' ' + p.sku + ' ' + p.brand).toLowerCase().includes(invQ))
+      : adminProducts;
+    const invStockPager = makePager(filteredStock.length, 'invStockPage');
+    const pagedInvStock = filteredStock.slice((invStockPager.page - 1) * PAGE_SIZE, invStockPager.page * PAGE_SIZE);
 
     const recentOrders = orders.slice(0, 6).map(o => ({
       name: o.name,
@@ -1761,7 +1800,7 @@ class Component extends DCLogic {
     });
     const pushEdItem = (item) => this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, items: [...s.editOrderDraft.items, item] } }));
 
-    const allOrders = orders.map(o => {
+    const allOrders = filteredOrders.map(o => {
       const editing = this.state.editOrderId === o.id;
       const ed = editing ? (this.state.editOrderDraft || {}) : {};
       const edItemsRaw = ed.items || [];
@@ -1882,6 +1921,10 @@ class Component extends DCLogic {
 
     // ---- Purchase Orders ----
     const pos = this.state.dbPOs.slice().sort((a, b) => b.ts - a.ts);
+    const poQ = this.state.poSearch.trim().toLowerCase();
+    const filteredPOs = poQ
+      ? pos.filter(p => (p.id + ' ' + (p.supplier || '')).toLowerCase().includes(poQ))
+      : pos;
     const today = new Date().toISOString().slice(0, 10);
 
     const setPO = (key) => (e) => this.setState(s => ({ newPO: { ...s.newPO, [key]: e.target.value }, poError: '' }));
@@ -1980,8 +2023,8 @@ class Component extends DCLogic {
     };
     const npoTotals = poCalcTotals(npo.items);
 
-    const poPager = makePager(pos.length, 'poPage');
-    const pagedPOsRaw = pos.slice((poPager.page - 1) * PAGE_SIZE, poPager.page * PAGE_SIZE);
+    const poPager = makePager(filteredPOs.length, 'poPage');
+    const pagedPOsRaw = filteredPOs.slice((poPager.page - 1) * PAGE_SIZE, poPager.page * PAGE_SIZE);
 
     const poStatusMeta = (status) => status === 'received'
       ? { label: 'Received', bg: '#DDF0E2', color: '#1E8A4C' }
@@ -2066,10 +2109,16 @@ class Component extends DCLogic {
       return { label: 'Exp ' + dateStr, bg: '#DDF0E2', color: '#1E8A4C' };
     };
 
-    const batchPager = makePager(batches.length, 'batchPage');
-    const pagedBatchesRaw = batches.slice((batchPager.page - 1) * PAGE_SIZE, batchPager.page * PAGE_SIZE);
+    const batchesWithProd = batches.map(b => ({ ...b, _prod: prods.find(p => p.sku === b.sku) }));
+    const filteredBatches = invQ
+      ? batchesWithProd.filter(b => (
+          (b._prod ? b._prod.name : b.sku) + ' ' + b.sku + ' ' + (b.batchNo || '') + ' ' + (b.supplier || '')
+        ).toLowerCase().includes(invQ))
+      : batchesWithProd;
+    const batchPager = makePager(filteredBatches.length, 'batchPage');
+    const pagedBatchesRaw = filteredBatches.slice((batchPager.page - 1) * PAGE_SIZE, batchPager.page * PAGE_SIZE);
     const pagedBatches = pagedBatchesRaw.map(b => {
-      const prod = prods.find(p => p.sku === b.sku);
+      const prod = b._prod;
       const es = expiryStatus(b.expiry);
       return {
         productName: prod ? prod.name : b.sku,
@@ -2419,6 +2468,15 @@ class Component extends DCLogic {
       statRevenue: fmt(revenue), statOrders: String(recent14.length), statItems: String(items),
       statLow: String(lowCount), lowStockColor: lowCount > 0 ? '#B03A2E' : '#1E8A4C',
       chart, bestSellers, recentOrders, adminProducts, pagedProducts, prodPager,
+      prodSearch: this.state.prodSearch,
+      onProdSearch: (e) => this.setState({ prodSearch: e.target.value, prodPage: 1 }),
+      invSearch: this.state.invSearch,
+      onInvSearch: (e) => this.setState({ invSearch: e.target.value, invStockPage: 1, batchPage: 1 }),
+      orderSearch: this.state.orderSearch,
+      onOrderSearch: (e) => this.setState({ orderSearch: e.target.value, orderPage: 1 }),
+      poSearch: this.state.poSearch,
+      onPoSearch: (e) => this.setState({ poSearch: e.target.value, poPage: 1 }),
+      pagedInvStock, invStockPager,
       imgHero: si['hero'] || 'assets/samples/hero.jpg',
       onUpHero: siteUploader('hero'),
       catSlots, colSlots,

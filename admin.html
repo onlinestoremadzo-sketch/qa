@@ -323,8 +323,19 @@
             <button onClick="{{ toggleOrderForm }}" style="background: #A67873; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #8C5F5A;">{{ orderFormLabel }}</button>
           </div>
           <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Orders from the storefront checkout, plus orders you add manually from other platforms.</p>
-          <div style="position: relative; margin-bottom: 14px; max-width: 320px;">
+          <div style="position: relative; margin-bottom: 10px; max-width: 320px;">
             <input value="{{ orderSearch }}" onChange="{{ onOrderSearch }}" placeholder="Search by customer, order ID, phone, item…" style="width: 100%; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13.5px; outline: none; box-sizing: border-box;" style-focus="border-color: #A67873;">
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;">
+            <button onClick="{{ setDeliveryFilterAll }}" style="background: {{ dfAllBg }}; color: {{ dfAllColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 5px 13px; font-size: 12px; cursor: pointer;">All</button>
+            <button onClick="{{ setDeliveryFilterPending }}" style="background: {{ dfPendingBg }}; color: {{ dfPendingColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 5px 13px; font-size: 12px; cursor: pointer;">Pending delivery</button>
+            <button onClick="{{ setDeliveryFilterDelivered }}" style="background: {{ dfDeliveredBg }}; color: {{ dfDeliveredColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 5px 13px; font-size: 12px; cursor: pointer;">Delivered</button>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;">
+            <button onClick="{{ setPaymentFilterAll }}" style="background: {{ pfAllBg }}; color: {{ pfAllColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 5px 13px; font-size: 12px; cursor: pointer;">All payments</button>
+            <button onClick="{{ setPaymentFilterPaid }}" style="background: {{ pfPaidBg }}; color: {{ pfPaidColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 5px 13px; font-size: 12px; cursor: pointer;">Paid</button>
+            <button onClick="{{ setPaymentFilterPending }}" style="background: {{ pfPendingBg }}; color: {{ pfPendingColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 5px 13px; font-size: 12px; cursor: pointer;">Pending</button>
+            <button onClick="{{ setPaymentFilterPartial }}" style="background: {{ pfPartialBg }}; color: {{ pfPartialColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 5px 13px; font-size: 12px; cursor: pointer;">Partially paid</button>
           </div>
 
           <sc-if value="{{ showOrderForm }}" hint-placeholder-val="{{ false }}">
@@ -353,6 +364,13 @@
                   <select value="{{ newOrder.status }}" onChange="{{ onNOStatus }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
                     <option value="new">New</option>
                     <option value="delivered">Delivered</option>
+                  </select>
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Payment status
+                  <select value="{{ newOrder.paymentStatus }}" onChange="{{ onNOPaymentStatus }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                    <option value="paid">Paid</option>
+                    <option value="pending">Pending</option>
+                    <option value="partially_paid">Partially paid</option>
                   </select>
                 </label>
               </div>
@@ -398,19 +416,20 @@
             <p style="color: #857D72; text-align: center; padding: 30px 0;">No orders yet.</p>
           </sc-if>
           <div style="overflow-x: auto;">
-            <div style="min-width: 720px; display: flex; flex-direction: column; gap: 6px;">
+            <div style="min-width: 820px; display: flex; flex-direction: column; gap: 6px;">
               <div style="display: grid; grid-template-columns: 18px minmax(140px,1fr) 120px 84px 92px 88px auto; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
-                <span></span><span>Customer</span><span>Order</span><span>Items</span><span>Total</span><span>Status</span><span></span>
+                <span></span><span>Customer</span><span>Order</span><span>Items</span><span>Total</span><span>Status</span><span>Payment</span><span></span>
               </div>
               <sc-for list="{{ pagedOrders }}" as="o" hint-placeholder-count="6">
                 <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px;">
-                  <div onClick="{{ o.toggleDetails }}" style="display: grid; grid-template-columns: 18px minmax(140px,1fr) 120px 84px 92px 88px auto; gap: 10px; align-items: center; padding: 9px 14px; cursor: pointer;">
+                  <div onClick="{{ o.toggleDetails }}" style="display: grid; grid-template-columns: 18px minmax(140px,1fr) 120px 84px 92px 88px 96px auto; gap: 10px; align-items: center; padding: 9px 14px; cursor: pointer;">
                     <span style="color: #A67873; font-size: 11px;">{{ o.chevron }}</span>
                     <span style="font-weight: 600; font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ o.name }}</span>
                     <span style="font-size: 11.5px; color: #B0A697; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ o.meta }}</span>
                     <span style="font-size: 12px; color: #5C554B;">{{ o.itemCount }}</span>
                     <span style="font-weight: 600; font-size: 13.5px; color: #2E2A26;">{{ o.total }}</span>
                     <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ o.badgeBg }}; color: {{ o.badgeColor }}; text-align: center; white-space: nowrap;">{{ o.status }}</span>
+                    <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ o.paymentBg }}; color: {{ o.paymentColor }}; text-align: center; white-space: nowrap;">{{ o.paymentLabel }}</span>
                     <span onClick="{{ stopClick }}" style="display: flex; gap: 6px; justify-self: end; flex-wrap: wrap;">
                       <button onClick="{{ o.toggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #A67873; color: #A67873;">{{ o.toggleLabel }}</button>
                       <button onClick="{{ o.openInvoice }}" style="background: none; border: 1px solid #A67873; color: #A67873; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="background: #A67873; color: #FDF9F4;">🖨 Invoice</button>
@@ -461,6 +480,13 @@
                         <select value="{{ o.edStatus }}" onChange="{{ o.onEdStatus }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; cursor: pointer;">
                           <option value="new">New</option>
                           <option value="delivered">Delivered</option>
+                        </select>
+                      </label>
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Payment status
+                        <select value="{{ o.edPaymentStatus }}" onChange="{{ o.onEdPaymentStatus }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                          <option value="paid">Paid</option>
+                          <option value="pending">Pending</option>
+                          <option value="partially_paid">Partially paid</option>
                         </select>
                       </label>
                     </div>
@@ -567,6 +593,13 @@
                     <option value="received">Received</option>
                   </select>
                 </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Payment status
+                  <select value="{{ newPO.paymentStatus }}" onChange="{{ onPOPaymentStatus }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                    <option value="pending">Pending</option>
+                    <option value="partially_paid">Partially paid</option>
+                    <option value="paid">Paid</option>
+                  </select>
+                </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Prepared by
                   <input value="{{ newPO.preparedBy }}" onChange="{{ onPOPreparedBy }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
                 </label>
@@ -649,16 +682,17 @@
             <p style="color: #857D72; text-align: center; padding: 30px 0;">No purchase orders yet.</p>
           </sc-if>
           <div style="overflow-x: auto;">
-            <div style="min-width: 620px; display: flex; flex-direction: column; gap: 6px;">
-              <div style="display: grid; grid-template-columns: minmax(150px,1fr) 130px 110px 100px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
-                <span>Supplier</span><span>PO # / Date</span><span>Status</span><span>Net Amount</span>
+            <div style="min-width: 700px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: grid; grid-template-columns: minmax(150px,1fr) 130px 110px 110px 100px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                <span>Supplier</span><span>PO # / Date</span><span>Status</span><span>Payment</span><span>Net Amount</span>
               </div>
               <sc-for list="{{ pagedPOs }}" as="po" hint-placeholder-count="6">
                 <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px;">
-                  <div style="display: grid; grid-template-columns: minmax(150px,1fr) 130px 110px 100px; gap: 10px; align-items: center;">
+                  <div style="display: grid; grid-template-columns: minmax(150px,1fr) 130px 110px 110px 100px; gap: 10px; align-items: center;">
                     <span style="font-weight: 600; font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ po.supplier }}</span>
                     <span style="font-size: 11.5px; color: #B0A697;">{{ po.meta }}</span>
                     <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ po.badgeBg }}; color: {{ po.badgeColor }}; text-align: center; justify-self: start; white-space: nowrap;">{{ po.statusLabel }}</span>
+                    <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ po.paymentBg }}; color: {{ po.paymentColor }}; text-align: center; justify-self: start; white-space: nowrap;">{{ po.paymentLabel }}</span>
                     <span style="font-weight: 600; font-size: 13.5px;">{{ po.netAmount }}</span>
                   </div>
                   <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
@@ -1030,7 +1064,7 @@ class Component extends DCLogic {
       editDraft: null,
       editError: '',
       showOrderForm: false,
-      newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', items: [] },
+      newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', paymentStatus: 'pending', items: [] },
       newOrderError: '',
       translating: false, transMsg: '',
       prodPage: 1,
@@ -1040,6 +1074,8 @@ class Component extends DCLogic {
       invSearch: '',
       orderSearch: '',
       poSearch: '',
+      orderDeliveryFilter: 'all',
+      orderPaymentFilter: 'all',
       invoiceOrderId: null,
       editOrderId: null,
       editOrderDraft: null,
@@ -1048,7 +1084,7 @@ class Component extends DCLogic {
       poPage: 1,
       showPOForm: false,
       poFormMode: 'new',
-      newPO: { id: '', supplier: '', email: '', phone: '', date: '', delivery: '', terms: 'As Per Agreement', status: 'draft', preparedBy: '', approvedBy: '', remarks: '', items: [] },
+      newPO: { id: '', supplier: '', email: '', phone: '', date: '', delivery: '', terms: 'As Per Agreement', status: 'draft', paymentStatus: 'pending', preparedBy: '', approvedBy: '', remarks: '', items: [] },
       poError: '',
       confirmDeletePO: null,
       editingPOOriginalId: null,
@@ -1126,7 +1162,8 @@ class Component extends DCLogic {
         id: p.id, ts: new Date(p.created_at).getTime(),
         supplier: p.supplier_name, email: p.supplier_email || '', phone: p.supplier_phone || '',
         date: p.po_date, delivery: p.delivery_expect, terms: p.terms || '',
-        status: p.status || 'draft', preparedBy: p.prepared_by || '', approvedBy: p.approved_by || '',
+        status: p.status || 'draft', paymentStatus: p.payment_status || 'pending',
+        preparedBy: p.prepared_by || '', approvedBy: p.approved_by || '',
         remarks: p.remarks || '', items: p.items || [],
         amount: p.amount || 0, discount: p.discount || 0, netAmount: p.net_amount || 0
       })) });
@@ -1516,7 +1553,7 @@ class Component extends DCLogic {
       this.setState({ dbOrders: (data || []).map(o => ({
         id: o.id, ts: new Date(o.created_at).getTime(), name: o.customer_name, phone: o.phone,
         zone: o.zone, address: o.address, notes: o.notes, lines: o.lines || [], total: o.total, status: o.status,
-        source: o.source || 'storefront'
+        source: o.source || 'storefront', paymentStatus: o.payment_status || 'pending'
       })) });
     } catch (e) { console.warn('Madzo admin: could not load orders', e); }
   }
@@ -1580,11 +1617,12 @@ class Component extends DCLogic {
 
     const orders = this.orders().slice().sort((a, b) => b.ts - a.ts);
     const orderQ = this.state.orderSearch.trim().toLowerCase();
-    const filteredOrders = orderQ
-      ? orders.filter(o => (
-          o.id + ' ' + (o.name || '') + ' ' + (o.phone || '') + ' ' + (o.lines || []).map(l => l.name).join(' ')
-        ).toLowerCase().includes(orderQ))
-      : orders;
+    const filteredOrders = orders
+      .filter(o => orderQ ? (
+        o.id + ' ' + (o.name || '') + ' ' + (o.phone || '') + ' ' + (o.lines || []).map(l => l.name).join(' ')
+      ).toLowerCase().includes(orderQ) : true)
+      .filter(o => this.state.orderDeliveryFilter === 'all' ? true : o.status === this.state.orderDeliveryFilter)
+      .filter(o => this.state.orderPaymentFilter === 'all' ? true : (o.paymentStatus || 'pending') === this.state.orderPaymentFilter);
     const cutoff = Date.now() - 14 * 86400000;
     const recent14 = orders.filter(o => o.ts >= cutoff);
     const revenue = recent14.reduce((a, o) => a + o.total, 0);
@@ -1800,6 +1838,12 @@ class Component extends DCLogic {
     });
     const pushEdItem = (item) => this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, items: [...s.editOrderDraft.items, item] } }));
 
+    const paymentBadgeMeta = (ps) => ps === 'paid'
+      ? { label: 'Paid', bg: '#DDF0E2', color: '#1E8A4C' }
+      : ps === 'partially_paid'
+        ? { label: 'Partially paid', bg: '#DCE8F6', color: '#2A5C99' }
+        : { label: 'Pending', bg: '#FBEFD4', color: '#9A6E12' };
+
     const allOrders = filteredOrders.map(o => {
       const editing = this.state.editOrderId === o.id;
       const ed = editing ? (this.state.editOrderDraft || {}) : {};
@@ -1829,6 +1873,9 @@ class Component extends DCLogic {
         status: o.status === 'new' ? 'New' : 'Delivered',
         badgeBg: o.status === 'new' ? '#FBEFD4' : '#DDF0E2',
         badgeColor: o.status === 'new' ? '#9A6E12' : '#1E8A4C',
+        paymentLabel: paymentBadgeMeta(o.paymentStatus).label,
+        paymentBg: paymentBadgeMeta(o.paymentStatus).bg,
+        paymentColor: paymentBadgeMeta(o.paymentStatus).color,
         toggleLabel: o.status === 'new' ? 'Mark delivered' : 'Mark new',
         toggle: () => {
           window.getSupabase().from('orders').update({ status: o.status === 'new' ? 'delivered' : 'new' }).eq('id', o.id).then(({ error }) => {
@@ -1846,7 +1893,7 @@ class Component extends DCLogic {
           editOrderDraft: editing ? null : {
             id: o.id, source: o.source && o.source !== 'storefront' ? o.source : '',
             name: o.name || '', phone: o.phone || '', zone: o.zone || '', address: o.address || '',
-            notes: o.notes || '', status: o.status || 'new',
+            notes: o.notes || '', status: o.status || 'new', paymentStatus: o.paymentStatus || 'pending',
             items: (o.lines || []).map(l => ({ name: l.name, qty: l.qty, price: Math.round((l.total || 0) / (l.qty || 1)) }))
           }
         }),
@@ -1858,6 +1905,7 @@ class Component extends DCLogic {
         edAddress: ed.address || '', onEdAddress: setEd('address'),
         edNotes: ed.notes || '', onEdNotes: setEd('notes'),
         edStatus: ed.status || 'new', onEdStatus: setEd('status'),
+        edPaymentStatus: ed.paymentStatus || 'pending', onEdPaymentStatus: setEd('paymentStatus'),
         onEdPickProduct: (e) => {
           const pr = prods.find(x => x.sku === e.target.value);
           if (pr) pushEdItem({ name: pr.name, qty: 1, price: pr.price });
@@ -1889,6 +1937,7 @@ class Component extends DCLogic {
             notes: String(dr.notes || '').trim(),
             lines, total,
             status: dr.status || 'new',
+            payment_status: dr.paymentStatus || 'pending',
             source: String(dr.source || '').trim() || 'storefront'
           }).eq('id', o.id);
           this.setState({ savingOrderId: null });
@@ -2034,12 +2083,14 @@ class Component extends DCLogic {
 
     const pagedPOs = pagedPOsRaw.map(prow => {
       const sm = poStatusMeta(prow.status);
+      const pm = paymentBadgeMeta(prow.paymentStatus);
       const isComplete = !!(prow.supplier && prow.supplier.trim()) && prow.items.length > 0 &&
         prow.items.every(it => it.desc && Number(it.qty) > 0 && Number(it.unitPrice) > 0);
       return {
         supplier: prow.supplier || '—',
         meta: prow.id + ' · ' + (prow.date || '—'),
         statusLabel: sm.label, badgeBg: sm.bg, badgeColor: sm.color,
+        paymentLabel: pm.label, paymentBg: pm.bg, paymentColor: pm.color,
         netAmount: prow.netAmount.toFixed(2) + ' QAR',
         canPrintShare: isComplete,
         missingInfo: !isComplete,
@@ -2072,7 +2123,7 @@ class Component extends DCLogic {
           newPO: {
             id: prow.id, supplier: prow.supplier, email: prow.email, phone: prow.phone,
             date: prow.date || today, delivery: prow.delivery || '', terms: prow.terms || 'As Per Agreement',
-            status: prow.status || 'draft', preparedBy: prow.preparedBy, approvedBy: prow.approvedBy,
+            status: prow.status || 'draft', paymentStatus: prow.paymentStatus || 'pending', preparedBy: prow.preparedBy, approvedBy: prow.approvedBy,
             remarks: prow.remarks, items: prow.items.length ? prow.items : [{ code: '', desc: '', unit: 'PC', qty: 1, bonus: 0, unitPrice: '', discount: 0 }]
           }
         }),
@@ -2200,7 +2251,7 @@ class Component extends DCLogic {
         if (opening) {
           this.setState({
             showPOForm: true, poFormMode: 'new', poError: '',
-            newPO: { id: this.state.newPO.id, supplier: '', email: '', phone: '', date: today, delivery: '', terms: 'As Per Agreement', status: 'draft', preparedBy: '', approvedBy: '', remarks: '', items: [{ code: '', desc: '', unit: 'PC', qty: 1, bonus: 0, unitPrice: '', discount: 0 }] }
+            newPO: { id: this.state.newPO.id, supplier: '', email: '', phone: '', date: today, delivery: '', terms: 'As Per Agreement', status: 'draft', paymentStatus: 'pending', preparedBy: '', approvedBy: '', remarks: '', items: [{ code: '', desc: '', unit: 'PC', qty: 1, bonus: 0, unitPrice: '', discount: 0 }] }
           });
           this.fetchNextPoId().then((id) => this.setState(s => ({ newPO: { ...s.newPO, id: s.newPO.id || id } })));
         } else {
@@ -2211,6 +2262,7 @@ class Component extends DCLogic {
       poError: this.state.poError,
       onPOId: setPO('id'), onPOSupplier: onPOSupplierSmart, onPOEmail: setPO('email'), onPOPhone: setPO('phone'),
       onPODate: setPO('date'), onPODelivery: setPO('delivery'), onPOTerms: setPO('terms'), onPOStatus: setPO('status'),
+      onPOPaymentStatus: setPO('paymentStatus'),
       onPOPreparedBy: setPO('preparedBy'), onPOApprovedBy: setPO('approvedBy'), onPORemarks: setPO('remarks'),
       addPOItem: pushPOItem,
       poItems,
@@ -2254,7 +2306,8 @@ class Component extends DCLogic {
           net_amount: totals.netAmount,
           prepared_by: npo.preparedBy.trim(),
           approved_by: npo.approvedBy.trim(),
-          status: npo.status || 'draft'
+          status: npo.status || 'draft',
+          payment_status: npo.paymentStatus || 'pending'
         };
         const sb = window.getSupabase();
         const { error } = this.state.poFormMode === 'edit'
@@ -2263,7 +2316,7 @@ class Component extends DCLogic {
         this.setState({ savingPO: false });
         if (error) { this.setState({ poError: error.message }); return; }
         this.upsertSupplier(npo.supplier, npo.email, npo.phone);
-        this.setState({ showPOForm: false, poError: '', newPO: { id: '', supplier: '', email: '', phone: '', date: '', delivery: '', terms: 'As Per Agreement', status: 'draft', preparedBy: '', approvedBy: '', remarks: '', items: [] } });
+        this.setState({ showPOForm: false, poError: '', newPO: { id: '', supplier: '', email: '', phone: '', date: '', delivery: '', terms: 'As Per Agreement', status: 'draft', paymentStatus: 'pending', preparedBy: '', approvedBy: '', remarks: '', items: [] } });
         this.loadPOs();
       },
 
@@ -2355,6 +2408,7 @@ class Component extends DCLogic {
       newOrderError: this.state.newOrderError,
       onNOId: setNO('id'), onNOSource: setNO('source'), onNOName: setNO('name'), onNOPhone: setNO('phone'),
       onNOZone: setNO('zone'), onNOAddress: setNO('address'), onNONotes: setNO('notes'), onNOStatus: setNO('status'),
+      onNOPaymentStatus: setNO('paymentStatus'),
       prodOptions: prods.map(p => ({ sku: p.sku, label: p.name + ' — ' + p.price + ' QAR' })),
       onPickProduct: (e) => {
         const p = prods.find(x => x.sku === e.target.value);
@@ -2383,12 +2437,13 @@ class Component extends DCLogic {
           notes: no.notes.trim(),
           lines, total,
           status: no.status || 'new',
+          payment_status: no.paymentStatus || 'pending',
           source: no.source.trim() || 'manual'
         });
         if (error) { this.setState({ newOrderError: error.message }); return; }
         this.setState({
           showOrderForm: false, newOrderError: '',
-          newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', items: [] }
+          newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', paymentStatus: 'pending', items: [] }
         });
         this.loadOrders();
       },
@@ -2474,6 +2529,27 @@ class Component extends DCLogic {
       onInvSearch: (e) => this.setState({ invSearch: e.target.value, invStockPage: 1, batchPage: 1 }),
       orderSearch: this.state.orderSearch,
       onOrderSearch: (e) => this.setState({ orderSearch: e.target.value, orderPage: 1 }),
+      setDeliveryFilterAll: () => this.setState({ orderDeliveryFilter: 'all', orderPage: 1 }),
+      setDeliveryFilterPending: () => this.setState({ orderDeliveryFilter: 'new', orderPage: 1 }),
+      setDeliveryFilterDelivered: () => this.setState({ orderDeliveryFilter: 'delivered', orderPage: 1 }),
+      dfAllBg: this.state.orderDeliveryFilter === 'all' ? '#A67873' : '#FDF9F4',
+      dfAllColor: this.state.orderDeliveryFilter === 'all' ? '#FDF9F4' : '#857D72',
+      dfPendingBg: this.state.orderDeliveryFilter === 'new' ? '#A67873' : '#FDF9F4',
+      dfPendingColor: this.state.orderDeliveryFilter === 'new' ? '#FDF9F4' : '#857D72',
+      dfDeliveredBg: this.state.orderDeliveryFilter === 'delivered' ? '#A67873' : '#FDF9F4',
+      dfDeliveredColor: this.state.orderDeliveryFilter === 'delivered' ? '#FDF9F4' : '#857D72',
+      setPaymentFilterAll: () => this.setState({ orderPaymentFilter: 'all', orderPage: 1 }),
+      setPaymentFilterPaid: () => this.setState({ orderPaymentFilter: 'paid', orderPage: 1 }),
+      setPaymentFilterPending: () => this.setState({ orderPaymentFilter: 'pending', orderPage: 1 }),
+      setPaymentFilterPartial: () => this.setState({ orderPaymentFilter: 'partially_paid', orderPage: 1 }),
+      pfAllBg: this.state.orderPaymentFilter === 'all' ? '#1E8A4C' : '#FDF9F4',
+      pfAllColor: this.state.orderPaymentFilter === 'all' ? '#FDF9F4' : '#857D72',
+      pfPaidBg: this.state.orderPaymentFilter === 'paid' ? '#1E8A4C' : '#FDF9F4',
+      pfPaidColor: this.state.orderPaymentFilter === 'paid' ? '#FDF9F4' : '#857D72',
+      pfPendingBg: this.state.orderPaymentFilter === 'pending' ? '#1E8A4C' : '#FDF9F4',
+      pfPendingColor: this.state.orderPaymentFilter === 'pending' ? '#FDF9F4' : '#857D72',
+      pfPartialBg: this.state.orderPaymentFilter === 'partially_paid' ? '#1E8A4C' : '#FDF9F4',
+      pfPartialColor: this.state.orderPaymentFilter === 'partially_paid' ? '#FDF9F4' : '#857D72',
       poSearch: this.state.poSearch,
       onPoSearch: (e) => this.setState({ poSearch: e.target.value, poPage: 1 }),
       pagedInvStock, invStockPager,

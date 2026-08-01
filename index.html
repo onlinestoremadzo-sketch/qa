@@ -712,7 +712,7 @@ class Component extends DCLogic {
           await sb.from('orders').insert({
             id: newOrder.id, customer_name: newOrder.name, phone: newOrder.phone,
             zone: newOrder.zone, address: newOrder.address, notes: newOrder.notes,
-            lines: newOrder.lines, total: newOrder.total, status: 'new', source: 'storefront'
+            lines: newOrder.lines, total: newOrder.total, status: 'new', source: 'storefront', payment_status: 'paid'
           });
         } catch (e) { console.warn('Madzo: could not save order to Supabase', e); }
         this.setState({ order: newOrder, screen: 'confirm', error: '', cart: {}, form: { name: '', phone: '', zone: '', address: '', notes: '' } }, () => this.persist());

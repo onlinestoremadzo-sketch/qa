@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <style>
+    html, body { margin: 0; padding: 0; background: #F1ECE2; }
+    * { box-sizing: border-box; }
+    input, textarea, select, button { font-family: inherit; }
+    .madzo-row .madzo-del-btn { opacity: 0; transition: opacity .15s ease; }
+    .madzo-row:hover .madzo-del-btn, .madzo-row .madzo-del-btn:focus-visible { opacity: 1; }
+    @media (hover: none) { .madzo-row .madzo-del-btn { opacity: 1; } }
+  </style>
+</helmet>
+
+<template id="__bundler_thumbnail"><svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="80" fill="#2E2A26"></rect></svg></template>
+
+<div style="min-height: 100vh; background: #F1ECE2; color: #2E2A26; font-family: Poppins, sans-serif; display: flex; flex-direction: column;">
+
+  <!-- ============ LOGIN ============ -->
+  <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+    <section style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 18px; background: #2E2A26;">
+      <div style="background: #FDF9F4; border-radius: 22px; padding: 36px 32px; width: 100%; max-width: 380px; box-shadow: 0 20px 50px rgba(0,0,0,.35); display: flex; flex-direction: column; gap: 16px; text-align: center;">
+        <div>
+          <div style="font-family: Marcellus, serif; font-size: 22px; letter-spacing: 6px; color: #2E2A26;">MADZO</div>
+          <div style="font-size: 12.5px; color: #857D72; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px;">Accounts</div>
+        </div>
+        <input value="{{ email }}" onChange="{{ onEmail }}" type="email" placeholder="Email" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 12px; padding: 13px 16px; font-size: 15px; color: #2E2A26; outline: none; text-align: center;" style-focus="border-color: #2E2A26;">
+        <input value="{{ pin }}" onChange="{{ onPin }}" onKeyDown="{{ pinKey }}" type="password" placeholder="Password" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 12px; padding: 13px 16px; font-size: 15px; color: #2E2A26; outline: none; text-align: center;" style-focus="border-color: #2E2A26;">
+        <sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
+          <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ loginErrorMsg }}</p>
+        </sc-if>
+        <button onClick="{{ doLogin }}" style="background: #2E2A26; color: #FDF9F4; border: none; border-radius: 999px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer;" style-hover="background: #171512;">{{ loginLabel }}</button>
+      </div>
+    </section>
+  </sc-if>
+
+  <!-- ============ MAIN ============ -->
+  <sc-if value="{{ isMain }}" hint-placeholder-val="{{ false }}">
+    <header style="background: #2E2A26; color: #FDF9F4; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+      <div>
+        <div style="font-family: Marcellus, serif; font-size: 18px; letter-spacing: 3px;">MADZO</div>
+        <div style="font-size: 10.5px; letter-spacing: 1.5px; text-transform: uppercase; opacity: .7;">Accounts — Confidential, internal use only</div>
+      </div>
+      <button onClick="{{ doLogout }}" style="background: none; border: 1px solid rgba(253,249,244,.4); color: #FDF9F4; border-radius: 999px; padding: 7px 16px; font-size: 12.5px; cursor: pointer;" style-hover="background: rgba(253,249,244,.1);">Sign out</button>
+    </header>
+
+    <main style="flex: 1; max-width: 980px; margin: 0 auto; width: 100%; padding: 22px 18px 60px; box-sizing: border-box;">
+
+      <!-- Period selector -->
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 18px;">
+        <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 22px; margin: 0;">Overview</h1>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+          <button onClick="{{ setPeriodMonth }}" style="background: {{ pMonthBg }}; color: {{ pMonthColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 6px 14px; font-size: 12.5px; cursor: pointer;">This month</button>
+          <button onClick="{{ setPeriodLastMonth }}" style="background: {{ pLastMonthBg }}; color: {{ pLastMonthColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 6px 14px; font-size: 12.5px; cursor: pointer;">Last month</button>
+          <button onClick="{{ setPeriodYear }}" style="background: {{ pYearBg }}; color: {{ pYearColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 6px 14px; font-size: 12.5px; cursor: pointer;">This year</button>
+          <button onClick="{{ setPeriodAll }}" style="background: {{ pAllBg }}; color: {{ pAllColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 6px 14px; font-size: 12.5px; cursor: pointer;">All time</button>
+        </div>
+      </div>
+
+      <!-- Summary cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 14px;">
+        <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 16px 18px;">
+          <div style="font-size: 11px; color: #857D72; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px;">Total sales</div>
+          <div style="font-size: 21px; font-weight: 600; color: #2E2A26;">{{ totalSales }}</div>
+          <div style="font-size: 11px; color: #B0A697; margin-top: 3px;">{{ salesCount }} orders</div>
+        </div>
+        <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 16px 18px;">
+          <div style="font-size: 11px; color: #857D72; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px;">Purchases</div>
+          <div style="font-size: 21px; font-weight: 600; color: #2E2A26;">{{ totalPurchases }}</div>
+          <div style="font-size: 11px; color: #B0A697; margin-top: 3px;">{{ purchaseCount }} confirmed POs</div>
+        </div>
+        <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 16px 18px;">
+          <div style="font-size: 11px; color: #857D72; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px;">Expenses</div>
+          <div style="font-size: 21px; font-weight: 600; color: #2E2A26;">{{ totalExpensesFmt }}</div>
+          <div style="font-size: 11px; color: #B0A697; margin-top: 3px;">{{ expenseCount }} entries</div>
+        </div>
+        <div style="background: {{ profitCardBg }}; border: 1px solid {{ profitCardBorder }}; border-radius: 16px; padding: 16px 18px;">
+          <div style="font-size: 11px; color: {{ profitLabelColor }}; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px;">{{ profitLabel }}</div>
+          <div style="font-size: 21px; font-weight: 700; color: {{ profitColor }};">{{ profitFmt }}</div>
+          <div style="font-size: 11px; color: {{ profitLabelColor }}; margin-top: 3px;">Sales − Purchases − Expenses</div>
+        </div>
+      </div>
+      <p style="color: #B0A697; font-size: 11.5px; margin: 0 0 24px;">Sales counts every order placed in this period. Purchases counts only Sent/Received purchase orders (drafts are excluded as not yet committed).</p>
+
+      <!-- Fund in hand -->
+      <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 18px 20px; margin-bottom: 26px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
+        <div style="flex: 1; min-width: 200px;">
+          <div style="font-size: 11px; color: #857D72; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px;">Fund in hand (all time, cash-basis)</div>
+          <div style="font-size: 26px; font-weight: 700; color: #2E2A26;">{{ fundInHand }}</div>
+          <div style="font-size: 11px; color: #B0A697; margin-top: 3px;">Opening balance + paid sales − paid purchases − all expenses</div>
+        </div>
+        <div style="display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap;">
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Opening balance
+            <input value="{{ openingBalanceInput }}" onChange="{{ onOpeningBalance }}" type="number" min="0" step="0.01" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; width: 140px;" style-focus="border-color: #A67873;">
+          </label>
+          <button onClick="{{ saveOpeningBalance }}" style="background: #A67873; color: #FDF9F4; border: none; border-radius: 999px; padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="background: #8C5F5A;">{{ saveOBLabel }}</button>
+        </div>
+      </div>
+
+      <!-- Expenses -->
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; flex-wrap: wrap;">
+        <h2 style="font-size: 16px; font-weight: 600; margin: 0;">Expenses</h2>
+        <button onClick="{{ toggleExpenseForm }}" style="background: #A67873; border: none; color: #FDF9F4; border-radius: 999px; padding: 7px 16px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #8C5F5A;">{{ expenseFormLabel }}</button>
+      </div>
+      <div style="position: relative; margin: 10px 0 12px; max-width: 300px;">
+        <input value="{{ expenseSearch }}" onChange="{{ onExpenseSearch }}" placeholder="Search category or description…" style="width: 100%; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 8px 14px; font-size: 13px; outline: none; box-sizing: border-box;" style-focus="border-color: #A67873;">
+      </div>
+
+      <sc-if value="{{ showExpenseForm }}" hint-placeholder-val="{{ false }}">
+        <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 18px 20px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px;">
+          <h3 style="font-size: 14px; font-weight: 600; margin: 0;">{{ expenseFormTitle }}</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Date
+              <input value="{{ newExpense.date }}" onChange="{{ onExDate }}" type="date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+            </label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Category
+              <select value="{{ newExpense.category }}" onChange="{{ onExCategory }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                <option value="Rent">Rent</option>
+                <option value="Salaries">Salaries</option>
+                <option value="Utilities">Utilities</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Supplies">Supplies</option>
+                <option value="Delivery">Delivery / Shipping</option>
+                <option value="Maintenance">Maintenance</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Amount (QAR)
+              <input value="{{ newExpense.amount }}" onChange="{{ onExAmount }}" type="number" min="0" step="0.01" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+            </label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Payment method
+              <input value="{{ newExpense.paymentMethod }}" onChange="{{ onExPaymentMethod }}" placeholder="Cash, bank transfer…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+            </label>
+          </div>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Description
+            <input value="{{ newExpense.description }}" onChange="{{ onExDescription }}" placeholder="What was this for?" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #A67873;">
+          </label>
+          <sc-if value="{{ expenseError }}" hint-placeholder-val="{{ false }}">
+            <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ expenseError }}</p>
+          </sc-if>
+          <span style="display: flex; gap: 10px;">
+            <button onClick="{{ saveExpense }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 10px 20px; font-size: 13.5px; font-weight: 600; cursor: pointer;" style-hover="filter: brightness(1.07);">{{ saveExpenseLabel }}</button>
+            <button onClick="{{ toggleExpenseForm }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 10px 20px; font-size: 13.5px; cursor: pointer;">Cancel</button>
+          </span>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ noExpenses }}" hint-placeholder-val="{{ false }}">
+        <p style="color: #857D72; text-align: center; padding: 20px 0;">No expenses recorded yet.</p>
+      </sc-if>
+      <div style="overflow-x: auto; margin-bottom: 30px;">
+        <div style="min-width: 620px; display: flex; flex-direction: column; gap: 6px;">
+          <div style="display: grid; grid-template-columns: 96px 110px minmax(140px,1fr) 90px 120px 90px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+            <span>Date</span><span>Category</span><span>Description</span><span>Amount</span><span>Payment</span><span></span>
+          </div>
+          <sc-for list="{{ pagedExpenses }}" as="ex" hint-placeholder-count="6">
+            <div class="madzo-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; display: grid; grid-template-columns: 96px 110px minmax(140px,1fr) 90px 120px 90px; gap: 10px; align-items: center; padding: 9px 14px;">
+              <span style="font-size: 12px; color: #5C554B;">{{ ex.date }}</span>
+              <span style="font-size: 12px; color: #857D72;">{{ ex.category }}</span>
+              <span style="font-size: 13px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ ex.description }}">{{ ex.description }}</span>
+              <span style="font-size: 13px; font-weight: 600; color: #2E2A26;">{{ ex.amountFmt }}</span>
+              <span style="font-size: 12px; color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ ex.paymentMethod }}</span>
+              <span style="display: flex; gap: 6px; justify-self: end;">
+                <button onClick="{{ ex.startEdit }}" title="Edit" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;">Edit</button>
+                <button onClick="{{ ex.askRemove }}" class="madzo-del-btn" aria-label="Delete expense" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px; line-height: 1;">×</button>
+              </span>
+            </div>
+            <sc-if value="{{ ex.confirmingDelete }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #FCECEA; border: 1px solid #F3D9D6; border-radius: 10px; padding: 10px 14px;">
+                <span style="font-size: 13px; color: #96352C;">Delete this expense permanently?</span>
+                <span style="display: flex; gap: 8px; margin-inline-start: auto;">
+                  <button onClick="{{ ex.confirmRemove }}" style="background: #C0392B; color: #fff; border: none; border-radius: 999px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer;">Yes, delete</button>
+                  <button onClick="{{ ex.cancelRemove }}" style="background: none; border: 1px solid #E3B7B1; color: #96352C; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer;">Cancel</button>
+                </span>
+              </div>
+            </sc-if>
+          </sc-for>
+        </div>
+      </div>
+      <sc-if value="{{ expensePager.show }}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin: -18px 0 30px;">
+          <button onClick="{{ expensePager.prev }}" disabled="{{ expensePager.atStart }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ expensePager.prevOpacity }};">← Prev</button>
+          <span style="font-size: 12.5px; color: #857D72;">{{ expensePager.label }}</span>
+          <button onClick="{{ expensePager.next }}" disabled="{{ expensePager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ expensePager.nextOpacity }};">Next →</button>
+        </div>
+      </sc-if>
+
+      <!-- Sales log -->
+      <h2 style="font-size: 16px; font-weight: 600; margin: 0 0 10px;">Sales — this period</h2>
+      <sc-if value="{{ noSales }}" hint-placeholder-val="{{ false }}">
+        <p style="color: #857D72; text-align: center; padding: 16px 0;">No orders in this period.</p>
+      </sc-if>
+      <div style="overflow-x: auto; margin-bottom: 30px;">
+        <div style="min-width: 520px; display: flex; flex-direction: column; gap: 6px;">
+          <div style="display: grid; grid-template-columns: 90px minmax(140px,1fr) 110px 100px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+            <span>Date</span><span>Order</span><span>Payment</span><span>Amount</span>
+          </div>
+          <sc-for list="{{ pagedSales }}" as="s" hint-placeholder-count="5">
+            <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; display: grid; grid-template-columns: 90px minmax(140px,1fr) 110px 100px; gap: 10px; align-items: center; padding: 8px 14px;">
+              <span style="font-size: 12px; color: #5C554B;">{{ s.date }}</span>
+              <span style="font-size: 13px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ s.label }}</span>
+              <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ s.payBg }}; color: {{ s.payColor }}; text-align: center; justify-self: start; white-space: nowrap;">{{ s.payLabel }}</span>
+              <span style="font-size: 13px; font-weight: 600; color: #2E2A26;">{{ s.amountFmt }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <sc-if value="{{ salesPager.show }}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin: -18px 0 30px;">
+          <button onClick="{{ salesPager.prev }}" disabled="{{ salesPager.atStart }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ salesPager.prevOpacity }};">← Prev</button>
+          <span style="font-size: 12.5px; color: #857D72;">{{ salesPager.label }}</span>
+          <button onClick="{{ salesPager.next }}" disabled="{{ salesPager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ salesPager.nextOpacity }};">Next →</button>
+        </div>
+      </sc-if>
+
+      <!-- Purchases log -->
+      <h2 style="font-size: 16px; font-weight: 600; margin: 0 0 10px;">Purchases — this period</h2>
+      <sc-if value="{{ noPurchases }}" hint-placeholder-val="{{ false }}">
+        <p style="color: #857D72; text-align: center; padding: 16px 0;">No purchase orders in this period.</p>
+      </sc-if>
+      <div style="overflow-x: auto;">
+        <div style="min-width: 560px; display: flex; flex-direction: column; gap: 6px;">
+          <div style="display: grid; grid-template-columns: 90px minmax(140px,1fr) 100px 110px 100px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+            <span>Date</span><span>Supplier / PO</span><span>Status</span><span>Payment</span><span>Amount</span>
+          </div>
+          <sc-for list="{{ pagedPurchases }}" as="pu" hint-placeholder-count="5">
+            <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; display: grid; grid-template-columns: 90px minmax(140px,1fr) 100px 110px 100px; gap: 10px; align-items: center; padding: 8px 14px;">
+              <span style="font-size: 12px; color: #5C554B;">{{ pu.date }}</span>
+              <span style="font-size: 13px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ pu.label }}</span>
+              <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ pu.statusBg }}; color: {{ pu.statusColor }}; text-align: center; justify-self: start; white-space: nowrap;">{{ pu.statusLabel }}</span>
+              <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ pu.payBg }}; color: {{ pu.payColor }}; text-align: center; justify-self: start; white-space: nowrap;">{{ pu.payLabel }}</span>
+              <span style="font-size: 13px; font-weight: 600; color: #2E2A26;">{{ pu.amountFmt }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <sc-if value="{{ purchasesPager.show }}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 18px;">
+          <button onClick="{{ purchasesPager.prev }}" disabled="{{ purchasesPager.atStart }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ purchasesPager.prevOpacity }};">← Prev</button>
+          <span style="font-size: 12.5px; color: #857D72;">{{ purchasesPager.label }}</span>
+          <button onClick="{{ purchasesPager.next }}" disabled="{{ purchasesPager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ purchasesPager.nextOpacity }};">Next →</button>
+        </div>
+      </sc-if>
+
+    </main>
+  </sc-if>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      authChecked: false, authed: false,
+      email: '', pin: '', loginError: false, loginErrorMsg: '',
+      period: 'month',
+      dbOrders: [], dbPOs: [], dbExpenses: [],
+      openingBalance: 0, openingBalanceInput: '0', savingOB: false,
+      showExpenseForm: false, expenseFormMode: 'new', editingExpenseId: null,
+      newExpense: { date: '', category: 'Other', description: '', amount: '', paymentMethod: '' },
+      expenseError: '', savingExpense: false,
+      confirmDeleteExpense: null,
+      expensePage: 1, expenseSearch: '',
+      salesPage: 1, purchasesPage: 1,
+      rev: 0
+    };
+  }
+
+  componentDidMount() {
+    const sb = window.getSupabase();
+    sb.auth.getSession().then(({ data }) => {
+      this.setState({ authChecked: true, authed: !!(data && data.session) });
+      if (data && data.session) this.loadAll();
+    });
+    sb.auth.onAuthStateChange((_event, session) => {
+      this.setState({ authed: !!session });
+      if (session) this.loadAll();
+    });
+  }
+
+  async loadAll() {
+    await Promise.all([this.loadOrders(), this.loadPOs(), this.loadExpenses(), this.loadAccountSettings()]);
+  }
+
+  async loadOrders() {
+    try {
+      const sb = window.getSupabase();
+      const { data, error } = await sb.from('orders').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      this.setState({ dbOrders: (data || []).map(o => ({
+        id: o.id, ts: new Date(o.created_at).getTime(), name: o.customer_name,
+        total: o.total || 0, paymentStatus: o.payment_status || 'pending'
+      })) });
+    } catch (e) { console.warn('Madzo accounts: could not load orders', e); }
+  }
+
+  async loadPOs() {
+    try {
+      const sb = window.getSupabase();
+      const { data, error } = await sb.from('purchase_orders').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      this.setState({ dbPOs: (data || []).map(p => ({
+        id: p.id, ts: new Date(p.created_at).getTime(), date: p.po_date,
+        supplier: p.supplier_name, status: p.status || 'draft',
+        paymentStatus: p.payment_status || 'pending', netAmount: p.net_amount || 0
+      })) });
+    } catch (e) { console.warn('Madzo accounts: could not load purchase orders', e); }
+  }
+
+  async loadExpenses() {
+    try {
+      const sb = window.getSupabase();
+      const { data, error } = await sb.from('expenses').select('*').order('expense_date', { ascending: false });
+      if (error) throw error;
+      this.setState({ dbExpenses: (data || []).map(e => ({
+        id: e.id, date: e.expense_date, category: e.category || 'Other',
+        description: e.description || '', amount: e.amount || 0, paymentMethod: e.payment_method || ''
+      })) });
+    } catch (e) { console.warn('Madzo accounts: could not load expenses', e); }
+  }
+
+  async loadAccountSettings() {
+    try {
+      const sb = window.getSupabase();
+      const { data, error } = await sb.from('account_settings').select('*').eq('id', 1).maybeSingle();
+      if (error) throw error;
+      const ob = (data && data.opening_balance) || 0;
+      this.setState({ openingBalance: ob, openingBalanceInput: String(ob) });
+    } catch (e) { console.warn('Madzo accounts: could not load account settings', e); }
+  }
+
+  periodRange() {
+    const now = new Date();
+    if (this.state.period === 'month') return { from: new Date(now.getFullYear(), now.getMonth(), 1), to: null };
+    if (this.state.period === 'lastMonth') return { from: new Date(now.getFullYear(), now.getMonth() - 1, 1), to: new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59) };
+    if (this.state.period === 'year') return { from: new Date(now.getFullYear(), 0, 1), to: null };
+    return { from: null, to: null };
+  }
+
+  renderVals() {
+    const authed = this.state.authed;
+    const fmt = (n) => (Number(n) || 0).toFixed(2) + ' QAR';
+    const dfmt = (d) => d ? new Date(d).toLocaleDateString('en', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+
+    const doLogin = async () => {
+      const sb = window.getSupabase();
+      const { error } = await sb.auth.signInWithPassword({ email: this.state.email.trim(), password: this.state.pin });
+      if (error) this.setState({ loginError: true, loginErrorMsg: error.message });
+      else this.setState({ pin: '', loginError: false });
+    };
+
+    const PAGE_SIZE = 10;
+    const makePager = (totalLen, pageKey) => {
+      const totalPages = Math.max(1, Math.ceil(totalLen / PAGE_SIZE));
+      const page = Math.min(Math.max(1, this.state[pageKey] || 1), totalPages);
+      return {
+        page, totalPages, show: totalLen > PAGE_SIZE,
+        label: 'Page ' + page + ' of ' + totalPages + ' (' + totalLen + ' total)',
+        atStart: page <= 1, atEnd: page >= totalPages,
+        prevOpacity: page <= 1 ? '0.4' : '1', nextOpacity: page >= totalPages ? '0.4' : '1',
+        prev: () => this.setState({ [pageKey]: Math.max(1, page - 1) }),
+        next: () => this.setState({ [pageKey]: Math.min(totalPages, page + 1) })
+      };
+    };
+
+    const { from, to } = this.periodRange();
+    const inRange = (ts) => (!from || ts >= from.getTime()) && (!to || ts <= to.getTime());
+
+    const orders = this.state.dbOrders;
+    const pos = this.state.dbPOs;
+    const expenses = this.state.dbExpenses;
+
+    const periodOrders = orders.filter(o => inRange(o.ts));
+    const periodPOs = pos.filter(p => inRange(p.ts));
+    const periodExpensesAll = expenses.filter(e => {
+      const t = e.date ? new Date(e.date).getTime() : 0;
+      return inRange(t);
+    });
+
+    const totalSalesNum = periodOrders.reduce((a, o) => a + (o.total || 0), 0);
+    const confirmedPOs = periodPOs.filter(p => p.status !== 'draft');
+    const totalPurchasesNum = confirmedPOs.reduce((a, p) => a + (p.netAmount || 0), 0);
+    const totalExpensesNum = periodExpensesAll.reduce((a, e) => a + (e.amount || 0), 0);
+    const netProfitNum = totalSalesNum - totalPurchasesNum - totalExpensesNum;
+
+    // Fund in hand — cash basis, always all-time regardless of period filter
+    const paidSales = orders.filter(o => o.paymentStatus === 'paid').reduce((a, o) => a + (o.total || 0), 0);
+    const paidPurchases = pos.filter(p => p.paymentStatus === 'paid').reduce((a, p) => a + (p.netAmount || 0), 0);
+    const allExpensesNum = expenses.reduce((a, e) => a + (e.amount || 0), 0);
+    const fundInHandNum = (this.state.openingBalance || 0) + paidSales - paidPurchases - allExpensesNum;
+
+    const payMeta = (ps) => ps === 'paid'
+      ? { label: 'Paid', bg: '#DDF0E2', color: '#1E8A4C' }
+      : ps === 'partially_paid'
+        ? { label: 'Partial', bg: '#DCE8F6', color: '#2A5C99' }
+        : { label: 'Pending', bg: '#FBEFD4', color: '#9A6E12' };
+    const poStatusMeta = (status) => status === 'received'
+      ? { label: 'Received', bg: '#DDF0E2', color: '#1E8A4C' }
+      : status === 'sent'
+        ? { label: 'Sent', bg: '#DCE8F6', color: '#2A5C99' }
+        : { label: 'Draft', bg: '#F1ECE2', color: '#857D72' };
+
+    // ---- Sales log ----
+    const salesPager = makePager(periodOrders.length, 'salesPage');
+    const pagedSales = periodOrders
+      .slice((salesPager.page - 1) * PAGE_SIZE, salesPager.page * PAGE_SIZE)
+      .map(o => {
+        const pm = payMeta(o.paymentStatus);
+        return { date: dfmt(o.ts), label: o.id + ' · ' + (o.name || '—'), payLabel: pm.label, payBg: pm.bg, payColor: pm.color, amountFmt: fmt(o.total) };
+      });
+
+    // ---- Purchases log ----
+    const purchasesPager = makePager(periodPOs.length, 'purchasesPage');
+    const pagedPurchases = periodPOs
+      .slice((purchasesPager.page - 1) * PAGE_SIZE, purchasesPager.page * PAGE_SIZE)
+      .map(p => {
+        const sm = poStatusMeta(p.status);
+        const pm = payMeta(p.paymentStatus);
+        return { date: dfmt(p.ts), label: (p.supplier || '—') + ' · ' + p.id, statusLabel: sm.label, statusBg: sm.bg, statusColor: sm.color, payLabel: pm.label, payBg: pm.bg, payColor: pm.color, amountFmt: fmt(p.netAmount) };
+      });
+
+    // ---- Expenses ----
+    const exQ = this.state.expenseSearch.trim().toLowerCase();
+    const filteredExpenses = exQ
+      ? expenses.filter(e => (e.category + ' ' + e.description).toLowerCase().includes(exQ))
+      : expenses;
+    const expensePager = makePager(filteredExpenses.length, 'expensePage');
+    const pagedExpensesRaw = filteredExpenses.slice((expensePager.page - 1) * PAGE_SIZE, expensePager.page * PAGE_SIZE);
+    const ne = this.state.newExpense;
+
+    const pagedExpenses = pagedExpensesRaw.map(e => ({
+      date: dfmt(e.date), category: e.category, description: e.description || '—',
+      amountFmt: fmt(e.amount), paymentMethod: e.paymentMethod || '—',
+      confirmingDelete: this.state.confirmDeleteExpense === e.id,
+      askRemove: () => this.setState({ confirmDeleteExpense: e.id }),
+      cancelRemove: () => this.setState({ confirmDeleteExpense: null }),
+      confirmRemove: () => {
+        this.setState({ confirmDeleteExpense: null });
+        window.getSupabase().from('expenses').delete().eq('id', e.id).then(({ error }) => {
+          if (error) console.warn('Madzo accounts: expense delete failed', error);
+          this.loadExpenses();
+        });
+      },
+      startEdit: () => this.setState({
+        showExpenseForm: true, expenseFormMode: 'edit', editingExpenseId: e.id, expenseError: '',
+        newExpense: { date: e.date, category: e.category, description: e.description, amount: e.amount, paymentMethod: e.paymentMethod }
+      })
+    }));
+
+    const setEx = (key) => (e) => this.setState(s => ({ newExpense: { ...s.newExpense, [key]: e.target.value }, expenseError: '' }));
+
+    const today = new Date().toISOString().slice(0, 10);
+    const pillActive = (cond) => cond ? { bg: '#2E2A26', color: '#FDF9F4' } : { bg: '#FDF9F4', color: '#857D72' };
+    const pm1 = pillActive(this.state.period === 'month');
+    const pm2 = pillActive(this.state.period === 'lastMonth');
+    const pm3 = pillActive(this.state.period === 'year');
+    const pm4 = pillActive(this.state.period === 'all');
+
+    return {
+      isLogin: this.state.authChecked && !authed,
+      isMain: this.state.authChecked && authed,
+      email: this.state.email, onEmail: (e) => this.setState({ email: e.target.value, loginError: false }),
+      pin: this.state.pin, onPin: (e) => this.setState({ pin: e.target.value, loginError: false }),
+      pinKey: (e) => { if (e.key === 'Enter') doLogin(); },
+      loginError: this.state.loginError, loginErrorMsg: this.state.loginErrorMsg,
+      loginLabel: 'Sign in', doLogin,
+      doLogout: () => window.getSupabase().auth.signOut(),
+
+      setPeriodMonth: () => this.setState({ period: 'month' }),
+      setPeriodLastMonth: () => this.setState({ period: 'lastMonth' }),
+      setPeriodYear: () => this.setState({ period: 'year' }),
+      setPeriodAll: () => this.setState({ period: 'all' }),
+      pMonthBg: pm1.bg, pMonthColor: pm1.color,
+      pLastMonthBg: pm2.bg, pLastMonthColor: pm2.color,
+      pYearBg: pm3.bg, pYearColor: pm3.color,
+      pAllBg: pm4.bg, pAllColor: pm4.color,
+
+      totalSales: fmt(totalSalesNum), salesCount: periodOrders.length,
+      totalPurchases: fmt(totalPurchasesNum), purchaseCount: confirmedPOs.length,
+      totalExpensesFmt: fmt(totalExpensesNum), expenseCount: periodExpensesAll.length,
+      profitLabel: netProfitNum >= 0 ? 'Net profit' : 'Net loss',
+      profitFmt: fmt(Math.abs(netProfitNum)),
+      profitColor: netProfitNum >= 0 ? '#1E8A4C' : '#C0392B',
+      profitCardBg: netProfitNum >= 0 ? '#EAF7EE' : '#FCECEA',
+      profitCardBorder: netProfitNum >= 0 ? '#CDE9D5' : '#F3D9D6',
+      profitLabelColor: netProfitNum >= 0 ? '#1E8A4C' : '#96352C',
+
+      fundInHand: fmt(fundInHandNum),
+      openingBalanceInput: this.state.openingBalanceInput,
+      onOpeningBalance: (e) => this.setState({ openingBalanceInput: e.target.value }),
+      saveOBLabel: this.state.savingOB ? 'Saving…' : 'Save',
+      saveOpeningBalance: async () => {
+        const val = Math.max(0, Number(this.state.openingBalanceInput) || 0);
+        this.setState({ savingOB: true });
+        const { error } = await window.getSupabase().from('account_settings').upsert({ id: 1, opening_balance: val, opening_balance_date: today, updated_at: new Date().toISOString() });
+        this.setState({ savingOB: false });
+        if (error) { console.warn('Madzo accounts: could not save opening balance', error); alert('Could not save: ' + error.message); return; }
+        this.setState({ openingBalance: val });
+      },
+
+      showExpenseForm: this.state.showExpenseForm,
+      expenseFormLabel: this.state.showExpenseForm ? 'Close' : '+ Add expense',
+      expenseFormTitle: this.state.expenseFormMode === 'edit' ? 'Edit expense' : 'New expense',
+      toggleExpenseForm: () => {
+        const opening = !this.state.showExpenseForm;
+        this.setState({
+          showExpenseForm: opening, expenseFormMode: 'new', editingExpenseId: null, expenseError: '',
+          newExpense: opening ? { date: today, category: 'Other', description: '', amount: '', paymentMethod: '' } : this.state.newExpense
+        });
+      },
+      newExpense: ne, expenseError: this.state.expenseError,
+      onExDate: setEx('date'), onExCategory: setEx('category'), onExAmount: setEx('amount'),
+      onExPaymentMethod: setEx('paymentMethod'), onExDescription: setEx('description'),
+      saveExpenseLabel: this.state.savingExpense ? 'Saving…' : 'Save expense',
+      saveExpense: async () => {
+        const amount = Number(ne.amount);
+        if (!ne.date) { this.setState({ expenseError: 'Please set a date.' }); return; }
+        if (!amount || amount <= 0) { this.setState({ expenseError: 'Please enter a valid amount.' }); return; }
+        this.setState({ savingExpense: true });
+        const payload = {
+          expense_date: ne.date, category: ne.category || 'Other',
+          description: String(ne.description || '').trim() || null,
+          amount, payment_method: String(ne.paymentMethod || '').trim() || null
+        };
+        const sb = window.getSupabase();
+        const { error } = this.state.expenseFormMode === 'edit'
+          ? await sb.from('expenses').update(payload).eq('id', this.state.editingExpenseId)
+          : await sb.from('expenses').insert(payload);
+        this.setState({ savingExpense: false });
+        if (error) { this.setState({ expenseError: error.message }); return; }
+        this.setState({ showExpenseForm: false, expenseError: '', editingExpenseId: null, newExpense: { date: '', category: 'Other', description: '', amount: '', paymentMethod: '' } });
+        this.loadExpenses();
+      },
+      expenseSearch: this.state.expenseSearch,
+      onExpenseSearch: (e) => this.setState({ expenseSearch: e.target.value, expensePage: 1 }),
+      pagedExpenses, noExpenses: filteredExpenses.length === 0, expensePager,
+
+      pagedSales, noSales: periodOrders.length === 0, salesPager,
+      pagedPurchases, noPurchases: periodPOs.length === 0, purchasesPager
+    };
+  }
+}
+</script>
+</body>
+</html>

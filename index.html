@@ -21,6 +21,8 @@
     input, textarea, select, button { font-family: inherit; }
     a { color: #461610; }
     a:hover { color: #39120D; }
+    .madzo-scroll-row { scrollbar-width: none; -ms-overflow-style: none; }
+    .madzo-scroll-row::-webkit-scrollbar { display: none; height: 0; }
   </style>
 </helmet>
 
@@ -83,7 +85,7 @@
   <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
     <section data-screen-label="Home">
       <!-- Category circles -->
-      <div style="max-width: 1400px; margin: 0 auto; padding: 22px 18px 8px; display: flex; gap: 22px; overflow-x: auto; justify-content: safe center;">
+      <div class="madzo-scroll-row" style="max-width: 1400px; margin: 0 auto; padding: 22px 18px 8px; display: flex; gap: 22px; overflow-x: auto; justify-content: safe center;">
         <a onClick="{{ shopAllLink }}" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 96px; text-decoration: none;">
           <image-slot id="v3-cat-new" src="{{ imgCatNew }}" shape="circle" placeholder="Photo" style="width: 96px; height: 96px; display: block; background: #FDF9F4; border-radius: 50%;"></image-slot>
           <span style="font-size: 13.5px; color: #2E2A26; text-align: center;">{{ t.newlyLaunched }}</span>
@@ -106,10 +108,10 @@
         </a>
       </div>
 
-      <!-- Hero banner (full-bleed, spans the entire browser width like a typical cosmetics storefront) -->
-      <div style="width: 100%; margin: 18px 0 0; padding: 0;">
+      <!-- Hero banner -->
+      <div style="max-width: 1100px; margin: 18px auto 0; padding: 0 0;">
         <div style="position: relative; overflow: hidden;">
-          <image-slot id="v3-hero" src="{{ imgHero }}" shape="rect" placeholder="Drop a wide banner photo (model / hero shot)" style="width: 100%; height: clamp(220px, 38vw, 420px); display: block; background: #FDF9F4;"></image-slot>
+          <image-slot id="v3-hero" src="{{ imgHero }}" shape="rect" placeholder="Drop a wide banner photo (model / hero shot)" style="width: 100%; height: clamp(220px, 38vw, 420px); display: block; background: #F1ECE2;"></image-slot>
         </div>
       </div>
 
@@ -433,20 +435,6 @@ class Component extends DCLogic {
     this.loadProducts();
     this.loadSettings();
     this.loadSiteImages();
-    this.setupResponsiveHero();
-  }
-
-  // On narrow (mobile) screens, switch the hero banner from cover -> contain so
-  // the full image (logo, key content) is always visible instead of having its
-  // sides cropped off by a fixed-height container designed for wide desktop use.
-  setupResponsiveHero() {
-    const apply = () => {
-      const hero = document.getElementById('v3-hero');
-      if (!hero) return;
-      hero.setAttribute('fit', window.innerWidth < 680 ? 'contain' : 'cover');
-    };
-    apply();
-    window.addEventListener('resize', apply);
   }
 
   async loadSiteImages() {

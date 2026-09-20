@@ -437,6 +437,20 @@ class Component extends DCLogic {
     this.loadProducts();
     this.loadSettings();
     this.loadSiteImages();
+    this.setupResponsiveHero();
+  }
+
+  // On narrow (mobile) screens, switch the hero banner from cover -> contain so
+  // the full image (logo, key content) is always visible instead of having its
+  // sides cropped off by a fixed-height container designed for wide desktop use.
+  setupResponsiveHero() {
+    const apply = () => {
+      const hero = document.getElementById('v3-hero');
+      if (!hero) return;
+      hero.setAttribute('fit', window.innerWidth < 680 ? 'contain' : 'cover');
+    };
+    apply();
+    window.addEventListener('resize', apply);
   }
 
   async loadSiteImages() {

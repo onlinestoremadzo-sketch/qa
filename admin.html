@@ -189,7 +189,10 @@
         <section data-screen-label="Products Admin">
           <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px;">
             <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Products & stock</h1>
-            <button onClick="{{ toggleAddForm }}" style="background: #461610; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #39120D;">{{ addFormLabel }}</button>
+            <span style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button onClick="{{ toggleCatManager }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #461610; color: #FDF9F4;">{{ catManagerLabel }}</button>
+              <button onClick="{{ toggleAddForm }}" style="background: #461610; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #39120D;">{{ addFormLabel }}</button>
+            </span>
           </div>
           <sc-if value="{{ untranslatedCount }}" hint-placeholder-val="{{ false }}">
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #F6EDDB; border: 1px solid #E0C9A2; border-radius: 12px; padding: 10px 14px; margin-bottom: 14px;">
@@ -199,6 +202,107 @@
           </sc-if>
           <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Changes apply to the storefront immediately. Stock quantity and stock status now live in the <strong>Inventory</strong> tab.</p>
 
+          <sc-if value="{{ showCatManager }}" hint-placeholder-val="{{ false }}">
+            <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 14px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                <h2 style="font-size: 15px; font-weight: 600; margin: 0;">Categories</h2>
+                <span style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button onClick="{{ newMainCatForm }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 7px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">+ Main category</button>
+                  <button onClick="{{ newSubCatForm }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 7px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">+ Subcategory</button>
+                </span>
+              </div>
+              <sc-if value="{{ catsError }}" hint-placeholder-val="{{ false }}">
+                <div style="background: #F6EDDB; border: 1px solid #E0C9A2; border-radius: 12px; padding: 10px 14px; font-size: 12.5px; color: #7A5F27;">Categories can't be saved yet — run <strong>madzo-categories.sql</strong> once in Supabase (SQL Editor), then reload this page. Until then you're seeing the default categories.</div>
+              </sc-if>
+
+              <sc-if value="{{ catFormOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="background: #F1ECE2; border: 1px solid #E7DECF; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;">
+                  <h3 style="font-size: 13.5px; font-weight: 600; margin: 0;">{{ catFormTitle }}</h3>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px;">
+                    <sc-if value="{{ catFormIsSub }}" hint-placeholder-val="{{ false }}">
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Main category
+                        <select value="{{ catFormMain }}" onChange="{{ onCatFormMain }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                          <sc-for list="{{ catFormMainOptions }}" as="cm" hint-placeholder-count="2">
+                            <option value="{{ cm.id }}" selected="{{ cm.selected }}">{{ cm.label }}</option>
+                          </sc-for>
+                        </select>
+                      </label>
+                    </sc-if>
+                    <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Name (English)
+                      <input value="{{ catFormName }}" onChange="{{ onCatFormName }}" placeholder="e.g. Fragrance" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                    </label>
+                    <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Name (Arabic) — optional, auto-translated if empty
+                      <input value="{{ catFormNameAr }}" onChange="{{ onCatFormNameAr }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: rtl;" style-focus="border-color: #461610;">
+                    </label>
+                  </div>
+                  <sc-if value="{{ catError }}" hint-placeholder-val="{{ false }}">
+                    <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ catError }}</p>
+                  </sc-if>
+                  <span style="display: flex; gap: 10px;">
+                    <button onClick="{{ saveCategory }}" disabled="{{ savingCat }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 9px 20px; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="filter: brightness(1.07);">{{ saveCatLabel }}</button>
+                    <button onClick="{{ cancelCatForm }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 9px 20px; font-size: 13px; cursor: pointer;">Cancel</button>
+                  </span>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ catFormClosedError }}" hint-placeholder-val="{{ false }}">
+                <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ catError }}</p>
+              </sc-if>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px;">
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <div style="font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px; padding: 0 4px;">Main categories</div>
+                  <sc-for list="{{ mainCatRows }}" as="mc" hint-placeholder-count="2">
+                    <div class="madzo-prod-row" style="background: #F1ECE2; border: 1px solid #E7DECF; border-radius: 10px; display: flex; flex-direction: column;">
+                      <div style="display: flex; align-items: center; gap: 10px; padding: 8px 12px;">
+                        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px;">
+                          <span style="font-size: 13.5px; font-weight: 600; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ mc.name }}</span>
+                          <span style="font-size: 11.5px; color: #857D72;">{{ mc.meta }}</span>
+                        </span>
+                        <button onClick="{{ mc.startEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 4px 11px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">Edit</button>
+                        <button onClick="{{ mc.askRemove }}" class="madzo-del-btn" aria-label="Delete main category" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px; line-height: 1;">×</button>
+                      </div>
+                      <sc-if value="{{ mc.confirmingDelete }}" hint-placeholder-val="{{ false }}">
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #FCECEA; border-top: 1px solid #F3D9D6; border-radius: 0 0 10px 10px; padding: 8px 12px;">
+                          <span style="font-size: 12.5px; color: #96352C;">Delete <strong>{{ mc.name }}</strong>?</span>
+                          <span style="display: flex; gap: 8px; margin-inline-start: auto;">
+                            <button onClick="{{ mc.confirmRemove }}" style="background: #C0392B; color: #fff; border: none; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; font-weight: 600; cursor: pointer;">Yes, delete</button>
+                            <button onClick="{{ mc.cancelRemove }}" style="background: none; border: 1px solid #E3B7B1; color: #96352C; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;">Cancel</button>
+                          </span>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <div style="font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px; padding: 0 4px;">Subcategories</div>
+                  <sc-for list="{{ subCatRows }}" as="sc" hint-placeholder-count="4">
+                    <div class="madzo-prod-row" style="background: #F1ECE2; border: 1px solid #E7DECF; border-radius: 10px; display: flex; flex-direction: column;">
+                      <div style="display: flex; align-items: center; gap: 10px; padding: 8px 12px;">
+                        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px;">
+                          <span style="font-size: 13.5px; font-weight: 600; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ sc.name }}</span>
+                          <span style="font-size: 11.5px; color: #857D72;">{{ sc.meta }}</span>
+                        </span>
+                        <button onClick="{{ sc.startEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 4px 11px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">Edit</button>
+                        <button onClick="{{ sc.askRemove }}" class="madzo-del-btn" aria-label="Delete subcategory" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px; line-height: 1;">×</button>
+                      </div>
+                      <sc-if value="{{ sc.confirmingDelete }}" hint-placeholder-val="{{ false }}">
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #FCECEA; border-top: 1px solid #F3D9D6; border-radius: 0 0 10px 10px; padding: 8px 12px;">
+                          <span style="font-size: 12.5px; color: #96352C;">Delete <strong>{{ sc.name }}</strong>?</span>
+                          <span style="display: flex; gap: 8px; margin-inline-start: auto;">
+                            <button onClick="{{ sc.confirmRemove }}" style="background: #C0392B; color: #fff; border: none; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; font-weight: 600; cursor: pointer;">Yes, delete</button>
+                            <button onClick="{{ sc.cancelRemove }}" style="background: none; border: 1px solid #E3B7B1; color: #96352C; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;">Cancel</button>
+                          </span>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <p style="color: #B0A697; font-size: 12px; margin: 0;">A category can only be deleted when no products use it. New subcategories show up on the storefront menu and Home page automatically — add their photos from the Images tab.</p>
+            </div>
+          </sc-if>
+
           <sc-if value="{{ showAddForm }}" hint-placeholder-val="{{ false }}">
             <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
               <h2 style="font-size: 15px; font-weight: 600; margin: 0;">New product</h2>
@@ -207,16 +311,17 @@
                   <input value="{{ newProd.id }}" onChange="{{ onNewId }}" placeholder="MZ-0001" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Main category
-                  <select value="{{ newProd.mainCat }}" onChange="{{ onNewMainCat }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
-                    <option value="cosmetics">Cosmetics</option>
+                  <select value="{{ newMainVal }}" onChange="{{ onNewMainCat }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                    <sc-for list="{{ newMainOptions }}" as="nm" hint-placeholder-count="1">
+                      <option value="{{ nm.id }}" selected="{{ nm.selected }}">{{ nm.label }}</option>
+                    </sc-for>
                   </select>
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Subcategory
-                  <select value="{{ newProd.cat }}" onChange="{{ onNewCat }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
-                    <option value="skincare">Skin Care</option>
-                    <option value="haircare">Hair Care</option>
-                    <option value="makeup">Makeup</option>
-                    <option value="accessories">Accessories</option>
+                  <select value="{{ newCatVal }}" onChange="{{ onNewCat }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                    <sc-for list="{{ newSubOptions }}" as="ns" hint-placeholder-count="4">
+                      <option value="{{ ns.id }}" selected="{{ ns.selected }}">{{ ns.label }}</option>
+                    </sc-for>
                   </select>
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Brand (optional)
@@ -225,11 +330,20 @@
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Product name
                   <input value="{{ newProd.name }}" onChange="{{ onNewName }}" placeholder="e.g. Vitamin C Serum" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
-                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Price (QAR)
-                  <input value="{{ newProd.price }}" onChange="{{ onNewPrice }}" type="number" min="0" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+              </div>
+              <div style="font-size: 11px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px; margin-top: 4px;">Pricing &amp; first batch <span style="text-transform: none; font-weight: 400; letter-spacing: 0;">— optional, saved as this product's first inventory batch</span></div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Batch no.
+                  <input value="{{ newProd.batchNo }}" onChange="{{ onNewBatchNo }}" placeholder="e.g. B-2026-014" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
-                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Stock
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Quantity
                   <input value="{{ newProd.stock }}" onChange="{{ onNewStock }}" type="number" min="0" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Buy price (QAR)
+                  <input value="{{ newProd.buyPrice }}" onChange="{{ onNewBuyPrice }}" type="number" min="0" step="0.01" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Sell price (QAR) — shown on storefront
+                  <input value="{{ newProd.price }}" onChange="{{ onNewPrice }}" type="number" min="0" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
               </div>
               <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Description — shown to customers
@@ -294,15 +408,16 @@
                       </label>
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Main category
                         <select value="{{ p.edMainCat }}" onChange="{{ p.onEdMainCat }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; cursor: pointer;">
-                          <option value="cosmetics">Cosmetics</option>
+                          <sc-for list="{{ p.edMainOptions }}" as="em" hint-placeholder-count="1">
+                            <option value="{{ em.id }}" selected="{{ em.selected }}">{{ em.label }}</option>
+                          </sc-for>
                         </select>
                       </label>
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Subcategory
                         <select value="{{ p.edCat }}" onChange="{{ p.onEdCat }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; cursor: pointer;">
-                          <option value="skincare">Skin Care</option>
-                          <option value="haircare">Hair Care</option>
-                          <option value="makeup">Makeup</option>
-                          <option value="accessories">Accessories</option>
+                          <sc-for list="{{ p.edCatOptions }}" as="ec" hint-placeholder-count="4">
+                            <option value="{{ ec.id }}" selected="{{ ec.selected }}">{{ ec.label }}</option>
+                          </sc-for>
                         </select>
                       </label>
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Brand
@@ -769,7 +884,7 @@
           </div>
           <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Track stock by batch — expiry, supplier, and cost. A product's total stock updates automatically from its batches.</p>
 
-          <div style="position: relative; margin-bottom: 14px; max-width: 320px;">
+          <div style="position: relative; margin-bottom: 14px; max-width: 420px;">
             <input value="{{ invSearch }}" onChange="{{ onInvSearch }}" placeholder="Search by product, SKU, brand, batch, supplier…" style="width: 100%; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13.5px; outline: none; box-sizing: border-box;" style-focus="border-color: #461610;">
           </div>
 
@@ -777,14 +892,14 @@
           <p style="color: #B0A697; font-size: 12px; margin: 0 0 10px;">Current stock and status per product. Adjust directly here, or add a batch below for full batch tracking.</p>
           <div style="overflow-x: auto; margin-bottom: 26px;">
             <div style="min-width: 660px; display: flex; flex-direction: column; gap: 6px;">
-              <div style="display: grid; grid-template-columns: 40px minmax(150px,1fr) 84px 100px 140px 110px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
-                <span></span><span>Product</span><span>ID</span><span>Brand</span><span>Stock</span><span>Status</span>
+              <div style="display: grid; grid-template-columns: 90px 40px minmax(150px,1fr) 100px 140px 110px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                <span>ID</span><span></span><span>Product</span><span>Brand</span><span>Stock</span><span>Status</span>
               </div>
               <sc-for list="{{ pagedInvStock }}" as="p" hint-placeholder-count="8">
-                <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; display: grid; grid-template-columns: 40px minmax(150px,1fr) 84px 100px 140px 110px; gap: 10px; align-items: center; padding: 8px 14px;">
+                <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; display: grid; grid-template-columns: 90px 40px minmax(150px,1fr) 100px 140px 110px; gap: 10px; align-items: center; padding: 8px 14px;">
+                  <span style="font-size: 11.5px; font-weight: 600; color: #461610; direction: ltr; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.sku }}</span>
                   <image-slot id="stk-{{ p.sku }}" src="{{ p.img }}" shape="rounded" radius="8" placeholder="Photo" style="width: 36px; height: 36px; display: block; background: #F1ECE2;"></image-slot>
                   <span style="font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ p.name }}">{{ p.name }}</span>
-                  <span style="font-size: 11px; color: #461610; direction: ltr; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.sku }}</span>
                   <span style="font-size: 12px; color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.brand }}</span>
                   <span style="display: inline-flex; align-items: center; gap: 6px; border: 1px solid #D8CCBC; border-radius: 999px; padding: 3px 6px; background: #F1ECE2; justify-self: start;">
                     <button onClick="{{ p.decStock }}" style="background: none; border: none; color: #461610; font-size: 15px; cursor: pointer; padding: 0 4px; line-height: 1;">−</button>
@@ -874,21 +989,22 @@
             <p style="color: #857D72; text-align: center; padding: 30px 0;">No inventory batches yet.</p>
           </sc-if>
           <div style="overflow-x: auto;">
-            <div style="min-width: 900px; display: flex; flex-direction: column; gap: 6px;">
-              <div style="display: grid; grid-template-columns: minmax(160px,1fr) 84px 150px 56px minmax(100px,120px) 74px 74px 104px 90px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
-                <span>Product</span><span>SKU</span><span>Batch / Received</span><span>Qty</span><span>Supplier</span><span>Buy</span><span>Sell</span><span>Expiry</span><span></span>
+            <div style="min-width: 950px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: grid; grid-template-columns: 78px minmax(120px,1fr) 84px 44px 90px 62px 62px 96px 90px 84px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                <span>ID</span><span>Product</span><span>Brand</span><span>Qty</span><span>Batch</span><span>Buy</span><span>Sell</span><span>Expiry</span><span>Supplier</span><span></span>
               </div>
               <sc-for list="{{ pagedBatches }}" as="b2" hint-placeholder-count="6">
                 <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px;">
-                  <div style="display: grid; grid-template-columns: minmax(160px,1fr) 84px 150px 56px minmax(100px,120px) 74px 74px 104px 90px; gap: 10px; align-items: center; padding: 9px 14px;">
+                  <div style="display: grid; grid-template-columns: 78px minmax(120px,1fr) 84px 44px 90px 62px 62px 96px 90px 84px; gap: 10px; align-items: center; padding: 9px 14px;">
+                    <span style="font-size: 11.5px; font-weight: 600; color: #461610; direction: ltr; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ b2.sku }}</span>
                     <span style="font-weight: 600; font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ b2.productName }}">{{ b2.productName }}</span>
-                    <span style="font-size: 11px; color: #461610; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ b2.sku }}</span>
-                    <span style="font-size: 11.5px; color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ b2.batchNo }} · {{ b2.received }}</span>
+                    <span style="font-size: 12px; color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ b2.brand }}">{{ b2.brand }}</span>
                     <span style="font-size: 13px; font-weight: 600; color: #2E2A26;">{{ b2.qty }}</span>
-                    <span style="font-size: 12px; color: #5C554B; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ b2.supplier }}</span>
+                    <span style="font-size: 12px; color: #5C554B; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ b2.receivedTitle }}">{{ b2.batchNo }}</span>
                     <span style="font-size: 12px; color: #5C554B;">{{ b2.buyPrice }}</span>
                     <span style="font-size: 12px; color: #5C554B;">{{ b2.sellPrice }}</span>
                     <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ b2.expiryBg }}; color: {{ b2.expiryColor }}; text-align: center; white-space: nowrap;">{{ b2.expiryLabel }}</span>
+                    <span style="font-size: 12px; color: #5C554B; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ b2.supplier }}">{{ b2.supplier }}</span>
                     <span style="display: flex; gap: 6px; justify-self: end;">
                       <button onClick="{{ b2.startEdit }}" title="Edit" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 10px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">Edit</button>
                       <button onClick="{{ b2.askRemove }}" class="madzo-del-btn" aria-label="Delete batch" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px; line-height: 1;">×</button>
@@ -1088,7 +1204,7 @@ class Component extends DCLogic {
       savedMsg: false,
       setWa: '',
       showAddForm: false,
-      newProd: { id: '', name: '', mainCat: 'cosmetics', cat: 'skincare', brand: '', desc: '', price: '', stock: '' },
+      newProd: { id: '', name: '', mainCat: 'cosmetics', cat: 'skincare', brand: '', desc: '', price: '', stock: '', batchNo: '', buyPrice: '' },
       newProdError: '',
       editSku: null,
       editDraft: null,
@@ -1126,6 +1242,8 @@ class Component extends DCLogic {
       batchError: '',
       confirmDeleteBatch: null,
       dbProducts: [], dbOrders: [], dbPOs: [], dbSuppliers: [], dbBatches: [],
+      dbMainCats: [], dbSubCats: [], catsLoaded: false, catsError: '',
+      showCatManager: false, catForm: null, catError: '', savingCat: false, confirmDelCat: null,
       siteImages: {},
       rev: 0
     };
@@ -1144,7 +1262,45 @@ class Component extends DCLogic {
   }
 
   async loadAll() {
-    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadSuppliers(), this.loadBatches()]);
+    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadSuppliers(), this.loadBatches(), this.loadCategories()]);
+  }
+
+  // Main categories + subcategories (editable from Products → Categories).
+  async loadCategories() {
+    try {
+      const sb = window.getSupabase();
+      const [m, s] = await Promise.all([
+        sb.from('main_categories').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: true }),
+        sb.from('subcategories').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: true })
+      ]);
+      if (m.error || s.error) throw (m.error || s.error);
+      this.setState({
+        dbMainCats: (m.data || []).map(x => ({ id: x.id, name: x.name, nameAr: x.name_ar || '', sort: x.sort_order || 0 })),
+        dbSubCats: (s.data || []).map(x => ({ id: x.id, main: x.main_category, name: x.name, nameAr: x.name_ar || '', sort: x.sort_order || 0 })),
+        catsLoaded: true, catsError: ''
+      });
+    } catch (e) {
+      console.warn('Madzo admin: categories not available yet', e);
+      this.setState({ catsLoaded: false, catsError: (e && e.message) || 'Categories tables not found' });
+    }
+  }
+
+  defaultCats() {
+    return {
+      mains: [{ id: 'cosmetics', name: 'Cosmetics', nameAr: 'مستحضرات التجميل', sort: 1 }],
+      subs: [
+        { id: 'skincare', main: 'cosmetics', name: 'Skin Care', nameAr: 'العناية بالبشرة', sort: 1 },
+        { id: 'haircare', main: 'cosmetics', name: 'Hair Care', nameAr: 'العناية بالشعر', sort: 2 },
+        { id: 'makeup', main: 'cosmetics', name: 'Makeup', nameAr: 'المكياج', sort: 3 },
+        { id: 'accessories', main: 'cosmetics', name: 'Accessories', nameAr: 'الإكسسوارات', sort: 4 }
+      ]
+    };
+  }
+
+  // Database categories once loaded; the original four while the SQL hasn't been run yet.
+  cats() {
+    if (this.state.catsLoaded) return { mains: this.state.dbMainCats, subs: this.state.dbSubCats };
+    return this.defaultCats();
   }
 
   async loadBatches() {
@@ -1563,7 +1719,8 @@ class Component extends DCLogic {
   }
 
   catLabel(key) {
-    return ({ skincare: 'Skin Care', haircare: 'Hair Care', makeup: 'Makeup', accessories: 'Accessories' })[key] || key || '—';
+    const sub = this.cats().subs.find(s => s.id === key);
+    return sub ? sub.name : (key || '—');
   }
 
   nextId() {
@@ -1703,25 +1860,34 @@ class Component extends DCLogic {
       if (f) this.uploadSiteImage(key, f);
       e.target.value = '';
     };
+    // ---- categories (database once set up, defaults before) ----
+    const { mains: mainCats, subs: subCats } = this.cats();
+    const resolveCat = (main, cat) => {
+      const m = mainCats.some(x => x.id === main) ? main : (mainCats[0] ? mainCats[0].id : '');
+      const subsOfM = subCats.filter(s => s.main === m);
+      const c = subsOfM.some(s => s.id === cat) ? cat : (subsOfM[0] ? subsOfM[0].id : '');
+      return { main: m, cat: c };
+    };
+    const mainOptionsFor = (sel) => mainCats.map(m => ({ id: m.id, label: m.name, selected: m.id === sel }));
+    const subOptionsFor = (main, sel) => subCats.filter(s => s.main === main).map(s => ({ id: s.id, label: s.name, selected: s.id === sel }));
+    const mainName = (id) => { const m = mainCats.find(x => x.id === id); return m ? m.name : (id || '—'); };
+    const legacyImgKey = { skincare: 'skin', haircare: 'hair', makeup: 'makeup', accessories: 'acc' };
+    const imgKeyFor = (id) => legacyImgKey[id] || id;
+    const legacyImgs = ['hero', 'cat-new', 'cat-skin', 'cat-hair', 'cat-makeup', 'cat-acc', 'col-new', 'col-skin', 'col-hair', 'col-makeup', 'col-acc', 'col-gift'];
+
     const mkSlot = (x) => ({
       ...x,
       slotId: 'v3-' + x.key,
-      img: si[x.key] || ('assets/samples/' + x.key + '.jpg'),
+      img: si[x.key] || (legacyImgs.indexOf(x.key) >= 0 ? 'assets/samples/' + x.key + '.jpg' : ''),
       onUpload: siteUploader(x.key)
     });
     const catSlots = [
       { key: 'cat-new', label: 'Newly launched' },
-      { key: 'cat-skin', label: 'Skin Care' },
-      { key: 'cat-hair', label: 'Hair Care' },
-      { key: 'cat-makeup', label: 'Makeup' },
-      { key: 'cat-acc', label: 'Accessories' }
+      ...subCats.map(s => ({ key: 'cat-' + imgKeyFor(s.id), label: s.name }))
     ].map(mkSlot);
     const colSlots = [
       { key: 'col-new', label: 'Newly launched' },
-      { key: 'col-skin', label: 'Skin Care' },
-      { key: 'col-hair', label: 'Hair Care' },
-      { key: 'col-makeup', label: 'Makeup' },
-      { key: 'col-acc', label: 'Accessories' },
+      ...subCats.map(s => ({ key: 'col-' + imgKeyFor(s.id), label: s.name })),
       { key: 'col-gift', label: 'Gift sets' }
     ].map(mkSlot);
 
@@ -1732,7 +1898,7 @@ class Component extends DCLogic {
       const d = editing ? (this.state.editDraft || {}) : {};
       return {
         sku: p.sku, name: p.name,
-        metaLine: 'Cosmetics · ' + this.catLabel(p.catKey) + (p.brand ? ' · ' + p.brand : ''),
+        metaLine: mainName(p.mainCat) + ' · ' + this.catLabel(p.catKey) + (p.brand ? ' · ' + p.brand : ''),
         catLabel: this.catLabel(p.catKey),
         brand: p.brand || '—',
         img: p.img || '',
@@ -1761,8 +1927,15 @@ class Component extends DCLogic {
           }
         }),
         edId: d.id || '', onEdId: setDraft('id'),
-        edMainCat: d.mainCat || 'cosmetics', onEdMainCat: setDraft('mainCat'),
-        edCat: d.cat || 'skincare', onEdCat: setDraft('cat'),
+        edMainCat: editing ? resolveCat(d.mainCat, d.cat).main : '',
+        onEdMainCat: (e) => this.setState(s => {
+          const first = subCats.filter(x => x.main === e.target.value)[0];
+          return { editDraft: { ...s.editDraft, mainCat: e.target.value, cat: first ? first.id : '' }, editError: '' };
+        }),
+        edCat: editing ? resolveCat(d.mainCat, d.cat).cat : '',
+        onEdCat: setDraft('cat'),
+        edMainOptions: editing ? mainOptionsFor(resolveCat(d.mainCat, d.cat).main) : [],
+        edCatOptions: editing ? subOptionsFor(resolveCat(d.mainCat, d.cat).main, resolveCat(d.mainCat, d.cat).cat) : [],
         edBrand: d.brand || '', onEdBrand: setDraft('brand'),
         edName: d.name || '', onEdName: setDraft('name'),
         edNameAr: d.nameAr || '', onEdNameAr: setDraft('nameAr'),
@@ -1787,6 +1960,8 @@ class Component extends DCLogic {
           if (newId !== p.sku && prods.some(x => x.sku === newId)) {
             this.setState({ editError: 'Product ID "' + newId + '" is already used by another product.' }); return;
           }
+          const rcSave = resolveCat(dr.mainCat, dr.cat);
+          if (!rcSave.cat) { this.setState({ editError: 'Please choose a subcategory (add one from the Categories button).' }); return; }
           this.setState({ savingEditSku: p.sku });
           const nameAr = String(dr.nameAr || '').trim() || await this.translateAr(dr.name);
           const descAr = String(dr.descAr || '').trim() || await this.translateAr(dr.desc);
@@ -1794,8 +1969,8 @@ class Component extends DCLogic {
             sku: newId,
             name: String(dr.name).trim(),
             name_ar: nameAr || null,
-            main_category: dr.mainCat || 'cosmetics',
-            category: dr.cat || 'skincare',
+            main_category: rcSave.main,
+            category: rcSave.cat,
             brand: String(dr.brand || '').trim() || null,
             description: String(dr.desc || '').trim() || null,
             description_ar: descAr || null
@@ -2077,7 +2252,7 @@ class Component extends DCLogic {
           const [nameAr] = await Promise.all([this.translateAr(name)]);
           const { error } = await window.getSupabase().from('products').insert({
             sku, name, name_ar: nameAr || null,
-            main_category: 'cosmetics', category: 'skincare',
+            main_category: resolveCat('', '').main, category: resolveCat('', '').cat,
             price, stock: 0
           });
           if (error) { console.warn('Madzo admin: quick add-to-catalog failed', error); alert('Could not add product: ' + error.message); return; }
@@ -2203,7 +2378,9 @@ class Component extends DCLogic {
       const es = expiryStatus(b.expiry);
       return {
         productName: prod ? prod.name : b.sku,
+        brand: prod && prod.brand ? prod.brand : '—',
         sku: b.sku, batchNo: b.batchNo || '—', received: b.received || '—',
+        receivedTitle: 'Received ' + (b.received || '—'),
         qty: b.qty, supplier: b.supplier || '—',
         buyPrice: Number(b.buyPrice || 0).toFixed(2), sellPrice: Number(b.sellPrice || 0).toFixed(2),
         expiryLabel: es.label, expiryBg: es.bg, expiryColor: es.color,
@@ -2394,7 +2571,7 @@ class Component extends DCLogic {
         const price = Math.max(0, Number(nb.sellPrice) || 0);
         const nameAr = await this.translateAr(name);
         const { error } = await window.getSupabase().from('products').insert({
-          sku, name, name_ar: nameAr || null, main_category: 'cosmetics', category: 'skincare', price, stock: 0
+          sku, name, name_ar: nameAr || null, main_category: resolveCat('', '').main, category: resolveCat('', '').cat, price, stock: 0
         });
         if (error) { this.setState({ batchError: error.message }); return; }
         this.loadProducts();
@@ -2533,7 +2710,16 @@ class Component extends DCLogic {
       savingProdOpacity: this.state.savingProd ? '0.6' : '1',
       saveProdLabel: this.state.savingProd ? 'Translating & saving…' : 'Save product',
       onNewId: (e) => this.setState(s => ({ newProd: { ...s.newProd, id: e.target.value } })),
-      onNewMainCat: (e) => this.setState(s => ({ newProd: { ...s.newProd, mainCat: e.target.value } })),
+      newMainVal: resolveCat(this.state.newProd.mainCat, this.state.newProd.cat).main,
+      newCatVal: resolveCat(this.state.newProd.mainCat, this.state.newProd.cat).cat,
+      newMainOptions: mainOptionsFor(resolveCat(this.state.newProd.mainCat, this.state.newProd.cat).main),
+      newSubOptions: subOptionsFor(resolveCat(this.state.newProd.mainCat, this.state.newProd.cat).main, resolveCat(this.state.newProd.mainCat, this.state.newProd.cat).cat),
+      onNewMainCat: (e) => this.setState(s => {
+        const first = subCats.filter(x => x.main === e.target.value)[0];
+        return { newProd: { ...s.newProd, mainCat: e.target.value, cat: first ? first.id : '' } };
+      }),
+      onNewBatchNo: (e) => this.setState(s => ({ newProd: { ...s.newProd, batchNo: e.target.value } })),
+      onNewBuyPrice: (e) => this.setState(s => ({ newProd: { ...s.newProd, buyPrice: e.target.value } })),
       onNewName: (e) => this.setState(s => ({ newProd: { ...s.newProd, name: e.target.value } })),
       onNewCat: (e) => this.setState(s => ({ newProd: { ...s.newProd, cat: e.target.value } })),
       onNewBrand: (e) => this.setState(s => ({ newProd: { ...s.newProd, brand: e.target.value } })),
@@ -2546,6 +2732,10 @@ class Component extends DCLogic {
         if (!np.name.trim()) { this.setState({ newProdError: 'Please enter a product name.' }); return; }
         const price = Math.max(0, parseInt(np.price || '0', 10));
         const stock = Math.max(0, parseInt(np.stock || '0', 10));
+        const buyPrice = Math.max(0, Number(np.buyPrice) || 0);
+        const batchNo = String(np.batchNo || '').trim();
+        const rcNew = resolveCat(np.mainCat, np.cat);
+        if (!rcNew.cat) { this.setState({ newProdError: 'Please add a main category and subcategory first (Categories button).' }); return; }
         const existing = prods.map(p => p.sku);
         let sku = String(np.id || '').trim() || this.nextId();
         if (existing.includes(sku)) { this.setState({ newProdError: 'Product ID "' + sku + '" already exists — choose another.' }); return; }
@@ -2555,17 +2745,26 @@ class Component extends DCLogic {
           sku,
           name: np.name.trim(),
           name_ar: nameAr || null,
-          main_category: np.mainCat || 'cosmetics',
-          category: np.cat,
+          main_category: rcNew.main,
+          category: rcNew.cat,
           brand: np.brand.trim() || null,
           description: np.desc.trim() || null,
           description_ar: descAr || null,
           price, stock
         });
+        if (error) { this.setState({ savingProd: false, newProdError: error.message }); return; }
+        // Optional first inventory batch (batch no. / buy price / quantity; sell price = the storefront price)
+        let batchFailed = '';
+        if (batchNo || buyPrice > 0 || stock > 0) {
+          const { error: bErr } = await window.getSupabase().from('inventory_batches').insert({
+            sku, batch_no: batchNo || null, buying_price: buyPrice, selling_price: price, quantity: stock
+          });
+          if (bErr) batchFailed = bErr.message;
+        }
         this.setState({ savingProd: false });
-        if (error) { this.setState({ newProdError: error.message }); return; }
-        this.setState({ newProd: { id: '', name: '', mainCat: 'cosmetics', cat: 'skincare', brand: '', desc: '', price: '', stock: '' }, newProdError: '', showAddForm: false });
-        this.loadProducts();
+        this.setState({ newProd: { id: '', name: '', mainCat: 'cosmetics', cat: 'skincare', brand: '', desc: '', price: '', stock: '', batchNo: '', buyPrice: '' }, newProdError: '', showAddForm: false });
+        this.loadProducts(); this.loadBatches();
+        if (batchFailed) alert('Product saved, but its first batch could not be saved (' + batchFailed + '). You can add the batch from the Inventory tab.');
       },
       editError: this.state.editError,
 
@@ -2603,6 +2802,112 @@ class Component extends DCLogic {
       poSearch: this.state.poSearch,
       onPoSearch: (e) => this.setState({ poSearch: e.target.value, poPage: 1 }),
       pagedInvStock, invStockPager,
+
+      // ---- Categories manager ----
+      showCatManager: this.state.showCatManager,
+      catManagerLabel: this.state.showCatManager ? 'Close categories' : 'Categories',
+      toggleCatManager: () => this.setState(s => ({ showCatManager: !s.showCatManager, catForm: null, catError: '', confirmDelCat: null })),
+      catsError: this.state.catsError,
+      catFormOpen: !!this.state.catForm,
+      catFormIsSub: !!this.state.catForm && this.state.catForm.kind === 'sub',
+      catFormClosedError: !this.state.catForm && !!this.state.catError,
+      catError: this.state.catError,
+      catFormTitle: this.state.catForm ? ((this.state.catForm.mode === 'edit' ? 'Edit ' : 'New ') + (this.state.catForm.kind === 'sub' ? 'subcategory' : 'main category')) : '',
+      catFormName: this.state.catForm ? this.state.catForm.name : '',
+      catFormNameAr: this.state.catForm ? this.state.catForm.nameAr : '',
+      catFormMain: this.state.catForm ? this.state.catForm.main : '',
+      catFormMainOptions: mainCats.map(m => ({ id: m.id, label: m.name, selected: !!this.state.catForm && m.id === this.state.catForm.main })),
+      onCatFormName: (e) => this.setState(s => ({ catForm: { ...s.catForm, name: e.target.value }, catError: '' })),
+      onCatFormNameAr: (e) => this.setState(s => ({ catForm: { ...s.catForm, nameAr: e.target.value }, catError: '' })),
+      onCatFormMain: (e) => this.setState(s => ({ catForm: { ...s.catForm, main: e.target.value }, catError: '' })),
+      newMainCatForm: () => this.setState({ catForm: { kind: 'main', mode: 'new', id: '', main: '', name: '', nameAr: '' }, catError: '', confirmDelCat: null }),
+      newSubCatForm: () => this.setState({ catForm: { kind: 'sub', mode: 'new', id: '', main: mainCats[0] ? mainCats[0].id : '', name: '', nameAr: '' }, catError: '', confirmDelCat: null }),
+      cancelCatForm: () => this.setState({ catForm: null, catError: '' }),
+      savingCat: !!this.state.savingCat,
+      saveCatLabel: this.state.savingCat ? 'Saving…' : 'Save',
+      saveCategory: async () => {
+        const cf = this.state.catForm;
+        if (!cf || this.state.savingCat) return;
+        const name = String(cf.name || '').trim();
+        const isSub = cf.kind === 'sub';
+        if (!name) { this.setState({ catError: 'Please enter a name.' }); return; }
+        if (!this.state.catsLoaded) { this.setState({ catError: "Categories aren't set up in the database yet — run madzo-categories.sql in Supabase first." }); return; }
+        if (isSub && !cf.main) { this.setState({ catError: 'Please choose a main category.' }); return; }
+        const list = isSub ? this.state.dbSubCats : this.state.dbMainCats;
+        if (list.some(x => x.id !== cf.id && x.name.trim().toLowerCase() === name.toLowerCase() && (!isSub || x.main === cf.main))) {
+          this.setState({ catError: 'A category with this name already exists.' }); return;
+        }
+        this.setState({ savingCat: true, catError: '' });
+        const nameAr = String(cf.nameAr || '').trim() || await this.translateAr(name);
+        const sb = window.getSupabase();
+        const table = isSub ? 'subcategories' : 'main_categories';
+        let error = null;
+        if (cf.mode === 'new') {
+          const reserved = ['new', 'gift', 'hero'];
+          let base = String(name).toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+          if (!base) base = 'cat-' + Date.now().toString(36);
+          if (reserved.indexOf(base) >= 0) base += '-cat';
+          let id = base, n = 2;
+          while (list.some(x => x.id === id)) id = base + '-' + (n++);
+          const sort = list.length ? Math.max(...list.map(x => x.sort || 0)) + 1 : 1;
+          const row = isSub
+            ? { id, main_category: cf.main, name, name_ar: nameAr || null, sort_order: sort }
+            : { id, name, name_ar: nameAr || null, sort_order: sort };
+          ({ error } = await sb.from(table).insert(row));
+        } else {
+          const patch = isSub ? { name, name_ar: nameAr || null, main_category: cf.main } : { name, name_ar: nameAr || null };
+          ({ error } = await sb.from(table).update(patch).eq('id', cf.id));
+          if (!error && isSub) {
+            const before = this.state.dbSubCats.find(x => x.id === cf.id);
+            if (before && before.main !== cf.main) await sb.from('products').update({ main_category: cf.main }).eq('category', cf.id);
+          }
+        }
+        this.setState({ savingCat: false });
+        if (error) { this.setState({ catError: error.message }); return; }
+        this.setState({ catForm: null, catError: '' });
+        await this.loadCategories();
+        this.loadProducts();
+      },
+      mainCatRows: mainCats.map(m => {
+        const subN = subCats.filter(s => s.main === m.id).length;
+        const prodN = prods.filter(p => p.mainCat === m.id).length;
+        return {
+          name: m.name,
+          meta: [m.nameAr ? '\u2068' + m.nameAr + '\u2069' : '', subN + (subN === 1 ? ' subcategory' : ' subcategories'), prodN + (prodN === 1 ? ' product' : ' products')].filter(Boolean).join(' · '),
+          startEdit: () => this.setState({ catForm: { kind: 'main', mode: 'edit', id: m.id, main: '', name: m.name, nameAr: m.nameAr }, catError: '', confirmDelCat: null }),
+          confirmingDelete: this.state.confirmDelCat === 'main:' + m.id,
+          askRemove: () => this.setState({ confirmDelCat: 'main:' + m.id, catError: '', catForm: null }),
+          cancelRemove: () => this.setState({ confirmDelCat: null }),
+          confirmRemove: async () => {
+            this.setState({ confirmDelCat: null });
+            if (!this.state.catsLoaded) { this.setState({ catError: "Categories aren't set up in the database yet — run madzo-categories.sql first." }); return; }
+            if (subN) { this.setState({ catError: '"' + m.name + '" still has ' + subN + ' subcategory(ies) — delete or move them first.' }); return; }
+            if (prodN) { this.setState({ catError: '"' + m.name + '" is used by ' + prodN + ' product(s) — move them first.' }); return; }
+            const { error } = await window.getSupabase().from('main_categories').delete().eq('id', m.id);
+            if (error) { this.setState({ catError: error.message }); return; }
+            this.loadCategories();
+          }
+        };
+      }),
+      subCatRows: subCats.map(s => {
+        const prodN = prods.filter(p => p.catKey === s.id).length;
+        return {
+          name: s.name,
+          meta: [s.nameAr ? '\u2068' + s.nameAr + '\u2069' : '', mainName(s.main), prodN + (prodN === 1 ? ' product' : ' products')].filter(Boolean).join(' · '),
+          startEdit: () => this.setState({ catForm: { kind: 'sub', mode: 'edit', id: s.id, main: s.main, name: s.name, nameAr: s.nameAr }, catError: '', confirmDelCat: null }),
+          confirmingDelete: this.state.confirmDelCat === 'sub:' + s.id,
+          askRemove: () => this.setState({ confirmDelCat: 'sub:' + s.id, catError: '', catForm: null }),
+          cancelRemove: () => this.setState({ confirmDelCat: null }),
+          confirmRemove: async () => {
+            this.setState({ confirmDelCat: null });
+            if (!this.state.catsLoaded) { this.setState({ catError: "Categories aren't set up in the database yet — run madzo-categories.sql first." }); return; }
+            if (prodN) { this.setState({ catError: '"' + s.name + '" is used by ' + prodN + ' product(s) — move them to another subcategory first.' }); return; }
+            const { error } = await window.getSupabase().from('subcategories').delete().eq('id', s.id);
+            if (error) { this.setState({ catError: error.message }); return; }
+            this.loadCategories();
+          }
+        };
+      }),
       imgHero: si['hero'] || 'assets/samples/hero.jpg',
       onUpHero: siteUploader('hero'),
       catSlots, colSlots,

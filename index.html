@@ -65,10 +65,14 @@
       <nav style="background: {{ headerBgDark }}; padding: 10px 22px 16px; display: flex; flex-direction: column; gap: 4px;">
         <a onClick="{{ goHome }}" style="color: #FDF9F4; cursor: pointer; padding: 9px 4px; font-size: 15px; text-decoration: none; border-bottom: 1px solid rgba(253,249,244,.18);">{{ t.navHome }}</a>
         <a onClick="{{ shopAllLink }}" style="color: #FDF9F4; cursor: pointer; padding: 9px 4px; font-size: 15px; text-decoration: none; border-bottom: 1px solid rgba(253,249,244,.18);">{{ t.navShop }}</a>
-        <a onClick="{{ shopSkincare }}" style="color: #FDF9F4; cursor: pointer; padding: 9px 4px; font-size: 15px; text-decoration: none; border-bottom: 1px solid rgba(253,249,244,.18);">{{ t.catSkincare }}</a>
-        <a onClick="{{ shopHaircare }}" style="color: #FDF9F4; cursor: pointer; padding: 9px 4px; font-size: 15px; text-decoration: none; border-bottom: 1px solid rgba(253,249,244,.18);">{{ t.catHaircare }}</a>
-        <a onClick="{{ shopMakeup }}" style="color: #FDF9F4; cursor: pointer; padding: 9px 4px; font-size: 15px; text-decoration: none; border-bottom: 1px solid rgba(253,249,244,.18);">{{ t.catMakeup }}</a>
-        <a onClick="{{ shopAccessories }}" style="color: #FDF9F4; cursor: pointer; padding: 9px 4px; font-size: 15px; text-decoration: none; border-bottom: 1px solid rgba(253,249,244,.18);">{{ t.catAccessories }}</a>
+        <sc-for list="{{ navItems }}" as="nv" hint-placeholder-count="4">
+          <sc-if value="{{ nv.isHeading }}" hint-placeholder-val="{{ false }}">
+            <a onClick="{{ nv.open }}" style="color: #D9C2B4; cursor: pointer; padding: 12px 4px 4px; font-size: 11.5px; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none;">{{ nv.label }}</a>
+          </sc-if>
+          <sc-if value="{{ nv.isLink }}" hint-placeholder-val="{{ true }}">
+            <a onClick="{{ nv.open }}" style="color: #FDF9F4; cursor: pointer; padding: 9px 4px; font-size: 15px; text-decoration: none; border-bottom: 1px solid rgba(253,249,244,.18);">{{ nv.label }}</a>
+          </sc-if>
+        </sc-for>
         <a onClick="{{ goAbout }}" style="color: #FDF9F4; cursor: pointer; padding: 9px 4px; font-size: 15px; text-decoration: none;">{{ t.navAbout }}</a>
       </nav>
     </sc-if>
@@ -90,22 +94,12 @@
           <image-slot id="v3-cat-new" src="{{ imgCatNew }}" shape="circle" placeholder="Photo" style="width: 96px; height: 96px; display: block; background: #FDF9F4; border-radius: 50%;"></image-slot>
           <span style="font-size: 13.5px; color: #2E2A26; text-align: center;">{{ t.newlyLaunched }}</span>
         </a>
-        <a onClick="{{ shopSkincare }}" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 96px; text-decoration: none;">
-          <image-slot id="v3-cat-skin" src="{{ imgCatSkin }}" shape="circle" placeholder="Photo" style="width: 96px; height: 96px; display: block; background: #FDF9F4; border-radius: 50%;"></image-slot>
-          <span style="font-size: 13.5px; color: #2E2A26; text-align: center;">{{ t.catSkincare }}</span>
-        </a>
-        <a onClick="{{ shopHaircare }}" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 96px; text-decoration: none;">
-          <image-slot id="v3-cat-hair" src="{{ imgCatHair }}" shape="circle" placeholder="Photo" style="width: 96px; height: 96px; display: block; background: #FDF9F4; border-radius: 50%;"></image-slot>
-          <span style="font-size: 13.5px; color: #2E2A26; text-align: center;">{{ t.catHaircare }}</span>
-        </a>
-        <a onClick="{{ shopMakeup }}" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 96px; text-decoration: none;">
-          <image-slot id="v3-cat-makeup" src="{{ imgCatMakeup }}" shape="circle" placeholder="Photo" style="width: 96px; height: 96px; display: block; background: #FDF9F4; border-radius: 50%;"></image-slot>
-          <span style="font-size: 13.5px; color: #2E2A26; text-align: center;">{{ t.catMakeup }}</span>
-        </a>
-        <a onClick="{{ shopAccessories }}" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 96px; text-decoration: none;">
-          <image-slot id="v3-cat-acc" src="{{ imgCatAcc }}" shape="circle" placeholder="Photo" style="width: 96px; height: 96px; display: block; background: #FDF9F4; border-radius: 50%;"></image-slot>
-          <span style="font-size: 13.5px; color: #2E2A26; text-align: center;">{{ t.catAccessories }}</span>
-        </a>
+        <sc-for list="{{ catCircles }}" as="cc" hint-placeholder-count="4">
+          <a onClick="{{ cc.open }}" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 96px; text-decoration: none;">
+            <image-slot id="v3-cat-{{ cc.key }}" src="{{ cc.img }}" shape="circle" placeholder="Photo" style="width: 96px; height: 96px; display: block; background: #FDF9F4; border-radius: 50%;"></image-slot>
+            <span style="font-size: 13.5px; color: #2E2A26; text-align: center;">{{ cc.label }}</span>
+          </a>
+        </sc-for>
       </div>
 
       <!-- Hero banner -->
@@ -425,6 +419,8 @@ class Component extends DCLogic {
       error: '',
       order: null,
       dbProducts: [],
+      dbMainCats: [],
+      dbSubCats: [],
       siteImages: {},
       detail: null,
       waFromDb: ''
@@ -435,6 +431,24 @@ class Component extends DCLogic {
     this.loadProducts();
     this.loadSettings();
     this.loadSiteImages();
+    this.loadCategories();
+  }
+
+  // Main categories + subcategories are managed from the admin. If the tables
+  // don't exist yet (SQL not run), the storefront quietly keeps its 4 defaults.
+  async loadCategories() {
+    try {
+      const sb = window.getSupabase();
+      const [mains, subs] = await Promise.all([
+        sb.from('main_categories').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: true }),
+        sb.from('subcategories').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: true })
+      ]);
+      if (mains.error || subs.error) throw (mains.error || subs.error);
+      this.setState({
+        dbMainCats: (mains.data || []).map(m => ({ id: m.id, name: m.name, nameAr: m.name_ar || '' })),
+        dbSubCats: (subs.data || []).map(s => ({ id: s.id, main: s.main_category, name: s.name, nameAr: s.name_ar || '' }))
+      });
+    } catch (e) { console.warn('Madzo: could not load categories (using defaults)', e); }
   }
 
   async loadSiteImages() {
@@ -549,15 +563,31 @@ class Component extends DCLogic {
   setCart(fn) { this.setState(s => ({ cart: fn({ ...s.cart }) }), () => this.persist()); }
 
   buildWaMessage(order) {
-    const lines = order.lines.map(l => `• ${l.qty} × ${l.name} — ${l.total} QAR`).join('\n');
+    // Always English + Qatar time: this message is read by the shop, not the customer.
+    const when = new Date(order.ts || Date.now());
+    const date = when.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Qatar' });
+    const time = when.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Qatar' });
+    const items = order.lines.map((l, i) => {
+      const unit = l.unit != null ? l.unit : (l.qty ? Math.round(l.total / l.qty) : l.total);
+      return [
+        `*${i + 1}.*`,
+        `Brand: ${l.brand || '—'}`,
+        `Product: ${l.nameEn || l.name}`,
+        `Qty: ${l.qty}`,
+        `Price: ${unit} QAR each = ${l.total} QAR`
+      ].join('\n');
+    }).join('\n\n');
     return [
-      `🌙 *MADZO — New Order ${order.id}*`, '',
-      lines, '',
+      `🌙 *MADZO — New Order ${order.id}*`,
+      `📅 Date: ${date}`,
+      `🕒 Time: ${time}`, '',
+      `👤 Customer: ${order.name}`,
+      `📞 Phone: ${order.phone}`, '',
+      items, '',
       `*Total: ${order.total} QAR* (Cash on Delivery, free delivery)`, '',
-      `👤 ${order.name}`, `📞 ${order.phone}`,
-      `📍 ${order.zone}${order.zone && order.address ? ' — ' : ''}${order.address}`,
-      order.notes ? `📝 ${order.notes}` : ''
-    ].filter(Boolean).join('\n');
+      `📍 Address: ${order.zone}${order.zone && order.address ? ' — ' : ''}${order.address}`,
+      order.notes ? `📝 Notes: ${order.notes}` : ''
+    ].join('\n').trim();
   }
 
   openWa(order) {
@@ -596,7 +626,8 @@ class Component extends DCLogic {
 
     const all = this.products();
     const q = this.state.query.trim().toLowerCase();
-    let filtered = this.state.filter === 'all' ? all : all.filter(p => p.cat === this.state.filter);
+    const flt = this.state.filter;
+    let filtered = flt === 'all' ? all : (flt.indexOf('main:') === 0 ? all.filter(p => p.mainCat === flt.slice(5)) : all.filter(p => p.cat === flt));
     if (q) filtered = filtered.filter(p => (p.name + ' ' + (p.nameAr || '') + ' ' + (p.brand || '') + ' ' + (p.desc || '') + ' ' + (p.descAr || '')).toLowerCase().includes(q));
     if (this.state.sort === 'low') filtered = [...filtered].sort((a, b) => a.price - b.price);
     if (this.state.sort === 'high') filtered = [...filtered].sort((a, b) => b.price - a.price);
@@ -614,6 +645,7 @@ class Component extends DCLogic {
         unitLabel: `${fmt(p.price)} ${lang === 'ar' ? 'للقطعة' : 'each'}`,
         totalLabel: fmt(p.price * qty),
         qtyName: `${qty} × ${d.name}`,
+        unitNum: p.price, lineTotalNum: p.price * qty, nameEn: p.name,
         inc: d.add,
         remove: () => this.setCart(c => { delete c[p.sku]; return c; })
       };
@@ -624,17 +656,48 @@ class Component extends DCLogic {
     const s = this.state.screen;
     const order = this.state.order;
     const setForm = (key) => (e) => this.setState(st => ({ form: { ...st.form, [key]: e.target.value } }));
-    const catTitles = { skincare: t.catSkincare, haircare: t.catHaircare, makeup: t.catMakeup, accessories: t.catAccessories };
-    const filterTitle = catTitles[this.state.filter] || t.shopAllTitle;
+    // ---- categories (from the admin; falls back to the original 4) ----
+    const loc = (c) => lang === 'ar' ? (c.nameAr || c.name) : c.name;
+    const subsSrc = this.state.dbSubCats.length ? this.state.dbSubCats : [
+      { id: 'skincare', main: 'cosmetics', name: 'Skin Care', nameAr: 'العناية بالبشرة' },
+      { id: 'haircare', main: 'cosmetics', name: 'Hair Care', nameAr: 'العناية بالشعر' },
+      { id: 'makeup', main: 'cosmetics', name: 'Makeup', nameAr: 'المكياج' },
+      { id: 'accessories', main: 'cosmetics', name: 'Accessories', nameAr: 'الإكسسوارات' }
+    ];
+    const mainsSrc = this.state.dbMainCats.length ? this.state.dbMainCats : [{ id: 'cosmetics', name: 'Cosmetics', nameAr: 'مستحضرات التجميل' }];
+    const legacyImgKey = { skincare: 'skin', haircare: 'hair', makeup: 'makeup', accessories: 'acc' };
+    const imgKeyFor = (id) => legacyImgKey[id] || id;
+
+    const f = this.state.filter;
+    let filterTitle = t.shopAllTitle;
+    if (f.indexOf('main:') === 0) { const m = mainsSrc.find(x => x.id === f.slice(5)); if (m) filterTitle = loc(m); }
+    else { const sc = subsSrc.find(x => x.id === f); if (sc) filterTitle = loc(sc); }
+
+    const mainsWithSubs = mainsSrc.filter(m => subsSrc.some(s => s.main === m.id));
+    const showHeadings = mainsWithSubs.length > 1;
+    const navItems = [];
+    mainsWithSubs.forEach(m => {
+      if (showHeadings) navItems.push({ key: 'm-' + m.id, isHeading: true, isLink: false, label: loc(m), open: go('shop', { filter: 'main:' + m.id }) });
+      subsSrc.filter(s => s.main === m.id).forEach(s => navItems.push({ key: 's-' + s.id, isHeading: false, isLink: true, label: loc(s), open: go('shop', { filter: s.id }) }));
+    });
+    subsSrc.filter(s => !mainsSrc.some(m => m.id === s.main)).forEach(s => navItems.push({ key: 's-' + s.id, isHeading: false, isLink: true, label: loc(s), open: go('shop', { filter: s.id }) }));
 
     const si = this.state.siteImages || {};
-    const sImg = (k) => si[k] || ('assets/samples/' + k + '.jpg');
+    const legacyImgs = ['hero', 'cat-new', 'cat-skin', 'cat-hair', 'cat-makeup', 'cat-acc', 'col-new', 'col-skin', 'col-hair', 'col-makeup', 'col-acc', 'col-gift'];
+    // uploaded image wins; original sample photos only exist for the original slots
+    const sImg = (k) => si[k] || (legacyImgs.indexOf(k) >= 0 ? 'assets/samples/' + k + '.jpg' : '');
 
     const headerBg = String(this.props.headerColor ?? '#461610');
     const headerBgDark = this.darken(headerBg, 0.82);
 
     return {
-      t, dir: lang === 'ar' ? 'rtl' : 'ltr',
+      t: { ...t, footerLine: [
+        mainsWithSubs.map(loc).join(' / ') || loc(mainsSrc[0]),
+        subsSrc.map(loc).join(lang === 'ar' ? '، ' : ', '),
+        lang === 'ar' ? 'الدوحة، قطر' : 'Doha, Qatar',
+        lang === 'ar' ? 'الدفع عند الاستلام' : 'Cash on Delivery'
+      ].join(' · ') },
+      dir: lang === 'ar' ? 'rtl' : 'ltr',
       showBar: this.props.showAnnouncement ?? true,
       headerBg, headerBgDark,
       langLabel: lang === 'ar' ? 'EN' : 'عربي',
@@ -653,25 +716,18 @@ class Component extends DCLogic {
 
       goHome: go('home'), goCart: go('cart'), goAbout: go('about'), goCheckout: go('checkout'),
       shopAllLink: go('shop', { filter: 'all' }),
-      shopSkincare: go('shop', { filter: 'skincare' }),
-      shopHaircare: go('shop', { filter: 'haircare' }),
-      shopMakeup: go('shop', { filter: 'makeup' }),
-      shopAccessories: go('shop', { filter: 'accessories' }),
+      navItems,
+      catCircles: [
+        ...subsSrc.map(s => ({ key: imgKeyFor(s.id), label: loc(s), img: sImg('cat-' + imgKeyFor(s.id)), open: go('shop', { filter: s.id }) }))
+      ],
 
       collections: [
         { key: 'new', img: sImg('col-new'), label: t.newlyLaunched, open: go('shop', { filter: 'all' }) },
-        { key: 'skin', img: sImg('col-skin'), label: t.catSkincare, open: go('shop', { filter: 'skincare' }) },
-        { key: 'hair', img: sImg('col-hair'), label: t.catHaircare, open: go('shop', { filter: 'haircare' }) },
-        { key: 'makeup', img: sImg('col-makeup'), label: t.catMakeup, open: go('shop', { filter: 'makeup' }) },
-        { key: 'acc', img: sImg('col-acc'), label: t.catAccessories, open: go('shop', { filter: 'accessories' }) },
+        ...subsSrc.map(s => ({ key: imgKeyFor(s.id), img: sImg('col-' + imgKeyFor(s.id)), label: loc(s), open: go('shop', { filter: s.id }) })),
         { key: 'gift', img: sImg('col-gift'), label: lang === 'ar' ? 'أطقم الهدايا' : 'Gift sets', open: go('shop', { filter: 'all' }) }
       ],
       imgHero: sImg('hero'),
       imgCatNew: sImg('cat-new'),
-      imgCatSkin: sImg('cat-skin'),
-      imgCatHair: sImg('cat-hair'),
-      imgCatMakeup: sImg('cat-makeup'),
-      imgCatAcc: sImg('cat-acc'),
 
       shopTitle: filterTitle,
       sort: this.state.sort,
@@ -700,7 +756,8 @@ class Component extends DCLogic {
         if (!orderId) orderId = 'MZO-' + String(Date.now()).slice(-6);
         const newOrder = {
           id: orderId,
-          lines: cartItems.map(l => ({ qty: l.qty, name: l.name, total: parseInt(l.totalLabel) })),
+          ts: Date.now(),
+          lines: cartItems.map(l => ({ sku: l.sku, brand: l.brand || '', qty: l.qty, name: l.name, nameEn: l.nameEn, unit: l.unitNum, total: l.lineTotalNum })),
           total: subtotal,
           name: f.name.trim(), phone: f.phone.trim(), zone: f.zone.trim(), address: f.address.trim(), notes: f.notes.trim()
         };

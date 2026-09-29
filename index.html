@@ -606,7 +606,7 @@ class Component extends DCLogic {
       const low = p.stock > 0 && p.stock <= 2;
       return {
         sku: p.sku,
-        img: p.img || ('assets/samples/' + p.sku + '.jpg'),
+        img: p.img || '',
         name: lang === 'ar' ? (p.nameAr || p.name) : p.name,
         brand: p.brand, hasBrand: !!p.brand,
         desc: lang === 'ar' ? (p.descAr || p.desc) : p.desc,
@@ -683,9 +683,9 @@ class Component extends DCLogic {
     subsSrc.filter(s => !mainsSrc.some(m => m.id === s.main)).forEach(s => navItems.push({ key: 's-' + s.id, isHeading: false, isLink: true, label: loc(s), open: go('shop', { filter: s.id }) }));
 
     const si = this.state.siteImages || {};
-    const legacyImgs = ['hero', 'cat-new', 'cat-skin', 'cat-hair', 'cat-makeup', 'cat-acc', 'col-new', 'col-skin', 'col-hair', 'col-makeup', 'col-acc', 'col-gift'];
-    // uploaded image wins; original sample photos only exist for the original slots
-    const sImg = (k) => si[k] || (legacyImgs.indexOf(k) >= 0 ? 'assets/samples/' + k + '.jpg' : '');
+    // Only ever show a real uploaded photo — never the old bundled sample art, even
+    // for a moment while this loads. Nothing set yet just shows the empty placeholder.
+    const sImg = (k) => si[k] || '';
 
     const headerBg = String(this.props.headerColor ?? '#461610');
     const headerBgDark = this.darken(headerBg, 0.82);

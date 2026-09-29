@@ -68,11 +68,10 @@
         </span>
         <nav style="display: flex; gap: 4px; margin-inline-start: auto; flex-wrap: wrap;">
           <button onClick="{{ tabHome }}" title="Home" style="background: {{ tHomeBg }}; color: {{ tHomeColor }}; border: none; border-radius: 999px; padding: 8px 12px; font-size: 13.5px; cursor: pointer; font-weight: 500;">🏠</button>
-          <button onClick="{{ tabDash }}" style="background: {{ tDashBg }}; color: {{ tDashColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Dashboard</button>
-          <button onClick="{{ tabStock }}" style="background: {{ tStockBg }}; color: {{ tStockColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Products</button>
-          <button onClick="{{ tabImages }}" style="background: {{ tImagesBg }}; color: {{ tImagesColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Images</button>
-          <button onClick="{{ tabOrders }}" style="background: {{ tOrdersBg }}; color: {{ tOrdersColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Orders</button>
-          <button onClick="{{ tabPO }}" style="background: {{ tPOBg }}; color: {{ tPOColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Purchase</button>
+          <button onClick="{{ tabOrders }}" style="background: {{ tOrdersBg }}; color: {{ tOrdersColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Sales</button>
+        <button onClick="{{ tabDash }}" style="background: {{ tDashBg }}; color: {{ tDashColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Dashboard</button>
+            <button onClick="{{ tabImages }}" style="background: {{ tImagesBg }}; color: {{ tImagesColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Images</button>
+            <button onClick="{{ tabPO }}" style="background: {{ tPOBg }}; color: {{ tPOColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Purchase</button>
           <button onClick="{{ tabInv }}" style="background: {{ tInvBg }}; color: {{ tInvColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Inventory</button>
           <button onClick="{{ tabSettings }}" style="background: {{ tSettingsBg }}; color: {{ tSettingsColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Settings</button>
         </nav>
@@ -88,6 +87,23 @@
           <div style="text-align: center; margin-bottom: 32px;">
             <div style="font-family: Marcellus, serif; font-size: 20px; letter-spacing: 3px; color: #2E2A26;">Welcome back{{ homeGreetName }}</div>
             <p style="color: #857D72; font-size: 13.5px; margin: 6px 0 0;">What would you like to do?</p>
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 0 0 28px; width: 100%; max-width: 440px;">
+            <div style="flex: 1; min-width: 104px; background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 14px; padding: 10px 12px; text-align: center;">
+              <div style="font-size: 10.5px; color: #857D72; text-transform: uppercase; letter-spacing: .5px;">Sales today</div>
+              <div style="font-size: 16px; font-weight: 700; color: #2E2A26; margin-top: 2px;">{{ homeTodayTotal }}</div>
+              <div style="font-size: 11px; color: #B0A697;">{{ homeTodayCount }}</div>
+            </div>
+            <div style="flex: 1; min-width: 104px; background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 14px; padding: 10px 12px; text-align: center;">
+              <div style="font-size: 10.5px; color: #857D72; text-transform: uppercase; letter-spacing: .5px;">This month</div>
+              <div style="font-size: 16px; font-weight: 700; color: #2E2A26; margin-top: 2px;">{{ homeMonthTotal }}</div>
+              <div style="font-size: 11px; color: #B0A697;">{{ homeMonthCount }}</div>
+            </div>
+            <button onClick="{{ homeGoToDeliver }}" style="flex: 1; min-width: 104px; background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 14px; padding: 10px 12px; text-align: center; cursor: pointer; font-family: inherit;" style-hover="border-color: #461610;">
+              <div style="font-size: 10.5px; color: #857D72; text-transform: uppercase; letter-spacing: .5px;">To deliver</div>
+              <div style="font-size: 16px; font-weight: 700; color: #9A6E12; margin-top: 2px;">{{ homeToDeliver }}</div>
+              <div style="font-size: 11px; color: #B0A697;">tap to view</div>
+            </button>
           </div>
           <div style="display: grid; grid-template-columns: repeat(2, minmax(120px, 150px)); gap: 20px 24px; max-width: 360px; width: 100%;">
             <button onClick="{{ goCreatePO }}" style="display: flex; flex-direction: column; align-items: center; gap: 10px; background: none; border: none; cursor: pointer; padding: 0;">
@@ -184,13 +200,19 @@
         </section>
       </sc-if>
 
+      <sc-if value="{{ isInvArea }}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; gap: 8px; margin: 0 0 18px; flex-wrap: wrap;">
+          <button onClick="{{ invViewProducts }}" style="background: {{ ivpBg }}; color: {{ ivpColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 7px 18px; font-size: 13px; cursor: pointer; font-weight: 500;">Products</button>
+          <button onClick="{{ invViewStock }}" style="background: {{ ivsBg }}; color: {{ ivsColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 7px 18px; font-size: 13px; cursor: pointer; font-weight: 500;">Stock &amp; batches</button>
+        </div>
+      </sc-if>
+
       <!-- ---- PRODUCTS / STOCK ---- -->
       <sc-if value="{{ isStock }}" hint-placeholder-val="{{ false }}">
         <section data-screen-label="Products Admin">
           <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px;">
-            <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Products & stock</h1>
+            <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Products</h1>
             <span style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <button onClick="{{ toggleCatManager }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #461610; color: #FDF9F4;">{{ catManagerLabel }}</button>
               <button onClick="{{ toggleAddForm }}" style="background: #461610; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #39120D;">{{ addFormLabel }}</button>
             </span>
           </div>
@@ -200,13 +222,14 @@
               <button onClick="{{ translateAllMissing }}" disabled="{{ bulkTranslating }}" style="background: none; border: 1px solid #C9A45F; color: #7A5F27; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer; font-weight: 600;">{{ bulkTranslateLabel }}</button>
             </div>
           </sc-if>
-          <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Changes apply to the storefront immediately. Stock quantity and stock status now live in the <strong>Inventory</strong> tab.</p>
+          <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Changes apply to the storefront immediately. Stock quantity, batches and stock status are in the <strong>Stock &amp; batches</strong> tab.</p>
 
           <sc-if value="{{ showCatManager }}" hint-placeholder-val="{{ false }}">
             <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 14px;">
               <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
                 <h2 style="font-size: 15px; font-weight: 600; margin: 0;">Categories</h2>
                 <span style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button onClick="{{ toggleCatManager }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 7px 14px; font-size: 12px; cursor: pointer; font-weight: 600;" style-hover="background: #461610; color: #FDF9F4;">Close</button>
                   <button onClick="{{ newMainCatForm }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 7px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">+ Main category</button>
                   <button onClick="{{ newSubCatForm }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 7px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">+ Subcategory</button>
                 </span>
@@ -315,6 +338,8 @@
                     <sc-for list="{{ newMainOptions }}" as="nm" hint-placeholder-count="1">
                       <option value="{{ nm.id }}" selected="{{ nm.selected }}">{{ nm.label }}</option>
                     </sc-for>
+                    <option value="__new__">+ New main category…</option>
+                    <option value="__manage__">⚙ Manage categories (edit / delete)…</option>
                   </select>
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Subcategory
@@ -322,6 +347,7 @@
                     <sc-for list="{{ newSubOptions }}" as="ns" hint-placeholder-count="4">
                       <option value="{{ ns.id }}" selected="{{ ns.selected }}">{{ ns.label }}</option>
                     </sc-for>
+                    <option value="__new__">+ New subcategory…</option>
                   </select>
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Brand (optional)
@@ -331,6 +357,26 @@
                   <input value="{{ newProd.name }}" onChange="{{ onNewName }}" placeholder="e.g. Vitamin C Serum" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
               </div>
+              <sc-if value="{{ quickCatOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="background: #F1ECE2; border: 1px solid #E7DECF; border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
+                  <div style="font-size: 13px; font-weight: 600; color: #2E2A26;">{{ quickCatTitle }}</div>
+                  <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+                    <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72; flex: 1; min-width: 190px;">Name (English)
+                      <input value="{{ catFormName }}" onChange="{{ onCatFormName }}" placeholder="e.g. Fragrance" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                    </label>
+                    <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72; flex: 1; min-width: 190px;">Name (Arabic) — optional
+                      <input value="{{ catFormNameAr }}" onChange="{{ onCatFormNameAr }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: rtl;" style-focus="border-color: #461610;">
+                    </label>
+                    <span style="display: flex; gap: 8px;">
+                      <button onClick="{{ saveCategory }}" disabled="{{ savingCat }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer;">{{ saveCatLabel }}</button>
+                      <button onClick="{{ cancelCatForm }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 10px 18px; font-size: 13px; cursor: pointer;">Cancel</button>
+                    </span>
+                  </div>
+                  <sc-if value="{{ catError }}" hint-placeholder-val="{{ false }}">
+                    <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ catError }}</p>
+                  </sc-if>
+                </div>
+              </sc-if>
               <div style="font-size: 11px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px; margin-top: 4px;">Pricing &amp; first batch <span style="text-transform: none; font-weight: 400; letter-spacing: 0;">— optional, saved as this product's first inventory batch</span></div>
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Batch no.
@@ -345,14 +391,23 @@
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Sell price (QAR) — shown on storefront
                   <input value="{{ newProd.price }}" onChange="{{ onNewPrice }}" type="number" min="0" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Expiry date
+                  <input value="{{ newProd.expiry }}" onChange="{{ onNewExpiry }}" type="date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                </label>
               </div>
+              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Photo (optional)
+                <input type="file" accept="image/*" onChange="{{ onNewPhoto }}" style="font-size: 13px; color: #5C554B;">
+                <sc-if value="{{ newPhotoName }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size: 11.5px; color: #1E8A4C;">✓ {{ newPhotoName }} — uploads when you save</span>
+                </sc-if>
+              </label>
               <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Description — shown to customers
                 <textarea value="{{ newProd.desc }}" onChange="{{ onNewDesc }}" rows="2" placeholder="Short product description…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; resize: vertical;" style-focus="border-color: #461610;"></textarea>
               </label>
               <sc-if value="{{ newProdError }}" hint-placeholder-val="{{ false }}">
                 <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ newProdError }}</p>
               </sc-if>
-              <p style="color: #B0A697; font-size: 12px; margin: 0;">Arabic name &amp; description are translated automatically when you save — edit them any time from "Edit" on the product. Add the photo after saving, from the list below or the Images tab.</p>
+              <p style="color: #B0A697; font-size: 12px; margin: 0;">Arabic name &amp; description are translated automatically when you save — edit them any time from "Edit" on the product. You can change the photo any time by clicking it in the list below.</p>
               <span style="display: flex; gap: 10px;">
                 <button onClick="{{ saveNewProd }}" disabled="{{ savingProd }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 11px 22px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: {{ savingProdOpacity }};" style-hover="filter: brightness(1.07);">{{ saveProdLabel }}</button>
                 <button onClick="{{ toggleAddForm }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 11px 22px; font-size: 14px; cursor: pointer;">Cancel</button>
@@ -365,25 +420,41 @@
           </div>
 
           <div style="overflow-x: auto;">
-            <div style="min-width: 850px; display: flex; flex-direction: column; gap: 6px;">
-              <div style="display: grid; grid-template-columns: 44px minmax(150px,1fr) 84px 90px 96px 92px 100px 110px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
-                <span></span><span>Product</span><span>ID</span><span>Brand</span><span>Category</span><span>Price</span><span>Active</span><span></span>
+            <div style="min-width: 1030px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: grid; grid-template-columns: 58px 84px 82px minmax(120px,1fr) 80px 90px 78px 92px 64px 76px 96px; gap: 8px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                <span>Photo</span><span>Brand</span><span>Product ID</span><span>Product</span><span>Category</span><span>Sub category</span><span>Batch</span><span>Expiry</span><span>Price</span><span>Active</span><span></span>
+              </div>
+              <div style="display: grid; grid-template-columns: 58px 84px 82px minmax(120px,1fr) 80px 90px 78px 92px 64px 76px 96px; gap: 8px; align-items: center; padding: 0 14px 4px;">
+                <select value="{{ pfPhoto }}" onChange="{{ on_pfPhoto }}" aria-label="Filter photo" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;"><sc-for list="{{ pfPhotoOpts }}" as="fo" hint-placeholder-count="2"><option value="{{ fo.v }}" selected="{{ fo.selected }}">{{ fo.label }}</option></sc-for></select>
+                <select value="{{ pfBrand }}" onChange="{{ on_pfBrand }}" aria-label="Filter brand" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;"><sc-for list="{{ pfBrandOpts }}" as="fo" hint-placeholder-count="2"><option value="{{ fo.v }}" selected="{{ fo.selected }}">{{ fo.label }}</option></sc-for></select>
+                <input value="{{ pfId }}" onChange="{{ on_pfId }}" placeholder="ID…" aria-label="Filter product ID" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;" style-focus="border-color: #461610;">
+                <input value="{{ pfName }}" onChange="{{ on_pfName }}" placeholder="Product…" aria-label="Filter product name" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;" style-focus="border-color: #461610;">
+                <select value="{{ pfCat }}" onChange="{{ on_pfCat }}" aria-label="Filter category" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;"><sc-for list="{{ pfCatOpts }}" as="fo" hint-placeholder-count="2"><option value="{{ fo.v }}" selected="{{ fo.selected }}">{{ fo.label }}</option></sc-for></select>
+                <select value="{{ pfSub }}" onChange="{{ on_pfSub }}" aria-label="Filter sub category" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;"><sc-for list="{{ pfSubOpts }}" as="fo" hint-placeholder-count="2"><option value="{{ fo.v }}" selected="{{ fo.selected }}">{{ fo.label }}</option></sc-for></select>
+                <input value="{{ pfBatch }}" onChange="{{ on_pfBatch }}" placeholder="Batch…" aria-label="Filter batch" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;" style-focus="border-color: #461610;">
+                <select value="{{ pfExpiry }}" onChange="{{ on_pfExpiry }}" aria-label="Filter expiry" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;"><sc-for list="{{ pfExpiryOpts }}" as="fo" hint-placeholder-count="2"><option value="{{ fo.v }}" selected="{{ fo.selected }}">{{ fo.label }}</option></sc-for></select>
+                <input value="{{ pfPrice }}" onChange="{{ on_pfPrice }}" placeholder="Price…" aria-label="Filter price" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;" style-focus="border-color: #461610;">
+                <select value="{{ pfActive }}" onChange="{{ on_pfActive }}" aria-label="Filter active" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;"><sc-for list="{{ pfActiveOpts }}" as="fo" hint-placeholder-count="2"><option value="{{ fo.v }}" selected="{{ fo.selected }}">{{ fo.label }}</option></sc-for></select>
+                <button onClick="{{ clearProdFilters }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 4px 10px; font-size: 11px; cursor: pointer; justify-self: end; opacity: {{ pfClearOpacity }};" style-hover="border-color: #461610; color: #461610;">Clear filters</button>
               </div>
               <sc-for list="{{ pagedProducts }}" as="p" hint-placeholder-count="8">
                 <div class="madzo-prod-row" style="display: flex; flex-direction: column; background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px;">
-                  <div style="display: grid; grid-template-columns: 44px minmax(150px,1fr) 84px 90px 96px 92px 100px 110px; gap: 10px; align-items: center; padding: 8px 14px;">
+                  <div style="display: grid; grid-template-columns: 58px 84px 82px minmax(120px,1fr) 80px 90px 78px 92px 64px 76px 96px; gap: 8px; align-items: center; padding: 8px 14px;">
                     <div style="position: relative; width: 40px; height: 40px; flex: none;">
                       <image-slot id="prod-{{ p.sku }}" src="{{ p.img }}" shape="rounded" radius="8" placeholder="Photo" style="width: 100%; height: 100%; display: block; background: #F1ECE2;"></image-slot>
                       <label style="position: absolute; inset: 0; cursor: pointer;" title="Click to upload photo">
                         <input type="file" accept="image/*" onChange="{{ p.onUpload }}" style="display: none;">
                       </label>
                     </div>
+                    <span style="font-size: 12px; color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ p.brand }}">{{ p.brand }}</span>
+                    <span style="font-size: 11.5px; font-weight: 600; color: #461610; direction: ltr; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.sku }}</span>
                     <span style="font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ p.name }}">{{ p.name }}</span>
-                    <span style="font-size: 11px; color: #461610; direction: ltr; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.sku }}</span>
-                    <span style="font-size: 12px; color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.brand }}</span>
-                    <span style="font-size: 12px; color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.catLabel }}</span>
+                    <span style="font-size: 12px; color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ p.mainName }}">{{ p.mainName }}</span>
+                    <span style="font-size: 12px; color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ p.subName }}">{{ p.subName }}</span>
+                    <span style="font-size: 12px; color: #5C554B; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ p.batchTitle }}">{{ p.batchLabel }}</span>
+                    <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ p.expBg }}; color: {{ p.expColor }}; text-align: center; white-space: nowrap; justify-self: start;" title="{{ p.expTitle }}">{{ p.expLabel }}</span>
                     <span style="display: flex; align-items: center; gap: 4px;">
-                      <input value="{{ p.price }}" onChange="{{ p.onPrice }}" type="number" min="0" style="width: 58px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 6px 6px; font-size: 13px; outline: none;" style-focus="border-color: #461610;">
+                      <input value="{{ p.price }}" onChange="{{ p.onPrice }}" type="number" min="0" style="width: 60px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 6px 6px; font-size: 13px; outline: none;" style-focus="border-color: #461610;">
                     </span>
                     <button onClick="{{ p.toggleActive }}" title="Click to toggle visibility on the storefront" style="font-size: 10.5px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: {{ p.activeBg }}; color: {{ p.activeColor }}; border: none; cursor: pointer; white-space: nowrap; justify-self: start;">{{ p.activeLabel }}</button>
                     <span style="display: flex; gap: 6px; justify-self: end;">
@@ -464,7 +535,7 @@
       <sc-if value="{{ isOrders }}" hint-placeholder-val="{{ false }}">
         <section data-screen-label="Orders Admin">
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; flex-wrap: wrap;">
-            <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Orders</h1>
+            <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Sales</h1>
             <button onClick="{{ toggleOrderForm }}" style="background: #461610; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #39120D;">{{ orderFormLabel }}</button>
           </div>
           <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Orders from the storefront checkout, plus orders you add manually from other platforms.</p>
@@ -531,17 +602,27 @@
                     <option value="{{ op.sku }}">{{ op.label }}</option>
                   </sc-for>
                 </select>
+                <select value="" onChange="{{ onPickFreeProduct }}" style="background: #F1ECE2; border: 1px solid #1E8A4C; color: #1E8A4C; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; outline: none; cursor: pointer; max-width: 260px;">
+                  <option value="">🎁 Add free product…</option>
+                  <sc-for list="{{ freeProdOptions }}" as="fp" hint-placeholder-count="3">
+                    <option value="{{ fp.sku }}">{{ fp.label }}</option>
+                  </sc-for>
+                </select>
                 <button onClick="{{ addOrderItem }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 9px 16px; font-size: 12.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">+ Add custom item</button>
               </div>
               <sc-for list="{{ orderItems }}" as="it" hint-placeholder-count="2">
                 <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: #FAF5EC; border: 1px solid #EDE4D3; border-radius: 12px; padding: 10px 12px;">
-                  <input value="{{ it.name }}" onChange="{{ it.onName }}" placeholder="Item name" style="flex: 2; min-width: 150px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 13.5px; outline: none;" style-focus="border-color: #461610;">
+                  <input value="{{ it.name }}" onChange="{{ it.onName }}" placeholder="Item name" style="flex: 4; min-width: 260px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                   <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #857D72;">Qty
-                    <input value="{{ it.qty }}" onChange="{{ it.onQty }}" type="number" min="1" style="width: 60px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 10px; font-size: 13.5px; outline: none;" style-focus="border-color: #461610;">
+                    <input value="{{ it.qty }}" onChange="{{ it.onQty }}" type="number" min="1" style="width: 50px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 10px; font-size: 13.5px; outline: none;" style-focus="border-color: #461610;">
                   </label>
                   <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #857D72;">Price
-                    <input value="{{ it.price }}" onChange="{{ it.onPrice }}" type="number" min="0" style="width: 78px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 10px; font-size: 13.5px; outline: none;" style-focus="border-color: #461610;">
+                    <input value="{{ it.price }}" onChange="{{ it.onPrice }}" type="number" min="0" disabled="{{ it.isFree }}" style="width: 64px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 10px; font-size: 13.5px; outline: none;" style-focus="border-color: #461610;">
                   </label>
+                    <label style="display: flex; align-items: center; gap: 5px; font-size: 12px; color: #857D72; cursor: pointer;">
+                      <input type="checkbox" checked="{{ it.isFree }}" onChange="{{ it.onFree }}" style="width: 15px; height: 15px; accent-color: #1E8A4C;">
+                      🎁 Free
+                    </label>
                   <span style="font-size: 13px; color: #2E2A26; font-weight: 600; min-width: 72px; text-align: end;">{{ it.lineTotal }}</span>
                   <button onClick="{{ it.remove }}" aria-label="Remove item" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 4px;" style-hover="color: #C0392B;">×</button>
                 </div>
@@ -647,17 +728,27 @@
                           <option value="{{ op.sku }}">{{ op.label }}</option>
                         </sc-for>
                       </select>
+                      <select value="" onChange="{{ o.onEdPickFreeProduct }}" style="background: #F1ECE2; border: 1px solid #1E8A4C; color: #1E8A4C; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; outline: none; cursor: pointer; max-width: 260px;">
+                        <option value="">🎁 Add free product…</option>
+                        <sc-for list="{{ freeProdOptions }}" as="fp" hint-placeholder-count="3">
+                          <option value="{{ fp.sku }}">{{ fp.label }}</option>
+                        </sc-for>
+                      </select>
                       <button onClick="{{ o.addEdItem }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">+ Add custom item</button>
                     </div>
                     <sc-for list="{{ o.edItems }}" as="it" hint-placeholder-count="2">
                       <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: #FAF5EC; border: 1px solid #EDE4D3; border-radius: 12px; padding: 9px 12px;">
-                        <input value="{{ it.name }}" onChange="{{ it.onName }}" placeholder="Item name" style="flex: 2; min-width: 150px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 8px 12px; font-size: 13px; outline: none;" style-focus="border-color: #461610;">
+                        <input value="{{ it.name }}" onChange="{{ it.onName }}" placeholder="Item name" style="flex: 4; min-width: 260px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                         <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #857D72;">Qty
-                          <input value="{{ it.qty }}" onChange="{{ it.onQty }}" type="number" min="1" style="width: 58px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 8px 10px; font-size: 13px; outline: none;" style-focus="border-color: #461610;">
+                          <input value="{{ it.qty }}" onChange="{{ it.onQty }}" type="number" min="1" style="width: 50px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 8px 10px; font-size: 13px; outline: none;" style-focus="border-color: #461610;">
                         </label>
                         <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #857D72;">Price
-                          <input value="{{ it.price }}" onChange="{{ it.onPrice }}" type="number" min="0" style="width: 74px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 8px 10px; font-size: 13px; outline: none;" style-focus="border-color: #461610;">
+                          <input value="{{ it.price }}" onChange="{{ it.onPrice }}" type="number" min="0" disabled="{{ it.isFree }}" style="width: 64px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 8px 10px; font-size: 13px; outline: none;" style-focus="border-color: #461610;">
                         </label>
+                    <label style="display: flex; align-items: center; gap: 5px; font-size: 12px; color: #857D72; cursor: pointer;">
+                      <input type="checkbox" checked="{{ it.isFree }}" onChange="{{ it.onFree }}" style="width: 15px; height: 15px; accent-color: #1E8A4C;">
+                      🎁 Free
+                    </label>
                         <span style="font-size: 13px; color: #2E2A26; font-weight: 600; min-width: 68px; text-align: end;">{{ it.lineTotal }}</span>
                         <button onClick="{{ it.remove }}" aria-label="Remove item" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 17px; padding: 0 4px;" style-hover="color: #C0392B;">×</button>
                       </div>
@@ -691,7 +782,10 @@
         <section data-screen-label="Purchase Orders Admin">
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; flex-wrap: wrap;">
             <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Purchase orders</h1>
-            <button onClick="{{ togglePOForm }}" style="background: #461610; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #39120D;">{{ poFormLabel }}</button>
+            <span style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button onClick="{{ newPOReturn }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #461610; color: #FDF9F4;">{{ poReturnLabel }}</button>
+              <button onClick="{{ togglePOForm }}" style="background: #461610; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #39120D;">{{ poFormLabel }}</button>
+            </span>
           </div>
           <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Orders you place with suppliers to restock — not visible to customers.</p>
           <div style="position: relative; margin-bottom: 14px; max-width: 320px;">
@@ -731,6 +825,11 @@
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Terms
                   <input value="{{ newPO.terms }}" onChange="{{ onPOTerms }}" placeholder="As Per Agreement" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
+                <sc-if value="{{ poIsReturn }}" hint-placeholder-val="{{ false }}">
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Against PO # (optional)
+                    <input value="{{ newPO.refPo }}" onChange="{{ onPORefPo }}" placeholder="e.g. PO-0007" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
+                  </label>
+                </sc-if>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Status
                   <select value="{{ newPO.status }}" onChange="{{ onPOStatus }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
                     <option value="draft">Draft</option>
@@ -757,10 +856,15 @@
               </label>
 
               <h3 style="font-size: 13.5px; font-weight: 600; margin: 6px 0 0; color: #2E2A26;">Items</h3>
-              <button onClick="{{ addPOItem }}" style="align-self: flex-start; background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 12.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">+ Add item</button>
+              <span style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button onClick="{{ addPOItem }}" style="align-self: flex-start; background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 12.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">+ Add item</button>
+                <sc-if value="{{ poIsPurchase }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ addFreePOItem }}" style="align-self: flex-start; background: none; border: 1px solid #1E8A4C; color: #1E8A4C; border-radius: 999px; padding: 8px 16px; font-size: 12.5px; cursor: pointer;" style-hover="background: #1E8A4C; color: #FDF9F4;">🎁 + Add free product</button>
+                </sc-if>
+              </span>
 
               <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 680px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 880px;">
                   <thead>
                     <tr style="text-align: start; color: #857D72;">
                       <th style="padding: 6px 4px; font-weight: 600;">Code</th>
@@ -770,6 +874,7 @@
                       <th style="padding: 6px 4px; font-weight: 600;">Bonus</th>
                       <th style="padding: 6px 4px; font-weight: 600;">Unit Price</th>
                       <th style="padding: 6px 4px; font-weight: 600;">Discount</th>
+                      <th style="padding: 6px 4px; font-weight: 600; text-align: center;">Free</th>
                       <th style="padding: 6px 4px; font-weight: 600; text-align: end;">Total</th>
                       <th></th>
                     </tr>
@@ -777,9 +882,9 @@
                   <tbody>
                     <sc-for list="{{ poItems }}" as="it" hint-placeholder-count="2">
                       <tr style="border-top: 1px solid #EDE4D3;">
-                        <td style="padding: 5px 4px;"><input value="{{ it.code }}" onChange="{{ it.onCode }}" style="width: 66px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
+                        <td style="padding: 5px 4px;"><input value="{{ it.code }}" onChange="{{ it.onCode }}" list="madzo-po-product-codes" placeholder="ID…" style="width: 84px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
                         <td style="padding: 5px 4px;">
-                          <input value="{{ it.desc }}" onChange="{{ it.onDesc }}" list="madzo-po-product-names" placeholder="Type or pick a product…" style="width: 100%; min-width: 160px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;">
+                          <input value="{{ it.desc }}" onChange="{{ it.onDesc }}" list="madzo-po-product-names" placeholder="Type or pick a product…" style="width: 100%; min-width: 320px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                           <sc-if value="{{ it.isMatched }}" hint-placeholder-val="{{ false }}">
                             <div style="font-size: 11px; color: #1E8A4C; margin-top: 3px;">✓ In catalog · {{ it.matchedSku }}</div>
                           </sc-if>
@@ -787,17 +892,23 @@
                             <button onClick="{{ it.addToCatalog }}" style="margin-top: 3px; background: none; border: none; color: #461610; font-size: 11px; cursor: pointer; padding: 0; text-decoration: underline;">+ Add "{{ it.desc }}" to product catalog</button>
                           </sc-if>
                         </td>
-                        <td style="padding: 5px 4px;"><input value="{{ it.unit }}" onChange="{{ it.onUnit }}" placeholder="PC" style="width: 56px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
-                        <td style="padding: 5px 4px;"><input value="{{ it.qty }}" onChange="{{ it.onQty }}" type="number" min="0" style="width: 56px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
-                        <td style="padding: 5px 4px;"><input value="{{ it.bonus }}" onChange="{{ it.onBonus }}" type="number" min="0" style="width: 52px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
-                        <td style="padding: 5px 4px;"><input value="{{ it.unitPrice }}" onChange="{{ it.onUnitPrice }}" type="number" min="0" step="0.01" style="width: 74px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
-                        <td style="padding: 5px 4px;"><input value="{{ it.discount }}" onChange="{{ it.onDiscount }}" type="number" min="0" step="0.01" style="width: 68px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
+                        <td style="padding: 5px 4px;"><input value="{{ it.unit }}" onChange="{{ it.onUnit }}" placeholder="PC" style="width: 44px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
+                        <td style="padding: 5px 4px;"><input value="{{ it.qty }}" onChange="{{ it.onQty }}" type="number" min="0" style="width: 48px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
+                        <td style="padding: 5px 4px;"><input value="{{ it.bonus }}" onChange="{{ it.onBonus }}" type="number" min="0" style="width: 40px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
+                        <td style="padding: 5px 4px;"><sc-if value="{{ it.isFree }}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 700; color: #1E8A4C; background: #DDF0E2; border-radius: 999px; padding: 4px 10px;">FREE</span></sc-if><sc-if value="{{ it.notFree }}" hint-placeholder-val="{{ true }}"><input value="{{ it.unitPrice }}" onChange="{{ it.onUnitPrice }}" type="number" min="0" step="0.01" style="width: 62px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></sc-if></td>
+                        <td style="padding: 5px 4px;"><sc-if value="{{ it.notFree }}" hint-placeholder-val="{{ true }}"><input value="{{ it.discount }}" onChange="{{ it.onDiscount }}" type="number" min="0" step="0.01" style="width: 54px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></sc-if></td>
+                        <td style="padding: 5px 4px; text-align: center;"><input type="checkbox" checked="{{ it.isFree }}" onChange="{{ it.onFree }}" title="Free product (supplier gift — no charge)" style="width: 16px; height: 16px; accent-color: #1E8A4C; cursor: pointer;"></td>
                         <td style="padding: 5px 4px; text-align: end; font-weight: 600; white-space: nowrap;">{{ it.lineTotal }}</td>
                         <td style="padding: 5px 4px;"><button onClick="{{ it.remove }}" aria-label="Remove item" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 17px;" style-hover="color: #C0392B;">×</button></td>
                       </tr>
                     </sc-for>
                   </tbody>
                 </table>
+                <datalist id="madzo-po-product-codes">
+                  <sc-for list="{{ poProductCodes }}" as="pc" hint-placeholder-count="5">
+                    <option value="{{ pc.sku }}" label="{{ pc.label }}"></option>
+                  </sc-for>
+                </datalist>
                 <datalist id="madzo-po-product-names">
                   <sc-for list="{{ poProductOptions }}" as="pn" hint-placeholder-count="5">
                     <option value="{{ pn.name }}"></option>
@@ -834,7 +945,7 @@
               <sc-for list="{{ pagedPOs }}" as="po" hint-placeholder-count="6">
                 <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px;">
                   <div style="display: grid; grid-template-columns: minmax(150px,1fr) 130px 110px 110px 100px; gap: 10px; align-items: center;">
-                    <span style="font-weight: 600; font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ po.supplier }}</span>
+                    <span style="display: flex; align-items: center; gap: 6px; min-width: 0;"><sc-if value="{{ po.isReturn }}" hint-placeholder-val="{{ false }}"><span style="font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: #FCE3E0; color: #B03A2E; flex: none;">RETURN</span></sc-if><span style="font-weight: 600; font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ po.supplier }}</span></span>
                     <span style="font-size: 11.5px; color: #B0A697;">{{ po.meta }}</span>
                     <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ po.badgeBg }}; color: {{ po.badgeColor }}; text-align: center; justify-self: start; white-space: nowrap;">{{ po.statusLabel }}</span>
                     <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ po.paymentBg }}; color: {{ po.paymentColor }}; text-align: center; justify-self: start; white-space: nowrap;">{{ po.paymentLabel }}</span>
@@ -1204,7 +1315,7 @@ class Component extends DCLogic {
       savedMsg: false,
       setWa: '',
       showAddForm: false,
-      newProd: { id: '', name: '', mainCat: 'cosmetics', cat: 'skincare', brand: '', desc: '', price: '', stock: '', batchNo: '', buyPrice: '' },
+      newProd: { id: '', name: '', mainCat: 'cosmetics', cat: 'skincare', brand: '', desc: '', price: '', stock: '', batchNo: '', buyPrice: '', expiry: '' },
       newProdError: '',
       editSku: null,
       editDraft: null,
@@ -1244,6 +1355,8 @@ class Component extends DCLogic {
       dbProducts: [], dbOrders: [], dbPOs: [], dbSuppliers: [], dbBatches: [],
       dbMainCats: [], dbSubCats: [], catsLoaded: false, catsError: '',
       showCatManager: false, catForm: null, catError: '', savingCat: false, confirmDelCat: null,
+      invView: 'products', newProdFile: null,
+      prodFilters: { photo: '', brand: '', id: '', name: '', cat: '', sub: '', batch: '', expiry: '', price: '', active: '' },
       siteImages: {},
       rev: 0
     };
@@ -1348,7 +1461,7 @@ class Component extends DCLogic {
         id: p.id, ts: new Date(p.created_at).getTime(),
         supplier: p.supplier_name, email: p.supplier_email || '', phone: p.supplier_phone || '',
         date: p.po_date, delivery: p.delivery_expect, terms: p.terms || '',
-        status: p.status || 'draft', paymentStatus: p.payment_status || 'pending',
+        status: p.status || 'draft', paymentStatus: p.payment_status || 'pending', type: p.po_type || 'purchase', refPo: p.ref_po || '',
         preparedBy: p.prepared_by || '', approvedBy: p.approved_by || '',
         remarks: p.remarks || '', items: p.items || [],
         amount: p.amount || 0, discount: p.discount || 0, netAmount: p.net_amount || 0
@@ -1562,7 +1675,7 @@ class Component extends DCLogic {
           <span>Qty: ${this.esc(it.qty)}</span><span>Bonus: ${this.esc(it.bonus)}</span>
         </div>
         <div style="display:flex; justify-content:space-between; font-size:12px; color:#444; margin-top:3px;">
-          <span>Unit: ${Number(it.unitPrice || 0).toFixed(2)}</span><span>Disc: ${Number(it.discount || 0).toFixed(2)}</span>
+          <span>Unit: ${it.free ? 'FREE' : Number(it.unitPrice || 0).toFixed(2)}</span><span>Disc: ${Number(it.discount || 0).toFixed(2)}</span>
         </div>
         <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700; margin-top:6px; border-top:1px dashed #ddd; padding-top:6px;">
           <span>Total</span><span>${Number(it.total || 0).toFixed(2)} QAR</span>
@@ -1573,7 +1686,7 @@ class Component extends DCLogic {
     <div style="font-size:20px;letter-spacing:2px;font-family: Georgia, serif;">MADZO</div>
     <div style="font-size:12px;color:#555;">مدزو للمستحضرات التجميلية</div>
     <div style="font-size:11px;color:#777;margin-top:2px;">Doha, Qatar${po.waLine ? ' · ' + this.esc(po.waLine) : ''}</div>
-    <div style="font-size:13px;font-weight:700;margin-top:8px;letter-spacing:1px;">PURCHASE ORDER</div>
+    <div style="font-size:13px;font-weight:700;margin-top:8px;letter-spacing:1px;">${po.type === 'return' ? 'PURCHASE RETURN' : 'PURCHASE ORDER'}</div>${po.type === 'return' && po.refPo ? '<div style="font-size:11px;color:#555;margin-top:3px;">Against PO # ' + this.esc(po.refPo) + '</div>' : ''}
   </div>
   <div style="border:1px solid #ccc;border-radius:6px;padding:10px 12px;font-size:12px;margin-bottom:12px;word-break:break-word;">
     <div style="margin-bottom:3px;"><strong>M/S:</strong> ${this.esc(po.supplier)}</div>
@@ -1612,8 +1725,8 @@ class Component extends DCLogic {
       bodyHtml: this.poShareBodyHtml(po),
       filename: 'PO-' + po.id + '.pdf',
       widthPx: 380,
-      shareTitle: 'Purchase Order ' + po.id,
-      shareText: 'Purchase Order ' + po.id + ' — ' + po.supplier
+      shareTitle: (po.type === 'return' ? 'Purchase Return ' : 'Purchase Order ') + po.id,
+      shareText: (po.type === 'return' ? 'Purchase Return ' : 'Purchase Order ') + po.id + ' — ' + po.supplier
     });
   }
 
@@ -1637,7 +1750,7 @@ class Component extends DCLogic {
         <td style="text-align:center;padding:6px 4px;">${this.esc(it.unit)}</td>
         <td style="text-align:center;padding:6px 4px;">${this.esc(it.qty)}</td>
         <td style="text-align:center;padding:6px 4px;">${this.esc(it.bonus)}</td>
-        <td style="text-align:end;padding:6px 4px;">${Number(it.unitPrice || 0).toFixed(2)}</td>
+        <td style="text-align:end;padding:6px 4px;">${it.free ? 'FREE' : Number(it.unitPrice || 0).toFixed(2)}</td>
         <td style="text-align:end;padding:6px 4px;">${Number(it.discount || 0).toFixed(2)}</td>
         <td style="text-align:end;padding:6px 4px;">${Number(it.net || 0).toFixed(2)}</td>
         <td style="text-align:end;padding:6px 4px;font-weight:600;">${Number(it.total || 0).toFixed(2)}</td>
@@ -1647,7 +1760,7 @@ class Component extends DCLogic {
     <div style="font-size:24px;letter-spacing:3px;font-family: Georgia, serif;">MADZO</div>
     <div style="font-size:13px;color:#555;">مدزو للمستحضرات التجميلية</div>
     <div style="font-size:12px;color:#777;margin-top:2px;">Doha, Qatar${po.waLine ? ' · ' + this.esc(po.waLine) : ''}</div>
-    <div style="font-size:15px;font-weight:700;margin-top:12px;letter-spacing:1px;">PURCHASE ORDER</div>
+    <div style="font-size:15px;font-weight:700;margin-top:12px;letter-spacing:1px;">${po.type === 'return' ? 'PURCHASE RETURN' : 'PURCHASE ORDER'}</div>${po.type === 'return' && po.refPo ? '<div style="font-size:12px;color:#555;margin-top:3px;">Against PO # ' + this.esc(po.refPo) + '</div>' : ''}
   </div>
   <div style="display:flex;justify-content:space-between;gap:14px;border:1px solid #ccc;border-radius:6px;padding:14px 16px;font-size:12.5px;margin-bottom:10px;">
     <div style="flex:1;min-width:0;word-break:break-word;">
@@ -1689,7 +1802,7 @@ class Component extends DCLogic {
 
   printPO(po) {
     const html = `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Purchase Order ${this.esc(po.id)}</title>
+<html><head><meta charset="utf-8"><title>${po.type === 'return' ? 'Purchase Return' : 'Purchase Order'} ${this.esc(po.id)}</title>
 <style>
   body { font-family: Arial, Helvetica, sans-serif; color: #222; margin: 0; padding: 26px 24px; max-width: 760px; margin: 0 auto; }
   @media print { body { padding: 10px; } }
@@ -1893,13 +2006,47 @@ class Component extends DCLogic {
 
     const setDraft = (key) => (e) => this.setState(s => ({ editDraft: { ...s.editDraft, [key]: e.target.value }, editError: '' }));
 
+    // ---- batch & expiry per product (from inventory batches) ----
+    const batchesBySku = {};
+    (this.state.dbBatches || []).forEach(b => { (batchesBySku[b.sku] = batchesBySku[b.sku] || []).push(b); });
+    const expInfo = (d) => {
+      if (!d) return { key: 'none', label: '—', bg: '#F1ECE2', color: '#B0A697', title: 'No expiry date set' };
+      const days = Math.ceil((new Date(d) - new Date(new Date().toDateString())) / 86400000);
+      if (days < 0) return { key: 'expired', label: 'Expired', bg: '#FCE3E0', color: '#B03A2E', title: 'Expired on ' + d };
+      if (days <= 30) return { key: 'soon', label: d, bg: '#FBEFD4', color: '#9A6E12', title: 'Expires in ' + days + ' day(s)' };
+      return { key: 'ok', label: d, bg: '#DDF0E2', color: '#1E8A4C', title: 'Expires on ' + d };
+    };
+    const prodBatchInfo = (sku) => {
+      const list = batchesBySku[sku] || [];
+      if (!list.length) return { label: '—', title: 'No batches yet', search: '', expiry: '' };
+      const live = list.filter(b => (b.qty || 0) > 0);
+      const pool = live.length ? live : list;
+      const withExp = pool.filter(b => b.expiry).sort((a, b) => (a.expiry < b.expiry ? -1 : a.expiry > b.expiry ? 1 : 0));
+      const first = withExp[0] || pool[0];
+      const extra = pool.length - 1;
+      return {
+        label: (first.batchNo || '—') + (extra > 0 ? ' +' + extra : ''),
+        title: pool.map(b => (b.batchNo || '—') + ' (qty ' + b.qty + (b.expiry ? ', exp ' + b.expiry : '') + ')').join('\n'),
+        search: pool.map(b => b.batchNo || '').join(' '),
+        expiry: first.expiry || ''
+      };
+    };
+
     const adminProducts = prods.map(p => {
+      const bi = prodBatchInfo(p.sku);
+      const ex = expInfo(bi.expiry);
       const editing = this.state.editSku === p.sku;
       const d = editing ? (this.state.editDraft || {}) : {};
       return {
         sku: p.sku, name: p.name,
         metaLine: mainName(p.mainCat) + ' · ' + this.catLabel(p.catKey) + (p.brand ? ' · ' + p.brand : ''),
         catLabel: this.catLabel(p.catKey),
+        brandRaw: p.brand || '', mainId: p.mainCat, subId: p.catKey,
+        mainName: (mainCats.find(m => m.id === p.mainCat) || {}).name || p.mainCat || '—',
+        subName: this.catLabel(p.catKey),
+        hasPhoto: !!p.img,
+        batchLabel: bi.label, batchTitle: bi.title, batchSearch: bi.search,
+        expKey: ex.key, expLabel: ex.label, expBg: ex.bg, expColor: ex.color, expTitle: ex.title,
         brand: p.brand || '—',
         img: p.img || '',
         price: p.price, stock: p.stock,
@@ -2010,9 +2157,32 @@ class Component extends DCLogic {
       };
     };
     const prodQ = this.state.prodSearch.trim().toLowerCase();
-    const filteredProducts = prodQ
-      ? adminProducts.filter(p => (p.name + ' ' + p.sku + ' ' + p.brand + ' ' + p.catLabel).toLowerCase().includes(prodQ))
-      : adminProducts;
+    const pf = this.state.prodFilters;
+    const lc = (v) => String(v || '').toLowerCase().trim();
+    const filteredProducts = adminProducts.filter(p => {
+      if (prodQ && !(p.name + ' ' + p.sku + ' ' + p.brandRaw + ' ' + p.mainName + ' ' + p.subName + ' ' + p.batchSearch).toLowerCase().includes(prodQ)) return false;
+      if (pf.photo === 'with' && !p.hasPhoto) return false;
+      if (pf.photo === 'without' && p.hasPhoto) return false;
+      if (pf.brand && p.brandRaw !== pf.brand) return false;
+      if (pf.id && !lc(p.sku).includes(lc(pf.id))) return false;
+      if (pf.name && !lc(p.name).includes(lc(pf.name))) return false;
+      if (pf.cat && p.mainId !== pf.cat) return false;
+      if (pf.sub && p.subId !== pf.sub) return false;
+      if (pf.batch && !lc(p.batchSearch).includes(lc(pf.batch))) return false;
+      if (pf.expiry && p.expKey !== pf.expiry) return false;
+      if (pf.price && !String(p.price).includes(String(pf.price).trim())) return false;
+      if (pf.active === 'active' && !p.active) return false;
+      if (pf.active === 'inactive' && p.active) return false;
+      return true;
+    });
+    const setPF = (k) => (e) => this.setState(s => {
+      const f = { ...s.prodFilters, [k]: e.target.value };
+      if (k === 'cat') f.sub = '';
+      return { prodFilters: f, prodPage: 1 };
+    });
+    const opts = (list, cur) => list.map(o => ({ ...o, selected: o.v === cur }));
+    const brandList = Array.from(new Set(adminProducts.map(p => p.brandRaw).filter(Boolean))).sort((a, b) => a.localeCompare(b));
+    const pfAny = Object.keys(pf).some(k => pf[k]);
     const prodPager = makePager(filteredProducts.length, 'prodPage');
     const pagedProducts = filteredProducts.slice((prodPager.page - 1) * PAGE_SIZE, prodPager.page * PAGE_SIZE);
 
@@ -2055,7 +2225,12 @@ class Component extends DCLogic {
       const edItemsRaw = ed.items || [];
       const edItems = edItemsRaw.map((it, i) => ({
         name: it.name, qty: it.qty, price: it.price,
-        lineTotal: fmt(Math.round((Number(it.qty) || 0) * (Number(it.price) || 0))),
+        isFree: !!it.free,
+        onFree: (e) => { const on = !!e.target.checked; this.setState(s => {
+          const items = s.editOrderDraft.items.slice(); const cur = items[i];
+          items[i] = on ? { ...cur, free: true, prevPrice: cur.free ? cur.prevPrice : cur.price, price: 0 } : { ...cur, free: false, price: cur.prevPrice != null ? cur.prevPrice : '' };
+          return { editOrderDraft: { ...s.editOrderDraft, items }, editOrderErr: '' }; }); },
+        lineTotal: it.free ? 'FREE' : fmt(Math.round((Number(it.qty) || 0) * (Number(it.price) || 0))),
         onName: setEdItem(i, 'name'), onQty: setEdItem(i, 'qty'), onPrice: setEdItem(i, 'price'),
         remove: () => this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, items: s.editOrderDraft.items.filter((_, j) => j !== i) } }))
       }));
@@ -2070,7 +2245,7 @@ class Component extends DCLogic {
         detailsOpen: !!(this.state.openOrderIds || {})[o.id],
         chevron: (this.state.openOrderIds || {})[o.id] ? '▾' : '▸',
         toggleDetails: () => this.setState(s => ({ openOrderIds: { ...(s.openOrderIds || {}), [o.id]: !(s.openOrderIds || {})[o.id] } })),
-        itemLines: (o.lines || []).map(l => ({ qtyName: `${l.qty} × ${l.name}`, price: fmt(l.total || 0) })),
+        itemLines: (o.lines || []).map(l => ({ qtyName: `${l.qty} × ${l.name}` + (l.free ? ' 🎁' : ''), price: l.free ? 'FREE' : fmt(l.total || 0) })),
         phone: o.phone || '—',
         shipping: [o.zone, o.address].filter(Boolean).join(' — ') || '—',
         hasNotes: !!o.notes, notes: o.notes || '',
@@ -2099,7 +2274,7 @@ class Component extends DCLogic {
             id: o.id, source: o.source && o.source !== 'storefront' ? o.source : '',
             name: o.name || '', phone: o.phone || '', zone: o.zone || '', address: o.address || '',
             notes: o.notes || '', status: o.status || 'new', paymentStatus: o.paymentStatus || 'pending',
-            items: (o.lines || []).map(l => ({ name: l.name, qty: l.qty, price: Math.round((l.total || 0) / (l.qty || 1)) }))
+            items: (o.lines || []).map(l => ({ name: l.name, qty: l.qty, price: l.free ? 0 : Math.round((l.total || 0) / (l.qty || 1)), free: !!l.free, sku: l.sku || '', brand: l.brand || '', nameEn: l.nameEn || '' }))
           }
         }),
         edId: ed.id || '', onEdId: setEd('id'),
@@ -2113,7 +2288,13 @@ class Component extends DCLogic {
         edPaymentStatus: ed.paymentStatus || 'pending', onEdPaymentStatus: setEd('paymentStatus'),
         onEdPickProduct: (e) => {
           const pr = prods.find(x => x.sku === e.target.value);
-          if (pr) pushEdItem({ name: pr.name, qty: 1, price: pr.price });
+          if (pr) pushEdItem({ name: pr.name, qty: 1, price: pr.price, sku: pr.sku, brand: pr.brand || '', nameEn: pr.name });
+          e.target.value = '';
+        },
+        onEdPickFreeProduct: (e) => {
+          const pr = prods.find(x => x.sku === e.target.value);
+          if (pr) pushEdItem({ name: pr.name, qty: 1, price: 0, free: true, sku: pr.sku, brand: pr.brand || '', nameEn: pr.name });
+          e.target.value = '';
         },
         addEdItem: () => pushEdItem({ name: '', qty: 1, price: '' }),
         edItems,
@@ -2127,10 +2308,10 @@ class Component extends DCLogic {
           if (!String(dr.name || '').trim()) { this.setState({ editOrderErr: 'Please enter the customer name.' }); return; }
           if (newId !== o.id && orders.some(x => x.id === newId)) { this.setState({ editOrderErr: 'Order ID "' + newId + '" already exists.' }); return; }
           const items = (dr.items || [])
-            .map(it => ({ qty: Math.max(1, parseInt(it.qty, 10) || 1), name: String(it.name || '').trim(), unit: Number(it.price) || 0 }))
+            .map(it => ({ qty: Math.max(1, parseInt(it.qty, 10) || 1), name: String(it.name || '').trim(), unit: it.free ? 0 : (Number(it.price) || 0), free: !!it.free, sku: it.sku || '', brand: it.brand || '', nameEn: it.nameEn || '' }))
             .filter(it => it.name);
           if (!items.length) { this.setState({ editOrderErr: 'Add at least one item.' }); return; }
-          const lines = items.map(it => ({ qty: it.qty, name: it.name, total: Math.round(it.qty * it.unit) }));
+          const lines = items.map(it => ({ ...(it.sku ? { sku: it.sku } : {}), ...(it.brand ? { brand: it.brand } : {}), qty: it.qty, name: it.name, ...(it.nameEn ? { nameEn: it.nameEn } : {}), unit: it.unit, total: it.free ? 0 : Math.round(it.qty * it.unit), ...(it.free ? { free: true } : {}) }));
           const total = lines.reduce((a, l) => a + l.total, 0);
           this.setState({ savingOrderId: o.id });
           const { error } = await window.getSupabase().from('orders').update({
@@ -2167,8 +2348,8 @@ class Component extends DCLogic {
       rows: (invOrder.lines || []).map(l => ({
         name: l.name,
         qty: l.qty,
-        unit: fmt(Math.round((l.total || 0) / (l.qty || 1))),
-        amt: fmt(l.total || 0)
+        unit: l.free ? 'FREE' : fmt(Math.round((l.total || 0) / (l.qty || 1))),
+        amt: l.free ? 'FREE' : fmt(l.total || 0)
       })),
       total: fmt(invOrder.total)
     } : null;
@@ -2206,21 +2387,38 @@ class Component extends DCLogic {
       return { newPO: { ...s.newPO, items }, poError: '' };
     });
     const pushPOItem = () => this.setState(s => ({ newPO: { ...s.newPO, items: [...s.newPO.items, { code: '', desc: '', unit: 'PC', qty: 1, bonus: 0, unitPrice: '', discount: 0 }] } }));
+    const pushFreePOItem = () => this.setState(s => ({ newPO: { ...s.newPO, items: [...s.newPO.items, { code: '', desc: '', unit: 'PC', qty: 1, bonus: 0, unitPrice: 0, discount: 0, free: true }] } }));
 
     const poLineCalc = (it) => {
       const qty = Number(it.qty) || 0;
-      const unitPrice = Number(it.unitPrice) || 0;
-      const discount = Number(it.discount) || 0;
+      const unitPrice = it.free ? 0 : (Number(it.unitPrice) || 0);
+      const discount = it.free ? 0 : (Number(it.discount) || 0);
       const net = Math.max(0, unitPrice - discount);
       const total = net * qty;
       return { qty, unitPrice, discount, net, total, lineDiscount: discount * qty };
     };
 
     const npo = this.state.newPO;
+    const poIsReturn = npo.type === 'return';
     const findProdByName = (name) => {
       const n = String(name || '').trim().toLowerCase();
       if (!n) return null;
       return prods.find(p => p.name.trim().toLowerCase() === n) || null;
+    };
+    // Suggested unit price for a purchase: the latest batch's buying price, else the shelf price.
+    const suggestBuy = (p) => { const bs = (this.state.dbBatches || []).filter(b => b.sku === p.sku && Number(b.buyPrice) > 0); return bs.length ? bs[0].buyPrice : p.price; };
+    const findProdBySku = (code) => { const c = String(code || '').trim().toLowerCase(); return c ? (prods.find(p => String(p.sku).toLowerCase() === c) || null) : null; };
+    const onCodeSmart = (i) => (e) => {
+      const val = e.target.value;
+      const matched = findProdBySku(val);
+      this.setState(s => {
+        const items = s.newPO.items.slice();
+        const cur = items[i] || {};
+        items[i] = matched
+          ? { ...cur, code: matched.sku, desc: matched.name, unitPrice: cur.free ? 0 : (cur.unitPrice || suggestBuy(matched)) }
+          : { ...cur, code: val };
+        return { newPO: { ...s.newPO, items }, poError: '' };
+      });
     };
     const onDescSmart = (i) => (e) => {
       const val = e.target.value;
@@ -2231,7 +2429,7 @@ class Component extends DCLogic {
         items[i] = {
           ...cur, desc: val,
           code: matched && !cur.code ? matched.sku : cur.code,
-          unitPrice: matched && !cur.unitPrice ? matched.price : cur.unitPrice
+          unitPrice: cur.free ? 0 : (matched && !cur.unitPrice ? suggestBuy(matched) : cur.unitPrice)
         };
         return { newPO: { ...s.newPO, items }, poError: '' };
       });
@@ -2241,6 +2439,12 @@ class Component extends DCLogic {
       const matched = findProdByName(it.desc);
       return {
         code: it.code, desc: it.desc, unit: it.unit, qty: it.qty, bonus: it.bonus,
+        isFree: !!it.free, notFree: !it.free,
+        onFree: (e) => { const on = !!e.target.checked; this.setState(s => {
+          const items = s.newPO.items.slice(); const cur = items[i] || {};
+          items[i] = on ? { ...cur, free: true, prevPrice: cur.free ? cur.prevPrice : cur.unitPrice, unitPrice: 0, discount: 0 }
+                        : { ...cur, free: false, unitPrice: cur.prevPrice != null ? cur.prevPrice : '' };
+          return { newPO: { ...s.newPO, items }, poError: '' }; }); },
         unitPrice: it.unitPrice, discount: it.discount,
         isMatched: !!matched, matchedSku: matched ? matched.sku : '',
         canAddToCatalog: !matched && !!String(it.desc || '').trim(),
@@ -2259,8 +2463,8 @@ class Component extends DCLogic {
           setPOItem(i, 'code')({ target: { value: sku } });
           this.loadProducts();
         },
-        lineTotal: c.total.toFixed(2),
-        onCode: setPOItem(i, 'code'), onDesc: onDescSmart(i), onUnit: setPOItem(i, 'unit'),
+        lineTotal: it.free ? 'FREE' : c.total.toFixed(2),
+        onCode: onCodeSmart(i), onDesc: onDescSmart(i), onUnit: setPOItem(i, 'unit'),
         onQty: setPOItem(i, 'qty'), onBonus: setPOItem(i, 'bonus'),
         onUnitPrice: setPOItem(i, 'unitPrice'), onDiscount: setPOItem(i, 'discount'),
         remove: () => this.setState(s => ({ newPO: { ...s.newPO, items: s.newPO.items.filter((_, j) => j !== i) } }))
@@ -2290,13 +2494,14 @@ class Component extends DCLogic {
       const sm = poStatusMeta(prow.status);
       const pm = paymentBadgeMeta(prow.paymentStatus);
       const isComplete = !!(prow.supplier && prow.supplier.trim()) && prow.items.length > 0 &&
-        prow.items.every(it => it.desc && Number(it.qty) > 0 && Number(it.unitPrice) > 0);
+        prow.items.every(it => it.desc && Number(it.qty) > 0 && (it.free || Number(it.unitPrice) > 0));
       return {
         supplier: prow.supplier || '—',
         meta: prow.id + ' · ' + (prow.date || '—'),
         statusLabel: sm.label, badgeBg: sm.bg, badgeColor: sm.color,
         paymentLabel: pm.label, paymentBg: pm.bg, paymentColor: pm.color,
-        netAmount: prow.netAmount.toFixed(2) + ' QAR',
+        netAmount: (prow.type === 'return' ? '−' : '') + prow.netAmount.toFixed(2) + ' QAR',
+        isReturn: prow.type === 'return',
         canPrintShare: isComplete,
         missingInfo: !isComplete,
         openPrint: () => this.printPO({
@@ -2305,7 +2510,8 @@ class Component extends DCLogic {
           waLine: this.state.setWa ? ('Tel: ' + this.state.setWa) : '',
           items: prow.items.map(it => { const c = poLineCalc(it); return { ...it, net: c.net, total: c.total }; }),
           amount: prow.amount, discount: prow.discount, netAmount: prow.netAmount,
-          remarks: prow.remarks, preparedBy: prow.preparedBy, approvedBy: prow.approvedBy
+          remarks: prow.remarks, preparedBy: prow.preparedBy, approvedBy: prow.approvedBy,
+          type: prow.type, refPo: prow.refPo
         }),
         sharePdf: () => this.sharePOPdf({
           id: prow.id, supplier: prow.supplier, email: prow.email, phone: prow.phone,
@@ -2313,7 +2519,8 @@ class Component extends DCLogic {
           waLine: this.state.setWa ? ('Tel: ' + this.state.setWa) : '',
           items: prow.items.map(it => { const c = poLineCalc(it); return { ...it, net: c.net, total: c.total }; }),
           amount: prow.amount, discount: prow.discount, netAmount: prow.netAmount,
-          remarks: prow.remarks, preparedBy: prow.preparedBy, approvedBy: prow.approvedBy
+          remarks: prow.remarks, preparedBy: prow.preparedBy, approvedBy: prow.approvedBy,
+          type: prow.type, refPo: prow.refPo
         }),
         savePdf: () => this.savePOPdf({
           id: prow.id, supplier: prow.supplier, email: prow.email, phone: prow.phone,
@@ -2321,14 +2528,15 @@ class Component extends DCLogic {
           waLine: this.state.setWa ? ('Tel: ' + this.state.setWa) : '',
           items: prow.items.map(it => { const c = poLineCalc(it); return { ...it, net: c.net, total: c.total }; }),
           amount: prow.amount, discount: prow.discount, netAmount: prow.netAmount,
-          remarks: prow.remarks, preparedBy: prow.preparedBy, approvedBy: prow.approvedBy
+          remarks: prow.remarks, preparedBy: prow.preparedBy, approvedBy: prow.approvedBy,
+          type: prow.type, refPo: prow.refPo
         }),
         startEdit: () => this.setState({
           showPOForm: true, poFormMode: 'edit', poError: '', editingPOOriginalId: prow.id,
           newPO: {
             id: prow.id, supplier: prow.supplier, email: prow.email, phone: prow.phone,
             date: prow.date || today, delivery: prow.delivery || '', terms: prow.terms || 'As Per Agreement',
-            status: prow.status || 'draft', paymentStatus: prow.paymentStatus || 'pending', preparedBy: prow.preparedBy, approvedBy: prow.approvedBy,
+            status: prow.status || 'draft', paymentStatus: prow.paymentStatus || 'pending', type: prow.type || 'purchase', refPo: prow.refPo || '', preparedBy: prow.preparedBy, approvedBy: prow.approvedBy,
             remarks: prow.remarks, items: prow.items.length ? prow.items : [{ code: '', desc: '', unit: 'PC', qty: 1, bonus: 0, unitPrice: '', discount: 0 }]
           }
         }),
@@ -2416,7 +2624,12 @@ class Component extends DCLogic {
     const pushItem = (item) => this.setState(s => ({ newOrder: { ...s.newOrder, items: [...s.newOrder.items, item] } }));
     const orderItems = no.items.map((it, i) => ({
       name: it.name, qty: it.qty, price: it.price,
-      lineTotal: fmt(Math.round((Number(it.qty) || 0) * (Number(it.price) || 0))),
+      isFree: !!it.free,
+      onFree: (e) => { const on = !!e.target.checked; this.setState(s => {
+        const items = s.newOrder.items.slice(); const cur = items[i];
+        items[i] = on ? { ...cur, free: true, prevPrice: cur.free ? cur.prevPrice : cur.price, price: 0 } : { ...cur, free: false, price: cur.prevPrice != null ? cur.prevPrice : '' };
+        return { newOrder: { ...s.newOrder, items }, newOrderError: '' }; }); },
+      lineTotal: it.free ? 'FREE' : fmt(Math.round((Number(it.qty) || 0) * (Number(it.price) || 0))),
       onName: setItem(i, 'name'), onQty: setItem(i, 'qty'), onPrice: setItem(i, 'price'),
       remove: () => this.setState(s => ({ newOrder: { ...s.newOrder, items: s.newOrder.items.filter((_, j) => j !== i) } }))
     }));
@@ -2434,7 +2647,7 @@ class Component extends DCLogic {
       doLogin,
       doLogout: () => { window.getSupabase().auth.signOut(); this.setState({ authed: false }); },
 
-      isHome: tab === 'home', isDash: tab === 'dash', isStock: tab === 'stock', isImages: tab === 'images', isOrders: tab === 'orders', isPO: tab === 'po', isInv: tab === 'inv', isSettings: tab === 'settings',
+      isHome: tab === 'home', isDash: tab === 'dash', isStock: tab === 'inv' && this.state.invView === 'products', isImages: tab === 'images', isOrders: tab === 'orders', isPO: tab === 'po', isInv: tab === 'inv' && this.state.invView !== 'products', isInvArea: tab === 'inv', isSettings: tab === 'settings',
       tabDash: () => this.setState({ tab: 'dash' }),
       tabHome: () => this.setState({ tab: 'home' }),
       tHomeBg: phome.bg, tHomeColor: phome.color,
@@ -2442,7 +2655,7 @@ class Component extends DCLogic {
       goCreatePO: () => {
         this.setState({
           tab: 'po', showPOForm: true, poFormMode: 'new', poError: '',
-          newPO: { id: this.state.newPO.id, supplier: '', email: '', phone: '', date: today, delivery: '', terms: 'As Per Agreement', status: 'draft', paymentStatus: 'pending', preparedBy: '', approvedBy: '', remarks: '', items: [{ code: '', desc: '', unit: 'PC', qty: 1, bonus: 0, unitPrice: '', discount: 0 }] }
+          newPO: { id: this.state.newPO.type === 'return' ? '' : this.state.newPO.id, supplier: '', email: '', phone: '', date: today, delivery: '', terms: 'As Per Agreement', status: 'draft', paymentStatus: 'pending', preparedBy: '', approvedBy: '', remarks: '', items: [{ code: '', desc: '', unit: 'PC', qty: 1, bonus: 0, unitPrice: '', discount: 0 }] }
         });
         this.fetchNextPoId().then((id) => this.setState(s => ({ newPO: { ...s.newPO, id: s.newPO.id || id } })));
       },
@@ -2453,16 +2666,20 @@ class Component extends DCLogic {
         }
       },
       goCreateProduct: () => this.setState(s => ({
-        tab: 'stock', showAddForm: true, newProdError: '',
+        tab: 'inv', invView: 'products', showAddForm: true, newProdError: '',
         newProd: { ...s.newProd, id: s.newProd.id || this.nextId() }
       })),
-      tabStock: () => this.setState({ tab: 'stock' }),
+      tabStock: () => this.setState({ tab: 'inv', invView: 'products' }),
       tabImages: () => this.setState({ tab: 'images' }),
       tabOrders: () => this.setState({ tab: 'orders' }),
       tabSettings: () => this.setState({ tab: 'settings', savedMsg: false }),
       tabPO: () => this.setState({ tab: 'po' }),
       tPOBg: ppo.bg, tPOColor: ppo.color,
       tabInv: () => this.setState({ tab: 'inv' }),
+      invViewProducts: () => this.setState({ invView: 'products' }),
+      invViewStock: () => this.setState({ invView: 'stock' }),
+      ivpBg: this.state.invView === 'products' ? '#461610' : '#FDF9F4', ivpColor: this.state.invView === 'products' ? '#FDF9F4' : '#857D72',
+      ivsBg: this.state.invView !== 'products' ? '#461610' : '#FDF9F4', ivsColor: this.state.invView !== 'products' ? '#FDF9F4' : '#857D72',
       tInvBg: pinv.bg, tInvColor: pinv.color,
       tDashBg: pd.bg, tDashColor: pd.color, tStockBg: ps.bg, tStockColor: ps.color,
       tImagesBg: pi.bg, tImagesColor: pi.color, tOrdersBg: po.bg, tOrdersColor: po.color, tSettingsBg: pt.bg, tSettingsColor: pt.color,
@@ -2472,13 +2689,13 @@ class Component extends DCLogic {
       pagedPOs, noPOs: pos.length === 0, poPager,
       showPOForm: this.state.showPOForm,
       poFormLabel: this.state.showPOForm ? 'Close' : '+ New purchase order',
-      poFormTitle: this.state.poFormMode === 'edit' ? 'Edit purchase order' : 'New purchase order',
+      poFormTitle: (this.state.poFormMode === 'edit' ? 'Edit ' : 'New ') + (poIsReturn ? 'purchase return' : 'purchase order'),
       togglePOForm: () => {
         const opening = !this.state.showPOForm;
         if (opening) {
           this.setState({
             showPOForm: true, poFormMode: 'new', poError: '',
-            newPO: { id: this.state.newPO.id, supplier: '', email: '', phone: '', date: today, delivery: '', terms: 'As Per Agreement', status: 'draft', paymentStatus: 'pending', preparedBy: '', approvedBy: '', remarks: '', items: [{ code: '', desc: '', unit: 'PC', qty: 1, bonus: 0, unitPrice: '', discount: 0 }] }
+            newPO: { id: this.state.newPO.type === 'return' ? '' : this.state.newPO.id, supplier: '', email: '', phone: '', date: today, delivery: '', terms: 'As Per Agreement', status: 'draft', paymentStatus: 'pending', preparedBy: '', approvedBy: '', remarks: '', items: [{ code: '', desc: '', unit: 'PC', qty: 1, bonus: 0, unitPrice: '', discount: 0 }] }
           });
           this.fetchNextPoId().then((id) => this.setState(s => ({ newPO: { ...s.newPO, id: s.newPO.id || id } })));
         } else {
@@ -2492,6 +2709,18 @@ class Component extends DCLogic {
       onPOPaymentStatus: setPO('paymentStatus'),
       onPOPreparedBy: setPO('preparedBy'), onPOApprovedBy: setPO('approvedBy'), onPORemarks: setPO('remarks'),
       addPOItem: pushPOItem,
+      addFreePOItem: pushFreePOItem,
+      poIsReturn, poIsPurchase: !poIsReturn,
+      onPORefPo: setPO('refPo'),
+      poReturnLabel: '+ Purchase return',
+      poProductCodes: prods.map(p => ({ sku: p.sku, label: p.name })),
+      newPOReturn: () => {
+        this.setState({
+          showPOForm: true, poFormMode: 'new', poError: '', editingPOOriginalId: null,
+          newPO: { id: '', type: 'return', refPo: '', supplier: '', email: '', phone: '', date: today, delivery: '', terms: 'As Per Agreement', status: 'draft', paymentStatus: 'pending', preparedBy: '', approvedBy: '', remarks: '', items: [{ code: '', desc: '', unit: 'PC', qty: 1, bonus: 0, unitPrice: '', discount: 0 }] }
+        });
+        this.fetchNextPoId().then((id) => this.setState(s => (s.newPO.type === 'return' ? { newPO: { ...s.newPO, id: s.newPO.id || String(id).replace(/^PO-/i, 'PR-') } } : null)));
+      },
       poItems,
       poProductOptions: prods.map(p => ({ name: p.name })),
       supplierOptions: suppliers.map(s => ({ name: s.name })),
@@ -2499,14 +2728,15 @@ class Component extends DCLogic {
       poAmount: npoTotals.amount.toFixed(2) + ' QAR',
       poDiscount: npoTotals.discount.toFixed(2) + ' QAR',
       poNetAmount: npoTotals.netAmount.toFixed(2) + ' QAR',
-      savePOLabel: this.state.savingPO ? 'Saving…' : 'Save purchase order',
+      savePOLabel: this.state.savingPO ? 'Saving…' : (poIsReturn ? 'Save purchase return' : 'Save purchase order'),
       savePO: async () => {
         if (!npo.supplier.trim()) { this.setState({ poError: 'Please enter the supplier name.' }); return; }
         const cleanItems = npo.items
           .map(it => ({
             code: String(it.code || '').trim(), desc: String(it.desc || '').trim(), unit: String(it.unit || '').trim() || 'PC',
             qty: Math.max(0, Number(it.qty) || 0), bonus: Math.max(0, Number(it.bonus) || 0),
-            unitPrice: Math.max(0, Number(it.unitPrice) || 0), discount: Math.max(0, Number(it.discount) || 0)
+            unitPrice: it.free ? 0 : Math.max(0, Number(it.unitPrice) || 0), discount: it.free ? 0 : Math.max(0, Number(it.discount) || 0),
+            ...(it.free ? { free: true } : {})
           }))
           .filter(it => it.desc && it.qty > 0);
         if (!cleanItems.length) { this.setState({ poError: 'Add at least one item with a description and quantity.' }); return; }
@@ -2534,14 +2764,15 @@ class Component extends DCLogic {
           prepared_by: npo.preparedBy.trim(),
           approved_by: npo.approvedBy.trim(),
           status: npo.status || 'draft',
-          payment_status: npo.paymentStatus || 'pending'
+          payment_status: npo.paymentStatus || 'pending',
+          ...(poIsReturn ? { po_type: 'return', ref_po: String(npo.refPo || '').trim() || null } : {})
         };
         const sb = window.getSupabase();
         const { error } = this.state.poFormMode === 'edit'
           ? await sb.from('purchase_orders').update(payload).eq('id', origId)
           : await sb.from('purchase_orders').insert(payload);
         this.setState({ savingPO: false });
-        if (error) { this.setState({ poError: error.message }); return; }
+        if (error) { this.setState({ poError: /po_type|ref_po/.test(error.message || '') ? 'Purchase returns need a one-time database update — run madzo-po-returns.sql in Supabase, then save again.' : error.message }); return; }
         this.upsertSupplier(npo.supplier, npo.email, npo.phone);
         this.setState({ showPOForm: false, poError: '', newPO: { id: '', supplier: '', email: '', phone: '', date: '', delivery: '', terms: 'As Per Agreement', status: 'draft', paymentStatus: 'pending', preparedBy: '', approvedBy: '', remarks: '', items: [] } });
         this.loadPOs();
@@ -2639,21 +2870,28 @@ class Component extends DCLogic {
       prodOptions: prods.map(p => ({ sku: p.sku, label: p.name + ' — ' + p.price + ' QAR' })),
       onPickProduct: (e) => {
         const p = prods.find(x => x.sku === e.target.value);
-        if (p) pushItem({ name: p.name, qty: 1, price: p.price });
+        if (p) pushItem({ name: p.name, qty: 1, price: p.price, sku: p.sku, brand: p.brand || '', nameEn: p.name });
+        e.target.value = '';
+      },
+      freeProdOptions: prods.map(p => ({ sku: p.sku, label: p.name })),
+      onPickFreeProduct: (e) => {
+        const p = prods.find(x => x.sku === e.target.value);
+        if (p) pushItem({ name: p.name, qty: 1, price: 0, free: true, sku: p.sku, brand: p.brand || '', nameEn: p.name });
+        e.target.value = '';
       },
       addOrderItem: () => pushItem({ name: '', qty: 1, price: '' }),
       orderItems,
       newOrderTotal: fmt(newOrderTotalNum),
       saveNewOrder: async () => {
         const items = no.items
-          .map(it => ({ qty: Math.max(1, parseInt(it.qty, 10) || 1), name: String(it.name || '').trim(), unit: Number(it.price) || 0 }))
+          .map(it => ({ qty: Math.max(1, parseInt(it.qty, 10) || 1), name: String(it.name || '').trim(), unit: it.free ? 0 : (Number(it.price) || 0), free: !!it.free, sku: it.sku || '', brand: it.brand || '', nameEn: it.nameEn || '' }))
           .filter(it => it.name);
         if (!no.name.trim()) { this.setState({ newOrderError: 'Please enter the customer name.' }); return; }
         if (!items.length) { this.setState({ newOrderError: 'Add at least one item.' }); return; }
         let id = String(no.id || '').trim();
         if (!id) id = await this.fetchNextOrderId();
         if (orders.some(o => o.id === id)) { this.setState({ newOrderError: 'Order ID "' + id + '" already exists.' }); return; }
-        const lines = items.map(it => ({ qty: it.qty, name: it.name, total: Math.round(it.qty * it.unit) }));
+        const lines = items.map(it => ({ ...(it.sku ? { sku: it.sku } : {}), ...(it.brand ? { brand: it.brand } : {}), qty: it.qty, name: it.name, ...(it.nameEn ? { nameEn: it.nameEn } : {}), unit: it.unit, total: it.free ? 0 : Math.round(it.qty * it.unit), ...(it.free ? { free: true } : {}) }));
         const total = lines.reduce((a, l) => a + l.total, 0);
         const { error } = await window.getSupabase().from('orders').insert({
           id,
@@ -2701,6 +2939,7 @@ class Component extends DCLogic {
       },
       toggleAddForm: () => this.setState(s => ({
         showAddForm: !s.showAddForm,
+        newProdFile: null, catForm: s.catForm && s.catForm.quick ? null : s.catForm,
         newProdError: '',
         newProd: s.showAddForm ? s.newProd : { ...s.newProd, id: s.newProd.id || this.nextId() }
       })),
@@ -2714,14 +2953,30 @@ class Component extends DCLogic {
       newCatVal: resolveCat(this.state.newProd.mainCat, this.state.newProd.cat).cat,
       newMainOptions: mainOptionsFor(resolveCat(this.state.newProd.mainCat, this.state.newProd.cat).main),
       newSubOptions: subOptionsFor(resolveCat(this.state.newProd.mainCat, this.state.newProd.cat).main, resolveCat(this.state.newProd.mainCat, this.state.newProd.cat).cat),
-      onNewMainCat: (e) => this.setState(s => {
-        const first = subCats.filter(x => x.main === e.target.value)[0];
-        return { newProd: { ...s.newProd, mainCat: e.target.value, cat: first ? first.id : '' } };
-      }),
+      onNewMainCat: (e) => {
+        const v = e.target.value;
+        const cur = resolveCat(this.state.newProd.mainCat, this.state.newProd.cat);
+        if (v === '__new__') { e.target.value = cur.main; this.setState({ catForm: { kind: 'main', mode: 'new', id: '', main: '', name: '', nameAr: '', quick: true }, catError: '', showCatManager: false }); return; }
+        if (v === '__manage__') { e.target.value = cur.main; this.setState({ showCatManager: true, catForm: null, catError: '' }); window.scrollTo(0, 0); return; }
+        this.setState(s => {
+          const first = subCats.filter(x => x.main === v)[0];
+          return { newProd: { ...s.newProd, mainCat: v, cat: first ? first.id : '' } };
+        });
+      },
       onNewBatchNo: (e) => this.setState(s => ({ newProd: { ...s.newProd, batchNo: e.target.value } })),
       onNewBuyPrice: (e) => this.setState(s => ({ newProd: { ...s.newProd, buyPrice: e.target.value } })),
       onNewName: (e) => this.setState(s => ({ newProd: { ...s.newProd, name: e.target.value } })),
-      onNewCat: (e) => this.setState(s => ({ newProd: { ...s.newProd, cat: e.target.value } })),
+      onNewCat: (e) => {
+        const v = e.target.value;
+        const cur = resolveCat(this.state.newProd.mainCat, this.state.newProd.cat);
+        if (v === '__new__') {
+          e.target.value = cur.cat;
+          if (!cur.main) { this.setState({ catError: 'Create a main category first.', catForm: { kind: 'main', mode: 'new', id: '', main: '', name: '', nameAr: '', quick: true } }); return; }
+          this.setState({ catForm: { kind: 'sub', mode: 'new', id: '', main: cur.main, name: '', nameAr: '', quick: true }, catError: '', showCatManager: false });
+          return;
+        }
+        this.setState(s => ({ newProd: { ...s.newProd, cat: v } }));
+      },
       onNewBrand: (e) => this.setState(s => ({ newProd: { ...s.newProd, brand: e.target.value } })),
       onNewDesc: (e) => this.setState(s => ({ newProd: { ...s.newProd, desc: e.target.value } })),
       onNewPrice: (e) => this.setState(s => ({ newProd: { ...s.newProd, price: e.target.value } })),
@@ -2735,7 +2990,8 @@ class Component extends DCLogic {
         const buyPrice = Math.max(0, Number(np.buyPrice) || 0);
         const batchNo = String(np.batchNo || '').trim();
         const rcNew = resolveCat(np.mainCat, np.cat);
-        if (!rcNew.cat) { this.setState({ newProdError: 'Please add a main category and subcategory first (Categories button).' }); return; }
+        if (!rcNew.cat) { this.setState({ newProdError: 'Please choose a subcategory — or create one with "+ New subcategory…" in the Subcategory dropdown.' }); return; }
+        const expiry = String(np.expiry || '').trim();
         const existing = prods.map(p => p.sku);
         let sku = String(np.id || '').trim() || this.nextId();
         if (existing.includes(sku)) { this.setState({ newProdError: 'Product ID "' + sku + '" already exists — choose another.' }); return; }
@@ -2755,14 +3011,15 @@ class Component extends DCLogic {
         if (error) { this.setState({ savingProd: false, newProdError: error.message }); return; }
         // Optional first inventory batch (batch no. / buy price / quantity; sell price = the storefront price)
         let batchFailed = '';
-        if (batchNo || buyPrice > 0 || stock > 0) {
+        if (batchNo || buyPrice > 0 || stock > 0 || expiry) {
           const { error: bErr } = await window.getSupabase().from('inventory_batches').insert({
-            sku, batch_no: batchNo || null, buying_price: buyPrice, selling_price: price, quantity: stock
+            sku, batch_no: batchNo || null, expiry_date: expiry || null, buying_price: buyPrice, selling_price: price, quantity: stock
           });
           if (bErr) batchFailed = bErr.message;
         }
-        this.setState({ savingProd: false });
-        this.setState({ newProd: { id: '', name: '', mainCat: 'cosmetics', cat: 'skincare', brand: '', desc: '', price: '', stock: '', batchNo: '', buyPrice: '' }, newProdError: '', showAddForm: false });
+        if (this.state.newProdFile) await this.uploadProductImage(sku, this.state.newProdFile);
+        this.setState({ savingProd: false, newProdFile: null });
+        this.setState({ newProd: { id: '', name: '', mainCat: 'cosmetics', cat: 'skincare', brand: '', desc: '', price: '', stock: '', batchNo: '', buyPrice: '', expiry: '' }, newProdError: '', showAddForm: false });
         this.loadProducts(); this.loadBatches();
         if (batchFailed) alert('Product saved, but its first batch could not be saved (' + batchFailed + '). You can add the batch from the Inventory tab.');
       },
@@ -2803,12 +3060,49 @@ class Component extends DCLogic {
       onPoSearch: (e) => this.setState({ poSearch: e.target.value, poPage: 1 }),
       pagedInvStock, invStockPager,
 
+      // ---- product list column filters ----
+      pfPhoto: pf.photo, on_pfPhoto: setPF('photo'), pfPhotoOpts: opts([{ v: '', label: 'All' }, { v: 'with', label: 'Yes' }, { v: 'without', label: 'No' }], pf.photo),
+      pfBrand: pf.brand, on_pfBrand: setPF('brand'), pfBrandOpts: opts([{ v: '', label: 'All' }, ...brandList.map(b => ({ v: b, label: b }))], pf.brand),
+      pfId: pf.id, on_pfId: setPF('id'),
+      pfName: pf.name, on_pfName: setPF('name'),
+      pfCat: pf.cat, on_pfCat: setPF('cat'), pfCatOpts: opts([{ v: '', label: 'All' }, ...mainCats.map(m => ({ v: m.id, label: m.name }))], pf.cat),
+      pfSub: pf.sub, on_pfSub: setPF('sub'), pfSubOpts: opts([{ v: '', label: 'All' }, ...subCats.filter(s => !pf.cat || s.main === pf.cat).map(s => ({ v: s.id, label: s.name }))], pf.sub),
+      pfBatch: pf.batch, on_pfBatch: setPF('batch'),
+      pfExpiry: pf.expiry, on_pfExpiry: setPF('expiry'), pfExpiryOpts: opts([{ v: '', label: 'All' }, { v: 'expired', label: 'Expired' }, { v: 'soon', label: 'Within 30 days' }, { v: 'ok', label: 'Valid' }, { v: 'none', label: 'No expiry' }], pf.expiry),
+      pfPrice: pf.price, on_pfPrice: setPF('price'),
+      pfActive: pf.active, on_pfActive: setPF('active'), pfActiveOpts: opts([{ v: '', label: 'All' }, { v: 'active', label: 'Active' }, { v: 'inactive', label: 'Inactive' }], pf.active),
+      clearProdFilters: () => this.setState({ prodFilters: { photo: '', brand: '', id: '', name: '', cat: '', sub: '', batch: '', expiry: '', price: '', active: '' }, prodSearch: '', prodPage: 1 }),
+      pfClearOpacity: (pfAny || prodQ) ? '1' : '0.4',
+
+      // ---- Home: sales summary ----
+      ...(() => {
+        const nd = new Date();
+        const sDay = new Date(nd.getFullYear(), nd.getMonth(), nd.getDate()).getTime();
+        const sMonth = new Date(nd.getFullYear(), nd.getMonth(), 1).getTime();
+        const sum = (arr) => arr.reduce((a, o) => a + (Number(o.total) || 0), 0);
+        const td = orders.filter(o => o.ts >= sDay), mo = orders.filter(o => o.ts >= sMonth);
+        const cnt = (n) => n + (n === 1 ? ' order' : ' orders');
+        return {
+          homeTodayTotal: fmt(sum(td)), homeTodayCount: cnt(td.length),
+          homeMonthTotal: fmt(sum(mo)), homeMonthCount: cnt(mo.length),
+          homeToDeliver: String(orders.filter(o => o.status === 'new').length),
+          homeGoToDeliver: () => this.setState({ tab: 'orders', orderDeliveryFilter: 'new', orderPaymentFilter: 'all', orderSearch: '', orderPage: 1 })
+        };
+      })(),
+
+      // ---- add-product form extras ----
+      quickCatOpen: !!this.state.catForm && !!this.state.catForm.quick,
+      quickCatTitle: this.state.catForm ? (this.state.catForm.kind === 'sub' ? 'New subcategory under ' + mainName(this.state.catForm.main) : 'New main category') : '',
+      onNewExpiry: (e) => this.setState(s => ({ newProd: { ...s.newProd, expiry: e.target.value } })),
+      onNewPhoto: (e) => { const f = e.target.files && e.target.files[0]; this.setState({ newProdFile: f || null }); },
+      newPhotoName: this.state.newProdFile ? this.state.newProdFile.name : '',
+
       // ---- Categories manager ----
       showCatManager: this.state.showCatManager,
       catManagerLabel: this.state.showCatManager ? 'Close categories' : 'Categories',
       toggleCatManager: () => this.setState(s => ({ showCatManager: !s.showCatManager, catForm: null, catError: '', confirmDelCat: null })),
       catsError: this.state.catsError,
-      catFormOpen: !!this.state.catForm,
+      catFormOpen: !!this.state.catForm && !this.state.catForm.quick,
       catFormIsSub: !!this.state.catForm && this.state.catForm.kind === 'sub',
       catFormClosedError: !this.state.catForm && !!this.state.catError,
       catError: this.state.catError,
@@ -2838,6 +3132,7 @@ class Component extends DCLogic {
           this.setState({ catError: 'A category with this name already exists.' }); return;
         }
         this.setState({ savingCat: true, catError: '' });
+        let createdId = cf.id;
         const nameAr = String(cf.nameAr || '').trim() || await this.translateAr(name);
         const sb = window.getSupabase();
         const table = isSub ? 'subcategories' : 'main_categories';
@@ -2849,6 +3144,7 @@ class Component extends DCLogic {
           if (reserved.indexOf(base) >= 0) base += '-cat';
           let id = base, n = 2;
           while (list.some(x => x.id === id)) id = base + '-' + (n++);
+          createdId = id;
           const sort = list.length ? Math.max(...list.map(x => x.sort || 0)) + 1 : 1;
           const row = isSub
             ? { id, main_category: cf.main, name, name_ar: nameAr || null, sort_order: sort }
@@ -2867,6 +3163,9 @@ class Component extends DCLogic {
         this.setState({ catForm: null, catError: '' });
         await this.loadCategories();
         this.loadProducts();
+        if (cf.quick && cf.mode === 'new') {
+          this.setState(s => ({ newProd: isSub ? { ...s.newProd, mainCat: cf.main, cat: createdId } : { ...s.newProd, mainCat: createdId, cat: '' } }));
+        }
       },
       mainCatRows: mainCats.map(m => {
         const subN = subCats.filter(s => s.main === m.id).length;

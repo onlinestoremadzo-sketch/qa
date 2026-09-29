@@ -767,6 +767,14 @@ class Component extends DCLogic {
             zone: newOrder.zone, address: newOrder.address, notes: newOrder.notes,
             lines: newOrder.lines, total: newOrder.total, status: 'new', source: 'storefront', payment_status: 'paid'
           });
+          // Deduct sold quantities from stock. A failure here never blocks the
+          // order itself — the sale is already placed; this just keeps the
+          // admin's stock count in step with it.
+          const today = new Date().toISOString().slice(0, 10);
+          const stockRows = newOrder.lines
+            .filter(l => l.sku && Number(l.qty) > 0)
+            .map(l => ({ sku: l.sku, quantity: -Math.abs(Number(l.qty) || 0), buying_price: 0, selling_price: 0, received_date: today, source_type: 'sale', source_id: newOrder.id, notes: 'Order ' + newOrder.id }));
+          if (stockRows.length) await sb.from('inventory_batches').insert(stockRows);
         } catch (e) { console.warn('Madzo: could not save order to Supabase', e); }
         this.setState({ order: newOrder, screen: 'confirm', error: '', cart: {}, form: { name: '', phone: '', zone: '', address: '', notes: '' } }, () => this.persist());
         window.scrollTo(0, 0);

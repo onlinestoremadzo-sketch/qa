@@ -1888,6 +1888,56 @@ class Component extends DCLogic {
 
   orders() { return this.state.dbOrders; }
 
+  // ---- Stock sync: keep inventory_batches (the source of the stock count)
+  // correctly in step with sales and purchases. Both helpers first clear any
+  // movement previously recorded for that order/PO, then write fresh rows —
+  // so re-saving an edited order or PO always ends up with the right total,
+  // never double-counted. A row with source_type/source_id is a "movement",
+  // not a real batch, so buy/sell price and expiry are left at 0/blank.
+  async syncOrderStock(orderId, lines) {
+    try {
+      const sb = window.getSupabase();
+      await sb.from('inventory_batches').delete().eq('source_type', 'sale').eq('source_id', orderId);
+      const today = new Date().toISOString().slice(0, 10);
+      const rows = (lines || [])
+        .filter(l => l.sku && Number(l.qty) > 0)
+        .map(l => ({
+          sku: l.sku, quantity: -Math.abs(Number(l.qty) || 0),
+          buying_price: 0, selling_price: 0, received_date: today,
+          source_type: 'sale', source_id: orderId, notes: 'Order ' + orderId
+        }));
+      if (rows.length) {
+        const { error } = await sb.from('inventory_batches').insert(rows);
+        if (error) console.warn('Madzo admin: stock sync (sale) failed — run madzo-stock-sync.sql', error);
+      }
+      this.loadBatches();
+    } catch (e) { console.warn('Madzo admin: stock sync (sale) error', e); }
+  }
+
+  // apply=false just clears any existing movement for this PO (used when its
+  // status isn't "Received" — e.g. still Draft, or moved back out of Received).
+  async syncPOStock(poId, items, apply, sign) {
+    try {
+      const sb = window.getSupabase();
+      await sb.from('inventory_batches').delete().eq('source_type', 'purchase').eq('source_id', poId);
+      if (!apply) { this.loadBatches(); return; }
+      const today = new Date().toISOString().slice(0, 10);
+      const rows = (items || [])
+        .filter(it => it.code && (Number(it.qty) > 0 || Number(it.bonus) > 0))
+        .map(it => ({
+          sku: it.code,
+          quantity: sign * (Math.max(0, Number(it.qty) || 0) + Math.max(0, Number(it.bonus) || 0)),
+          buying_price: it.free ? 0 : (Number(it.unitPrice) || 0), selling_price: 0, received_date: today,
+          source_type: 'purchase', source_id: poId, notes: (sign < 0 ? 'Return against ' : 'Purchase ') + poId
+        }));
+      if (rows.length) {
+        const { error } = await sb.from('inventory_batches').insert(rows);
+        if (error) console.warn('Madzo admin: stock sync (purchase) failed — run madzo-stock-sync.sql', error);
+      }
+      this.loadBatches();
+    } catch (e) { console.warn('Madzo admin: stock sync (purchase) error', e); }
+  }
+
   async uploadProductImage(sku, file) {
     try {
       const sb = window.getSupabase();
@@ -2328,6 +2378,8 @@ class Component extends DCLogic {
           }).eq('id', o.id);
           this.setState({ savingOrderId: null });
           if (error) { this.setState({ editOrderErr: error.message }); return; }
+          if (newId !== o.id) await window.getSupabase().from('inventory_batches').delete().eq('source_type', 'sale').eq('source_id', o.id);
+          this.syncOrderStock(newId, lines);
           this.setState({ editOrderId: null, editOrderDraft: null, editOrderErr: '' });
           this.loadOrders();
         }
@@ -2546,7 +2598,8 @@ class Component extends DCLogic {
         confirmRemove: () => {
           this.setState({ confirmDeletePO: null });
           window.getSupabase().from('purchase_orders').delete().eq('id', prow.id).then(({ error }) => {
-            if (error) console.warn('Madzo admin: PO delete failed', error);
+            if (error) { console.warn('Madzo admin: PO delete failed', error); return; }
+            window.getSupabase().from('inventory_batches').delete().eq('source_type', 'purchase').eq('source_id', prow.id).then(() => this.loadBatches());
             this.loadPOs();
           });
         }
@@ -2773,6 +2826,8 @@ class Component extends DCLogic {
           : await sb.from('purchase_orders').insert(payload);
         this.setState({ savingPO: false });
         if (error) { this.setState({ poError: /po_type|ref_po/.test(error.message || '') ? 'Purchase returns need a one-time database update — run madzo-po-returns.sql in Supabase, then save again.' : error.message }); return; }
+        if (this.state.poFormMode === 'edit' && id !== origId) await window.getSupabase().from('inventory_batches').delete().eq('source_type', 'purchase').eq('source_id', origId);
+        this.syncPOStock(id, cleanItems, payload.status === 'received', poIsReturn ? -1 : 1);
         this.upsertSupplier(npo.supplier, npo.email, npo.phone);
         this.setState({ showPOForm: false, poError: '', newPO: { id: '', supplier: '', email: '', phone: '', date: '', delivery: '', terms: 'As Per Agreement', status: 'draft', paymentStatus: 'pending', preparedBy: '', approvedBy: '', remarks: '', items: [] } });
         this.loadPOs();
@@ -2906,6 +2961,7 @@ class Component extends DCLogic {
           source: no.source.trim() || 'manual'
         });
         if (error) { this.setState({ newOrderError: error.message }); return; }
+        this.syncOrderStock(id, lines);
         this.setState({
           showOrderForm: false, newOrderError: '',
           newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', paymentStatus: 'pending', items: [] }
@@ -3006,9 +3062,12 @@ class Component extends DCLogic {
           brand: np.brand.trim() || null,
           description: np.desc.trim() || null,
           description_ar: descAr || null,
-          price, stock
+          price, stock: 0
         });
         if (error) { this.setState({ savingProd: false, newProdError: error.message }); return; }
+        // Stock starts at 0 above and comes ONLY from the batch insert below (if any) —
+        // the stock trigger adds a batch's quantity on top of whatever's already there,
+        // so setting it here too would double-count.
         // Optional first inventory batch (batch no. / buy price / quantity; sell price = the storefront price)
         let batchFailed = '';
         if (batchNo || buyPrice > 0 || stock > 0 || expiry) {

@@ -248,6 +248,9 @@
                           <span style="font-size: 13.5px; font-weight: 600; color: #2E2A26;">{{ ct.name }}</span>
                           <span style="font-size: 11.5px; color: #857D72;">{{ ct.meta }}</span>
                         </span>
+                        <sc-if value="{{ ct.isMain }}" hint-placeholder-val="{{ false }}">
+                          <button onClick="{{ ct.toggleFront }}" title="Click to switch whether this category shows as a circle on the Home page" style="border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer; font-weight: 600; background: {{ ct.frontBg }}; color: {{ ct.frontColor }}; border: 1px solid {{ ct.frontBorder }};">{{ ct.frontLabel }}</button>
+                        </sc-if>
                         <sc-if value="{{ ct.canAdd }}" hint-placeholder-val="{{ false }}">
                           <button onClick="{{ ct.addChild }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer; border-color: #1E8A4C; color: #1E8A4C;" style-hover="background: #DDF0E2;">{{ ct.addLabel }}</button>
                         </sc-if>
@@ -296,6 +299,12 @@
                             <input value="{{ catFormNameAr }}" onChange="{{ onCatFormNameAr }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: rtl;" style-focus="border-color: #461610;">
                           </label>
                         </div>
+                        <sc-if value="{{ ct.showFrontOpt }}" hint-placeholder-val="{{ false }}">
+                          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #5C554B; cursor: pointer;">
+                            <input type="checkbox" checked="{{ catFormFront }}" onChange="{{ onCatFormFront }}">
+                            <span>Show on the Home page <span style="color: #A9A091;">(otherwise it is only listed in “All categories”)</span></span>
+                          </label>
+                        </sc-if>
                         <sc-if value="{{ catError }}" hint-placeholder-val="{{ false }}">
                           <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ catError }}</p>
                         </sc-if>
@@ -308,7 +317,7 @@
                   </div>
                 </sc-for>
               </div>
-              <p style="color: #B0A697; font-size: 12px; margin: 0;">A category can only be deleted when nothing is filed under it (no sub categories and no products). Main categories show on the storefront menu and Home page (add their photos from the Images tab); sub categories and Sub category II are listed in the storefront's "All categories" panel.</p>
+              <p style="color: #B0A697; font-size: 12px; margin: 0;">A category can only be deleted when nothing is filed under it (no sub categories and no products). Categories switched ON for the Home page show as circles on the storefront Home page, menu and collections (add their photos from the Images tab). Every category — switched on or not — is always listed in the storefront's "All categories" panel together with its sub categories and Sub category II.</p>
             </div>
           </sc-if>
 
@@ -1202,7 +1211,7 @@
               <input type="file" accept="image/*" onChange="{{ onUpHero }}" style="display: none;">
             </label>
           </div>
-          <h2 style="font-size: 15px; font-weight: 600; margin: 0 0 12px;">Category circles <span style="font-weight: 400; color: #A9A091; font-size: 12.5px;">— main categories, shown on the Home page</span></h2>
+          <h2 style="font-size: 15px; font-weight: 600; margin: 0 0 12px;">Category circles <span style="font-weight: 400; color: #A9A091; font-size: 12.5px;">— only categories switched on for the Home page (Products → ✎ Edit categories)</span></h2>
           <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 24px;">
             <sc-for list="{{ catSlots }}" as="cs" hint-placeholder-count="5">
               <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
@@ -1453,7 +1462,7 @@ class Component extends DCLogic {
       let sub2 = { data: [], error: null };
       try { sub2 = await sb.from('subcategories2').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: true }); } catch (e) { sub2 = { data: [], error: e }; }
       this.setState({
-        dbMainCats: (m.data || []).map(x => ({ id: x.id, name: x.name, nameAr: x.name_ar || '', sort: x.sort_order || 0 })),
+        dbMainCats: (m.data || []).map(x => ({ id: x.id, name: x.name, nameAr: x.name_ar || '', sort: x.sort_order || 0, front: x.show_on_front !== false })),
         dbSubCats: (s.data || []).map(x => ({ id: x.id, main: x.main_category, name: x.name, nameAr: x.name_ar || '', sort: x.sort_order || 0 })),
         dbSub2Cats: sub2.error ? [] : (sub2.data || []).map(x => ({ id: x.id, sub: x.sub_category, name: x.name, nameAr: x.name_ar || '', sort: x.sort_order || 0 })),
         sub2Ready: !sub2.error,
@@ -1591,7 +1600,7 @@ class Component extends DCLogic {
   }
 
   // true when a save failed only because madzo-products-v2.sql hasn't been run yet
-  needsSql(err) { return /buy_price|expiry_date|category2|subcategories2|free_item|payment_method/.test((err && err.message) || ''); }
+  needsSql(err) { return /buy_price|expiry_date|category2|subcategories2|free_item|payment_method|show_on_front/.test((err && err.message) || ''); }
 
   esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -2131,11 +2140,12 @@ class Component extends DCLogic {
     });
     const catSlots = [
       { key: 'cat-new', label: 'Newly launched' },
-      ...mainCats.map(m => ({ key: 'cat-' + imgKeyFor(m.id), label: m.name }))
+      ...mainCats.filter(m => m.front !== false).map(m => ({ key: 'cat-' + imgKeyFor(m.id), label: m.name })),
+      { key: 'cat-others', label: 'Others (opens All categories) — optional, an icon shows if empty' }
     ].map(mkSlot);
     const colSlots = [
       { key: 'col-new', label: 'Newly launched' },
-      ...mainCats.map(m => ({ key: 'col-' + imgKeyFor(m.id), label: m.name })),
+      ...mainCats.filter(m => m.front !== false).map(m => ({ key: 'col-' + imgKeyFor(m.id), label: m.name })),
       { key: 'col-gift', label: 'Gift sets' }
     ].map(mkSlot);
 
@@ -3342,10 +3352,12 @@ class Component extends DCLogic {
       catFormNameAr: this.state.catForm ? this.state.catForm.nameAr : '',
       catFormMain: this.state.catForm ? this.state.catForm.main : '',
       catFormMainOptions: mainCats.map(m => ({ id: m.id, label: m.name, selected: !!this.state.catForm && m.id === this.state.catForm.main })),
+      catFormFront: !!this.state.catForm && this.state.catForm.front !== false,
+      onCatFormFront: (e) => { const on = !!e.target.checked; this.setState(s => ({ catForm: { ...s.catForm, front: on }, catError: '' })); },
       onCatFormName: (e) => this.setState(s => ({ catForm: { ...s.catForm, name: e.target.value }, catError: '' })),
       onCatFormNameAr: (e) => this.setState(s => ({ catForm: { ...s.catForm, nameAr: e.target.value }, catError: '' })),
       onCatFormMain: (e) => this.setState(s => ({ catForm: { ...s.catForm, main: e.target.value }, catError: '' })),
-      newMainCatForm: () => this.setState({ catForm: { kind: 'main', mode: 'new', id: '', main: '', name: '', nameAr: '' }, catError: '', confirmDelCat: null, delErr: null }),
+      newMainCatForm: () => this.setState({ catForm: { kind: 'main', mode: 'new', id: '', main: '', name: '', nameAr: '', front: true }, catError: '', confirmDelCat: null, delErr: null }),
       newSubCatForm: () => this.setState({ catForm: { kind: 'sub', mode: 'new', id: '', main: mainCats[0] ? mainCats[0].id : '', name: '', nameAr: '' }, catError: '', confirmDelCat: null }),
       newSub2CatForm: () => this.setState({ catForm: { kind: 'sub2', mode: 'new', id: '', main: subCats[0] ? subCats[0].main : '', sub: subCats[0] ? subCats[0].id : '', name: '', nameAr: '' }, catError: '', confirmDelCat: null }),
       cancelCatForm: () => this.setState({ catForm: null, catError: '' }),
@@ -3386,12 +3398,13 @@ class Component extends DCLogic {
             ? { id, sub_category: cf.sub, name, name_ar: nameAr || null, sort_order: sort }
             : kind === 'sub'
               ? { id, main_category: cf.main, name, name_ar: nameAr || null, sort_order: sort }
-              : { id, name, name_ar: nameAr || null, sort_order: sort };
+              : { id, name, name_ar: nameAr || null, sort_order: sort, ...(cf.front === false ? { show_on_front: false } : {}) };
           ({ error } = await sb.from(table).insert(row));
         } else {
           const patch = kind === 'sub2'
             ? { name, name_ar: nameAr || null, sub_category: cf.sub }
             : kind === 'sub' ? { name, name_ar: nameAr || null, main_category: cf.main } : { name, name_ar: nameAr || null };
+          if (kind === 'main') { const was = this.state.dbMainCats.find(x => x.id === cf.id); if (was && (was.front !== false) !== (cf.front !== false)) patch.show_on_front = cf.front !== false; }
           ({ error } = await sb.from(table).update(patch).eq('id', cf.id));
           if (!error && kind === 'sub') {
             const before = this.state.dbSubCats.find(x => x.id === cf.id);
@@ -3409,7 +3422,7 @@ class Component extends DCLogic {
           }
         }
         this.setState({ savingCat: false });
-        if (error) { this.setState({ catError: this.needsSql(error) ? "Sub category II isn't set up in the database yet — run madzo-products-v2.sql in Supabase first." : error.message }); return; }
+        if (error) { this.setState({ catError: /show_on_front/.test(error.message || '') ? 'Choosing which categories show on the Home page needs a one-time database update — run madzo-update-4.sql in Supabase, then save again.' : this.needsSql(error) ? "Sub category II isn't set up in the database yet — run madzo-products-v2.sql in Supabase first." : error.message }); return; }
         this.setState({ catForm: null, catError: '' });
         await this.loadCategories();
         this.loadProducts();
@@ -3425,9 +3438,9 @@ class Component extends DCLogic {
       catTree: (() => {
         const cf = this.state.catForm, formActive = !!cf && !cf.quick, dErr = this.state.delErr;
         const reset = { catError: '', confirmDelCat: null, delErr: null };
-        const base = { showRow: true, showParentMain: false, showParentSub: false, canAdd: false, addLabel: '', addChild: () => {}, editingHere: false, confirmingDelete: false, errorHere: false, errorText: '' };
+        const base = { isMain: false, showFrontOpt: false, showRow: true, showParentMain: false, showParentSub: false, canAdd: false, addLabel: '', addChild: () => {}, editingHere: false, confirmingDelete: false, errorHere: false, errorText: '' };
         const rows = [];
-        if (formActive && cf.kind === 'main' && cf.mode === 'new') rows.push({ ...base, key: 'new-main', showRow: false, indent: 0, bg: '#FDF9F4', editingHere: true, name: '', meta: '', tag: '', tagBg: '', tagColor: '', delLabel: '', startEdit: () => {}, askRemove: () => {}, cancelRemove: () => {}, confirmRemove: () => {} });
+        if (formActive && cf.kind === 'main' && cf.mode === 'new') rows.push({ ...base, key: 'new-main', showRow: false, indent: 0, bg: '#FDF9F4', editingHere: true, showFrontOpt: true, name: '', meta: '', tag: '', tagBg: '', tagColor: '', delLabel: '', startEdit: () => {}, askRemove: () => {}, cancelRemove: () => {}, confirmRemove: () => {} });
         const guard = () => { if (!this.state.catsLoaded) { this.setState({ catError: "Categories aren't set up in the database yet — run madzo-categories.sql in Supabase first." }); return false; } return true; };
         const blocked = (key, msg) => this.setState({ delErr: { key, msg }, confirmDelCat: null });
         const common = (key, name, nameAr, delLabel, extra) => ({
@@ -3446,9 +3459,19 @@ class Component extends DCLogic {
           rows.push(common(key, m.name, m.nameAr, 'Delete category', {
             kind: 'main', indent: 0, bg: '#F1ECE2', tag: 'CATEGORY', tagBg: '#461610', tagColor: '#FDF9F4',
             meta: [ar(m), pl(subs.length, 'sub category', 'sub categories'), pl(prodN, 'product', 'products')].filter(Boolean).join(' · '),
+            isMain: true, frontLabel: m.front !== false ? '★ On Home page' : '☆ All categories only',
+            frontBg: m.front !== false ? '#DDF0E2' : 'transparent', frontColor: m.front !== false ? '#1E8A4C' : '#857D72', frontBorder: m.front !== false ? '#B5DEC2' : '#D8CCBC',
+            toggleFront: async () => {
+              if (!guard()) return;
+              const { error } = await window.getSupabase().from('main_categories').update({ show_on_front: m.front === false }).eq('id', m.id);
+              if (error) return blocked(key, this.needsSql(error) ? 'Choosing which categories show on the Home page needs a one-time database update — run madzo-update-4.sql in Supabase, then try again.' : error.message);
+              this.setState({ delErr: null });
+              this.loadCategories();
+            },
+            showFrontOpt: formActive && cf.kind === 'main' && cf.mode === 'edit' && cf.id === m.id,
             canAdd: true, addLabel: '+ Sub category',
             addChild: () => this.setState({ catForm: { kind: 'sub', mode: 'new', id: '', main: m.id, sub: '', name: '', nameAr: '' }, ...reset }),
-            startEdit: () => this.setState({ catForm: { kind: 'main', mode: 'edit', id: m.id, main: '', name: m.name, nameAr: m.nameAr }, ...reset }),
+            startEdit: () => this.setState({ catForm: { kind: 'main', mode: 'edit', id: m.id, main: '', name: m.name, nameAr: m.nameAr, front: m.front !== false }, ...reset }),
             editingHere: formActive && ((cf.mode === 'edit' && cf.kind === 'main' && cf.id === m.id) || (cf.mode === 'new' && cf.kind === 'sub' && cf.main === m.id)),
             confirmRemove: async () => {
               this.setState({ confirmDelCat: null }); if (!guard()) return;

@@ -126,10 +126,6 @@
   <!-- ============ HOME ============ -->
   <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
     <section data-screen-label="Home">
-      <!-- All categories link -->
-      <div style="max-width: 1400px; margin: 0 auto; padding: 14px 18px 0; display: flex; justify-content: flex-end;">
-        <a onClick="{{ openMega }}" style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; color: #461610; text-decoration: none;" style-hover="text-decoration: underline;">{{ t.allCategories }} <span>{{ t.chev }}</span></a>
-      </div>
       <!-- Category circles (main categories only) -->
       <div class="madzo-scroll-row" style="max-width: 1400px; margin: 0 auto; padding: 22px 18px 8px; display: flex; gap: 22px; overflow-x: auto; justify-content: safe center;">
         <a onClick="{{ shopNewLink }}" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 96px; text-decoration: none;">
@@ -142,6 +138,17 @@
             <span style="font-size: 13.5px; color: #2E2A26; text-align: center;">{{ cc.label }}</span>
           </a>
         </sc-for>
+        <a onClick="{{ openOthers }}" aria-label="{{ t.others }}" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 96px; text-decoration: none;">
+          <sc-if value="{{ hasOthersImg }}" hint-placeholder-val="{{ false }}">
+            <image-slot id="v3-cat-others" src="{{ imgOthers }}" shape="circle" placeholder="Photo" style="width: 96px; height: 96px; display: block; background: #FDF9F4; border-radius: 50%;"></image-slot>
+          </sc-if>
+          <sc-if value="{{ noOthersImg }}" hint-placeholder-val="{{ true }}">
+            <span style="width: 96px; height: 96px; border-radius: 50%; background: #FDF9F4; border: 1px solid #D8CCBC; display: flex; align-items: center; justify-content: center;">
+              <svg width="38" height="38" viewBox="0 0 24 24" fill="#461610" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2"></rect><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"></rect><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"></rect><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"></rect></svg>
+            </span>
+          </sc-if>
+          <span style="font-size: 13.5px; color: #2E2A26; text-align: center;">{{ t.others }}</span>
+        </a>
       </div>
 
       <!-- Hero banner -->
@@ -510,7 +517,7 @@ class Component extends DCLogic {
       let sub2 = { data: [], error: null };
       try { sub2 = await sb.from('subcategories2').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: true }); } catch (e) { sub2 = { data: [], error: e }; }
       this.setState({
-        dbMainCats: (mains.data || []).map(m => ({ id: m.id, name: m.name, nameAr: m.name_ar || '' })),
+        dbMainCats: (mains.data || []).map(m => ({ id: m.id, name: m.name, nameAr: m.name_ar || '', front: m.show_on_front !== false })),
         dbSubCats: (subs.data || []).map(s => ({ id: s.id, main: s.main_category, name: s.name, nameAr: s.name_ar || '' })),
         dbSub2Cats: sub2.error ? [] : (sub2.data || []).map(x => ({ id: x.id, sub: x.sub_category, name: x.name, nameAr: x.name_ar || '' }))
       });
@@ -563,7 +570,7 @@ class Component extends DCLogic {
       en: {
         announce: 'Premium cosmetics · Free delivery across Qatar · Cash on Delivery',
         navHome: 'Home', navShop: 'Shop all', navAbout: 'About us',
-        newlyLaunched: 'Newly launched', catSkincare: 'Skin Care', catHaircare: 'Hair Care', catMakeup: 'Makeup', catAccessories: 'Accessories',
+        newlyLaunched: 'Newly launched', others: 'Others', catSkincare: 'Skin Care', catHaircare: 'Hair Care', catMakeup: 'Makeup', catAccessories: 'Accessories',
         collections: 'Collections', allCategories: 'All categories', viewAll: 'Shop all', noSubs: 'No subcategories yet.', chev: '›',
         bcHome: 'Home', bcCategories: 'Categories',
         sortDefault: 'Default (Priority)', sortLow: 'Price: low to high', sortHigh: 'Price: high to low',
@@ -588,7 +595,7 @@ class Component extends DCLogic {
       ar: {
         announce: 'مستحضرات تجميل فاخرة · توصيل مجاني لجميع مناطق قطر · الدفع عند الاستلام',
         navHome: 'الرئيسية', navShop: 'تسوق الكل', navAbout: 'من نحن',
-        newlyLaunched: 'وصل حديثاً', catSkincare: 'العناية بالبشرة', catHaircare: 'العناية بالشعر', catMakeup: 'المكياج', catAccessories: 'الإكسسوارات',
+        newlyLaunched: 'وصل حديثاً', others: 'أخرى', catSkincare: 'العناية بالبشرة', catHaircare: 'العناية بالشعر', catMakeup: 'المكياج', catAccessories: 'الإكسسوارات',
         collections: 'المجموعات', allCategories: 'كل الفئات', viewAll: 'تسوق كل', noSubs: 'لا توجد فئات فرعية بعد.', chev: '‹',
         bcHome: 'الرئيسية', bcCategories: 'الفئات',
         sortDefault: 'الافتراضي', sortLow: 'السعر: من الأقل للأعلى', sortHigh: 'السعر: من الأعلى للأقل',
@@ -724,6 +731,9 @@ class Component extends DCLogic {
       { id: 'accessories', main: 'cosmetics', name: 'Accessories', nameAr: 'الإكسسوارات' }
     ];
     const mainsSrc = this.state.dbMainCats.length ? this.state.dbMainCats : [{ id: 'cosmetics', name: 'Cosmetics', nameAr: 'مستحضرات التجميل' }];
+    // Categories marked "Show on the Home page" are the front-view heads (circles, menu, collections, footer).
+    // Every category — marked or not — is always listed in the All categories panel.
+    const frontMains = mainsSrc.filter(m => m.front !== false);
     const legacyImgKey = { skincare: 'skin', haircare: 'hair', makeup: 'makeup', accessories: 'acc' };
     const imgKeyFor = (id) => legacyImgKey[id] || id;
 
@@ -737,7 +747,7 @@ class Component extends DCLogic {
 
     // The front of the store (menu, Home circles, collections, footer) lists MAIN
     // categories only. Subcategories are listed in the "All categories" panel.
-    const navItems = mainsSrc.map(m => ({ key: 'm-' + m.id, isHeading: false, isLink: true, label: loc(m), open: go('shop', { filter: 'main:' + m.id }) }));
+    const navItems = frontMains.map(m => ({ key: 'm-' + m.id, isHeading: false, isLink: true, label: loc(m), open: go('shop', { filter: 'main:' + m.id }) }));
     const subsOf = (id) => subsSrc.filter(s => s.main === id);
     const megaActive = mainsSrc.find(m => m.id === this.state.megaMain) || mainsSrc.find(m => subsOf(m.id).length) || mainsSrc[0];
     const megaSubsList = megaActive ? subsOf(megaActive.id) : [];
@@ -774,7 +784,7 @@ class Component extends DCLogic {
 
     return {
       t: { ...t, footerLine: [
-        mainsSrc.map(loc).join(lang === 'ar' ? '، ' : ', '),
+        frontMains.map(loc).join(lang === 'ar' ? '، ' : ', '),
         lang === 'ar' ? 'الدوحة، قطر' : 'Doha, Qatar',
         lang === 'ar' ? 'الدفع عند الاستلام' : 'Cash on Delivery'
       ].join(' · ') },
@@ -799,7 +809,7 @@ class Component extends DCLogic {
       goHome: go('home'), goCart: go('cart'), goAbout: go('about'), goCheckout: go('checkout'),
       shopAllLink: go('shop', { filter: 'all' }),
       navItems,
-      catCircles: mainsSrc.map(m => ({ key: imgKeyFor(m.id), label: loc(m), img: sImg('cat-' + imgKeyFor(m.id)), open: go('shop', { filter: 'main:' + m.id }) })),
+      catCircles: frontMains.map(m => ({ key: imgKeyFor(m.id), label: loc(m), img: sImg('cat-' + imgKeyFor(m.id)), open: go('shop', { filter: 'main:' + m.id }) })),
 
       // ---- All categories panel ----
       megaOpen: this.state.megaOpen,
@@ -822,11 +832,15 @@ class Component extends DCLogic {
 
       collections: [
         { key: 'new', img: sImg('col-new'), label: t.newlyLaunched, open: go('shop', { filter: 'new' }) },
-        ...mainsSrc.map(m => ({ key: imgKeyFor(m.id), img: sImg('col-' + imgKeyFor(m.id)), label: loc(m), open: go('shop', { filter: 'main:' + m.id }) })),
+        ...frontMains.map(m => ({ key: imgKeyFor(m.id), img: sImg('col-' + imgKeyFor(m.id)), label: loc(m), open: go('shop', { filter: 'main:' + m.id }) })),
         { key: 'gift', img: sImg('col-gift'), label: lang === 'ar' ? 'أطقم الهدايا' : 'Gift sets', open: go('shop', { filter: 'all' }) }
       ],
       imgHero: sImg('hero'),
       imgCatNew: sImg('cat-new'),
+      // "Others": the Home-page doorway to everything that isn't a circle. Opens the All categories panel,
+      // landing on the first category that is not shown on the front (or the usual first one if all are).
+      imgOthers: sImg('cat-others'), hasOthersImg: !!sImg('cat-others'), noOthersImg: !sImg('cat-others'),
+      openOthers: () => { const firstOther = mainsSrc.find(m => m.front === false); this.setState({ megaOpen: true, menuOpen: false, searchOpen: false, megaMain: firstOther ? firstOther.id : '' }); },
 
       shopTitle: q ? t.resultsFor + ' “' + this.state.query.trim() + '”' : filterTitle,
       brandMatches, hasBrandMatches: brandMatches.length > 0,

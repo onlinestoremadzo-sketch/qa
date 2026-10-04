@@ -80,6 +80,12 @@
     </header>
 
     <main style="flex: 1; max-width: {{ pageMaxCss }}; margin: 0 auto; width: 100%; padding: 24px 18px 56px;">
+      <!-- every saved brand, offered as a dropdown while typing in any Brand box -->
+      <datalist id="madzo-brand-names">
+        <sc-for list="{{ brandSuggestions }}" as="bsg" hint-placeholder-count="5">
+          <option value="{{ bsg.name }}"></option>
+        </sc-for>
+      </datalist>
 
       <!-- ---- HOME ---- -->
       <sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
@@ -354,7 +360,7 @@
                   </select>
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Brand (optional)
-                  <input value="{{ newProd.brand }}" onChange="{{ onNewBrand }}" placeholder="e.g. The Ordinary" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                  <input value="{{ newProd.brand }}" onChange="{{ onNewBrand }}" list="madzo-brand-names" autocomplete="off" placeholder="e.g. The Ordinary" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
               </div>
               <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Product name
@@ -512,7 +518,7 @@
                         </select>
                       </label>
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Brand
-                        <input value="{{ p.edBrand }}" onChange="{{ p.onEdBrand }}" placeholder="Brand name" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                        <input value="{{ p.edBrand }}" onChange="{{ p.onEdBrand }}" list="madzo-brand-names" autocomplete="off" placeholder="Brand name" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                       </label>
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Product name (English)
                         <input value="{{ p.edName }}" onChange="{{ p.onEdName }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
@@ -1225,19 +1231,58 @@
               </div>
             </sc-for>
           </div>
-          <h2 style="font-size: 15px; font-weight: 600; margin: 0 0 12px;">Collections</h2>
-          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; margin-bottom: 24px;">
-            <sc-for list="{{ colSlots }}" as="cl" hint-placeholder-count="6">
-              <div style="display: flex; flex-direction: column; gap: 8px;">
-                <div style="position: relative; width: 100%; aspect-ratio: 1;">
-                  <image-slot id="{{ cl.slotId }}" src="{{ cl.img }}" shape="rounded" radius="14" placeholder="Photo" style="width: 100%; height: 100%; display: block; background: #FDF9F4;"></image-slot>
-                  <label style="position: absolute; inset: 0; cursor: pointer;" title="Click to upload photo">
-                    <input type="file" accept="image/*" onChange="{{ cl.onUpload }}" style="display: none;">
-                  </label>
-                </div>
-                <span style="font-size: 12.5px; color: #857D72; text-align: center;">{{ cl.label }}</span>
+          <h2 style="font-size: 15px; font-weight: 600; margin: 0 0 12px;">Our Brands <span style="font-weight: 400; color: #A9A091; font-size: 12.5px;">— the sliding logos on the Home page</span></h2>
+          <div style="margin-bottom: 28px; background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 14px;">
+            <sc-if value="{{ brandsMissing }}" hint-placeholder-val="{{ false }}">
+              <div style="background: #F6EDDB; border: 1px solid #E0C9A2; border-radius: 12px; padding: 10px 14px; font-size: 12.5px; color: #7A5F27;">The brand list can't be used yet — run <strong>madzo-update-5.sql</strong> once in Supabase (SQL Editor), then reload this page. Until then the storefront shows its 4 built-in logos. <span style="color: #A9856A;">({{ brandsErr }})</span></div>
+            </sc-if>
+            <sc-if value="{{ brandsReady }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap;">
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72; flex: 1; min-width: 200px; max-width: 320px;">Brand name (optional — for one logo at a time)
+                  <input value="{{ newBrandName }}" onChange="{{ onNewBrandName }}" list="madzo-brand-names" autocomplete="off" placeholder="e.g. Vichy" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                </label>
+                <label style="background: #461610; color: #FDF9F4; border-radius: 999px; padding: 11px 20px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;" title="You can pick several files at once">
+                  <input type="file" accept="image/*" multiple="{{ brandMultiple }}" onChange="{{ onBrandFiles }}" disabled="{{ brandBusy }}" style="display: none;">
+                  {{ brandUploadLabel }}
+                </label>
               </div>
-            </sc-for>
+              <p style="margin: 0; font-size: 12px; color: #A9A091;">Pick one or several logo files. Wide or square logos on their own background work best (about 3:2 is ideal; at least 400 px wide). Big photos are shrunk automatically. The order below is the order on the storefront.</p>
+              <sc-if value="{{ hasBrandMsg }}" hint-placeholder-val="{{ false }}">
+                <p style="margin: 0; font-size: 13px; color: {{ brandMsgColor }};">{{ brandMsg }}</p>
+              </sc-if>
+              <sc-if value="{{ brandNone }}" hint-placeholder-val="{{ false }}">
+                <p style="margin: 0; font-size: 13px; color: #857D72;">No brand logos yet — the “Our Brands” section is hidden on the storefront until you add one.</p>
+              </sc-if>
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px;">
+                <sc-for list="{{ brandCards }}" as="bc" hint-placeholder-count="4">
+                  <div style="display: flex; flex-direction: column; gap: 8px; background: #F1ECE2; border: 1px solid #E7DECF; border-radius: 12px; padding: 10px;">
+                    <div style="position: relative; width: 100%; aspect-ratio: 3 / 2; border-radius: 10px; overflow: hidden; background: #FDF9F4; border: 1px solid #E7DECF;">
+                      <img src="{{ bc.url }}" alt="{{ bc.alt }}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                      <span style="position: absolute; top: 6px; inset-inline-start: 6px; font-size: 10px; font-weight: 700; background: rgba(70,22,16,.88); color: #FDF9F4; border-radius: 999px; padding: 2px 8px;">#{{ bc.pos }}</span>
+                    </div>
+                    <input value="{{ bc.nameShown }}" onChange="{{ bc.onName }}" list="madzo-brand-names" autocomplete="off" onBlur="{{ bc.onNameCommit }}" onKeyDown="{{ bc.onNameKey }}" placeholder="Brand name (optional)" aria-label="Brand name" style="width: 100%; box-sizing: border-box; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 10px; font-size: 13px; outline: none;" style-focus="border-color: #461610;">
+                    <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                      <button onClick="{{ bc.moveUp }}" disabled="{{ bc.isFirst }}" aria-label="Move earlier" title="Move earlier" style="background: none; border: 1px solid #D8CCBC; color: #5C554B; border-radius: 999px; padding: 1px 12px 3px; font-size: 19px; line-height: 1.1; cursor: pointer; opacity: {{ bc.upOpacity }};">‹</button>
+                      <button onClick="{{ bc.moveDown }}" disabled="{{ bc.isLast }}" aria-label="Move later" title="Move later" style="background: none; border: 1px solid #D8CCBC; color: #5C554B; border-radius: 999px; padding: 1px 12px 3px; font-size: 19px; line-height: 1.1; cursor: pointer; opacity: {{ bc.downOpacity }};">›</button>
+                      <label style="background: none; border: 1px solid #D8CCBC; color: #5C554B; border-radius: 999px; padding: 4px 11px; font-size: 12px; cursor: pointer;" title="Upload a different image for this brand">
+                        <input type="file" accept="image/*" onChange="{{ bc.onReplace }}" style="display: none;">
+                        Replace
+                      </label>
+                      <button onClick="{{ bc.askRemove }}" class="madzo-del-btn" aria-label="Delete this brand" style="background: none; border: 1px solid #D8CCBC; color: #5C554B; border-radius: 999px; padding: 4px 11px; font-size: 12px; cursor: pointer; margin-inline-start: auto;" style-hover="border-color: #C0392B; color: #C0392B;">Delete</button>
+                    </div>
+                    <sc-if value="{{ bc.confirmingDelete }}" hint-placeholder-val="{{ false }}">
+                      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: #FCECEA; border: 1px solid #F3D9D6; border-radius: 8px; padding: 7px 10px;">
+                        <span style="font-size: 12px; color: #96352C;">Delete this logo?</span>
+                        <span style="display: flex; gap: 6px; margin-inline-start: auto;">
+                          <button onClick="{{ bc.confirmRemove }}" style="background: #C0392B; color: #fff; border: none; border-radius: 999px; padding: 4px 12px; font-size: 11.5px; font-weight: 600; cursor: pointer;">Yes, delete</button>
+                          <button onClick="{{ bc.cancelRemove }}" style="background: none; border: 1px solid #E3B7B1; color: #96352C; border-radius: 999px; padding: 4px 12px; font-size: 11.5px; cursor: pointer;">Cancel</button>
+                        </span>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
           </div>
           <h2 style="font-size: 15px; font-weight: 600; margin: 0 0 12px;">Product photos</h2>
           <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px;">
@@ -1426,6 +1471,7 @@ class Component extends DCLogic {
       dbMainCats: [], dbSubCats: [], catsLoaded: false, catsError: '',
       showCatManager: false, catForm: null, catError: '', savingCat: false, confirmDelCat: null,
       dbSub2Cats: [], sub2Ready: false, stockDraft: {}, delErr: null,
+      dbBrands: [], brandsState: 'loading', brandsErr: '', brandBusy: false, brandMsg: '', brandMsgBad: false, newBrandName: '', brandDraft: {}, confirmDelBrand: null,
       invView: 'products', newProdFile: null,
       prodFilters: { photo: '', brand: '', id: '', name: '', cat: '', sub: '', sub2: '', expiry: '', buy: '', price: '', stock: '', active: '' },
       siteImages: {},
@@ -1446,7 +1492,7 @@ class Component extends DCLogic {
   }
 
   async loadAll() {
-    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadSuppliers(), this.loadBatches(), this.loadCategories()]);
+    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadSuppliers(), this.loadBatches(), this.loadCategories(), this.loadBrands()]);
   }
 
   // Main categories + subcategories (editable from Products → Categories).
@@ -1567,6 +1613,147 @@ class Component extends DCLogic {
       (data || []).forEach(r => { map[r.key] = r.url; });
       this.setState({ siteImages: map });
     } catch (e) { console.warn('Madzo admin: could not load site images', e); }
+  }
+
+  // ---------- Our Brands: the sliding logos on the storefront Home page ----------
+  async loadBrands() {
+    try {
+      const { data, error } = await window.getSupabase().from('brands').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: true });
+      if (error) throw error;
+      this.setState({ dbBrands: (data || []).map(b => ({ id: b.id, name: b.name || '', url: b.image_url || '', sort: b.sort_order || 0 })), brandsState: 'ready', brandsErr: '' });
+    } catch (e) {
+      console.warn('Madzo admin: brand list not available yet', e);
+      this.setState({ brandsState: 'missing', brandsErr: (e && e.message) || 'table not found' });
+    }
+  }
+
+  decodeImage(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file); const img = new Image();
+      img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('“' + file.name + '” could not be read as a picture.')); };
+      img.src = url;
+    });
+  }
+
+  // Checks the file and shrinks anything over 1000px, so a phone photo never slows the storefront down.
+  async prepareBrandImage(file) {
+    if (!/^image\//.test(file.type || '')) throw new Error('“' + file.name + '” is not a picture.');
+    if (file.size > 10 * 1024 * 1024) throw new Error('“' + file.name + '” is bigger than 10 MB — please use a smaller file.');
+    const extOf = (t) => ({ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif', 'image/svg+xml': 'svg' })[t] || ((file.name.split('.').pop() || 'jpg').toLowerCase());
+    if (/svg/.test(file.type)) return { blob: file, type: file.type, ext: 'svg' };
+    const img = await this.decodeImage(file);
+    const MAX = 1000;
+    if (img.naturalWidth <= MAX && img.naturalHeight <= MAX) return { blob: file, type: file.type, ext: extOf(file.type) };
+    const ratio = MAX / Math.max(img.naturalWidth, img.naturalHeight);
+    const canvas = document.createElement('canvas'); canvas.width = Math.round(img.naturalWidth * ratio); canvas.height = Math.round(img.naturalHeight * ratio);
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    const keepAlpha = /png|webp|gif/.test(file.type);
+    const type = keepAlpha ? 'image/png' : 'image/jpeg';
+    const blob = await new Promise(res => canvas.toBlob(res, type, 0.9));
+    if (!blob) throw new Error('“' + file.name + '” could not be resized.');
+    return { blob, type, ext: keepAlpha ? 'png' : 'jpg' };
+  }
+
+  async uploadBrandBlob(img) {
+    const sb = window.getSupabase();
+    const path = 'brand-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6) + '.' + img.ext;
+    const { error: upErr } = await sb.storage.from('product-images').upload(path, img.blob, { upsert: true, contentType: img.type });
+    if (upErr) throw upErr;
+    const { data: pub } = sb.storage.from('product-images').getPublicUrl(path);
+    const url = pub && pub.publicUrl;
+    if (!url) throw new Error('the upload worked but no picture link came back');
+    return url;
+  }
+
+  async addBrandFiles(files, typedName) {
+    if (!files.length || this.state.brandBusy) return;
+    this.setState({ brandBusy: true, brandMsg: '', brandMsgBad: false });
+    const sb = window.getSupabase(); const problems = []; let added = 0;
+    let sort = this.state.dbBrands.length ? Math.max(...this.state.dbBrands.map(b => b.sort)) : 0;
+    for (const f of files) {
+      try {
+        const url = await this.uploadBrandBlob(await this.prepareBrandImage(f));
+        const { error } = await sb.from('brands').insert({ name: files.length === 1 ? String(typedName || '').trim() : '', image_url: url, sort_order: ++sort });
+        if (error) throw error;
+        added++;
+      } catch (e) { problems.push((e && e.message) || String(e)); }
+    }
+    await this.loadBrands();
+    this.setState(s => ({ brandBusy: false, newBrandName: added ? '' : s.newBrandName, brandMsgBad: problems.length > 0, brandMsg: problems.length ? problems.join(' ') + (added ? ' (' + added + ' added.)' : '') : added + (added === 1 ? ' logo added.' : ' logos added.') }));
+  }
+
+  async replaceBrandImage(id, file) {
+    this.setState({ brandBusy: true, brandMsg: '', brandMsgBad: false });
+    try {
+      const url = await this.uploadBrandBlob(await this.prepareBrandImage(file));
+      const { error } = await window.getSupabase().from('brands').update({ image_url: url }).eq('id', id);
+      if (error) throw error;
+      await this.loadBrands();
+      this.setState({ brandBusy: false, brandMsg: 'Logo replaced.', brandMsgBad: false });
+    } catch (e) { this.setState({ brandBusy: false, brandMsg: (e && e.message) || String(e), brandMsgBad: true }); }
+  }
+
+  async moveBrand(id, dir) {
+    const list = this.state.dbBrands; const i = list.findIndex(b => b.id === id), j = i + dir;
+    if (i < 0 || j < 0 || j >= list.length) return;
+    const next = list.slice(); [next[i], next[j]] = [next[j], next[i]];
+    const renum = next.map((b, k) => ({ ...b, sort: k + 1 }));
+    this.setState({ dbBrands: renum, brandMsg: '' });
+    for (const b of renum) { const was = list.find(x => x.id === b.id); if (was.sort !== b.sort) await window.getSupabase().from('brands').update({ sort_order: b.sort }).eq('id', b.id); }
+    this.loadBrands();
+  }
+
+  async renameBrand(id, name) {
+    this.setState(s => ({ dbBrands: s.dbBrands.map(b => b.id === id ? { ...b, name } : b) }));
+    const { error } = await window.getSupabase().from('brands').update({ name }).eq('id', id);
+    if (error) this.setState({ brandMsg: error.message, brandMsgBad: true });
+    this.loadBrands();
+  }
+
+  async deleteBrand(id) {
+    this.setState({ confirmDelBrand: null, brandMsg: '' });
+    const { error } = await window.getSupabase().from('brands').delete().eq('id', id);
+    if (error) this.setState({ brandMsg: error.message, brandMsgBad: true });
+    this.loadBrands();
+  }
+
+  brandBindings() {
+    const st = this.state, list = st.dbBrands || [];
+    const draftOf = (id) => (st.brandDraft || {})[id];
+    const dropDraft = (id) => this.setState(s => { const d = { ...(s.brandDraft || {}) }; delete d[id]; return { brandDraft: d }; });
+    return {
+      brandsReady: st.brandsState === 'ready', brandsMissing: st.brandsState === 'missing', brandsErr: st.brandsErr,
+      hasBrandMsg: !!st.brandMsg, brandMsg: st.brandMsg, brandMsgColor: st.brandMsgBad ? '#C0392B' : '#1E8A4C',
+      // Saved brands for the type-ahead dropdown: every brand already on a product plus the names of the Our Brands
+      // logos. "MAD" / "Mad" / " mad " count as ONE brand, shown in its most-used spelling, so people reuse it.
+      brandSuggestions: (() => {
+        const counts = {}, add = (raw) => { const n = String(raw || '').trim().replace(/\s+/g, ' '); if (n) counts[n] = (counts[n] || 0) + 1; };
+        (st.dbProducts || []).forEach(p => add(p.brand)); (st.dbBrands || []).forEach(b => add(b.name));
+        const best = {};
+        Object.keys(counts).forEach(n => { const k = n.toLowerCase(), cur = best[k]; if (!cur || counts[n] > counts[cur] || (counts[n] === counts[cur] && n < cur)) best[k] = n; });
+        return Object.keys(best).map(k => best[k]).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })).map(n => ({ key: n.toLowerCase(), name: n }));
+      })(),
+      brandMultiple: true, brandBusy: st.brandBusy, brandUploadLabel: st.brandBusy ? 'Uploading…' : '+ Upload logo(s)',
+      newBrandName: st.newBrandName, onNewBrandName: (e) => this.setState({ newBrandName: e.target.value }),
+      onBrandFiles: (e) => { const files = Array.from(e.target.files || []); e.target.value = ''; this.addBrandFiles(files, this.state.newBrandName); },
+      brandNone: list.length === 0,
+      brandCards: list.map((b, i) => ({
+        key: b.id, pos: i + 1, url: b.url, alt: b.name ? b.name + ' logo' : 'Brand logo',
+        nameShown: draftOf(b.id) !== undefined ? draftOf(b.id) : b.name,
+        // typed into a local draft and saved ONCE (Enter / click away) — never on every keystroke
+        onName: (e) => { const v = e.target.value; this.setState(s => ({ brandDraft: { ...(s.brandDraft || {}), [b.id]: v } })); },
+        onNameCommit: () => { const d = draftOf(b.id); if (d === undefined) return; const v = String(d).trim(); dropDraft(b.id); if (v !== b.name) this.renameBrand(b.id, v); },
+        onNameKey: (e) => { if (e.key === 'Enter') e.target.blur(); },
+        isFirst: i === 0, isLast: i === list.length - 1, upOpacity: i === 0 ? 0.35 : 1, downOpacity: i === list.length - 1 ? 0.35 : 1,
+        moveUp: () => this.moveBrand(b.id, -1), moveDown: () => this.moveBrand(b.id, 1),
+        onReplace: (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) this.replaceBrandImage(b.id, f); },
+        confirmingDelete: st.confirmDelBrand === b.id,
+        askRemove: () => this.setState({ confirmDelBrand: b.id, brandMsg: '' }),
+        cancelRemove: () => this.setState({ confirmDelBrand: null }),
+        confirmRemove: () => this.deleteBrand(b.id)
+      }))
+    };
   }
 
   async uploadSiteImage(key, file) {
@@ -2141,12 +2328,7 @@ class Component extends DCLogic {
     const catSlots = [
       { key: 'cat-new', label: 'Newly launched' },
       ...mainCats.filter(m => m.front !== false).map(m => ({ key: 'cat-' + imgKeyFor(m.id), label: m.name })),
-      { key: 'cat-others', label: 'Others (opens All categories) — optional, an icon shows if empty' }
-    ].map(mkSlot);
-    const colSlots = [
-      { key: 'col-new', label: 'Newly launched' },
-      ...mainCats.filter(m => m.front !== false).map(m => ({ key: 'col-' + imgKeyFor(m.id), label: m.name })),
-      { key: 'col-gift', label: 'Gift sets' }
+      { key: 'cat-others', label: 'Others (optional)' }
     ].map(mkSlot);
 
     const setDraft = (key) => (e) => this.setState(s => ({ editDraft: { ...s.editDraft, [key]: e.target.value }, editError: '' }));
@@ -3526,7 +3708,7 @@ class Component extends DCLogic {
       })(),
       imgHero: si['hero'] || 'assets/samples/hero.jpg',
       onUpHero: siteUploader('hero'),
-      catSlots, colSlots,
+      catSlots, ...this.brandBindings(),
 
       setWa: this.state.setWa,
       onSetWa: (e) => this.setState({ setWa: e.target.value, savedMsg: false }),

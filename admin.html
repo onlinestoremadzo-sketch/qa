@@ -31,6 +31,17 @@
     @media (hover: none) {
       .madzo-prod-row .madzo-del-btn { opacity: 1; }
     }
+    /* Notes (Google-Keep style) */
+    .madzo-note { position: relative; display: block; break-inside: avoid; -webkit-column-break-inside: avoid; margin: 0 0 16px; border-radius: 8px; padding: 12px 14px 2px; cursor: pointer; transition: box-shadow .15s ease; }
+    .madzo-note:hover { box-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 2px 6px 2px rgba(60,64,67,.15); }
+    .madzo-note .nt { opacity: 0; transition: opacity .15s ease; }
+    .madzo-note:hover .nt, .madzo-note:focus-within .nt { opacity: 1; }
+    .madzo-note .madzo-note-pin[data-pinned="1"] { opacity: 1; }
+    @media (hover: none) { .madzo-note .nt { opacity: 1; } }
+    .madzo-ib { background: none; border: none; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; color: #5f6368; display: inline-flex; align-items: center; justify-content: center; padding: 0; flex: none; }
+    .madzo-ib:hover { background: rgba(95,99,104,.16); }
+    .madzo-cb { flex: none; width: 18px; height: 18px; border: 2px solid #5f6368; border-radius: 3px; background: none; cursor: pointer; padding: 0; display: inline-flex; align-items: center; justify-content: center; color: #fff; margin-top: 1px; }
+    .madzo-cb[data-on="1"] { background: #5f6368; }
   </style>
 </helmet>
 
@@ -73,6 +84,7 @@
             <button onClick="{{ tabImages }}" style="background: {{ tImagesBg }}; color: {{ tImagesColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Images</button>
             <button onClick="{{ tabPO }}" style="background: {{ tPOBg }}; color: {{ tPOColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Purchase</button>
           <button onClick="{{ tabInv }}" style="background: {{ tInvBg }}; color: {{ tInvColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Inventory</button>
+          <button onClick="{{ tabNotes }}" style="background: {{ tNotesBg }}; color: {{ tNotesColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Notes</button>
           <button onClick="{{ tabSettings }}" style="background: {{ tSettingsBg }}; color: {{ tSettingsColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Settings</button>
         </nav>
         <button onClick="{{ doLogout }}" style="background: none; border: 1px solid rgba(253,249,244,.5); color: #FDF9F4; border-radius: 999px; padding: 7px 14px; font-size: 12.5px; cursor: pointer;">Log out</button>
@@ -127,6 +139,10 @@
             <button onClick="{{ tabDash }}" style="display: flex; flex-direction: column; align-items: center; gap: 10px; background: none; border: none; cursor: pointer; padding: 0;">
               <span style="width: 84px; height: 84px; border-radius: 50%; background: #FDF9F4; border: 1px solid #E7DECF; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 6px 16px rgba(60,30,25,.08); transition: transform .12s;" style-hover="transform: scale(1.05); border-color: #461610;">📊</span>
               <span style="font-size: 13.5px; font-weight: 600; color: #2E2A26;">Dashboard</span>
+            </button>
+            <button onClick="{{ tabNotes }}" style="display: flex; flex-direction: column; align-items: center; gap: 10px; background: none; border: none; cursor: pointer; padding: 0; grid-column: 1 / -1; justify-self: center;">
+              <span style="width: 84px; height: 84px; border-radius: 50%; background: #FDF9F4; border: 1px solid #E7DECF; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 6px 16px rgba(60,30,25,.08); transition: transform .12s;" style-hover="transform: scale(1.05); border-color: #461610;">📝</span>
+              <span style="font-size: 13.5px; font-weight: 600; color: #2E2A26;">Notes</span>
             </button>
           </div>
         </section>
@@ -1301,6 +1317,315 @@
         </section>
       </sc-if>
 
+      <!-- ---- NOTES (Google-Keep style) ---- -->
+      <sc-if value="{{ isNotes }}" hint-placeholder-val="{{ false }}">
+        <section data-screen-label="Notes">
+          <sc-if value="{{ notesMissing }}" hint-placeholder-val="{{ false }}">
+            <div style="background: #F6EDDB; border: 1px solid #E0C9A2; border-radius: 12px; padding: 12px 16px; font-size: 13px; color: #7A5F27; max-width: 640px;">Notes can't be used yet — run <strong>madzo-update-6.sql</strong> once in Supabase (SQL Editor), then reload this page. <span style="color: #A9856A;">({{ notesErr }})</span></div>
+          </sc-if>
+          <sc-if value="{{ notesLoading }}" hint-placeholder-val="{{ false }}"><p style="color: #857D72; font-size: 14px;">Loading notes…</p></sc-if>
+          <sc-if value="{{ notesReady }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px;">
+              <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Notes</h1>
+              <div style="position: relative; flex: 1; min-width: 200px; max-width: 560px;">
+                <span style="position: absolute; inset-inline-start: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #5f6368; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg></span>
+                <input value="{{ noteQuery }}" onChange="{{ onNoteQuery }}" aria-label="Search notes" placeholder="Search notes" style="width: 100%; box-sizing: border-box; background: #fff; border: 1px solid #E0E0E0; border-radius: 8px; padding: 11px 42px; font-size: 14.5px; outline: none; box-shadow: 0 1px 1px rgba(60,64,67,.1);" style-focus="box-shadow: 0 1px 1px 0 rgba(65,69,73,.3), 0 1px 3px 1px rgba(65,69,73,.15);">
+                <sc-if value="{{ hasNoteQuery }}" hint-placeholder-val="{{ false }}"><button class="madzo-ib" onClick="{{ clearNoteQuery }}" aria-label="Clear search" title="Clear search" style="position: absolute; inset-inline-end: 4px; top: 50%; transform: translateY(-50%);"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg></button></sc-if>
+              </div>
+              <button class="madzo-ib" onClick="{{ toggleNoteView }}" aria-label="Switch between grid and list view" title="Switch between grid and list view" style="background: #FDF9F4; border: 1px solid #E0D6C5;">
+                <sc-if value="{{ noteGridMasonry }}" hint-placeholder-val="{{ true }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 14h4v-4H4v4zm0 5h4v-4H4v4zM4 9h4V5H4v4zm5 5h12v-4H9v4zm0 5h12v-4H9v4zM9 5v4h12V5H9z"></path></svg></sc-if>
+                <sc-if value="{{ noteGridList }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3v8h8V3H3zm6 6H5V5h4v4zm-6 4v8h8v-8H3zm6 6H5v-4h4v4zm4-16v8h8V3h-8zm6 6h-4V5h4v4zm-6 4v8h8v-8h-8zm6 6h-4v-4h4v4z"></path></svg></sc-if>
+              </button>
+              <button onClick="{{ openImport }}" title="Bring your notes in from Google Keep" style="display: inline-flex; align-items: center; gap: 7px; background: #FDF9F4; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="background: #461610; color: #FDF9F4;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"></path></svg> Import from Google Keep</button>
+            </div>
+            <div class="madzo-scroll-row" style="display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 10px; margin-bottom: 4px;">
+              <sc-for list="{{ noteChips }}" as="ch" hint-placeholder-count="3"><button onClick="{{ ch.pick }}" style="flex: none; background: {{ ch.bg }}; color: {{ ch.color }}; border: 1px solid {{ ch.border }}; border-radius: 999px; padding: 7px 15px; font-size: 13px; cursor: pointer; white-space: nowrap;">{{ ch.label }}</button></sc-for>
+            </div>
+            <sc-if value="{{ viewingLabel }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 2px 0 16px; font-size: 13px; color: #5f6368;">
+                <sc-if value="{{ labelIdle }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ startLabelEdit }}" style="display: inline-flex; align-items: center; gap: 5px; background: none; border: 1px solid #D8CCBC; color: #5C554B; border-radius: 999px; padding: 5px 13px; font-size: 12px; cursor: pointer;"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path></svg> Rename label</button>
+                  <button onClick="{{ askDeleteLabel }}" style="background: none; border: 1px solid #D8CCBC; color: #5C554B; border-radius: 999px; padding: 5px 13px; font-size: 12px; cursor: pointer;" style-hover="border-color: #C0392B; color: #C0392B;">Delete label</button>
+                </sc-if>
+                <sc-if value="{{ labelRenaming }}" hint-placeholder-val="{{ false }}">
+                  <input value="{{ labelEditValue }}" onChange="{{ onLabelEditValue }}" aria-label="New label name" style="background: #fff; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 11px; font-size: 13px; outline: none; min-width: 180px;" style-focus="border-color: #461610;">
+                  <button onClick="{{ saveLabelEdit }}" style="background: #461610; color: #FDF9F4; border: none; border-radius: 999px; padding: 6px 15px; font-size: 12px; font-weight: 600; cursor: pointer;">Save</button>
+                  <button onClick="{{ cancelLabelEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #5C554B; border-radius: 999px; padding: 6px 15px; font-size: 12px; cursor: pointer;">Cancel</button>
+                </sc-if>
+                <sc-if value="{{ labelConfirmDelete }}" hint-placeholder-val="{{ false }}">
+                  <span style="color: #96352C;">Delete the label “{{ viewLabelName }}”? Your notes are kept — they just lose this label.</span>
+                  <button onClick="{{ confirmDeleteLabel }}" style="background: #C0392B; color: #fff; border: none; border-radius: 999px; padding: 6px 15px; font-size: 12px; font-weight: 600; cursor: pointer;">Yes, delete label</button>
+                  <button onClick="{{ cancelLabelEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #5C554B; border-radius: 999px; padding: 6px 15px; font-size: 12px; cursor: pointer;">Cancel</button>
+                </sc-if>
+              </div>
+            </sc-if>
+            <sc-if value="{{ hasMsg }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; align-items: center; gap: 8px; max-width: 600px; margin: 0 auto 14px; font-size: 13px; color: {{ noteMsgColor }};"><span style="flex: 1;">{{ noteMsg }}</span><button class="madzo-ib" onClick="{{ dismissMsg }}" aria-label="Dismiss" style="width: 28px; height: 28px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg></button></div>
+            </sc-if>
+            <sc-if value="{{ showNoteBar }}" hint-placeholder-val="{{ true }}">
+              <div onClick="{{ openText }}" style="max-width: 600px; margin: 0 auto 24px; background: #fff; border: 1px solid #E0E0E0; border-radius: 8px; box-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 2px 6px 2px rgba(60,64,67,.15); padding: 6px 8px 6px 16px; display: flex; align-items: center; gap: 8px; cursor: text;">
+                <span style="flex: 1; font-size: 15px; color: #5f6368;">Take a note…</span>
+                <button class="madzo-ib" onClick="{{ openList }}" aria-label="New list" title="New list"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 7h-9v2h9V7zm0 8h-9v2h9v-2zM5.54 11L2 7.46l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41L5.54 11zm0 8L2 15.46l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41L5.54 19z"></path></svg></button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ hasEd }}" hint-placeholder-val="{{ false }}">
+              <div onClick="{{ ed.backdrop }}" style="position: {{ ed.wrapPos }}; inset: {{ ed.wrapInset }}; background: {{ ed.wrapBg }}; padding: {{ ed.wrapPad }}; z-index: {{ ed.wrapZ }}; margin-bottom: {{ ed.wrapMb }}; display: flex; justify-content: center; align-items: flex-start;">
+                <div role="dialog" aria-label="Note" onClick="{{ ed.stop }}" style="position: relative; width: {{ ed.cardW }}; max-height: {{ ed.cardMax }}; overflow-y: {{ ed.cardOver }}; background: {{ ed.bg }}; border: 1px solid #E0E0E0; border-radius: 8px; box-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 2px 6px 2px rgba(60,64,67,.15); padding: 12px 16px 8px;">
+                  <sc-if value="{{ ed.trashed }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12.5px; color: #5f6368; padding-bottom: 8px;">This note is in the Trash. Restore it to edit it.</div></sc-if>
+                  <div style="display: flex; align-items: flex-start; gap: 6px;">
+                    <input id="madzo-note-title" dir="auto" value="{{ ed.titleVal }}" onChange="{{ ed.onTitle }}" readOnly="{{ ed.readOnly }}" placeholder="Title" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-size: 16px; font-weight: 600; padding: 7px 0; color: #202124;">
+                    <sc-if value="{{ ed.showPin }}" hint-placeholder-val="{{ true }}"><button class="madzo-ib madzo-note-pin" data-pinned="{{ ed.pinnedAttr }}" onClick="{{ ed.togglePin }}" aria-label="{{ ed.pinLabel }}" title="{{ ed.pinLabel }}" style="color: {{ ed.pinColor }};"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"></path></svg></button></sc-if>
+                  </div>
+                  <sc-if value="{{ ed.isText }}" hint-placeholder-val="{{ true }}">
+                    <textarea id="madzo-note-body" dir="auto" rows="{{ ed.bodyRows }}" value="{{ ed.bodyVal }}" onChange="{{ ed.onBody }}" readOnly="{{ ed.readOnly }}" placeholder="Take a note…" style="width: 100%; box-sizing: border-box; border: none; outline: none; background: transparent; resize: none; font-size: 14.5px; line-height: 1.5; padding: 4px 0 8px; color: #202124; display: block;"></textarea>
+                  </sc-if>
+                  <sc-if value="{{ ed.isList }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding: 2px 0 6px;">
+                      <sc-for list="{{ ed.openItems }}" as="ei" hint-placeholder-count="2">
+                        <div style="display: flex; align-items: center; gap: 8px; padding: 1px 0;">
+                          <button class="madzo-cb" data-on="0" onClick="{{ ei.toggle }}" aria-label="Mark as done"></button>
+                          <input id="{{ ei.domId }}" dir="auto" value="{{ ei.text }}" onChange="{{ ei.onText }}" onKeyDown="{{ ei.onKey }}" readOnly="{{ ed.readOnly }}" placeholder="List item" aria-label="List item" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-size: 14.5px; padding: 6px 0; color: #202124;">
+                          <button class="madzo-ib nt" onClick="{{ ei.remove }}" aria-label="Delete item" title="Delete item" style="width: 28px; height: 28px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg></button>
+                        </div>
+                      </sc-for>
+                      <sc-if value="{{ ed.showPin }}" hint-placeholder-val="{{ true }}">
+                        <div style="display: flex; align-items: center; gap: 8px; padding: 1px 0;">
+                          <span style="width: 18px; text-align: center; color: #5f6368; font-size: 18px; line-height: 1;">+</span>
+                          <input value="{{ ed.newItemVal }}" onChange="{{ ed.onNewItem }}" onKeyDown="{{ ed.onNewItemKey }}" onBlur="{{ ed.onNewItemBlur }}" aria-label="New list item" placeholder="List item" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-size: 14.5px; padding: 6px 0; color: #202124;">
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ ed.hasDone }}" hint-placeholder-val="{{ false }}"><button onClick="{{ ed.toggleDone }}" style="background: none; border: none; color: #5f6368; font-size: 13px; cursor: pointer; padding: 8px 0 4px; display: block;">{{ ed.doneToggleText }}</button></sc-if>
+                      <sc-if value="{{ ed.showDone }}" hint-placeholder-val="{{ false }}">
+                        <sc-for list="{{ ed.doneItems }}" as="di" hint-placeholder-count="1">
+                          <div style="display: flex; align-items: center; gap: 8px; padding: 1px 0;">
+                            <button class="madzo-cb" data-on="1" onClick="{{ di.toggle }}" aria-label="Mark as not done"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg></button>
+                            <input dir="auto" value="{{ di.text }}" onChange="{{ di.onText }}" readOnly="{{ ed.readOnly }}" aria-label="Completed item" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-size: 14.5px; padding: 6px 0; color: #5f6368; text-decoration: line-through;">
+                          </div>
+                        </sc-for>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ ed.hasLabels }}" hint-placeholder-val="{{ false }}">
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 0 8px;">
+                      <sc-for list="{{ ed.labels }}" as="el" hint-placeholder-count="2"><span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; background: rgba(0,0,0,.08); border-radius: 999px; padding: 3px 4px 3px 11px; color: #3c4043;">{{ el.name }}<button onClick="{{ el.remove }}" aria-label="Remove label" title="Remove label" style="background: none; border: none; cursor: pointer; padding: 0 5px; color: #5f6368; font-size: 15px; line-height: 1;">×</button></span></sc-for>
+                    </div>
+                  </sc-if>
+                  <div style="display: flex; align-items: center; gap: 2px; margin: 4px -8px 0; flex-wrap: wrap;">
+                    <sc-if value="{{ ed.trashed }}" hint-placeholder-val="{{ false }}">
+                      <button class="madzo-ib" onClick="{{ ed.restore }}" aria-label="Restore" title="Restore"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14zM6 7v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zm8 7v4h-4v-4H8l4-4 4 4h-2z"></path></svg></button>
+                      <button class="madzo-ib" onClick="{{ ed.deleteForever }}" aria-label="Delete forever" title="Delete forever"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path></svg></button>
+                    </sc-if>
+                    <sc-if value="{{ ed.showPin }}" hint-placeholder-val="{{ true }}">
+                      <button class="madzo-ib" onClick="{{ ed.colorToggle }}" aria-label="Background options" title="Background options"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"></path></svg></button>
+                      <button class="madzo-ib" onClick="{{ ed.labelToggle }}" aria-label="Add label" title="Add label"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16z"></path></svg></button>
+                      <button class="madzo-ib" onClick="{{ ed.toggleKind }}" aria-label="{{ ed.kindLabel }}" title="{{ ed.kindLabel }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 7h-9v2h9V7zm0 8h-9v2h9v-2zM5.54 11L2 7.46l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41L5.54 11zm0 8L2 15.46l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41L5.54 19z"></path></svg></button>
+                      <sc-if value="{{ ed.notArchived }}" hint-placeholder-val="{{ true }}"><button class="madzo-ib" onClick="{{ ed.archive }}" aria-label="Archive" title="Archive"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z"></path></svg></button></sc-if>
+                      <sc-if value="{{ ed.isArchived }}" hint-placeholder-val="{{ false }}"><button class="madzo-ib" onClick="{{ ed.archive }}" aria-label="Unarchive" title="Unarchive"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.55 5.22l-1.39-1.68A1.51 1.51 0 0 0 18 3H6c-.47 0-.88.21-1.15.55L3.46 5.22C3.17 5.57 3 6.01 3 6.5V19a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6.5c0-.49-.17-.93-.45-1.28zM12 9.5l5.5 5.5H14v2h-4v-2H6.5L12 9.5zM5.12 5l.82-1h12l.93 1H5.12z"></path></svg></button></sc-if>
+                      <sc-if value="{{ ed.canTrash }}" hint-placeholder-val="{{ false }}"><button class="madzo-ib" onClick="{{ ed.trash }}" aria-label="Delete note" title="Delete note"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path></svg></button></sc-if>
+                    </sc-if>
+                    <span style="flex: 1;"></span>
+                    <sc-if value="{{ ed.hasStatus }}" hint-placeholder-val="{{ false }}"><span style="font-size: 11.5px; color: #5f6368; padding-inline-end: 8px;">{{ ed.status }}</span></sc-if>
+                    <button onClick="{{ ed.close }}" style="background: none; border: none; font-size: 14px; font-weight: 600; color: #202124; cursor: pointer; padding: 8px 14px; border-radius: 4px;" style-hover="background: rgba(95,99,104,.157);">Close</button>
+                  </div>
+                  <sc-if value="{{ ed.pickerColor }}" hint-placeholder-val="{{ false }}">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, 28px); gap: 8px; padding: 8px 2px 10px;">
+                      <sc-for list="{{ ed.palette }}" as="pl" hint-placeholder-count="12"><button onClick="{{ pl.pick }}" title="{{ pl.name }}" aria-label="{{ pl.name }}" style="width: 28px; height: 28px; border-radius: 50%; cursor: pointer; padding: 0; background: {{ pl.hex }}; border: 2px solid {{ pl.ring }};"></button></sc-for>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ ed.pickerLabel }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding: 6px 0 10px; border-top: 1px solid rgba(0,0,0,.1); margin-top: 4px;">
+                      <div style="font-size: 13px; font-weight: 600; color: #202124; padding: 4px 0 6px;">Label note</div>
+                      <input id="madzo-label-input" value="{{ ed.labelDraft }}" onChange="{{ ed.onLabelDraft }}" onKeyDown="{{ ed.onLabelKey }}" aria-label="Label name" placeholder="Enter label name" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.15); border-radius: 6px; padding: 8px 10px; font-size: 13.5px; outline: none;">
+                      <div style="display: flex; flex-direction: column; margin-top: 6px; max-height: 170px; overflow-y: auto;">
+                        <sc-for list="{{ ed.labelOptions }}" as="lo" hint-placeholder-count="3">
+                          <label style="display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: #202124; padding: 5px 2px; cursor: pointer;"><input type="checkbox" checked="{{ lo.on }}" onChange="{{ lo.toggle }}"><span>{{ lo.name }}</span></label>
+                        </sc-for>
+                        <sc-if value="{{ ed.canCreateLabel }}" hint-placeholder-val="{{ false }}"><button onClick="{{ ed.createLabel }}" style="text-align: start; background: none; border: none; font-size: 13.5px; color: #461610; cursor: pointer; padding: 7px 2px; font-weight: 600;">+ {{ ed.createLabelText }}</button></sc-if>
+                      </div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ ed.edited }}" hint-placeholder-val="{{ false }}"><div style="text-align: end; font-size: 11px; color: #5f6368; padding: 2px 2px 6px;">{{ ed.edited }}</div></sc-if>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ inTrashView }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; color: #5f6368; font-size: 13.5px; margin: 6px 0 22px;">
+                <span>Notes in Trash are deleted after 7 days.</span>
+                <sc-if value="{{ hasTrash }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ askEmptyTrash }}" style="background: none; border: none; color: #461610; font-size: 13.5px; font-weight: 600; cursor: pointer; padding: 6px 10px;">Empty Trash</button>
+                </sc-if>
+                <sc-if value="{{ confirmingEmptyTrash }}" hint-placeholder-val="{{ false }}">
+                  <span style="color: #96352C;">Delete every note in the Trash forever?</span>
+                  <button onClick="{{ emptyTrash }}" style="background: #C0392B; color: #fff; border: none; border-radius: 999px; padding: 6px 15px; font-size: 12px; font-weight: 600; cursor: pointer;">Yes, empty Trash</button>
+                  <button onClick="{{ cancelEmptyTrash }}" style="background: none; border: 1px solid #D8CCBC; color: #5C554B; border-radius: 999px; padding: 6px 15px; font-size: 12px; cursor: pointer;">Cancel</button>
+                </sc-if>
+              </div>
+            </sc-if>
+            <sc-if value="{{ hasPinned }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size: 11px; font-weight: 600; letter-spacing: .8px; color: #5f6368; margin: 0 0 8px 4px; max-width: {{ noteGridMax }}; margin-inline: auto;">PINNED</div>
+              <div style="column-width: {{ noteColW }}; column-gap: 16px; max-width: {{ noteGridMax }}; margin: 0 auto 10px;">
+              <sc-for list="{{ pinnedCards }}" as="pc" hint-placeholder-count="3">
+            <div class="madzo-note" onClick="{{ pc.open }}" style="background: {{ pc.bg }}; border: 1px solid {{ pc.border }};">
+              <sc-if value="{{ pc.showPin }}" hint-placeholder-val="{{ true }}">
+                <button class="nt madzo-ib madzo-note-pin" data-pinned="{{ pc.pinnedAttr }}" onClick="{{ pc.togglePin }}" aria-label="{{ pc.pinLabel }}" title="{{ pc.pinLabel }}" style="position: absolute; top: 4px; right: 4px; color: {{ pc.pinColor }};"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"></path></svg></button>
+              </sc-if>
+              <sc-if value="{{ pc.hasTitle }}" hint-placeholder-val="{{ true }}"><div dir="auto" style="font-size: 16px; font-weight: 600; color: #202124; padding-right: 32px; margin-bottom: 8px; word-break: break-word; line-height: 1.35;">{{ pc.title }}</div></sc-if>
+              <sc-if value="{{ pc.isText }}" hint-placeholder-val="{{ true }}"><div dir="auto" style="font-size: 14px; line-height: 1.5; color: #202124; white-space: pre-wrap; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 14; -webkit-box-orient: vertical; overflow: hidden;">{{ pc.body }}</div></sc-if>
+              <sc-if value="{{ pc.isList }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                  <sc-for list="{{ pc.openItems }}" as="ni" hint-placeholder-count="3">
+                    <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 14px; color: #202124; line-height: 1.4;">
+                      <button class="madzo-cb" data-on="0" onClick="{{ ni.toggle }}" aria-label="Mark as done"></button>
+                      <span dir="auto" style="word-break: break-word;">{{ ni.text }}</span>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ pc.moreOpen }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12px; color: #5f6368;">{{ pc.moreOpenText }}</div></sc-if>
+                  <sc-if value="{{ pc.hasDone }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12px; color: #5f6368; padding-top: 6px; border-top: 1px solid rgba(0,0,0,.1); margin-top: 2px;">{{ pc.doneText }}</div></sc-if>
+                </div>
+              </sc-if>
+              <sc-if value="{{ pc.hasLabels }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px;">
+                  <sc-for list="{{ pc.labels }}" as="lb" hint-placeholder-count="2"><span style="font-size: 11px; background: rgba(0,0,0,.08); border-radius: 999px; padding: 2px 9px; color: #3c4043;">{{ lb.name }}</span></sc-for>
+                </div>
+              </sc-if>
+              <div class="nt" style="display: flex; align-items: center; gap: 2px; margin: 8px -8px 0; min-height: 36px;">
+                <sc-if value="{{ pc.inTrash }}" hint-placeholder-val="{{ false }}">
+                  <button class="madzo-ib" onClick="{{ pc.restore }}" aria-label="Restore" title="Restore"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14zM6 7v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zm8 7v4h-4v-4H8l4-4 4 4h-2z"></path></svg></button>
+                  <button class="madzo-ib" onClick="{{ pc.askDelete }}" aria-label="Delete forever" title="Delete forever"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path></svg></button>
+                </sc-if>
+                <sc-if value="{{ pc.notTrash }}" hint-placeholder-val="{{ true }}">
+                  <button class="madzo-ib" onClick="{{ pc.colorToggle }}" aria-label="Background options" title="Background options"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"></path></svg></button>
+                  <sc-if value="{{ pc.notArchived }}" hint-placeholder-val="{{ true }}"><button class="madzo-ib" onClick="{{ pc.archive }}" aria-label="Archive" title="Archive"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z"></path></svg></button></sc-if>
+                  <sc-if value="{{ pc.isArchived }}" hint-placeholder-val="{{ false }}"><button class="madzo-ib" onClick="{{ pc.unarchive }}" aria-label="Unarchive" title="Unarchive"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.55 5.22l-1.39-1.68A1.51 1.51 0 0 0 18 3H6c-.47 0-.88.21-1.15.55L3.46 5.22C3.17 5.57 3 6.01 3 6.5V19a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6.5c0-.49-.17-.93-.45-1.28zM12 9.5l5.5 5.5H14v2h-4v-2H6.5L12 9.5zM5.12 5l.82-1h12l.93 1H5.12z"></path></svg></button></sc-if>
+                  <button class="madzo-ib" onClick="{{ pc.trash }}" aria-label="Delete note" title="Delete note"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path></svg></button>
+                </sc-if>
+              </div>
+              <sc-if value="{{ pc.pickerOpen }}" hint-placeholder-val="{{ false }}">
+                <div onClick="{{ stopClick }}" style="display: grid; grid-template-columns: repeat(6, 26px); gap: 6px; padding: 8px 4px 10px;">
+                  <sc-for list="{{ pc.palette }}" as="pl" hint-placeholder-count="12"><button onClick="{{ pl.pick }}" title="{{ pl.name }}" aria-label="{{ pl.name }}" style="width: 26px; height: 26px; border-radius: 50%; cursor: pointer; padding: 0; background: {{ pl.hex }}; border: 2px solid {{ pl.ring }};"></button></sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ pc.confirmDel }}" hint-placeholder-val="{{ false }}">
+                <div onClick="{{ stopClick }}" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: rgba(255,255,255,.7); border: 1px solid #F3D9D6; border-radius: 8px; padding: 7px 10px; margin: 4px 0 8px;">
+                  <span style="font-size: 12px; color: #96352C;">Delete this note forever?</span>
+                  <span style="display: flex; gap: 6px; margin-inline-start: auto;">
+                    <button onClick="{{ pc.deleteForever }}" style="background: #C0392B; color: #fff; border: none; border-radius: 999px; padding: 4px 12px; font-size: 11.5px; font-weight: 600; cursor: pointer;">Delete forever</button>
+                    <button onClick="{{ pc.cancelDelete }}" style="background: none; border: 1px solid #E3B7B1; color: #96352C; border-radius: 999px; padding: 4px 12px; font-size: 11.5px; cursor: pointer;">Cancel</button>
+                  </span>
+                </div>
+              </sc-if>
+            </div>
+              </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ showOthersHeading }}" hint-placeholder-val="{{ false }}"><div style="font-size: 11px; font-weight: 600; letter-spacing: .8px; color: #5f6368; margin: 6px 0 8px 4px; max-width: {{ noteGridMax }}; margin-inline: auto;">OTHERS</div></sc-if>
+            <sc-if value="{{ hasOthers }}" hint-placeholder-val="{{ true }}">
+              <div style="column-width: {{ noteColW }}; column-gap: 16px; max-width: {{ noteGridMax }}; margin: 0 auto;">
+              <sc-for list="{{ otherCards }}" as="oc" hint-placeholder-count="3">
+            <div class="madzo-note" onClick="{{ oc.open }}" style="background: {{ oc.bg }}; border: 1px solid {{ oc.border }};">
+              <sc-if value="{{ oc.showPin }}" hint-placeholder-val="{{ true }}">
+                <button class="nt madzo-ib madzo-note-pin" data-pinned="{{ oc.pinnedAttr }}" onClick="{{ oc.togglePin }}" aria-label="{{ oc.pinLabel }}" title="{{ oc.pinLabel }}" style="position: absolute; top: 4px; right: 4px; color: {{ oc.pinColor }};"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"></path></svg></button>
+              </sc-if>
+              <sc-if value="{{ oc.hasTitle }}" hint-placeholder-val="{{ true }}"><div dir="auto" style="font-size: 16px; font-weight: 600; color: #202124; padding-right: 32px; margin-bottom: 8px; word-break: break-word; line-height: 1.35;">{{ oc.title }}</div></sc-if>
+              <sc-if value="{{ oc.isText }}" hint-placeholder-val="{{ true }}"><div dir="auto" style="font-size: 14px; line-height: 1.5; color: #202124; white-space: pre-wrap; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 14; -webkit-box-orient: vertical; overflow: hidden;">{{ oc.body }}</div></sc-if>
+              <sc-if value="{{ oc.isList }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                  <sc-for list="{{ oc.openItems }}" as="ni" hint-placeholder-count="3">
+                    <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 14px; color: #202124; line-height: 1.4;">
+                      <button class="madzo-cb" data-on="0" onClick="{{ ni.toggle }}" aria-label="Mark as done"></button>
+                      <span dir="auto" style="word-break: break-word;">{{ ni.text }}</span>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ oc.moreOpen }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12px; color: #5f6368;">{{ oc.moreOpenText }}</div></sc-if>
+                  <sc-if value="{{ oc.hasDone }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12px; color: #5f6368; padding-top: 6px; border-top: 1px solid rgba(0,0,0,.1); margin-top: 2px;">{{ oc.doneText }}</div></sc-if>
+                </div>
+              </sc-if>
+              <sc-if value="{{ oc.hasLabels }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px;">
+                  <sc-for list="{{ oc.labels }}" as="lb" hint-placeholder-count="2"><span style="font-size: 11px; background: rgba(0,0,0,.08); border-radius: 999px; padding: 2px 9px; color: #3c4043;">{{ lb.name }}</span></sc-for>
+                </div>
+              </sc-if>
+              <div class="nt" style="display: flex; align-items: center; gap: 2px; margin: 8px -8px 0; min-height: 36px;">
+                <sc-if value="{{ oc.inTrash }}" hint-placeholder-val="{{ false }}">
+                  <button class="madzo-ib" onClick="{{ oc.restore }}" aria-label="Restore" title="Restore"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14zM6 7v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zm8 7v4h-4v-4H8l4-4 4 4h-2z"></path></svg></button>
+                  <button class="madzo-ib" onClick="{{ oc.askDelete }}" aria-label="Delete forever" title="Delete forever"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path></svg></button>
+                </sc-if>
+                <sc-if value="{{ oc.notTrash }}" hint-placeholder-val="{{ true }}">
+                  <button class="madzo-ib" onClick="{{ oc.colorToggle }}" aria-label="Background options" title="Background options"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"></path></svg></button>
+                  <sc-if value="{{ oc.notArchived }}" hint-placeholder-val="{{ true }}"><button class="madzo-ib" onClick="{{ oc.archive }}" aria-label="Archive" title="Archive"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z"></path></svg></button></sc-if>
+                  <sc-if value="{{ oc.isArchived }}" hint-placeholder-val="{{ false }}"><button class="madzo-ib" onClick="{{ oc.unarchive }}" aria-label="Unarchive" title="Unarchive"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.55 5.22l-1.39-1.68A1.51 1.51 0 0 0 18 3H6c-.47 0-.88.21-1.15.55L3.46 5.22C3.17 5.57 3 6.01 3 6.5V19a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6.5c0-.49-.17-.93-.45-1.28zM12 9.5l5.5 5.5H14v2h-4v-2H6.5L12 9.5zM5.12 5l.82-1h12l.93 1H5.12z"></path></svg></button></sc-if>
+                  <button class="madzo-ib" onClick="{{ oc.trash }}" aria-label="Delete note" title="Delete note"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path></svg></button>
+                </sc-if>
+              </div>
+              <sc-if value="{{ oc.pickerOpen }}" hint-placeholder-val="{{ false }}">
+                <div onClick="{{ stopClick }}" style="display: grid; grid-template-columns: repeat(6, 26px); gap: 6px; padding: 8px 4px 10px;">
+                  <sc-for list="{{ oc.palette }}" as="pl" hint-placeholder-count="12"><button onClick="{{ pl.pick }}" title="{{ pl.name }}" aria-label="{{ pl.name }}" style="width: 26px; height: 26px; border-radius: 50%; cursor: pointer; padding: 0; background: {{ pl.hex }}; border: 2px solid {{ pl.ring }};"></button></sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ oc.confirmDel }}" hint-placeholder-val="{{ false }}">
+                <div onClick="{{ stopClick }}" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: rgba(255,255,255,.7); border: 1px solid #F3D9D6; border-radius: 8px; padding: 7px 10px; margin: 4px 0 8px;">
+                  <span style="font-size: 12px; color: #96352C;">Delete this note forever?</span>
+                  <span style="display: flex; gap: 6px; margin-inline-start: auto;">
+                    <button onClick="{{ oc.deleteForever }}" style="background: #C0392B; color: #fff; border: none; border-radius: 999px; padding: 4px 12px; font-size: 11.5px; font-weight: 600; cursor: pointer;">Delete forever</button>
+                    <button onClick="{{ oc.cancelDelete }}" style="background: none; border: 1px solid #E3B7B1; color: #96352C; border-radius: 999px; padding: 4px 12px; font-size: 11.5px; cursor: pointer;">Cancel</button>
+                  </span>
+                </div>
+              </sc-if>
+            </div>
+              </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ noNotes }}" hint-placeholder-val="{{ false }}">
+              <div style="text-align: center; color: #80868b; padding: 56px 0;"><div style="font-size: 64px; opacity: .35; line-height: 1;">💡</div><div style="font-size: 20px; margin-top: 10px;">{{ emptyText }}</div></div>
+            </sc-if>
+            <sc-if value="{{ hasImp }}" hint-placeholder-val="{{ false }}">
+              <div onClick="{{ imp.close }}" style="position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 400; display: flex; justify-content: center; align-items: flex-start; padding: 7vh 12px 12px; overflow-y: auto;">
+                <div role="dialog" aria-label="Import from Google Keep" onClick="{{ stopClick }}" style="width: min(560px, 100%); background: #FDF9F4; border-radius: 16px; padding: 22px 24px; box-shadow: 0 10px 40px rgba(0,0,0,.3); display: flex; flex-direction: column; gap: 14px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between;"><h2 style="font-size: 17px; font-weight: 600; margin: 0;">Import from Google Keep</h2><button class="madzo-ib" onClick="{{ imp.close }}" aria-label="Close" title="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg></button></div>
+                  <sc-if value="{{ imp.stagePick }}" hint-placeholder-val="{{ false }}">
+                    <ol style="margin: 0; padding-inline-start: 20px; font-size: 13.5px; color: #5C554B; line-height: 1.75;">
+                      <li>Open <a href="https://takeout.google.com/" target="_blank" rel="noopener">takeout.google.com</a> and click <strong>Deselect all</strong>.</li>
+                      <li>Tick only <strong>Keep</strong>, then <strong>Next step → Create export</strong>.</li>
+                      <li>Download the <strong>.zip</strong> Google emails you, and choose it below. (You can also choose the .json note files from inside it.)</li>
+                    </ol>
+                    <p style="margin: 0; font-size: 12.5px; color: #857D72; line-height: 1.6;">Google doesn't let other apps read personal Keep notes directly, so this is how to bring them over. Do it again any time: new notes are added, notes changed in Keep are updated, and notes you edited here are never overwritten.</p>
+                    <label style="display: inline-flex; align-self: flex-start; align-items: center; gap: 8px; background: #461610; color: #FDF9F4; border-radius: 999px; padding: 11px 22px; font-size: 13.5px; font-weight: 600; cursor: pointer;">
+                      <input type="file" accept=".zip,.json,application/zip,application/json" multiple="{{ impMultiple }}" onChange="{{ imp.onFiles }}" style="display: none;">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"></path></svg> Choose Takeout file(s)
+                    </label>
+                  </sc-if>
+                  <sc-if value="{{ imp.stagePreview }}" hint-placeholder-val="{{ false }}">
+                    <div style="background: #fff; border: 1px solid #E7DECF; border-radius: 12px; padding: 12px 16px; display: flex; flex-direction: column; gap: 4px; font-size: 13.5px; color: #2E2A26;">
+                      <sc-for list="{{ imp.summary }}" as="su" hint-placeholder-count="3"><div>{{ su.text }}</div></sc-for>
+                    </div>
+                    <sc-if value="{{ imp.hasAttach }}" hint-placeholder-val="{{ false }}"><p style="margin: 0; font-size: 12.5px; color: #7A5F27; background: #F6EDDB; border-radius: 10px; padding: 8px 12px;">{{ imp.attachText }}</p></sc-if>
+                    <sc-if value="{{ imp.hasInvalid }}" hint-placeholder-val="{{ false }}"><p style="margin: 0; font-size: 12.5px; color: #96352C;">{{ imp.invalidText }}</p></sc-if>
+                    <label style="display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: #2E2A26; cursor: pointer;"><input type="checkbox" checked="{{ imp.optArchived }}" onChange="{{ imp.onOptArchived }}"><span>Include archived notes</span></label>
+                    <label style="display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: #2E2A26; cursor: pointer;"><input type="checkbox" checked="{{ imp.optTrashed }}" onChange="{{ imp.onOptTrashed }}"><span>Include notes from Keep's trash (they go into the Trash here)</span></label>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                      <button onClick="{{ imp.runImport }}" disabled="{{ imp.busy }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 11px 22px; font-size: 13.5px; font-weight: 600; cursor: pointer;">{{ imp.importLabel }}</button>
+                      <button onClick="{{ imp.again }}" style="background: none; border: 1px solid #D8CCBC; color: #5C554B; border-radius: 999px; padding: 11px 20px; font-size: 13.5px; cursor: pointer;">Choose a different file</button>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ imp.stageDone }}" hint-placeholder-val="{{ false }}">
+                    <div style="background: #fff; border: 1px solid #E7DECF; border-radius: 12px; padding: 12px 16px; display: flex; flex-direction: column; gap: 4px; font-size: 13.5px; color: #2E2A26;">
+                      <div style="font-weight: 600; color: #1E8A4C;">Import finished</div>
+                      <sc-for list="{{ imp.results }}" as="rs" hint-placeholder-count="3"><div>{{ rs.text }}</div></sc-for>
+                    </div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                      <button onClick="{{ imp.close }}" style="background: #461610; color: #FDF9F4; border: none; border-radius: 999px; padding: 11px 24px; font-size: 13.5px; font-weight: 600; cursor: pointer;">Done</button>
+                      <button onClick="{{ imp.again }}" style="background: none; border: 1px solid #D8CCBC; color: #5C554B; border-radius: 999px; padding: 11px 20px; font-size: 13.5px; cursor: pointer;">Import another file</button>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ imp.busy }}" hint-placeholder-val="{{ false }}"><p style="margin: 0; font-size: 13px; color: #857D72;">{{ imp.busyText }}</p></sc-if>
+                  <sc-if value="{{ imp.hasError }}" hint-placeholder-val="{{ false }}"><p style="margin: 0; font-size: 13px; color: #C0392B; line-height: 1.5;">{{ imp.error }}</p></sc-if>
+                </div>
+              </div>
+            </sc-if>
+          </sc-if>
+        </section>
+      </sc-if>
+
       <!-- ---- SETTINGS ---- -->
       <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
         <section data-screen-label="Settings" style="max-width: 520px;">
@@ -1472,6 +1797,8 @@ class Component extends DCLogic {
       showCatManager: false, catForm: null, catError: '', savingCat: false, confirmDelCat: null,
       dbSub2Cats: [], sub2Ready: false, stockDraft: {}, delErr: null,
       dbBrands: [], brandsState: 'loading', brandsErr: '', brandBusy: false, brandMsg: '', brandMsgBad: false, newBrandName: '', brandDraft: {}, confirmDelBrand: null,
+      notes: [], notesState: 'loading', notesErr: '', noteSection: 'notes', noteQuery: '', noteEd: null, noteImp: null, noteMsg: '', noteMsgBad: false, noteConfirm: null, cardPicker: null, noteLabelEdit: null,
+      noteView: (() => { try { return localStorage.getItem('madzo-notes-view') === 'list' ? 'list' : 'masonry'; } catch (e) { return 'masonry'; } })(),
       invView: 'products', newProdFile: null,
       prodFilters: { photo: '', brand: '', id: '', name: '', cat: '', sub: '', sub2: '', expiry: '', buy: '', price: '', stock: '', active: '' },
       siteImages: {},
@@ -1480,6 +1807,7 @@ class Component extends DCLogic {
   }
 
   componentDidMount() {
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (this.state.noteImp) this.setState({ noteImp: null }); else if (this._ed) this.closeNote(); } });
     const sb = window.getSupabase();
     sb.auth.getSession().then(({ data }) => {
       this.setState({ authChecked: true, authed: !!(data && data.session) });
@@ -1492,7 +1820,7 @@ class Component extends DCLogic {
   }
 
   async loadAll() {
-    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadSuppliers(), this.loadBatches(), this.loadCategories(), this.loadBrands()]);
+    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadSuppliers(), this.loadBatches(), this.loadCategories(), this.loadBrands(), this.loadNotes()]);
   }
 
   // Main categories + subcategories (editable from Products → Categories).
@@ -1613,6 +1941,424 @@ class Component extends DCLogic {
       (data || []).forEach(r => { map[r.key] = r.url; });
       this.setState({ siteImages: map });
     } catch (e) { console.warn('Madzo admin: could not load site images', e); }
+  }
+
+  // ======================= NOTES (Google-Keep style) =======================
+  noteColors() { return [['default', '#FFFFFF', 'Default'], ['red', '#F28B82', 'Red'], ['orange', '#FBBC04', 'Orange'], ['yellow', '#FFF475', 'Yellow'], ['green', '#CCFF90', 'Green'], ['teal', '#A7FFEB', 'Teal'], ['blue', '#CBF0F8', 'Blue'], ['darkblue', '#AECBFA', 'Dark blue'], ['purple', '#D7AEFB', 'Purple'], ['pink', '#FDCFE8', 'Pink'], ['brown', '#E6C9A8', 'Brown'], ['gray', '#E8EAED', 'Gray']]; }
+  uid() { return Math.random().toString(36).slice(2, 10); }
+  focusSoon(id) { setTimeout(() => { const el = document.getElementById(id); if (el) { el.focus(); if (el.setSelectionRange && typeof el.value === 'string') { const n = el.value.length; try { el.setSelectionRange(n, n); } catch (e) { /* not a text field */ } } } }, 60); }
+  noteFail(e) { console.warn('Madzo admin: notes', e); this.setState({ noteMsg: (e && e.message) || String(e), noteMsgBad: true }); }
+
+  mapNote(n) {
+    return {
+      id: n.id, title: n.title || '', body: n.body || '', kind: n.kind === 'list' ? 'list' : 'text',
+      items: (Array.isArray(n.items) ? n.items : []).map(i => ({ id: i.id || this.uid(), text: String(i.text || ''), done: !!i.done })),
+      color: n.color || 'default', pinned: !!n.pinned, archived: !!n.archived, trashedAt: n.trashed_at || '',
+      labels: Array.isArray(n.labels) ? n.labels.slice() : [],
+      sourceKey: n.source_key || '', sourceEditedAt: n.source_edited_at || '', importedAt: n.imported_at || '',
+      createdAt: n.created_at || '', updatedAt: n.updated_at || ''
+    };
+  }
+
+  async loadNotes() {
+    try {
+      const { data, error } = await window.getSupabase().from('notes').select('*').order('updated_at', { ascending: false });
+      if (error) throw error;
+      const notes = (data || []).map(n => this.mapNote(n));
+      this.setState({ notes, notesState: 'ready', notesErr: '' });
+      this.purgeOldTrash(notes);
+    } catch (e) {
+      console.warn('Madzo admin: notes not available yet', e);
+      this.setState({ notesState: 'missing', notesErr: (e && e.message) || 'table not found' });
+    }
+  }
+
+  // Notes stay in the Trash for 7 days, then are removed for good (like Google Keep).
+  async purgeOldTrash(list) {
+    const cutoff = Date.now() - 7 * 86400000;
+    const old = list.filter(n => n.trashedAt && new Date(n.trashedAt).getTime() < cutoff);
+    if (!old.length) return;
+    for (const n of old) await window.getSupabase().from('notes').delete().eq('id', n.id);
+    this.setState(s => ({ notes: s.notes.filter(n => !old.some(o => o.id === n.id)) }));
+  }
+
+  // Change a note straight from its card (pin, colour, archive, trash, tick an item…). Updates the screen first, then saves.
+  async patchNote(id, patch) {
+    const now = new Date().toISOString();
+    this.setState(s => ({ notes: s.notes.map(n => n.id === id ? { ...n, ...patch, updatedAt: now } : n), noteMsg: '' }));
+    const col = { title: 'title', body: 'body', kind: 'kind', items: 'items', color: 'color', pinned: 'pinned', archived: 'archived', labels: 'labels', trashedAt: 'trashed_at' };
+    const row = { updated_at: now };
+    Object.keys(patch).forEach(k => { row[col[k]] = k === 'trashedAt' ? (patch[k] || null) : patch[k]; });
+    const { error } = await window.getSupabase().from('notes').update(row).eq('id', id);
+    if (error) { this.noteFail(error); this.loadNotes(); }
+  }
+
+  async deleteNoteForever(id) {
+    this.setState(s => ({ notes: s.notes.filter(n => n.id !== id), noteConfirm: null }));
+    const { error } = await window.getSupabase().from('notes').delete().eq('id', id);
+    if (error) { this.noteFail(error); this.loadNotes(); }
+  }
+
+  async emptyTrash() {
+    const gone = this.state.notes.filter(n => n.trashedAt);
+    this.setState(s => ({ notes: s.notes.filter(n => !n.trashedAt), noteConfirm: null }));
+    for (const n of gone) await window.getSupabase().from('notes').delete().eq('id', n.id);
+  }
+
+  async renameLabel(oldName, nv) {
+    const name = String(nv || '').trim();
+    if (!name || name === oldName) { this.setState({ noteLabelEdit: null }); return; }
+    const affected = this.state.notes.filter(n => n.labels.includes(oldName));
+    this.setState({ noteLabelEdit: null, noteSection: 'label:' + name });
+    for (const n of affected) await this.patchNote(n.id, { labels: Array.from(new Set(n.labels.map(l => l === oldName ? name : l))) });
+  }
+
+  async deleteLabel(name) {
+    const affected = this.state.notes.filter(n => n.labels.includes(name));
+    this.setState({ noteLabelEdit: null, noteSection: 'notes' });
+    for (const n of affected) await this.patchNote(n.id, { labels: n.labels.filter(l => l !== name) });
+  }
+
+  // ---- the note editor (the inline "Take a note…" card, and the pop-up when you open a note) ----
+  // The draft lives in this._ed so every save sees the latest text; it is saved after you pause typing, and when you close.
+  setEd(patch) { if (!this._ed) return; this._ed = { ...this._ed, ...patch }; this.setState({ noteEd: this._ed }); }
+  noteSoon() { clearTimeout(this._noteTimer); this._noteTimer = setTimeout(() => this.flushNote(), 900); }
+  editNote(patch) { this.setEd({ ...patch, dirty: true, status: '' }); this.noteSoon(); }
+  blankEd(extra) { return { id: null, inline: false, title: '', body: '', kind: 'text', items: [], color: 'default', pinned: false, archived: false, trashed: false, labels: [], newItem: '', showDone: false, picker: '', labelDraft: '', status: '', dirty: false, updatedAt: '', ...extra }; }
+
+  async openNote(id) {
+    if (this._ed) await this.closeNote();
+    const n = this.state.notes.find(x => x.id === id); if (!n) return;
+    this._edNewId = null;
+    this._ed = this.blankEd({ id: n.id, title: n.title, body: n.body, kind: n.kind, items: n.items.map(i => ({ ...i })), color: n.color, pinned: n.pinned, archived: n.archived, trashed: !!n.trashedAt, labels: n.labels.slice(), updatedAt: n.updatedAt });
+    this.setState({ noteEd: this._ed, noteMsg: '', cardPicker: null });
+  }
+
+  async newNote(kind) {
+    if (this._ed) await this.closeNote();
+    this._edNewId = null;
+    this._ed = this.blankEd({ inline: true, kind: kind === 'list' ? 'list' : 'text', items: kind === 'list' ? [{ id: this.uid(), text: '', done: false }] : [] });
+    this.setState({ noteEd: this._ed, noteMsg: '' });
+    this.focusSoon(kind === 'list' ? 'madzo-note-title' : 'madzo-note-title');
+  }
+
+  flushNote() {
+    clearTimeout(this._noteTimer);
+    this._noteQ = (this._noteQ || Promise.resolve()).then(() => this.persistNote()).catch(() => {});
+    return this._noteQ;
+  }
+
+  async persistNote() {
+    const ed = this._ed; if (!ed || !ed.dirty || ed.trashed) return;
+    const items = ed.items.filter(i => String(i.text).trim()).map(i => ({ id: i.id, text: i.text, done: !!i.done }));
+    const blank = !ed.title.trim() && !ed.body.trim() && !items.length;
+    const id = ed.id || this._edNewId || null;
+    if (blank && !id) return;                                   // an empty new note is never created
+    const now = new Date().toISOString();
+    const row = { title: ed.title, body: ed.kind === 'text' ? ed.body : '', kind: ed.kind, items: ed.kind === 'list' ? items : [], color: ed.color, pinned: ed.pinned, archived: ed.archived, labels: ed.labels, updated_at: now };
+    this._ed = { ...ed, dirty: false, status: 'Saving…' };
+    this.setState({ noteEd: this._ed });
+    const sb = window.getSupabase(); let savedId = id, error = null;
+    if (id) { ({ error } = await sb.from('notes').update(row).eq('id', id)); }
+    else {
+      const res = await sb.from('notes').insert({ ...row, trashed_at: null }).select().single();
+      error = res.error;
+      const created = Array.isArray(res.data) ? res.data[0] : res.data;
+      if (created) { savedId = created.id; this._edNewId = created.id; }
+    }
+    if (error || !savedId) { this.setEd({ status: 'Could not save', dirty: true }); this.noteFail(error || new Error('The note could not be saved.')); return; }
+    const base = this.state.notes.find(n => n.id === savedId) || { id: savedId, createdAt: now, trashedAt: '', sourceKey: '', sourceEditedAt: '', importedAt: '' };
+    const local = { ...base, title: row.title, body: row.body, kind: row.kind, items: row.items.map(i => ({ ...i })), color: row.color, pinned: row.pinned, archived: row.archived, labels: row.labels.slice(), updatedAt: now };
+    this.setState(s => ({ notes: s.notes.some(n => n.id === savedId) ? s.notes.map(n => n.id === savedId ? local : n) : [local, ...s.notes] }));
+    this.setEd({ id: savedId, status: 'Saved', updatedAt: now });
+  }
+
+  async closeNote() {
+    clearTimeout(this._noteTimer);
+    await this.flushNote();
+    this._ed = null; this._edNewId = null;
+    this.setState({ noteEd: null });
+  }
+
+  // ---- Import from Google Keep (a Google Takeout export) ----
+  keepToNote(j) {
+    const usec = (v) => { const n = Number(v); return n > 0 ? new Date(Math.floor(n / 1000)).toISOString() : null; };
+    const colors = { DEFAULT: 'default', RED: 'red', ORANGE: 'orange', YELLOW: 'yellow', GREEN: 'green', TEAL: 'teal', BLUE: 'blue', CERULEAN: 'darkblue', PURPLE: 'purple', PINK: 'pink', BROWN: 'brown', GRAY: 'gray' };
+    const isList = Array.isArray(j.listContent) && j.listContent.length > 0;
+    let body = isList ? '' : String(j.textContent || '');
+    if (!isList) {
+      const links = (Array.isArray(j.annotations) ? j.annotations : []).filter(a => a && a.url).map(a => (a.title || a.description || '') + (a.title || a.description ? ' — ' : '') + a.url);
+      if (links.length) body = (body ? body + '\n\n' : '') + links.join('\n');
+      const nAtt = Array.isArray(j.attachments) ? j.attachments.length : 0;
+      if (nAtt) body = (body ? body + '\n\n' : '') + '📎 ' + nAtt + (nAtt === 1 ? ' attachment' : ' attachments') + ' stayed in Google Keep';
+    }
+    const title = String(j.title || '');
+    let hash = 0; const sig = title + '|' + body; for (let i = 0; i < sig.length; i++) hash = (hash * 31 + sig.charCodeAt(i)) | 0;
+    return {
+      sourceKey: 'keep:' + (j.createdTimestampUsec || ('h' + Math.abs(hash))),
+      title, body, kind: isList ? 'list' : 'text',
+      items: isList ? j.listContent.map(li => ({ id: this.uid(), text: String(li.text || ''), done: !!li.isChecked })) : [],
+      color: colors[String(j.color || 'DEFAULT').toUpperCase()] || 'default',
+      pinned: !!j.isPinned, archived: !!j.isArchived, trashed: !!j.isTrashed,
+      labels: (Array.isArray(j.labels) ? j.labels : []).map(l => String((l && l.name) || '').trim()).filter(Boolean),
+      createdAt: usec(j.createdTimestampUsec), editedAt: usec(j.userEditedTimestampUsec),
+      attachments: Array.isArray(j.attachments) ? j.attachments.length : 0,
+      empty: !title.trim() && !body.trim() && !isList
+    };
+  }
+
+  loadJsZip() {
+    if (window.JSZip) return Promise.resolve(window.JSZip);
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+      s.onload = () => window.JSZip ? resolve(window.JSZip) : reject(new Error('the zip reader did not start'));
+      s.onerror = () => reject(new Error('the zip reader could not be loaded — check your internet connection, or unzip the file and choose the .json files inside instead'));
+      document.head.appendChild(s);
+    });
+  }
+
+  async readImportFiles(files) {
+    const imp = this.state.noteImp; if (!imp) return;
+    this.setState({ noteImp: { ...imp, busy: true, error: '' } });
+    const notes = [], invalid = []; let attachments = 0;
+    const take = (name, text) => {
+      let j; try { j = JSON.parse(text); } catch (e) { invalid.push(name); return; }
+      if (!j || typeof j !== 'object' || Array.isArray(j) || !('createdTimestampUsec' in j || 'textContent' in j || 'listContent' in j || 'isTrashed' in j)) { invalid.push(name); return; }
+      const k = this.keepToNote(j);
+      if (k.empty && !k.attachments) return;                   // a completely empty note
+      attachments += k.attachments; notes.push(k);
+    };
+    try {
+      for (const f of files) {
+        if (/\.zip$/i.test(f.name)) {
+          const JSZip = await this.loadJsZip();
+          let zip; try { zip = await JSZip.loadAsync(f); } catch (e) { invalid.push(f.name + ' (not a valid zip file)'); continue; }
+          const names = Object.keys(zip.files).filter(n => /\.json$/i.test(n) && !zip.files[n].dir);
+          if (!names.length) invalid.push(f.name + ' (no notes found inside)');
+          for (const n of names) take(n.split('/').pop(), await zip.files[n].async('string'));
+        } else if (/\.json$/i.test(f.name)) take(f.name, await f.text());
+        // pictures, .html copies and Labels.txt from the export are ignored on purpose
+      }
+    } catch (e) { this.setState(s => ({ noteImp: { ...s.noteImp, busy: false, error: (e && e.message) || String(e) } })); return; }
+    const stats = { total: notes.length, archived: notes.filter(k => k.archived).length, trashed: notes.filter(k => k.trashed).length, pinned: notes.filter(k => k.pinned).length, lists: notes.filter(k => k.kind === 'list').length, labels: new Set(notes.flatMap(k => k.labels)).size, attachments };
+    if (!notes.length) { this.setState(s => ({ noteImp: { ...s.noteImp, busy: false, error: invalid.length ? 'No Google Keep notes were found in what you chose (' + invalid.join(', ') + '). Choose the Takeout .zip, or the .json note files inside it.' : 'No Google Keep notes were found. Choose the Takeout .zip, or the .json note files inside it.' } })); return; }
+    this.setState(s => ({ noteImp: { ...s.noteImp, busy: false, stage: 'preview', parsed: { notes, invalid, stats } } }));
+  }
+
+  async runImport() {
+    const imp = this.state.noteImp; if (!imp || !imp.parsed || imp.busy) return;
+    this.setState({ noteImp: { ...imp, busy: true, error: '' } });
+    const sb = window.getSupabase(), opts = imp.opts, now = new Date().toISOString();
+    const existing = {}; this.state.notes.forEach(n => { if (n.sourceKey) existing[n.sourceKey] = n; });
+    const res = { added: 0, updated: 0, unchanged: 0, keptLocal: 0, skippedTrash: 0, skippedArchived: 0, duplicates: 0, failed: 0 };
+    const seen = {}, toInsert = []; let lastError = '';
+    for (const k of imp.parsed.notes) {
+      if (seen[k.sourceKey]) { res.duplicates++; continue; }
+      seen[k.sourceKey] = 1;
+      if (k.trashed && !opts.trashed) { res.skippedTrash++; continue; }
+      if (k.archived && !opts.archived) { res.skippedArchived++; continue; }
+      const fields = { title: k.title, body: k.body, kind: k.kind, items: k.items, color: k.color, pinned: k.pinned, archived: k.archived, labels: k.labels, trashed_at: k.trashed ? now : null };
+      const ex = existing[k.sourceKey];
+      if (!ex) { toInsert.push({ ...fields, source: 'keep', source_key: k.sourceKey, source_edited_at: k.editedAt, imported_at: now, created_at: k.createdAt || now, updated_at: k.editedAt || now }); continue; }
+      const newer = k.editedAt && (!ex.sourceEditedAt || new Date(k.editedAt) > new Date(ex.sourceEditedAt));
+      if (!newer) { res.unchanged++; continue; }                                     // nothing changed in Keep since last time
+      if (ex.importedAt && new Date(ex.updatedAt) > new Date(ex.importedAt)) { res.keptLocal++; continue; }   // you edited it here since — never overwrite your edits
+      const { error } = await sb.from('notes').update({ ...fields, source_edited_at: k.editedAt, imported_at: now, updated_at: k.editedAt || now }).eq('id', ex.id);
+      if (error) { res.failed++; lastError = error.message; } else res.updated++;
+    }
+    for (let i = 0; i < toInsert.length; i += 50) {
+      const chunk = toInsert.slice(i, i + 50);
+      const { error } = await sb.from('notes').insert(chunk);
+      if (error) { res.failed += chunk.length; lastError = error.message; } else res.added += chunk.length;
+    }
+    await this.loadNotes();
+    this.setState(s => ({ noteSection: 'notes', noteImp: { ...s.noteImp, busy: false, stage: 'done', result: res, error: lastError } }));
+  }
+
+  noteBindings() {
+    const st = this.state, notes = st.notes || [], sec = st.noteSection || 'notes';
+    const q = String(st.noteQuery || '').trim().toLowerCase(), tokens = q ? q.split(/\s+/) : [];
+    const COLORS = this.noteColors();
+    const hexOf = (c) => (COLORS.find(x => x[0] === c) || COLORS[0])[1];
+    const stop = (fn) => (e) => { if (e && e.stopPropagation) e.stopPropagation(); fn(); };
+    const hay = (n) => (n.title + ' ' + n.body + ' ' + n.items.map(i => i.text).join(' ') + ' ' + n.labels.join(' ')).toLowerCase();
+    const live = notes.filter(n => !n.trashedAt);
+    const cmp = (a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' });
+    const labelsAll = Array.from(new Set(live.flatMap(n => n.labels))).sort(cmp);
+    const inSection = (n) => {
+      if (q) return !n.trashedAt && tokens.every(t => hay(n).includes(t));
+      if (sec === 'trash') return !!n.trashedAt;
+      if (n.trashedAt) return false;
+      if (sec === 'archive') return n.archived;
+      if (sec.indexOf('label:') === 0) return n.labels.includes(sec.slice(6));
+      return !n.archived;
+    };
+    const visible = notes.filter(inSection).sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
+    const groupPinned = !q && (sec === 'notes' || sec.indexOf('label:') === 0);
+    const pinned = groupPinned ? visible.filter(n => n.pinned) : [];
+    const others = groupPinned ? visible.filter(n => !n.pinned) : visible;
+    const palette = (cur, pick) => COLORS.map(([k, hex, name]) => ({ key: k, hex, name, ring: k === cur ? '#202124' : (k === 'default' ? '#DADCE0' : 'transparent'), pick: stop(() => pick(k)) }));
+    const when = (iso) => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); };
+    const nowIso = () => new Date().toISOString();
+
+    const card = (n) => {
+      const openItems = n.items.filter(i => !i.done), doneItems = n.items.filter(i => i.done), trash = !!n.trashedAt;
+      return {
+        key: n.id, bg: hexOf(n.color), border: n.color === 'default' ? '#E0E0E0' : 'transparent',
+        open: () => this.openNote(n.id),
+        hasTitle: !!n.title.trim(), title: n.title,
+        isText: n.kind === 'text' && !!n.body.trim(), body: n.body,
+        isList: n.kind === 'list' && n.items.length > 0,
+        openItems: openItems.slice(0, 12).map(i => ({ key: i.id, text: i.text, toggle: stop(() => this.patchNote(n.id, { items: n.items.map(x => x.id === i.id ? { ...x, done: true } : x) })) })),
+        moreOpen: openItems.length > 12, moreOpenText: '+ ' + (openItems.length - 12) + ' more',
+        hasDone: doneItems.length > 0, doneText: '+ ' + doneItems.length + ' completed ' + (doneItems.length === 1 ? 'item' : 'items'),
+        hasLabels: n.labels.length > 0, labels: n.labels.map(l => ({ key: l, name: l })),
+        showPin: !trash, pinnedAttr: n.pinned ? '1' : '0', pinLabel: n.pinned ? 'Unpin note' : 'Pin note', pinColor: n.pinned ? '#202124' : '#5f6368',
+        togglePin: stop(() => this.patchNote(n.id, { pinned: !n.pinned })),
+        inTrash: trash, notTrash: !trash,
+        restore: stop(() => this.patchNote(n.id, { trashedAt: '' })),
+        askDelete: stop(() => this.setState({ noteConfirm: 'one:' + n.id })),
+        confirmDel: st.noteConfirm === 'one:' + n.id,
+        deleteForever: stop(() => this.deleteNoteForever(n.id)),
+        cancelDelete: stop(() => this.setState({ noteConfirm: null })),
+        pickerOpen: st.cardPicker === n.id,
+        colorToggle: stop(() => this.setState(s => ({ cardPicker: s.cardPicker === n.id ? null : n.id }))),
+        palette: palette(n.color, (k) => { this.setState({ cardPicker: null }); this.patchNote(n.id, { color: k }); }),
+        isArchived: n.archived, notArchived: !n.archived,
+        archive: stop(() => this.patchNote(n.id, { archived: true, pinned: false })),
+        unarchive: stop(() => this.patchNote(n.id, { archived: false })),
+        trash: stop(() => { this.setState({ cardPicker: null }); this.patchNote(n.id, { trashedAt: nowIso(), pinned: false }); })
+      };
+    };
+
+    // ---- the editor (inline composer / pop-up) ----
+    const ed = st.noteEd; let E = {};
+    if (ed) {
+      const modal = !ed.inline, ro = !!ed.trashed;
+      const openItems = ed.items.map((it, i) => ({ it, i })).filter(x => !x.it.done), doneItems = ed.items.map((it, i) => ({ it, i })).filter(x => x.it.done);
+      const lblOpts = Array.from(new Set([...labelsAll, ...ed.labels])).sort(cmp).filter(l => !ed.labelDraft.trim() || l.toLowerCase().includes(ed.labelDraft.trim().toLowerCase()));
+      const draft = ed.labelDraft.trim();
+      const mkItem = ({ it, i }) => ({
+        key: it.id, domId: 'ni-' + it.id, text: it.text, done: it.done,
+        onText: (e) => { const v = e.target.value; const items = this._ed.items.map(x => x.id === it.id ? { ...x, text: v } : x); this.editNote({ items }); },
+        onKey: (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); const nid = this.uid(); const items = this._ed.items.slice(); const at = items.findIndex(x => x.id === it.id); items.splice(at + 1, 0, { id: nid, text: '', done: false }); this.editNote({ items }); this.focusSoon('ni-' + nid); }
+          else if (e.key === 'Backspace' && !it.text) { e.preventDefault(); const items = this._ed.items.filter(x => x.id !== it.id); this.editNote({ items }); }
+        },
+        toggle: () => this.editNote({ items: this._ed.items.map(x => x.id === it.id ? { ...x, done: !x.done } : x) }),
+        remove: () => this.editNote({ items: this._ed.items.filter(x => x.id !== it.id) })
+      });
+      const addNewItem = () => { const t = String(this._ed.newItem || '').trim(); if (!t) return; const nid = this.uid(); this.editNote({ items: [...this._ed.items, { id: nid, text: t, done: false }], newItem: '' }); };
+      E = {
+        wrapPos: modal ? 'fixed' : 'static', wrapInset: modal ? '0' : 'auto', wrapBg: modal ? 'rgba(0,0,0,.45)' : 'transparent', wrapPad: modal ? '7vh 12px 12px' : '0', wrapZ: modal ? '300' : 'auto', wrapMb: modal ? '0' : '24px',
+        cardW: modal ? 'min(600px, 100%)' : 'min(600px, 100%)', cardMax: modal ? '86vh' : 'none', cardOver: modal ? 'auto' : 'visible',
+        backdrop: modal ? () => this.closeNote() : () => {}, stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); },
+        bg: hexOf(ed.color), readOnly: ro,
+        titleVal: ed.title, onTitle: (e) => this.editNote({ title: e.target.value }),
+        isText: ed.kind === 'text', isList: ed.kind === 'list',
+        bodyVal: ed.body, onBody: (e) => this.editNote({ body: e.target.value }),
+        bodyRows: Math.max(3, Math.min(24, ed.body.split('\n').length + Math.floor(ed.body.length / 70) + 1)),
+        openItems: openItems.map(mkItem), doneItems: doneItems.map(mkItem), hasDone: doneItems.length > 0,
+        doneToggleText: (ed.showDone ? '▾ ' : '▸ ') + doneItems.length + ' completed ' + (doneItems.length === 1 ? 'item' : 'items'), showDone: ed.showDone && doneItems.length > 0,
+        toggleDone: () => this.setEd({ showDone: !this._ed.showDone }),
+        newItemVal: ed.newItem, onNewItem: (e) => this.setEd({ newItem: e.target.value }),
+        onNewItemKey: (e) => { if (e.key === 'Enter') { e.preventDefault(); addNewItem(); } },
+        onNewItemBlur: () => addNewItem(),
+        hasLabels: ed.labels.length > 0, labels: ed.labels.map(l => ({ key: l, name: l, remove: () => this.editNote({ labels: this._ed.labels.filter(x => x !== l) }) })),
+        pinnedAttr: ed.pinned ? '1' : '0', pinColor: ed.pinned ? '#202124' : '#5f6368', pinLabel: ed.pinned ? 'Unpin note' : 'Pin note',
+        togglePin: () => this.editNote({ pinned: !this._ed.pinned }),
+        showPin: !ro,
+        pickerColor: ed.picker === 'color', pickerLabel: ed.picker === 'label',
+        colorToggle: () => this.setEd({ picker: this._ed.picker === 'color' ? '' : 'color' }),
+        labelToggle: () => this.setEd({ picker: this._ed.picker === 'label' ? '' : 'label', labelDraft: '' }),
+        palette: palette(ed.color, (k) => this.editNote({ color: k, picker: '' })),
+        labelDraft: ed.labelDraft, onLabelDraft: (e) => this.setEd({ labelDraft: e.target.value }),
+        labelOptions: lblOpts.map(l => ({ key: l, name: l, on: ed.labels.includes(l), toggle: () => this.editNote({ labels: ed.labels.includes(l) ? this._ed.labels.filter(x => x !== l) : [...this._ed.labels, l] }) })),
+        canCreateLabel: !!draft && !Array.from(new Set([...labelsAll, ...ed.labels])).some(l => l.toLowerCase() === draft.toLowerCase()),
+        createLabelText: 'Create “' + draft + '”',
+        createLabel: () => { const d = String(this._ed.labelDraft || '').trim(); if (!d) return; this.editNote({ labels: this._ed.labels.some(x => x.toLowerCase() === d.toLowerCase()) ? this._ed.labels : [...this._ed.labels, d], labelDraft: '' }); },
+        onLabelKey: (e) => { if (e.key === 'Enter') { e.preventDefault(); const d = String(this._ed.labelDraft || '').trim(); if (!d) return; const hit = Array.from(new Set([...labelsAll, ...this._ed.labels])).find(l => l.toLowerCase() === d.toLowerCase()); this.editNote({ labels: this._ed.labels.some(x => x.toLowerCase() === (hit || d).toLowerCase()) ? this._ed.labels : [...this._ed.labels, hit || d], labelDraft: '' }); } },
+        kindLabel: ed.kind === 'list' ? 'Hide checkboxes' : 'Show checkboxes',
+        toggleKind: () => {
+          const e0 = this._ed;
+          if (e0.kind === 'text') { const lines = e0.body.split('\n').map(s => s.trim()).filter(Boolean); this.editNote({ kind: 'list', body: '', items: lines.length ? lines.map(t => ({ id: this.uid(), text: t, done: false })) : [{ id: this.uid(), text: '', done: false }] }); }
+          else this.editNote({ kind: 'text', items: [], body: e0.items.map(i => i.text).filter(t => t.trim()).join('\n') });
+        },
+        isArchived: ed.archived, notArchived: !ed.archived,
+        archive: async () => { if (this._ed.id || this._ed.dirty) { this.editNote({ archived: !this._ed.archived, pinned: false }); await this.closeNote(); } },
+        canTrash: !!ed.id && !ro,
+        trash: async () => { const id = this._ed.id; if (!id) return; clearTimeout(this._noteTimer); await this.flushNote(); this._ed = null; this._edNewId = null; this.setState({ noteEd: null }); this.patchNote(id, { trashedAt: nowIso(), pinned: false }); },
+        trashed: ro,
+        restore: async () => { const id = this._ed.id; this._ed = null; this.setState({ noteEd: null }); await this.patchNote(id, { trashedAt: '' }); },
+        deleteForever: async () => { const id = this._ed.id; this._ed = null; this.setState({ noteEd: null }); await this.deleteNoteForever(id); },
+        status: ed.status, hasStatus: !!ed.status, edited: ed.updatedAt && ed.id ? 'Edited ' + when(ed.updatedAt) : '',
+        close: () => this.closeNote()
+      };
+    }
+
+    // ---- import dialog ----
+    const imp = st.noteImp; let I = {};
+    if (imp) {
+      const sts = imp.parsed ? imp.parsed.stats : null, o = imp.opts;
+      const willImport = imp.parsed ? imp.parsed.notes.filter(k => (o.trashed || !k.trashed) && (o.archived || !k.archived)).length : 0;
+      const r = imp.result;
+      I = {
+        stagePick: imp.stage === 'pick', stagePreview: imp.stage === 'preview', stageDone: imp.stage === 'done',
+        busy: imp.busy, busyText: imp.stage === 'pick' ? 'Reading your file…' : 'Importing…', hasError: !!imp.error, error: imp.error,
+        onFiles: (e) => { const files = Array.from(e.target.files || []); e.target.value = ''; if (files.length) this.readImportFiles(files); },
+        summary: sts ? [
+          sts.total + (sts.total === 1 ? ' note' : ' notes') + ' found',
+          sts.lists + ' checklist' + (sts.lists === 1 ? '' : 's') + ' · ' + sts.pinned + ' pinned · ' + sts.labels + (sts.labels === 1 ? ' label' : ' labels'),
+          sts.archived + ' archived · ' + sts.trashed + ' in Keep\u2019s trash'
+        ].map(t => ({ key: t, text: t })) : [],
+        hasAttach: !!sts && sts.attachments > 0, attachText: sts ? sts.attachments + ' picture / audio attachment' + (sts.attachments === 1 ? '' : 's') + ' can\u2019t be copied (the text is imported, with a note that the attachment stays in Keep)' : '',
+        hasInvalid: !!imp.parsed && imp.parsed.invalid.length > 0, invalidText: imp.parsed ? (imp.parsed.invalid.length === 1 ? 'Skipped 1 file that was not a Keep note: ' : 'Skipped ' + imp.parsed.invalid.length + ' files that were not Keep notes: ') + imp.parsed.invalid.slice(0, 4).join(', ') + (imp.parsed.invalid.length > 4 ? '…' : '') : '',
+        optArchived: o.archived, onOptArchived: (e) => { const v = !!e.target.checked; this.setState(s => ({ noteImp: { ...s.noteImp, opts: { ...s.noteImp.opts, archived: v } } })); },
+        optTrashed: o.trashed, onOptTrashed: (e) => { const v = !!e.target.checked; this.setState(s => ({ noteImp: { ...s.noteImp, opts: { ...s.noteImp.opts, trashed: v } } })); },
+        importLabel: 'Import ' + willImport + (willImport === 1 ? ' note' : ' notes'), canImport: willImport > 0 && !imp.busy, runImport: () => this.runImport(),
+        again: () => this.setState({ noteImp: { ...imp, stage: 'pick', parsed: null, error: '', result: null } }),
+        results: r ? [
+          r.added + ' added', r.updated + ' updated from Keep', r.unchanged + ' already up to date',
+          ...(r.keptLocal ? [r.keptLocal + ' kept as you edited them here'] : []),
+          ...(r.skippedTrash ? [r.skippedTrash + ' skipped (in Keep\u2019s trash)'] : []),
+          ...(r.skippedArchived ? [r.skippedArchived + ' skipped (archived)'] : []),
+          ...(r.duplicates ? [r.duplicates + ' duplicate' + (r.duplicates === 1 ? '' : 's') + ' ignored'] : []),
+          ...(r.failed ? [r.failed + ' could not be saved'] : [])
+        ].map(t => ({ key: t, text: t })) : [],
+        close: () => this.setState({ noteImp: null })
+      };
+    }
+
+    const chips = [{ key: 'notes', label: '💡 Notes' }, { key: 'archive', label: '📦 Archive' }, { key: 'trash', label: '🗑 Trash' }, ...labelsAll.map(l => ({ key: 'label:' + l, label: '🏷 ' + l }))]
+      .map(c => ({ ...c, active: !q && sec === c.key, bg: !q && sec === c.key ? '#461610' : '#FDF9F4', color: !q && sec === c.key ? '#FDF9F4' : '#5C554B', border: !q && sec === c.key ? '#461610' : '#D8CCBC', pick: () => this.setState({ noteSection: c.key, noteQuery: '', noteLabelEdit: null, noteConfirm: null, cardPicker: null }) }));
+    const viewLabel = !q && sec.indexOf('label:') === 0 ? sec.slice(6) : '';
+    const le = st.noteLabelEdit;
+    const trashCount = notes.filter(n => n.trashedAt).length;
+    const emptyText = q ? 'No matching notes found.' : sec === 'trash' ? 'No notes in Trash.' : sec === 'archive' ? 'Your archived notes appear here.' : viewLabel ? 'No notes with this label yet.' : 'Notes you add appear here.';
+    return {
+      notesReady: st.notesState === 'ready', notesMissing: st.notesState === 'missing', notesLoading: st.notesState === 'loading', notesErr: st.notesErr,
+      noteQuery: st.noteQuery, onNoteQuery: (e) => this.setState({ noteQuery: e.target.value }), hasNoteQuery: !!q, clearNoteQuery: () => this.setState({ noteQuery: '' }),
+      noteGridList: st.noteView === 'list', noteGridMasonry: st.noteView !== 'list',
+      noteColW: st.noteView === 'list' ? '640px' : '240px', noteGridMax: st.noteView === 'list' ? '640px' : '100%',
+      toggleNoteView: () => { const v = this.state.noteView === 'list' ? 'masonry' : 'list'; try { localStorage.setItem('madzo-notes-view', v); } catch (e) { /* private mode */ } this.setState({ noteView: v }); },
+      noteChips: chips,
+      hasMsg: !!st.noteMsg, noteMsg: st.noteMsg, noteMsgColor: st.noteMsgBad ? '#C0392B' : '#1E8A4C', dismissMsg: () => this.setState({ noteMsg: '' }),
+      showNoteBar: !ed || !ed.inline, openText: () => this.newNote('text'), openList: (e) => { if (e && e.stopPropagation) e.stopPropagation(); this.newNote('list'); },
+      hasEd: !!ed, ed: E,
+      viewingLabel: !!viewLabel, viewLabelName: viewLabel, labelRenaming: !!le && !le.del, labelIdle: !le, labelEditValue: le ? le.value : '',
+      startLabelEdit: () => this.setState({ noteLabelEdit: { value: viewLabel, del: false } }),
+      onLabelEditValue: (e) => { const v = e.target.value; this.setState(s => ({ noteLabelEdit: { ...s.noteLabelEdit, value: v } })); },
+      saveLabelEdit: () => this.renameLabel(viewLabel, this.state.noteLabelEdit.value), cancelLabelEdit: () => this.setState({ noteLabelEdit: null }),
+      labelConfirmDelete: !!le && le.del, askDeleteLabel: () => this.setState(s => ({ noteLabelEdit: { value: viewLabel, del: true } })), confirmDeleteLabel: () => this.deleteLabel(viewLabel),
+      labelCountText: viewLabel ? live.filter(n => n.labels.includes(viewLabel)).length + ' note(s)' : '',
+      inTrashView: !q && sec === 'trash', hasTrash: trashCount > 0, askEmptyTrash: () => this.setState({ noteConfirm: 'trash' }), confirmingEmptyTrash: st.noteConfirm === 'trash', emptyTrash: () => this.emptyTrash(), cancelEmptyTrash: () => this.setState({ noteConfirm: null }),
+      hasPinned: pinned.length > 0, pinnedCards: pinned.map(card), hasOthers: others.length > 0, otherCards: others.map(card),
+      showOthersHeading: pinned.length > 0 && others.length > 0,
+      noNotes: visible.length === 0 && !(ed && ed.inline), emptyText,
+      openImport: () => this.setState({ noteImp: { stage: 'pick', busy: false, error: '', parsed: null, result: null, opts: { archived: true, trashed: false } } }),
+      hasImp: !!imp, imp: I
+    };
   }
 
   // ---------- Our Brands: the sliding logos on the storefront Home page ----------
@@ -2568,7 +3314,7 @@ class Component extends DCLogic {
     }));
 
     const pill = (active) => ({ bg: active ? '#FDF9F4' : 'transparent', color: active ? '#461610' : '#FDF9F4' });
-    const pd = pill(tab === 'dash'), ps = pill(tab === 'stock'), pi = pill(tab === 'images'), po = pill(tab === 'orders'), ppo = pill(tab === 'po'), pinv = pill(tab === 'inv'), pt = pill(tab === 'settings'), phome = pill(tab === 'home');
+    const pd = pill(tab === 'dash'), ps = pill(tab === 'stock'), pi = pill(tab === 'images'), po = pill(tab === 'orders'), ppo = pill(tab === 'po'), pinv = pill(tab === 'inv'), pt = pill(tab === 'settings'), phome = pill(tab === 'home'), pnotes = pill(tab === 'notes');
 
     const setEd = (key) => (e) => this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, [key]: e.target.value }, editOrderErr: '' }));
     const setEdItem = (i, key) => (e) => this.setState(s => {
@@ -3036,7 +3782,7 @@ class Component extends DCLogic {
       doLogin,
       doLogout: () => { window.getSupabase().auth.signOut(); this.setState({ authed: false }); },
 
-      pageMaxCss: tab === 'inv' ? '1500px' : '1100px',
+      pageMaxCss: tab === 'inv' ? '1500px' : tab === 'notes' ? '1300px' : '1100px',
       isHome: tab === 'home', isDash: tab === 'dash', isStock: tab === 'inv', isImages: tab === 'images', isOrders: tab === 'orders', isPO: tab === 'po', isInv: false, isInvArea: false, isSettings: tab === 'settings',
       tabDash: () => this.setState({ tab: 'dash' }),
       tabHome: () => this.setState({ tab: 'home' }),
@@ -3073,6 +3819,8 @@ class Component extends DCLogic {
       tInvBg: pinv.bg, tInvColor: pinv.color,
       tDashBg: pd.bg, tDashColor: pd.color, tStockBg: ps.bg, tStockColor: ps.color,
       tImagesBg: pi.bg, tImagesColor: pi.color, tOrdersBg: po.bg, tOrdersColor: po.color, tSettingsBg: pt.bg, tSettingsColor: pt.color,
+      tNotesBg: pnotes.bg, tNotesColor: pnotes.color, isNotes: tab === 'notes', tabNotes: () => this.setState({ tab: 'notes' }),
+      stopClick: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }, impMultiple: true, ...this.noteBindings(),
       allOrders, noOrders: allOrders.length === 0,
       pagedOrders, orderPager,
 

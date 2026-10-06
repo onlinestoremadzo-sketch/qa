@@ -24,6 +24,22 @@
     .madzo-scroll-row { scrollbar-width: none; -ms-overflow-style: none; }
     .madzo-scroll-row::-webkit-scrollbar { display: none; height: 0; }
     .madzo-desk-only { display: none; }
+    /* the hamburger menu: a slim side drawer that slides in from the edge */
+    @keyframes madzo-drawer-ltr { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+    @keyframes madzo-drawer-rtl { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    .madzo-drawer { width: 260px; animation: madzo-drawer-ltr .22s ease-out; }
+    [dir="rtl"] .madzo-drawer { animation-name: madzo-drawer-rtl; }
+    /* the page makes room for the drawer instead of hiding behind it */
+    .madzo-root { transition: margin-inline-start .22s ease, left .22s ease, right .22s ease; }
+    .madzo-root[data-menu="open"] { margin-inline-start: 260px; }              /* laptops / tablets: the page narrows and re-flows beside the drawer */
+    @media (max-width: 759px) {
+      .madzo-drawer { width: 240px; }
+      .madzo-root { position: relative; }
+      .madzo-root[data-menu="open"] { margin-inline-start: 0; left: 240px; }   /* phones: the whole page slides over, the left part stays visible */
+      .madzo-root[dir="rtl"][data-menu="open"] { left: auto; right: 240px; }
+      html.madzo-menu-open, html.madzo-menu-open body { overflow-x: hidden; }
+    }
+    @media (prefers-reduced-motion: reduce) { .madzo-drawer { animation: none; } .madzo-root { transition: none; } }
     /* Our Brands slider */
     .madzo-brand-track { -webkit-mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%); mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%); -webkit-user-select: none; user-select: none; }
     .madzo-brand-tile { transition: transform .28s ease, box-shadow .28s ease; box-shadow: 0 2px 8px rgba(70,22,16,.08); }
@@ -42,7 +58,7 @@
 </helmet>
 
 <template id="__bundler_thumbnail"><svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="80" fill="#461610"></rect><path d="M66 28 A 12 12 0 1 0 66 52 A 9.6 9.6 0 1 1 66 28 Z" fill="#FDF9F4"></path><path d="M72 33 l1.4 3.2 3.2 1.4 -3.2 1.4 -1.4 3.2 -1.4-3.2 -3.2-1.4 3.2-1.4 Z" fill="#FDF9F4"></path></svg></template>
-<div dir="{{ dir }}" style="min-height: 100vh; background: #F1ECE2; color: #2E2A26; font-family: Poppins, Tajawal, sans-serif; display: flex; flex-direction: column;">
+<div dir="{{ dir }}" class="madzo-root" data-menu="{{ menuAttr }}" style="min-height: 100vh; background: #F1ECE2; color: #2E2A26; font-family: Poppins, Tajawal, sans-serif; display: flex; flex-direction: column;">
 
   <!-- Announcement bar -->
   <sc-if value="{{ showBar }}" hint-placeholder-val="{{ true }}">
@@ -74,22 +90,6 @@
         </button>
       </div>
     </div>
-    <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
-      <nav style="background: {{ headerBgDark }}; padding: 10px 22px 16px; display: flex; flex-direction: column; gap: 4px;">
-        <a onClick="{{ goHome }}" style="color: #FDF9F4; cursor: pointer; padding: 9px 4px; font-size: 15px; text-decoration: none; border-bottom: 1px solid rgba(253,249,244,.18);">{{ t.navHome }}</a>
-        <a onClick="{{ shopAllLink }}" style="color: #FDF9F4; cursor: pointer; padding: 9px 4px; font-size: 15px; text-decoration: none; border-bottom: 1px solid rgba(253,249,244,.18);">{{ t.navShop }}</a>
-        <a onClick="{{ openMega }}" style="color: #FDF9F4; cursor: pointer; padding: 9px 4px; font-size: 15px; text-decoration: none; border-bottom: 1px solid rgba(253,249,244,.18); display: flex; justify-content: space-between; align-items: center;">{{ t.allCategories }} <span style="opacity: .7;">{{ t.chev }}</span></a>
-        <sc-for list="{{ navItems }}" as="nv" hint-placeholder-count="4">
-          <sc-if value="{{ nv.isHeading }}" hint-placeholder-val="{{ false }}">
-            <a onClick="{{ nv.open }}" style="color: #D9C2B4; cursor: pointer; padding: 12px 4px 4px; font-size: 11.5px; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none;">{{ nv.label }}</a>
-          </sc-if>
-          <sc-if value="{{ nv.isLink }}" hint-placeholder-val="{{ true }}">
-            <a onClick="{{ nv.open }}" style="color: #FDF9F4; cursor: pointer; padding: 9px 4px; font-size: 15px; text-decoration: none; border-bottom: 1px solid rgba(253,249,244,.18);">{{ nv.label }}</a>
-          </sc-if>
-        </sc-for>
-        <a onClick="{{ goAbout }}" style="color: #FDF9F4; cursor: pointer; padding: 9px 4px; font-size: 15px; text-decoration: none;">{{ t.navAbout }}</a>
-      </nav>
-    </sc-if>
     <div style="background: {{ headerBgDark }}; padding: 8px 18px 12px;">
       <div style="position: relative; max-width: 560px; margin: 0 auto;">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#857D72" stroke-width="2" style="position: absolute; inset-inline-start: 15px; top: 50%; transform: translateY(-50%); pointer-events: none;"><circle cx="10.5" cy="10.5" r="7"></circle><line x1="16" y1="16" x2="21.5" y2="21.5"></line></svg>
@@ -99,17 +99,40 @@
         </sc-if>
       </div>
     </div>
-    <sc-if value="{{ megaOpen }}" hint-placeholder-val="{{ false }}">
-      <div onClick="{{ closeMega }}" style="position: absolute; top: 100%; inset-inline: 0; height: 100vh; background: rgba(35,15,10,.38); z-index: 1;"></div>
-      <div role="dialog" aria-label="All categories" style="position: absolute; top: 100%; inset-inline: 0; z-index: 2; background: #FDF9F4; border-top: 1px solid #E7DECF; box-shadow: 0 16px 32px rgba(60,30,25,.22); max-height: calc(100vh - 84px); overflow-y: auto;">
+  </header>
+    <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeMenu }}" style="position: fixed; inset: 0; z-index: 140; background: transparent;"></div>
+      <div class="madzo-drawer" style="position: fixed; top: 0; bottom: 0; inset-inline-start: 0; z-index: 150; background: {{ headerBgDark }}; box-shadow: 0 0 30px rgba(30,10,8,.38); display: flex; flex-direction: column; overflow-y: auto;">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 8px 8px 22px; border-bottom: 1px solid rgba(253,249,244,.14);">
+          <span style="font-family: Marcellus, serif; font-size: 17px; letter-spacing: 3px; color: #FDF9F4;">MADZO</span>
+          <button onClick="{{ closeMenu }}" aria-label="Close menu" style="background: none; border: none; color: #FDF9F4; cursor: pointer; font-size: 26px; line-height: 1; padding: 4px 12px;">×</button>
+        </div>
+        <nav aria-label="Menu" style="display: flex; flex-direction: column; padding: 6px 12px 28px;">
+        <a onClick="{{ goHome }}" style="color: #FDF9F4; cursor: pointer; padding: 12px 10px; font-size: 15px; text-decoration: none; border-bottom: 1px solid rgba(253,249,244,.18);">{{ t.navHome }}</a>
+        <a onClick="{{ shopAllLink }}" style="color: #FDF9F4; cursor: pointer; padding: 12px 10px; font-size: 15px; text-decoration: none; border-bottom: 1px solid rgba(253,249,244,.18);">{{ t.navShop }}</a>
+        <a onClick="{{ openMega }}" style="color: #FDF9F4; cursor: pointer; padding: 12px 10px; font-size: 15px; text-decoration: none; border-bottom: 1px solid rgba(253,249,244,.18); display: flex; justify-content: space-between; align-items: center;">{{ t.allCategories }} <span style="opacity: .7;">{{ t.chev }}</span></a>
+        <sc-for list="{{ navItems }}" as="nv" hint-placeholder-count="4">
+          <sc-if value="{{ nv.isHeading }}" hint-placeholder-val="{{ false }}">
+            <a onClick="{{ nv.open }}" style="color: #D9C2B4; cursor: pointer; padding: 14px 10px 4px; font-size: 11.5px; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none;">{{ nv.label }}</a>
+          </sc-if>
+          <sc-if value="{{ nv.isLink }}" hint-placeholder-val="{{ true }}">
+            <a onClick="{{ nv.open }}" style="color: #FDF9F4; cursor: pointer; padding: 12px 10px; font-size: 15px; text-decoration: none; border-bottom: 1px solid rgba(253,249,244,.18);">{{ nv.label }}</a>
+          </sc-if>
+        </sc-for>
+        <a onClick="{{ goAbout }}" style="color: #FDF9F4; cursor: pointer; padding: 12px 10px; font-size: 15px; text-decoration: none;">{{ t.navAbout }}</a>
+        </nav>
+      </div>
+    </sc-if>
+  <sc-if value="{{ megaOpen }}" hint-placeholder-val="{{ false }}">
+      <div role="region" aria-label="All categories" style="background: linear-gradient(180deg, rgba(70,22,16,.16) 0, rgba(233,217,206,.74) 64px, rgba(233,217,206,.74) 100%); -webkit-backdrop-filter: blur(10px) saturate(1.1); backdrop-filter: blur(10px) saturate(1.1); border-bottom: 1px solid rgba(70,22,16,.18); box-shadow: 0 6px 14px rgba(60,30,25,.10);">
         <div style="max-width: 1400px; margin: 0 auto; padding: 0 18px;">
-          <div style="display: flex; align-items: center; border-bottom: 1px solid #E7DECF;">
+          <div style="display: flex; align-items: center; border-bottom: 1px solid rgba(70,22,16,.16);">
             <div class="madzo-scroll-row" style="flex: 1; min-width: 0; display: flex; gap: 6px 32px; overflow-x: auto; justify-content: safe center;">
               <sc-for list="{{ megaTabs }}" as="mt" hint-placeholder-count="4">
                 <a onClick="{{ mt.pick }}" style="cursor: pointer; white-space: nowrap; padding: 16px 2px 12px; font-size: 16px; font-weight: {{ mt.weight }}; color: {{ mt.color }}; border-bottom: 2px solid {{ mt.line }}; text-decoration: none;">{{ mt.label }}</a>
               </sc-for>
             </div>
-            <button onClick="{{ closeMega }}" aria-label="Close" style="flex: none; background: none; border: none; color: #857D72; cursor: pointer; font-size: 24px; line-height: 1; padding: 4px 6px; margin-inline-start: 10px;">×</button>
+            <button onClick="{{ closeMega }}" aria-label="Close" style="flex: none; background: none; border: none; color: #6A4139; cursor: pointer; font-size: 24px; line-height: 1; padding: 4px 6px; margin-inline-start: 10px;">×</button>
           </div>
           <div style="padding: 20px 6px 30px;">
             <a onClick="{{ megaViewAll }}" style="cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; color: #461610; text-decoration: none;">{{ megaViewAllLabel }} <span>{{ t.chev }}</span></a>
@@ -119,20 +142,19 @@
                   <div style="break-inside: avoid; margin-bottom: 18px;">
                     <a onClick="{{ mg.open }}" style="display: block; cursor: pointer; padding: 4px 0 6px; font-size: 15px; font-weight: 700; color: #2E2A26; text-decoration: none;" style-hover="color: #461610;">{{ mg.label }}</a>
                     <sc-for list="{{ mg.items }}" as="mi" hint-placeholder-count="3">
-                      <a onClick="{{ mi.open }}" style="display: block; cursor: pointer; padding: 5px 0; font-size: 14.5px; color: #5C554B; text-decoration: none;" style-hover="color: #461610;">{{ mi.label }}</a>
+                      <a onClick="{{ mi.open }}" style="display: block; cursor: pointer; padding: 5px 0; font-size: 14.5px; color: #5A3B34; text-decoration: none;" style-hover="color: #461610;">{{ mi.label }}</a>
                     </sc-for>
                   </div>
                 </sc-for>
               </div>
             </sc-if>
             <sc-if value="{{ megaNoSubs }}" hint-placeholder-val="{{ false }}">
-              <p style="margin: 14px 0 0; font-size: 13.5px; color: #857D72;">{{ t.noSubs }}</p>
+              <p style="margin: 14px 0 0; font-size: 13.5px; color: #7A5049;">{{ t.noSubs }}</p>
             </sc-if>
           </div>
         </div>
       </div>
-    </sc-if>
-  </header>
+  </sc-if>
 
   <main style="flex: 1;">
 
@@ -603,6 +625,7 @@ class Component extends DCLogic {
   componentDidMount() {
     this.startBrandSlider();
     this.loadBrands();
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && (this.state.megaOpen || this.state.menuOpen)) this.setState({ megaOpen: false, menuOpen: false }); });
     this.loadProducts();
     this.loadSettings();
     this.loadSiteImages();
@@ -905,6 +928,9 @@ class Component extends DCLogic {
 
       menuOpen: this.state.menuOpen,
       toggleMenu: () => this.setState(st => ({ menuOpen: !st.menuOpen, searchOpen: false, megaOpen: false })),
+      closeMenu: () => this.setState({ menuOpen: false }),
+      // (kept in sync here, on every render: while the menu is open on a phone the page is slid over, so sideways scrolling is switched off)
+      menuAttr: (() => { document.documentElement.classList.toggle('madzo-menu-open', !!this.state.menuOpen); return this.state.menuOpen ? 'open' : 'closed'; })(),
       query: this.state.query,
       // Typing anywhere searches the whole store (products AND brands) and shows the results.
       onQuery: (e) => { const v = e.target.value; this.setState(s => ({ query: v, ...(v.trim() ? { screen: 'shop', filter: 'all', detail: null, menuOpen: false, megaOpen: false } : {}) })); },
@@ -921,12 +947,12 @@ class Component extends DCLogic {
 
       // ---- All categories panel ----
       megaOpen: this.state.megaOpen,
-      openMega: () => this.setState({ megaOpen: true, menuOpen: false, searchOpen: false }),
-      toggleMega: () => this.setState(st => ({ megaOpen: !st.megaOpen, menuOpen: false, searchOpen: false })),
+      openMega: () => this.setState({ megaOpen: true, menuOpen: false, searchOpen: false }, () => window.scrollTo({ top: 0, behavior: 'smooth' })),
+      toggleMega: () => this.setState(st => ({ megaOpen: !st.megaOpen, menuOpen: false, searchOpen: false }), () => { if (this.state.megaOpen) window.scrollTo({ top: 0, behavior: 'smooth' }); }),
       closeMega: () => this.setState({ megaOpen: false }),
       megaTabs: mainsSrc.map(m => {
         const on = !!megaActive && m.id === megaActive.id;
-        return { key: m.id, label: loc(m), weight: on ? 700 : 400, color: on ? '#461610' : '#5C554B', line: on ? '#461610' : 'transparent', pick: () => this.setState({ megaMain: m.id }) };
+        return { key: m.id, label: loc(m), weight: on ? 700 : 400, color: on ? '#461610' : '#6A4139', line: on ? '#461610' : 'transparent', pick: () => this.setState({ megaMain: m.id }) };
       }),
       megaViewAllLabel: megaActive ? t.viewAll + ' ' + loc(megaActive) : t.viewAll,
       megaViewAll: megaActive ? go('shop', { filter: 'main:' + megaActive.id }) : go('shop', { filter: 'all' }),
@@ -953,7 +979,7 @@ class Component extends DCLogic {
       // "Others": the Home-page doorway to everything that isn't a circle. Opens the All categories panel,
       // landing on the first category that is not shown on the front (or the usual first one if all are).
       imgOthers: sImg('cat-others'), hasOthersImg: !!sImg('cat-others'), noOthersImg: !sImg('cat-others'),
-      openOthers: () => { const firstOther = mainsSrc.find(m => m.front === false); this.setState({ megaOpen: true, menuOpen: false, searchOpen: false, megaMain: firstOther ? firstOther.id : '' }); },
+      openOthers: () => { const firstOther = mainsSrc.find(m => m.front === false); this.setState({ megaOpen: true, menuOpen: false, searchOpen: false, megaMain: firstOther ? firstOther.id : '' }, () => window.scrollTo({ top: 0, behavior: 'smooth' })); },
 
       shopTitle: q ? t.resultsFor + ' “' + this.state.query.trim() + '”' : filterTitle,
       brandMatches, hasBrandMatches: brandMatches.length > 0,

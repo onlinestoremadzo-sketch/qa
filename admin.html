@@ -84,6 +84,7 @@
             <button onClick="{{ tabImages }}" style="background: {{ tImagesBg }}; color: {{ tImagesColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Images</button>
             <button onClick="{{ tabPO }}" style="background: {{ tPOBg }}; color: {{ tPOColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Purchase</button>
           <button onClick="{{ tabInv }}" style="background: {{ tInvBg }}; color: {{ tInvColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Inventory</button>
+          <button onClick="{{ tabCustomers }}" style="background: {{ tCustBg }}; color: {{ tCustColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Customers</button>
           <button onClick="{{ tabNotes }}" style="background: {{ tNotesBg }}; color: {{ tNotesColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Notes</button>
           <button onClick="{{ tabSettings }}" style="background: {{ tSettingsBg }}; color: {{ tSettingsColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Settings</button>
         </nav>
@@ -96,6 +97,18 @@
       <datalist id="madzo-brand-names">
         <sc-for list="{{ brandSuggestions }}" as="bsg" hint-placeholder-count="5">
           <option value="{{ bsg.name }}"></option>
+        </sc-for>
+      </datalist>
+
+      <!-- every saved customer, offered while typing a name or phone on an order -->
+      <datalist id="madzo-cust-names">
+        <sc-for list="{{ custSuggestions }}" as="csg" hint-placeholder-count="5">
+          <option value="{{ csg.name }}" label="{{ csg.phone }}"></option>
+        </sc-for>
+      </datalist>
+      <datalist id="madzo-cust-phones">
+        <sc-for list="{{ custSuggestions }}" as="csp" hint-placeholder-count="5">
+          <option value="{{ csp.phone }}" label="{{ csp.name }}"></option>
         </sc-for>
       </datalist>
 
@@ -140,7 +153,11 @@
               <span style="width: 84px; height: 84px; border-radius: 50%; background: #FDF9F4; border: 1px solid #E7DECF; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 6px 16px rgba(60,30,25,.08); transition: transform .12s;" style-hover="transform: scale(1.05); border-color: #461610;">📊</span>
               <span style="font-size: 13.5px; font-weight: 600; color: #2E2A26;">Dashboard</span>
             </button>
-            <button onClick="{{ tabNotes }}" style="display: flex; flex-direction: column; align-items: center; gap: 10px; background: none; border: none; cursor: pointer; padding: 0; grid-column: 1 / -1; justify-self: center;">
+            <button onClick="{{ tabCustomers }}" style="display: flex; flex-direction: column; align-items: center; gap: 10px; background: none; border: none; cursor: pointer; padding: 0;">
+              <span style="width: 84px; height: 84px; border-radius: 50%; background: #FDF9F4; border: 1px solid #E7DECF; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 6px 16px rgba(60,30,25,.08); transition: transform .12s;" style-hover="transform: scale(1.05); border-color: #461610;">👥</span>
+              <span style="font-size: 13.5px; font-weight: 600; color: #2E2A26;">Customers</span>
+            </button>
+            <button onClick="{{ tabNotes }}" style="display: flex; flex-direction: column; align-items: center; gap: 10px; background: none; border: none; cursor: pointer; padding: 0;">
               <span style="width: 84px; height: 84px; border-radius: 50%; background: #FDF9F4; border: 1px solid #E7DECF; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 6px 16px rgba(60,30,25,.08); transition: transform .12s;" style-hover="transform: scale(1.05); border-color: #461610;">📝</span>
               <span style="font-size: 13.5px; font-weight: 600; color: #2E2A26;">Notes</span>
             </button>
@@ -620,10 +637,10 @@
                   <input value="{{ newOrder.source }}" onChange="{{ onNOSource }}" placeholder="Instagram / WhatsApp / Phone…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Customer name
-                  <input value="{{ newOrder.name }}" onChange="{{ onNOName }}" placeholder="Full name" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                  <input value="{{ newOrder.name }}" onChange="{{ onNOName }}" list="madzo-cust-names" autocomplete="off" placeholder="Type a name — saved customers appear" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Phone
-                  <input value="{{ newOrder.phone }}" onChange="{{ onNOPhone }}" placeholder="+974 …" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
+                  <input value="{{ newOrder.phone }}" onChange="{{ onNOPhone }}" list="madzo-cust-phones" autocomplete="off" placeholder="+974 …" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Zone / area
                   <input value="{{ newOrder.zone }}" onChange="{{ onNOZone }}" placeholder="e.g. Zone 25, Al Sadd" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
@@ -754,10 +771,10 @@
                         <input value="{{ o.edSource }}" onChange="{{ o.onEdSource }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                       </label>
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Customer name
-                        <input value="{{ o.edName }}" onChange="{{ o.onEdName }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                        <input value="{{ o.edName }}" onChange="{{ o.onEdName }}" list="madzo-cust-names" autocomplete="off" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                       </label>
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Phone
-                        <input value="{{ o.edPhone }}" onChange="{{ o.onEdPhone }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
+                        <input value="{{ o.edPhone }}" onChange="{{ o.onEdPhone }}" list="madzo-cust-phones" autocomplete="off" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                       </label>
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Zone / area
                         <input value="{{ o.edZone }}" onChange="{{ o.onEdZone }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
@@ -1318,6 +1335,102 @@
       </sc-if>
 
       <!-- ---- NOTES (Google-Keep style) ---- -->
+      <!-- ---- CUSTOMERS ---- -->
+      <sc-if value="{{ isCustomers }}" hint-placeholder-val="{{ false }}">
+        <section data-screen-label="Customers">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; flex-wrap: wrap;">
+            <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Customers</h1>
+            <button onClick="{{ custAdd }}" style="background: #461610; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #39120D;">+ Add customer</button>
+          </div>
+          <p style="color: #857D72; font-size: 13px; margin: 0 0 14px;">Everyone who has ordered — from the storefront or added by you — with phone numbers and order history. New customers are saved automatically.</p>
+          <sc-if value="{{ custMissing }}" hint-placeholder-val="{{ false }}">
+            <div style="background: #F6EDDB; border: 1px solid #E0C9A2; border-radius: 12px; padding: 12px 16px; font-size: 13px; color: #7A5F27; max-width: 680px; margin-bottom: 14px;">Customers are shown from your orders, but can't be saved yet — run <strong>madzo-update-7.sql</strong> in Supabase (SQL Editor), then reload this page.</div>
+          </sc-if>
+          <sc-if value="{{ custSaveMsg }}" hint-placeholder-val="{{ false }}">
+            <div style="background: #E3F3E8; border: 1px solid #B6DEC3; border-radius: 12px; padding: 10px 14px; font-size: 13px; color: #1F6B3A; max-width: 680px; margin-bottom: 14px;">{{ custSaveMsg }}</div>
+          </sc-if>
+          <sc-if value="{{ custFormOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
+              <h2 style="font-size: 15px; font-weight: 600; margin: 0;">{{ custFormTitle }}</h2>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px;">
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Name
+                  <input value="{{ custDraft.name }}" onChange="{{ onCustName }}" placeholder="Full name" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Phone
+                  <input value="{{ custDraft.phone }}" onChange="{{ onCustPhone }}" placeholder="+974 …" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Email (optional)
+                  <input value="{{ custDraft.email }}" onChange="{{ onCustEmail }}" placeholder="name@email.com" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Zone / area
+                  <input value="{{ custDraft.zone }}" onChange="{{ onCustZone }}" placeholder="e.g. Zone 25, Al Sadd" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Address
+                  <input value="{{ custDraft.address }}" onChange="{{ onCustAddress }}" placeholder="Street, building, apartment" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Notes
+                  <input value="{{ custDraft.notes }}" onChange="{{ onCustNotes }}" placeholder="Anything worth remembering" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                </label>
+              </div>
+              <sc-if value="{{ custErr }}" hint-placeholder-val="{{ false }}"><div style="color: #B42318; font-size: 13px;">{{ custErr }}</div></sc-if>
+              <div style="display: flex; gap: 10px;">
+                <button onClick="{{ custSave }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 10px 22px; font-size: 13.5px; font-weight: 600; cursor: pointer;" style-hover="filter: brightness(1.07);">{{ custSaveLabel }}</button>
+                <button onClick="{{ custCancel }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 10px 18px; font-size: 13.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">Cancel</button>
+              </div>
+            </div>
+          </sc-if>
+          <div style="position: relative; margin-bottom: 14px; max-width: 340px;">
+            <input value="{{ custQuery }}" onChange="{{ onCustQuery }}" placeholder="Search name, phone, area…" style="width: 100%; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13.5px; outline: none;" style-focus="border-color: #461610;">
+          </div>
+          <div style="color: #857D72; font-size: 12.5px; margin-bottom: 10px;">{{ custCountLabel }}</div>
+          <sc-if value="{{ custEmpty }}" hint-placeholder-val="{{ false }}"><p style="color: #857D72; font-size: 14px;">No customers yet — they appear here as soon as an order is placed.</p></sc-if>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <sc-for list="{{ pagedCusts }}" as="c" hint-placeholder-count="3">
+              <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 14px 18px;">
+                <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                  <span style="width: 40px; height: 40px; border-radius: 50%; background: #461610; color: #FDF9F4; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 15px; flex: none;">{{ c.initial }}</span>
+                  <div style="flex: 1; min-width: 180px;">
+                    <div style="font-weight: 600; font-size: 14.5px; color: #2E2A26;">{{ c.name }} <sc-if value="{{ c.unsaved }}" hint-placeholder-val="{{ false }}"><span style="font-size: 10.5px; font-weight: 500; background: #F6EDDB; color: #7A5F27; border-radius: 999px; padding: 2px 8px; margin-inline-start: 6px;">from orders</span></sc-if></div>
+                    <div style="font-size: 13px; color: #857D72; direction: ltr; text-align: start;">{{ c.phoneLabel }}</div>
+                    <div style="font-size: 12px; color: #B0A697;">{{ c.place }}</div>
+                  </div>
+                  <div style="text-align: end; min-width: 120px;">
+                    <div style="font-size: 13px; font-weight: 600; color: #2E2A26;">{{ c.orderLabel }}</div>
+                    <div style="font-size: 12px; color: #857D72;">{{ c.totalLabel }}</div>
+                    <div style="font-size: 11.5px; color: #B0A697;">{{ c.lastLabel }}</div>
+                  </div>
+                  <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <sc-if value="{{ c.hasOrders }}" hint-placeholder-val="{{ false }}"><button onClick="{{ c.toggle }}" style="background: none; border: 1px solid #D8CCBC; color: #461610; border-radius: 999px; padding: 6px 14px; font-size: 12.5px; cursor: pointer;" style-hover="border-color: #461610;">{{ c.toggleLabel }}</button></sc-if>
+                    <button onClick="{{ c.edit }}" style="background: none; border: 1px solid #D8CCBC; color: #461610; border-radius: 999px; padding: 6px 14px; font-size: 12.5px; cursor: pointer;" style-hover="border-color: #461610;">{{ c.editLabel }}</button>
+                    <sc-if value="{{ c.canDelete }}" hint-placeholder-val="{{ false }}"><button onClick="{{ c.delAsk }}" style="background: none; border: 1px solid #E9C6C1; color: #B42318; border-radius: 999px; padding: 6px 14px; font-size: 12.5px; cursor: pointer;" style-hover="background: #FBEDEB;">{{ c.delLabel }}</button></sc-if>
+                  </div>
+                </div>
+                <sc-if value="{{ c.open }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-top: 12px; border-top: 1px solid #EFE6D8; padding-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+                    <sc-for list="{{ c.orders }}" as="co" hint-placeholder-count="2">
+                      <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: baseline; font-size: 13px;">
+                        <span style="font-weight: 600; color: #461610; min-width: 84px;">{{ co.id }}</span>
+                        <span style="color: #857D72; min-width: 86px;">{{ co.date }}</span>
+                        <span style="color: #2E2A26; flex: 1; min-width: 160px;">{{ co.items }}</span>
+                        <span style="color: #857D72;">{{ co.status }}</span>
+                        <span style="font-weight: 600; color: #2E2A26;">{{ co.total }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ custPager.show }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 16px;">
+              <button onClick="{{ custPager.prev }}" disabled="{{ custPager.atStart }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ custPager.prevOpacity }};" style-hover="border-color: #461610; color: #461610;">← Prev</button>
+              <span style="font-size: 12.5px; color: #857D72;">{{ custPager.label }}</span>
+              <button onClick="{{ custPager.next }}" disabled="{{ custPager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ custPager.nextOpacity }};" style-hover="border-color: #461610; color: #461610;">Next →</button>
+            </div>
+          </sc-if>
+        </section>
+      </sc-if>
+
       <sc-if value="{{ isNotes }}" hint-placeholder-val="{{ false }}">
         <section data-screen-label="Notes">
           <sc-if value="{{ notesMissing }}" hint-placeholder-val="{{ false }}">
@@ -1797,7 +1910,7 @@ class Component extends DCLogic {
       showCatManager: false, catForm: null, catError: '', savingCat: false, confirmDelCat: null,
       dbSub2Cats: [], sub2Ready: false, stockDraft: {}, delErr: null,
       dbBrands: [], brandsState: 'loading', brandsErr: '', brandBusy: false, brandMsg: '', brandMsgBad: false, newBrandName: '', brandDraft: {}, confirmDelBrand: null,
-      notes: [], notesState: 'loading', notesErr: '', noteSection: 'notes', noteQuery: '', noteEd: null, noteImp: null, noteMsg: '', noteMsgBad: false, noteConfirm: null, cardPicker: null, noteLabelEdit: null,
+      dbCustomers: [], custMissing: false, custQuery: '', custOpen: {}, custDraft: null, custErr: '', custConfirmDel: null, custPage: 1, custSaveMsg: '', notes: [], notesState: 'loading', notesErr: '', noteSection: 'notes', noteQuery: '', noteEd: null, noteImp: null, noteMsg: '', noteMsgBad: false, noteConfirm: null, cardPicker: null, noteLabelEdit: null,
       noteView: (() => { try { return localStorage.getItem('madzo-notes-view') === 'list' ? 'list' : 'masonry'; } catch (e) { return 'masonry'; } })(),
       invView: 'products', newProdFile: null,
       prodFilters: { photo: '', brand: '', id: '', name: '', cat: '', sub: '', sub2: '', expiry: '', buy: '', price: '', stock: '', active: '' },
@@ -1820,7 +1933,8 @@ class Component extends DCLogic {
   }
 
   async loadAll() {
-    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadSuppliers(), this.loadBatches(), this.loadCategories(), this.loadBrands(), this.loadNotes()]);
+    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadSuppliers(), this.loadBatches(), this.loadCategories(), this.loadBrands(), this.loadNotes(), this.loadCustomers()]);
+    this.backfillCustomersAndSuppliers();
   }
 
   // Main categories + subcategories (editable from Products → Categories).
@@ -1885,8 +1999,10 @@ class Component extends DCLogic {
       const sb = window.getSupabase();
       const { data, error } = await sb.from('suppliers').select('*').order('name', { ascending: true });
       if (error) throw error;
+      this._supNames = new Set((data || []).map(s => String(s.name || '').trim().toLowerCase()));
+      this._supMissing = false;
       this.setState({ dbSuppliers: (data || []).map(s => ({ name: s.name, email: s.email || '', phone: s.phone || '' })) });
-    } catch (e) { console.warn('Madzo admin: could not load suppliers', e); }
+    } catch (e) { this._supMissing = true; console.warn('Madzo admin: could not load suppliers', e); }
   }
 
   // Saves/updates a supplier's contact details so they're remembered for next time —
@@ -1895,10 +2011,15 @@ class Component extends DCLogic {
     const n = String(name || '').trim();
     if (!n) return;
     try {
-      await window.getSupabase().from('suppliers').upsert({
+      const { error } = await window.getSupabase().from('suppliers').upsert({
         name: n, email: String(email || '').trim() || null, phone: String(phone || '').trim() || null,
         updated_at: new Date().toISOString()
       });
+      if (error) {
+        console.warn('Madzo admin: could not save supplier', error);
+        alert('The purchase order was saved, but the supplier could not be remembered yet. Run madzo-update-7.sql in Supabase (SQL Editor), then save a purchase order again.');
+        return;
+      }
       this.loadSuppliers();
     } catch (e) { console.warn('Madzo admin: could not save supplier', e); }
   }
@@ -1908,6 +2029,7 @@ class Component extends DCLogic {
       const sb = window.getSupabase();
       const { data, error } = await sb.from('purchase_orders').select('*').order('created_at', { ascending: false });
       if (error) throw error;
+      this._poRows = (data || []).map(p => ({ name: p.supplier_name, email: p.supplier_email || '', phone: p.supplier_phone || '' }));
       this.setState({ dbPOs: (data || []).map(p => ({
         id: p.id, ts: new Date(p.created_at).getTime(),
         supplier: p.supplier_name, email: p.supplier_email || '', phone: p.supplier_phone || '',
@@ -1930,6 +2052,108 @@ class Component extends DCLogic {
       return m ? parseInt(m[1], 10) : 0;
     });
     return 'PO-' + String(Math.max(0, ...nums) + 1).padStart(4, '0');
+  }
+
+
+  // ---- Customers ----
+  // One number can be typed many ways (+974 5555 1234, 0097455551234, 55551234) — this reduces
+  // them all to the same key. Must match the SQL in madzo-update-7.sql.
+  phoneKey(p) {
+    let d = String(p || '').replace(/\D/g, '').replace(/^00/, '');
+    if (d.length > 8 && d.indexOf('974') === 0) d = d.slice(3);
+    return d;
+  }
+  custKey(name, phone) { return this.phoneKey(phone) || ('n:' + String(name || '').trim().toLowerCase()); }
+  isMissingTable(err) { return !!err && (err.code === '42P01' || err.code === 'PGRST205' || /does not exist|schema cache|Could not find the table/i.test(err.message || '')); }
+
+  async loadCustomers() {
+    try {
+      const { data, error } = await window.getSupabase().from('customers').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      const list = (data || []).map(c => ({ id: c.id, name: c.name || '', phone: c.phone || '', phoneKey: c.phone_key || '', email: c.email || '', zone: c.zone || '', address: c.address || '', notes: c.notes || '', ts: new Date(c.created_at).getTime() }));
+      this._custKeys = new Set(list.map(c => c.phoneKey || this.custKey(c.name, c.phone)));
+      this._custMissing = false;
+      this.setState({ dbCustomers: list, custMissing: false });
+    } catch (e) {
+      console.warn('Madzo admin: could not load customers', e);
+      this._custMissing = true;
+      this.setState({ custMissing: true });
+    }
+  }
+
+  // Customers and suppliers are normally saved the moment an order / PO is saved. This catches the
+  // ones that arrived another way — storefront checkouts (guests can't write to admin tables) and
+  // anything from before this feature — so nothing is ever missing from the lists.
+  async backfillCustomersAndSuppliers() {
+    const sb = window.getSupabase();
+    try {
+      if (!this._custMissing && this._custKeys) {
+        const seen = new Set(this._custKeys), withPhone = [], noPhone = [];
+        (this._ordRows || []).forEach(o => {
+          const n = String(o.name || '').trim(); if (!n) return;
+          const k = this.custKey(n, o.phone); if (seen.has(k)) return; seen.add(k);
+          const pk = this.phoneKey(o.phone);
+          const row = { name: n, phone: String(o.phone || '').trim() || null, phone_key: pk || null, zone: String(o.zone || '').trim() || null, address: String(o.address || '').trim() || null };
+          (pk ? withPhone : noPhone).push(row);
+        });
+        let wrote = false;
+        for (let i = 0; i < withPhone.length; i += 200) { const r = await sb.from('customers').upsert(withPhone.slice(i, i + 200), { onConflict: 'phone_key', ignoreDuplicates: true }); if (!r.error) wrote = true; }
+        for (let i = 0; i < noPhone.length; i += 200) { const r = await sb.from('customers').insert(noPhone.slice(i, i + 200)); if (!r.error) wrote = true; }
+        if (wrote) await this.loadCustomers();
+      }
+    } catch (e) { console.warn('Madzo admin: customer backfill skipped', e); }
+    try {
+      if (!this._supMissing && this._supNames) {
+        const seen = new Set(this._supNames), rows = [];
+        (this._poRows || []).forEach(p => {
+          const n = String(p.name || '').trim(); const k = n.toLowerCase(); if (!n || seen.has(k)) return; seen.add(k);
+          rows.push({ name: n, email: p.email || null, phone: p.phone || null });
+        });
+        if (rows.length) { const r = await sb.from('suppliers').upsert(rows, { onConflict: 'name', ignoreDuplicates: true }); if (!r.error) await this.loadSuppliers(); }
+      }
+    } catch (e) { console.warn('Madzo admin: supplier backfill skipped', e); }
+  }
+
+  // Called after an order is saved: remember the customer if they're new.
+  async rememberCustomer(name, phone, zone, address) {
+    try {
+      if (this._custMissing) return;
+      const n = String(name || '').trim(); if (!n) return;
+      const k = this.custKey(n, phone);
+      if (this._custKeys && this._custKeys.has(k)) return;
+      const pk = this.phoneKey(phone);
+      const { error } = await window.getSupabase().from('customers').insert({ name: n, phone: String(phone || '').trim() || null, phone_key: pk || null, zone: String(zone || '').trim() || null, address: String(address || '').trim() || null });
+      if (error) { if (this.isMissingTable(error)) { this._custMissing = true; this.setState({ custMissing: true }); } else if (error.code !== '23505') console.warn('Madzo admin: could not save customer', error); return; }
+      this.loadCustomers();
+    } catch (e) { console.warn('Madzo admin: could not save customer', e); }
+  }
+
+  async saveCustomerDraft() {
+    const d = this.state.custDraft || {};
+    const name = String(d.name || '').trim();
+    if (!name) { this.setState({ custErr: 'Please enter the customer name.' }); return; }
+    const phone = String(d.phone || '').trim(), pk = this.phoneKey(phone);
+    const clash = (this.state.dbCustomers || []).find(c => c.id !== d.id && ((pk && c.phoneKey === pk) || (!pk && !c.phoneKey && c.name.trim().toLowerCase() === name.toLowerCase())));
+    if (clash) { this.setState({ custErr: 'This ' + (pk ? 'phone number' : 'name') + ' already belongs to "' + clash.name + '".' }); return; }
+    const row = { name, phone: phone || null, phone_key: pk || null, email: String(d.email || '').trim() || null, zone: String(d.zone || '').trim() || null, address: String(d.address || '').trim() || null, notes: String(d.notes || '').trim() || null, updated_at: new Date().toISOString() };
+    this.setState({ custErr: '', custBusy: true });
+    const sb = window.getSupabase();
+    const res = d.id ? await sb.from('customers').update(row).eq('id', d.id) : await sb.from('customers').insert(row);
+    this.setState({ custBusy: false });
+    if (res.error) {
+      if (this.isMissingTable(res.error)) { this._custMissing = true; this.setState({ custMissing: true, custErr: 'Run madzo-update-7.sql in Supabase first, then save again.' }); return; }
+      this.setState({ custErr: res.error.code === '23505' ? 'This phone number is already saved for another customer.' : res.error.message }); return;
+    }
+    this.setState({ custDraft: null, custErr: '', custSaveMsg: 'Saved ' + name + '.' });
+    setTimeout(() => this.setState({ custSaveMsg: '' }), 3500);
+    await this.loadCustomers();
+  }
+
+  async deleteCustomer(id) {
+    const { error } = await window.getSupabase().from('customers').delete().eq('id', id);
+    this.setState({ custConfirmDel: null });
+    if (error) { this.setState({ custErr: error.message }); return; }
+    this.loadCustomers();
   }
 
   async loadSiteImages() {
@@ -2873,6 +3097,7 @@ class Component extends DCLogic {
       const sb = window.getSupabase();
       const { data, error } = await sb.from('orders').select('*').order('created_at', { ascending: false });
       if (error) throw error;
+      this._ordRows = (data || []).map(o => ({ name: o.customer_name, phone: o.phone, zone: o.zone, address: o.address }));
       this.setState({ dbOrders: (data || []).map(o => ({
         id: o.id, ts: new Date(o.created_at).getTime(), name: o.customer_name, phone: o.phone,
         zone: o.zone, address: o.address, notes: o.notes, lines: o.lines || [], total: o.total, status: o.status,
@@ -3317,8 +3542,27 @@ class Component extends DCLogic {
       badgeColor: o.status === 'new' ? '#9A6E12' : '#1E8A4C'
     }));
 
+    // ---- Customers (saved ones + anyone found in orders) ----
+    const custMap = new Map();
+    (this.state.dbCustomers || []).forEach(c => { const k = c.phoneKey || this.custKey(c.name, c.phone); custMap.set(k, { ...c, key: k, saved: true, orders: [] }); });
+    (this.state.dbOrders || []).forEach(o => {
+      if (!String(o.name || '').trim()) return;
+      const k = this.custKey(o.name, o.phone);
+      let c = custMap.get(k);
+      if (!c) { c = { id: null, name: String(o.name).trim(), phone: o.phone || '', phoneKey: this.phoneKey(o.phone), email: '', zone: o.zone || '', address: o.address || '', notes: '', key: k, saved: false, orders: [], ts: 0 }; custMap.set(k, c); }
+      c.orders.push(o);
+    });
+    const custAll = Array.from(custMap.values()).map(c => ({ ...c, last: c.orders.length ? c.orders[0].ts : 0, spent: c.orders.reduce((a, o) => a + (Number(o.total) || 0), 0) }))
+      .sort((a, b) => (b.last || b.ts || 0) - (a.last || a.ts || 0));
+    const custSuggestions = custAll.filter(c => c.name).slice(0, 400).map(c => ({ name: c.name, phone: c.phone || '' }));
+    const fillFromCust = (cur, c) => ({
+      phone: cur.phone || c.phone || '', zone: cur.zone || c.zone || '', address: cur.address || c.address || ''
+    });
+    const pickByName = (val) => { const v = String(val || '').trim().toLowerCase(); if (!v) return null; const m = custAll.filter(c => c.name.trim().toLowerCase() === v); return m.length === 1 ? m[0] : (m.length ? m[0] : null); };
+    const pickByPhone = (val) => { const k = this.phoneKey(val); if (!k || k.length < 7) return null; return custAll.find(c => c.phoneKey === k) || null; };
+
     const pill = (active) => ({ bg: active ? '#FDF9F4' : 'transparent', color: active ? '#461610' : '#FDF9F4' });
-    const pd = pill(tab === 'dash'), ps = pill(tab === 'stock'), pi = pill(tab === 'images'), po = pill(tab === 'orders'), ppo = pill(tab === 'po'), pinv = pill(tab === 'inv'), pt = pill(tab === 'settings'), phome = pill(tab === 'home'), pnotes = pill(tab === 'notes');
+    const pd = pill(tab === 'dash'), ps = pill(tab === 'stock'), pi = pill(tab === 'images'), po = pill(tab === 'orders'), ppo = pill(tab === 'po'), pinv = pill(tab === 'inv'), pt = pill(tab === 'settings'), phome = pill(tab === 'home'), pnotes = pill(tab === 'notes'), pcust = pill(tab === 'customers');
 
     const setEd = (key) => (e) => this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, [key]: e.target.value }, editOrderErr: '' }));
     const setEdItem = (i, key) => (e) => this.setState(s => {
@@ -3394,8 +3638,8 @@ class Component extends DCLogic {
         }),
         edId: ed.id || '', onEdId: setEd('id'),
         edSource: ed.source || '', onEdSource: setEd('source'),
-        edName: ed.name || '', onEdName: setEd('name'),
-        edPhone: ed.phone || '', onEdPhone: setEd('phone'),
+        edName: ed.name || '', onEdName: (e) => { const v = e.target.value; const c = pickByName(v); this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, name: v, ...(c ? fillFromCust(s.editOrderDraft || {}, c) : {}) }, editOrderErr: '' })); },
+        edPhone: ed.phone || '', onEdPhone: (e) => { const v = e.target.value; const c = pickByPhone(v); this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, phone: v, ...(c ? { name: s.editOrderDraft.name || c.name, zone: s.editOrderDraft.zone || c.zone || '', address: s.editOrderDraft.address || c.address || '' } : {}) }, editOrderErr: '' })); },
         edZone: ed.zone || '', onEdZone: setEd('zone'),
         edAddress: ed.address || '', onEdAddress: setEd('address'),
         edNotes: ed.notes || '', onEdNotes: setEd('notes'),
@@ -3448,12 +3692,18 @@ class Component extends DCLogic {
           if (error) { this.setState({ editOrderErr: this.needsSql(error) ? 'The payment method needs a one-time database update — run madzo-update-3.sql in Supabase, then save again.' : error.message }); return; }
           if (newId !== o.id) await window.getSupabase().from('inventory_batches').delete().eq('source_type', 'sale').eq('source_id', o.id);
           this.syncOrderStock(newId, lines);
+          this.rememberCustomer(patchO.customer_name, patchO.phone, patchO.zone, patchO.address);
           this.setState({ editOrderId: null, editOrderDraft: null, editOrderErr: '' });
           this.loadOrders();
         }
       };
     });
 
+    const custQ = String(this.state.custQuery || '').trim().toLowerCase(), custQD = custQ.replace(/\D/g, '');
+    const custFiltered = custAll.filter(c => !custQ || c.name.toLowerCase().indexOf(custQ) >= 0 || (c.zone || '').toLowerCase().indexOf(custQ) >= 0 || (c.email || '').toLowerCase().indexOf(custQ) >= 0 || (custQD && (c.phone || '').replace(/\D/g, '').indexOf(custQD) >= 0));
+    const custPager = makePager(custFiltered.length, 'custPage');
+    const custPaged = custFiltered.slice((custPager.page - 1) * PAGE_SIZE, custPager.page * PAGE_SIZE);
+    const setCust = (key) => (e) => this.setState(s => ({ custDraft: { ...s.custDraft, [key]: e.target.value }, custErr: '' }));
     const orderPager = makePager(allOrders.length, 'orderPage');
     const pagedOrders = allOrders.slice((orderPager.page - 1) * PAGE_SIZE, orderPager.page * PAGE_SIZE);
 
@@ -3786,7 +4036,7 @@ class Component extends DCLogic {
       doLogin,
       doLogout: () => { window.getSupabase().auth.signOut(); this.setState({ authed: false }); },
 
-      pageMaxCss: tab === 'inv' ? '1500px' : tab === 'notes' ? '1300px' : '1100px',
+      pageMaxCss: tab === 'inv' ? '1500px' : tab === 'customers' ? '1000px' : tab === 'notes' ? '1300px' : '1100px',
       isHome: tab === 'home', isDash: tab === 'dash', isStock: tab === 'inv', isImages: tab === 'images', isOrders: tab === 'orders', isPO: tab === 'po', isInv: false, isInvArea: false, isSettings: tab === 'settings',
       tabDash: () => this.setState({ tab: 'dash' }),
       tabHome: () => this.setState({ tab: 'home' }),
@@ -3823,6 +4073,37 @@ class Component extends DCLogic {
       tInvBg: pinv.bg, tInvColor: pinv.color,
       tDashBg: pd.bg, tDashColor: pd.color, tStockBg: ps.bg, tStockColor: ps.color,
       tImagesBg: pi.bg, tImagesColor: pi.color, tOrdersBg: po.bg, tOrdersColor: po.color, tSettingsBg: pt.bg, tSettingsColor: pt.color,
+
+      tCustBg: pcust.bg, tCustColor: pcust.color, isCustomers: tab === 'customers', tabCustomers: () => this.setState({ tab: 'customers' }),
+      custSuggestions, pagedCusts: custPaged.map(c => {
+        const open = !!(this.state.custOpen || {})[c.key], confirming = this.state.custConfirmDel === c.key;
+        return {
+          initial: (c.name.trim()[0] || '?').toUpperCase(), name: c.name, unsaved: !c.saved,
+          phoneLabel: c.phone || 'No phone number', place: [c.zone, c.email].filter(Boolean).join(' · '),
+          orderLabel: c.orders.length + (c.orders.length === 1 ? ' order' : ' orders'),
+          totalLabel: c.orders.length ? 'Spent ' + Math.round(c.spent) + ' QAR' : '',
+          lastLabel: c.last ? 'Last: ' + new Date(c.last).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Qatar' }) : '',
+          hasOrders: c.orders.length > 0, open, toggleLabel: open ? 'Hide orders' : 'Show orders',
+          toggle: () => this.setState(s => ({ custOpen: { ...s.custOpen, [c.key]: !(s.custOpen || {})[c.key] } })),
+          orders: c.orders.map(o => ({
+            id: o.id, date: new Date(o.ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Qatar' }),
+            items: (o.lines || []).map(l => (l.qty || 1) + '× ' + (l.nameEn || l.name || '')).join(', '), status: o.status || '', total: Math.round(Number(o.total) || 0) + ' QAR'
+          })),
+          editLabel: c.saved ? 'Edit' : 'Save',
+          edit: () => this.setState({ custDraft: { id: c.id, name: c.name, phone: c.phone || '', email: c.email || '', zone: c.zone || '', address: c.address || '', notes: c.notes || '' }, custErr: '' }, () => window.scrollTo(0, 0)),
+          canDelete: c.saved && c.orders.length === 0, delLabel: confirming ? 'Confirm delete' : 'Delete',
+          delAsk: () => { if (confirming) this.deleteCustomer(c.id); else this.setState({ custConfirmDel: c.key }); }
+        };
+      }),
+      custPager, custEmpty: custAll.length === 0, custMissing: this.state.custMissing, custSaveMsg: this.state.custSaveMsg,
+      custCountLabel: custFiltered.length + (custFiltered.length === 1 ? ' customer' : ' customers') + (custQ ? ' found' : ''),
+      custQuery: this.state.custQuery, onCustQuery: (e) => this.setState({ custQuery: e.target.value, custPage: 1 }),
+      custFormOpen: !!this.state.custDraft, custDraft: this.state.custDraft || { name: '', phone: '', email: '', zone: '', address: '', notes: '' },
+      custFormTitle: this.state.custDraft && this.state.custDraft.id ? 'Edit customer' : 'Add customer', custErr: this.state.custErr,
+      custSaveLabel: this.state.custBusy ? 'Saving…' : 'Save customer',
+      custAdd: () => this.setState({ custDraft: { id: null, name: '', phone: '', email: '', zone: '', address: '', notes: '' }, custErr: '' }),
+      custCancel: () => this.setState({ custDraft: null, custErr: '' }), custSave: () => this.saveCustomerDraft(),
+      onCustName: setCust('name'), onCustPhone: setCust('phone'), onCustEmail: setCust('email'), onCustZone: setCust('zone'), onCustAddress: setCust('address'), onCustNotes: setCust('notes'),
       tNotesBg: pnotes.bg, tNotesColor: pnotes.color, isNotes: tab === 'notes', tabNotes: () => this.setState({ tab: 'notes' }),
       stopClick: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }, impMultiple: true, ...this.noteBindings(),
       allOrders, noOrders: allOrders.length === 0,
@@ -4008,7 +4289,8 @@ class Component extends DCLogic {
       },
       newOrder: no,
       newOrderError: this.state.newOrderError,
-      onNOId: setNO('id'), onNOSource: setNO('source'), onNOName: setNO('name'), onNOPhone: setNO('phone'),
+      onNOId: setNO('id'), onNOSource: setNO('source'), onNOName: (e) => { const v = e.target.value; const c = pickByName(v); this.setState(s => ({ newOrder: { ...s.newOrder, name: v, ...(c ? fillFromCust(s.newOrder, c) : {}) }, newOrderError: '' })); },
+      onNOPhone: (e) => { const v = e.target.value; const c = pickByPhone(v); this.setState(s => ({ newOrder: { ...s.newOrder, phone: v, ...(c ? { name: s.newOrder.name || c.name, zone: s.newOrder.zone || c.zone || '', address: s.newOrder.address || c.address || '' } : {}) }, newOrderError: '' })); },
       onNOZone: setNO('zone'), onNOAddress: setNO('address'), onNONotes: setNO('notes'), onNOStatus: setNO('status'),
       onNOPaymentStatus: setNO('paymentStatus'),
       onNOPayMethod: setNO('payMethod'),
@@ -4058,6 +4340,7 @@ class Component extends DCLogic {
         const error = ins.error;
         if (error) { this.setState({ newOrderError: error.message }); return; }
         this.syncOrderStock(id, lines);
+        this.rememberCustomer(orderRow.customer_name, orderRow.phone, orderRow.zone, orderRow.address);
         if (methodNotSaved) alert('Order saved — but its payment method could not be stored yet. Run madzo-update-3.sql in Supabase, then set it from Edit.');
         this.setState({
           showOrderForm: false, newOrderError: '',

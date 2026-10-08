@@ -463,9 +463,29 @@
             <div style="position: relative; flex: 1; min-width: 220px; max-width: 320px;">
               <input value="{{ prodSearch }}" onChange="{{ onProdSearch }}" placeholder="Search by name, ID, brand, category…" style="width: 100%; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13.5px; outline: none; box-sizing: border-box;" style-focus="border-color: #461610;">
             </div>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #857D72;">Sort by
+              <select value="{{ prodSort }}" onChange="{{ onProdSort }}" aria-label="Sort products" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 8px 12px; font-size: 12.5px; outline: none; cursor: pointer; color: #2E2A26;">
+                <option value="default">Default order</option>
+                <option value="sold">🔥 Best selling</option>
+                <option value="views">👁 Most viewed</option>
+                <option value="slow">🐢 Slow movers (least sold)</option>
+              </select>
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #857D72;">Period
+              <select value="{{ statPeriod }}" onChange="{{ onStatPeriod }}" aria-label="Sales and views period" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 8px 12px; font-size: 12.5px; outline: none; cursor: pointer; color: #2E2A26;">
+                <option value="1">Today</option>
+                <option value="7">Last 7 days</option>
+                <option value="30">Last 30 days</option>
+                <option value="90">Last 90 days</option>
+                <option value="0">All time</option>
+              </select>
+            </label>
             <button onClick="{{ toggleCatManager }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 8px 16px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #461610; color: #FDF9F4;">{{ catManagerLabel }}</button>
           </div>
 
+          <sc-if value="{{ viewsNotice }}" hint-placeholder-val="{{ false }}">
+            <div style="background: #F6EDDB; border: 1px solid #E0C9A2; border-radius: 12px; padding: 10px 14px; font-size: 13px; color: #7A5F27; max-width: 680px; margin-bottom: 12px;">View counts aren't being recorded yet — run <strong>madzo-update-8.sql</strong> in Supabase (SQL Editor). Sales counts already work.</div>
+          </sc-if>
           <div style="overflow-x: auto;">
             <div style="min-width: 1330px; display: flex; flex-direction: column; gap: 6px;">
               <div style="display: grid; grid-template-columns: 84px 52px 84px minmax(200px,1fr) 90px 96px 96px 90px 68px 68px 108px 72px 92px; gap: 8px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
@@ -497,7 +517,7 @@
                       </label>
                     </div>
                     <span style="font-size: 12px; color: #857D72; word-break: break-word; line-height: 1.3;">{{ p.brand }}</span>
-                    <div style="font-size: 13.5px; color: #2E2A26; white-space: normal; word-break: break-word; line-height: 1.35;">{{ p.name }}<sc-if value="{{ p.freeItem }}" hint-placeholder-val="{{ false }}"> <span style="display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: #DDF0E2; color: #1E8A4C; vertical-align: 1px; white-space: nowrap;" title="Available in the Sales free-product list">🎁 Free item</span></sc-if></div>
+                    <div style="font-size: 13.5px; color: #2E2A26; white-space: normal; word-break: break-word; line-height: 1.35;">{{ p.name }}<div style="font-size: 11px; color: #A9A091; margin-top: 2px;">{{ p.statLine }}</div><sc-if value="{{ p.freeItem }}" hint-placeholder-val="{{ false }}"> <span style="display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: #DDF0E2; color: #1E8A4C; vertical-align: 1px; white-space: nowrap;" title="Available in the Sales free-product list">🎁 Free item</span></sc-if></div>
                     <span style="font-size: 12px; color: #857D72; word-break: break-word; line-height: 1.3;">{{ p.mainName }}</span>
                     <span style="font-size: 12px; color: #857D72; word-break: break-word; line-height: 1.3;">{{ p.subName }}</span>
                     <span style="font-size: 12px; color: #857D72; word-break: break-word; line-height: 1.3;">{{ p.sub2Name }}</span>
@@ -1913,7 +1933,7 @@ class Component extends DCLogic {
       showCatManager: false, catForm: null, catError: '', savingCat: false, confirmDelCat: null,
       dbSub2Cats: [], sub2Ready: false, stockDraft: {}, delErr: null,
       dbBrands: [], brandsState: 'loading', brandsErr: '', brandBusy: false, brandMsg: '', brandMsgBad: false, newBrandName: '', brandDraft: {}, confirmDelBrand: null,
-      dbCustomers: [], custMissing: false, custQuery: '', custOpen: {}, custDraft: null, custErr: '', custConfirmDel: null, custPage: 1, custSaveMsg: '', notes: [], notesState: 'loading', notesErr: '', noteSection: 'notes', noteQuery: '', noteEd: null, noteImp: null, noteMsg: '', noteMsgBad: false, noteConfirm: null, cardPicker: null, noteLabelEdit: null,
+      dbViews: [], viewsMissing: false, prodSort: 'default', statPeriod: '30', dbCustomers: [], custMissing: false, custQuery: '', custOpen: {}, custDraft: null, custErr: '', custConfirmDel: null, custPage: 1, custSaveMsg: '', notes: [], notesState: 'loading', notesErr: '', noteSection: 'notes', noteQuery: '', noteEd: null, noteImp: null, noteMsg: '', noteMsgBad: false, noteConfirm: null, cardPicker: null, noteLabelEdit: null,
       noteView: (() => { try { return localStorage.getItem('madzo-notes-view') === 'list' ? 'list' : 'masonry'; } catch (e) { return 'masonry'; } })(),
       invView: 'products', newProdFile: null,
       prodFilters: { photo: '', brand: '', id: '', name: '', cat: '', sub: '', sub2: '', expiry: '', buy: '', price: '', stock: '', active: '' },
@@ -1936,7 +1956,7 @@ class Component extends DCLogic {
   }
 
   async loadAll() {
-    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadSuppliers(), this.loadBatches(), this.loadCategories(), this.loadBrands(), this.loadNotes(), this.loadCustomers()]);
+    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadSuppliers(), this.loadBatches(), this.loadCategories(), this.loadBrands(), this.loadNotes(), this.loadCustomers(), this.loadViews()]);
     this.backfillCustomersAndSuppliers();
   }
 
@@ -1981,6 +2001,14 @@ class Component extends DCLogic {
   cats() {
     if (this.state.catsLoaded) return { mains: this.state.dbMainCats, subs: this.state.dbSubCats, subs2: this.state.dbSub2Cats };
     return { ...this.defaultCats(), subs2: [] };
+  }
+
+  async loadViews() {
+    try {
+      const { data, error } = await window.getSupabase().from('product_views').select('*');
+      if (error) throw error;
+      this.setState({ dbViews: (data || []).map(v => ({ sku: v.sku, day: String(v.day).slice(0, 10), views: Number(v.views) || 0 })), viewsMissing: false });
+    } catch (e) { this.setState({ viewsMissing: true }); }
   }
 
   async loadBatches() {
@@ -3336,12 +3364,25 @@ class Component extends DCLogic {
     };
     const parseStock = (v) => Math.max(0, parseInt(v, 10) || 0);
 
+    // ---- sales / views per product over the chosen period ----
+    const periodDays = parseInt(this.state.statPeriod, 10) || 0;
+    const dayStr = (t) => new Date(t + 4 * 3600000).toISOString().slice(0, 10); // Qatar date
+    const cutoffDay = periodDays ? dayStr(Date.now() - (periodDays - 1) * 86400000) : '';
+    const soldBy = {}, viewsBy = {};
+    (this.state.dbOrders || []).forEach(o => {
+      if (String(o.status || '').toLowerCase() === 'cancelled') return;
+      if (cutoffDay && dayStr(o.ts) < cutoffDay) return;
+      (o.lines || []).forEach(l => { if (l.sku && !l.free) soldBy[l.sku] = (soldBy[l.sku] || 0) + (Number(l.qty) || 0); });
+    });
+    (this.state.dbViews || []).forEach(v => { if (!cutoffDay || v.day >= cutoffDay) viewsBy[v.sku] = (viewsBy[v.sku] || 0) + v.views; });
     const adminProducts = prods.map(p => {
       const ex = expInfo(p.expiry);
       const editing = this.state.editSku === p.sku;
       const d = editing ? (this.state.editDraft || {}) : {};
       return {
         sku: p.sku, name: p.name,
+        soldN: soldBy[p.sku] || 0, viewsN: viewsBy[p.sku] || 0,
+        statLine: '🛒 ' + (soldBy[p.sku] || 0) + ' sold' + (this.state.viewsMissing ? '' : ' · 👁 ' + (viewsBy[p.sku] || 0) + ' views'),
         metaLine: mainName(p.mainCat) + ' · ' + this.catLabel(p.catKey) + (p.brand ? ' · ' + p.brand : ''),
         catLabel: this.catLabel(p.catKey),
         brandRaw: p.brand || '', mainId: p.mainCat, subId: p.catKey,
@@ -3517,6 +3558,14 @@ class Component extends DCLogic {
       if (pf.active === 'inactive' && p.active) return false;
       return true;
     });
+    const sortMode = this.state.prodSort || 'default';
+    if (sortMode !== 'default') {
+      const idx = new Map(filteredProducts.map((p, i) => [p.sku, i]));
+      filteredProducts.sort((a, b) => {
+        const d = sortMode === 'sold' ? b.soldN - a.soldN : sortMode === 'views' ? b.viewsN - a.viewsN : a.soldN - b.soldN;
+        return d || (idx.get(a.sku) - idx.get(b.sku));
+      });
+    }
     const setPF = (k) => (e) => this.setState(s => {
       const f = { ...s.prodFilters, [k]: e.target.value };
       if (k === 'cat') { f.sub = ''; f.sub2 = ''; }
@@ -4536,6 +4585,9 @@ class Component extends DCLogic {
       statLow: String(lowCount), lowStockColor: lowCount > 0 ? '#B03A2E' : '#1E8A4C',
       chart, bestSellers, recentOrders, adminProducts, pagedProducts, prodPager,
       prodSearch: this.state.prodSearch,
+      prodSort: this.state.prodSort || 'default', onProdSort: (e) => this.setState({ prodSort: e.target.value, prodPage: 1 }),
+      statPeriod: this.state.statPeriod || '30', onStatPeriod: (e) => this.setState({ statPeriod: e.target.value }),
+      viewsNotice: !!this.state.viewsMissing && this.state.prodSort === 'views',
       onProdSearch: (e) => this.setState({ prodSearch: e.target.value, prodPage: 1 }),
       invSearch: this.state.invSearch,
       onInvSearch: (e) => this.setState({ invSearch: e.target.value, invStockPage: 1, batchPage: 1 }),

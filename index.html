@@ -558,6 +558,17 @@ class Component extends DCLogic {
   // The brand logos are managed in the admin (Images → Our Brands). Until the list has loaded nothing is
   // shown (so a built-in logo never flashes before the real one); if the database list isn't set up yet,
   // the 4 built-in logos are used instead.
+  // Counts a product view (once per visit per product) so the admin can sort by "most viewed".
+  // Fire-and-forget: a failure here must never affect shopping.
+  trackView(sku) {
+    try {
+      this._viewed = this._viewed || new Set();
+      if (!sku || this._viewed.has(sku)) return;
+      this._viewed.add(sku);
+      Promise.resolve(window.getSupabase().rpc('track_product_view', { p_sku: sku })).catch(() => {});
+    } catch (e) { /* ignore */ }
+  }
+
   async loadBrands() {
     try {
       const { data, error } = await window.getSupabase().from('brands').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: true });
@@ -814,7 +825,7 @@ class Component extends DCLogic {
         brand: p.brand, hasBrand: !!p.brand,
         desc: lang === 'ar' ? (p.descAr || p.desc) : p.desc,
         hasDesc: !!(lang === 'ar' ? (p.descAr || p.desc) : p.desc),
-        openDetail: () => this.setState({ detail: p.sku }),
+        openDetail: () => { this.trackView(p.sku); this.setState({ detail: p.sku }); },
         priceLabel: fmt(p.price),
         hasCompare: !!p.compare,
         compareLabel: p.compare ? fmt(p.compare) : '',

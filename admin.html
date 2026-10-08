@@ -242,6 +242,7 @@
       <!-- ---- PRODUCTS / STOCK ---- -->
       <sc-if value="{{ isStock }}" hint-placeholder-val="{{ false }}">
         <section data-screen-label="Products Admin">
+          <sc-if value="{{ idFoundMsg }}" hint-placeholder-val="{{ false }}"><div style="background: #E3F3E8; border: 1px solid #B6DEC3; border-radius: 12px; padding: 10px 14px; font-size: 13px; color: #1F6B3A; max-width: 680px; margin-bottom: 14px;">{{ idFoundMsg }}</div></sc-if>
           <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px;">
             <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Products</h1>
             <span style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -606,6 +607,7 @@
       <!-- ---- ORDERS ---- -->
       <sc-if value="{{ isOrders }}" hint-placeholder-val="{{ false }}">
         <section data-screen-label="Orders Admin">
+          <sc-if value="{{ idFoundMsg }}" hint-placeholder-val="{{ false }}"><div style="background: #E3F3E8; border: 1px solid #B6DEC3; border-radius: 12px; padding: 10px 14px; font-size: 13px; color: #1F6B3A; max-width: 680px; margin-bottom: 14px;">{{ idFoundMsg }}</div></sc-if>
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; flex-wrap: wrap;">
             <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Sales</h1>
             <button onClick="{{ toggleOrderForm }}" style="background: #461610; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #39120D;">{{ orderFormLabel }}</button>
@@ -869,6 +871,7 @@
       <!-- ---- PURCHASE ORDERS ---- -->
       <sc-if value="{{ isPO }}" hint-placeholder-val="{{ false }}">
         <section data-screen-label="Purchase Orders Admin">
+          <sc-if value="{{ idFoundMsg }}" hint-placeholder-val="{{ false }}"><div style="background: #E3F3E8; border: 1px solid #B6DEC3; border-radius: 12px; padding: 10px 14px; font-size: 13px; color: #1F6B3A; max-width: 680px; margin-bottom: 14px;">{{ idFoundMsg }}</div></sc-if>
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; flex-wrap: wrap;">
             <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Purchase orders</h1>
             <span style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -4022,6 +4025,58 @@ class Component extends DCLogic {
       onName: setItem(i, 'name'), onQty: setItem(i, 'qty'), onPrice: setItem(i, 'price'),
       remove: () => this.setState(s => ({ newOrder: { ...s.newOrder, items: s.newOrder.items.filter((_, j) => j !== i) } }))
     }));
+    // ---- Type an existing ID in a "new" form → that record opens for editing ----
+    const sameId = (a, b) => String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
+    const flash = (msg) => { this.setState({ idFoundMsg: msg }); clearTimeout(this._idFoundT); this._idFoundT = setTimeout(() => this.setState({ idFoundMsg: '' }), 4000); };
+    const openProductById = (val) => {
+      const v = String(val || '').trim(); if (!v) return false;
+      const p = prods.find(x => sameId(x.sku, v)); if (!p) return false;
+      this.setState({
+        showAddForm: false, prodSearch: '', prodPage: 1,
+        prodFilters: { photo: '', brand: '', id: p.sku, name: '', cat: '', sub: '', sub2: '', expiry: '', buy: '', price: '', stock: '', active: '' },
+        editSku: p.sku, editError: '',
+        editDraft: {
+          id: p.sku, name: p.name || '', nameAr: p.nameAr || '',
+          mainCat: p.mainCat || 'cosmetics', cat: p.catKey || 'skincare', cat2: p.cat2 || '',
+          brand: p.brand || '', desc: p.desc || '', descAr: p.descAr || '',
+          buyPrice: p.buyPrice ? String(p.buyPrice) : '', price: (p.price == null ? '' : String(p.price)), expiry: p.expiry || '', freeItem: !!p.freeItem
+        }
+      }, () => window.scrollTo(0, 0));
+      flash('Product ' + p.sku + ' already exists — opened for editing.');
+      return true;
+    };
+    const openOrderById = (val) => {
+      const v = String(val || '').trim(); if (!v) return false;
+      const o = orders.find(x => sameId(x.id, v)); if (!o) return false;
+      this.setState({
+        showOrderForm: false, orderSearch: o.id, orderPage: 1, orderDeliveryFilter: 'all', orderPaymentFilter: 'all',
+        editOrderId: o.id, editOrderErr: '',
+        editOrderDraft: {
+          id: o.id, source: o.source && o.source !== 'storefront' ? o.source : '',
+          name: o.name || '', phone: o.phone || '', zone: o.zone || '', address: o.address || '',
+          notes: o.notes || '', status: o.status || 'new', paymentStatus: o.paymentStatus || 'pending', payMethod: o.payMethod || '',
+          items: (o.lines || []).map(l => ({ name: l.name, qty: l.qty, price: l.free ? 0 : Math.round((l.total || 0) / (l.qty || 1)), free: !!l.free, sku: l.sku || '', brand: l.brand || '', nameEn: l.nameEn || '' }))
+        }
+      }, () => window.scrollTo(0, 0));
+      flash('Order ' + o.id + ' already exists — opened for editing.');
+      return true;
+    };
+    const openPOById = (val) => {
+      const v = String(val || '').trim(); if (!v) return false;
+      const prow = pos.find(x => sameId(x.id, v)); if (!prow) return false;
+      this.setState({
+        showPOForm: true, poFormMode: 'edit', poError: '', editingPOOriginalId: prow.id,
+        newPO: {
+          id: prow.id, supplier: prow.supplier, email: prow.email, phone: prow.phone,
+          date: prow.date || today, delivery: prow.delivery || '', terms: prow.terms || 'As Per Agreement',
+          status: prow.status || 'draft', paymentStatus: prow.paymentStatus || 'pending', type: prow.type || 'purchase', refPo: prow.refPo || '', preparedBy: prow.preparedBy, approvedBy: prow.approvedBy,
+          remarks: prow.remarks, items: prow.items.length ? prow.items : [{ code: '', desc: '', unit: 'PC', qty: 1, bonus: 0, unitPrice: '', discount: 0 }]
+        }
+      }, () => window.scrollTo(0, 0));
+      flash('Purchase order ' + prow.id + ' already exists — opened for editing.');
+      return true;
+    };
+
     const newOrderTotalNum = no.items.reduce((a, it) => a + Math.round((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
 
     return {
@@ -4127,7 +4182,7 @@ class Component extends DCLogic {
       },
       newPO: npo,
       poError: this.state.poError,
-      onPOId: setPO('id'), onPOSupplier: onPOSupplierSmart, onPOEmail: setPO('email'), onPOPhone: setPO('phone'),
+      onPOId: (e) => { const v = e.target.value; if (this.state.poFormMode === 'edit' || !openPOById(v)) setPO('id')(e); }, onPOSupplier: onPOSupplierSmart, onPOEmail: setPO('email'), onPOPhone: setPO('phone'),
       onPODate: setPO('date'), onPODelivery: setPO('delivery'), onPOTerms: setPO('terms'), onPOStatus: setPO('status'),
       onPOPaymentStatus: setPO('paymentStatus'),
       onPOPreparedBy: setPO('preparedBy'), onPOApprovedBy: setPO('approvedBy'), onPORemarks: setPO('remarks'),
@@ -4289,7 +4344,7 @@ class Component extends DCLogic {
       },
       newOrder: no,
       newOrderError: this.state.newOrderError,
-      onNOId: setNO('id'), onNOSource: setNO('source'), onNOName: (e) => { const v = e.target.value; const c = pickByName(v); this.setState(s => ({ newOrder: { ...s.newOrder, name: v, ...(c ? fillFromCust(s.newOrder, c) : {}) }, newOrderError: '' })); },
+      onNOId: (e) => { const v = e.target.value; if (!openOrderById(v)) setNO('id')(e); }, onNOSource: setNO('source'), onNOName: (e) => { const v = e.target.value; const c = pickByName(v); this.setState(s => ({ newOrder: { ...s.newOrder, name: v, ...(c ? fillFromCust(s.newOrder, c) : {}) }, newOrderError: '' })); },
       onNOPhone: (e) => { const v = e.target.value; const c = pickByPhone(v); this.setState(s => ({ newOrder: { ...s.newOrder, phone: v, ...(c ? { name: s.newOrder.name || c.name, zone: s.newOrder.zone || c.zone || '', address: s.newOrder.address || c.address || '' } : {}) }, newOrderError: '' })); },
       onNOZone: setNO('zone'), onNOAddress: setNO('address'), onNONotes: setNO('notes'), onNOStatus: setNO('status'),
       onNOPaymentStatus: setNO('paymentStatus'),
@@ -4384,7 +4439,8 @@ class Component extends DCLogic {
       savingProd: !!this.state.savingProd,
       savingProdOpacity: this.state.savingProd ? '0.6' : '1',
       saveProdLabel: this.state.savingProd ? 'Translating & saving…' : 'Save product',
-      onNewId: (e) => this.setState(s => ({ newProd: { ...s.newProd, id: e.target.value } })),
+      onNewId: (e) => { const v = e.target.value; if (!openProductById(v)) this.setState(s => ({ newProd: { ...s.newProd, id: v } })); },
+      idFoundMsg: this.state.idFoundMsg || '',
       newMainVal: resolveCat(this.state.newProd.mainCat, this.state.newProd.cat).main,
       newCatVal: resolveCat(this.state.newProd.mainCat, this.state.newProd.cat).cat,
       newMainOptions: mainOptionsFor(resolveCat(this.state.newProd.mainCat, this.state.newProd.cat).main),

@@ -24,6 +24,28 @@
     .madzo-scroll-row { scrollbar-width: none; -ms-overflow-style: none; }
     .madzo-scroll-row::-webkit-scrollbar { display: none; height: 0; }
     .madzo-desk-only { display: none; }
+    /* All-categories panel */
+    @keyframes madzo-mega-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+    .madzo-mega { animation: madzo-mega-in .18s ease-out; }
+    .madzo-mega-tabs { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 22px), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 22px), transparent 100%); }
+    .madzo-mega-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; align-items: start; }
+    .madzo-mega-card { border: 1px solid rgba(70,22,16,.10); border-radius: 14px; padding: 12px 14px 10px; transition: transform .12s, box-shadow .12s; }
+    .madzo-mega-card:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(60,30,25,.14); }
+    .madzo-mega-ico { flex: none; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.78); display: flex; align-items: center; justify-content: center; font-size: 18px; line-height: 1; box-shadow: 0 1px 3px rgba(60,30,25,.12); }
+    .madzo-mega-arr { flex: none; width: 34px; height: 34px; border-radius: 50%; background: rgba(253,249,244,.8); border: 1px solid rgba(70,22,16,.16); color: #461610; cursor: pointer; font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+    .madzo-mega-arr:hover { background: #FDF9F4; }
+    .madzo-mega-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; font-size: 15px; font-weight: 700; color: #2E2A26; padding: 2px 0 4px; }
+    .madzo-mega-head:hover { color: #461610; }
+    .madzo-mega-head .madzo-mega-arrow { color: #A78B82; transition: transform .12s, color .12s; }
+    .madzo-mega-head:hover .madzo-mega-arrow { color: #461610; transform: translateX(2px); }
+    .madzo-mega-sublist { border-top: 1px solid rgba(70,22,16,.14); margin-top: 6px; padding-top: 6px; }
+    .madzo-mega-sub { display: block; position: relative; cursor: pointer; padding: 5px 0; padding-inline-start: 14px; font-size: 14px; color: #5A3B34; }
+    .madzo-mega-sub::before { content: ''; position: absolute; inset-inline-start: 2px; top: 50%; width: 4px; height: 4px; border-radius: 50%; background: rgba(70,22,16,.38); transform: translateY(-50%); }
+    .madzo-mega-sub:hover { color: #461610; text-decoration: underline; text-underline-offset: 3px; }
+    .madzo-mega-tab { cursor: pointer; white-space: nowrap; border-radius: 999px; padding: 8px 16px; font-size: 15px; text-decoration: none; transition: background .12s, color .12s; }
+    .madzo-mega-tab:hover { background: rgba(70,22,16,.09); }
+    @media (max-width: 560px) { .madzo-mega-arr { display: none; } .madzo-mega-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; } .madzo-mega-tab { padding: 7px 13px; font-size: 14px; } }
+    @media (prefers-reduced-motion: reduce) { .madzo-mega { animation: none; } }
     /* the hamburger menu: a slim side drawer that slides in from the edge */
     @keyframes madzo-drawer-ltr { from { transform: translateX(-100%); } to { transform: translateX(0); } }
     @keyframes madzo-drawer-rtl { from { transform: translateX(100%); } to { transform: translateX(0); } }
@@ -124,26 +146,32 @@
       </div>
     </sc-if>
   <sc-if value="{{ megaOpen }}" hint-placeholder-val="{{ false }}">
-      <div role="region" aria-label="All categories" style="background: linear-gradient(180deg, rgba(70,22,16,.16) 0, rgba(233,217,206,.74) 64px, rgba(233,217,206,.74) 100%); -webkit-backdrop-filter: blur(10px) saturate(1.1); backdrop-filter: blur(10px) saturate(1.1); border-bottom: 1px solid rgba(70,22,16,.18); box-shadow: 0 6px 14px rgba(60,30,25,.10);">
+      <div class="madzo-mega" role="region" aria-label="All categories" style="background: linear-gradient(180deg, rgba(70,22,16,.16) 0, rgba(233,217,206,.80) 64px, rgba(233,217,206,.80) 100%); -webkit-backdrop-filter: blur(10px) saturate(1.1); backdrop-filter: blur(10px) saturate(1.1); border-bottom: 1px solid rgba(70,22,16,.18); box-shadow: 0 6px 14px rgba(60,30,25,.10);">
         <div style="max-width: 1400px; margin: 0 auto; padding: 0 18px;">
-          <div style="display: flex; align-items: center; border-bottom: 1px solid rgba(70,22,16,.16);">
-            <div class="madzo-scroll-row" style="flex: 1; min-width: 0; display: flex; gap: 6px 32px; overflow-x: auto; justify-content: safe center;">
+          <div style="display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid rgba(70,22,16,.14);">
+            <button class="madzo-mega-arr" onClick="{{ megaTabsLeft }}" aria-label="Scroll categories left">‹</button>
+            <div id="madzo-mega-tabs" class="madzo-scroll-row madzo-mega-tabs" style="flex: 1; min-width: 0; display: flex; gap: 6px; overflow-x: auto; justify-content: safe center; padding: 2px 10px;">
               <sc-for list="{{ megaTabs }}" as="mt" hint-placeholder-count="4">
-                <a onClick="{{ mt.pick }}" style="cursor: pointer; white-space: nowrap; padding: 16px 2px 12px; font-size: 16px; font-weight: {{ mt.weight }}; color: {{ mt.color }}; border-bottom: 2px solid {{ mt.line }}; text-decoration: none;">{{ mt.label }}</a>
+                <a class="madzo-mega-tab" onClick="{{ mt.pick }}" style="background: {{ mt.bg }}; color: {{ mt.color }}; font-weight: {{ mt.weight }};">{{ mt.emoji }} {{ mt.label }}</a>
               </sc-for>
             </div>
-            <button onClick="{{ closeMega }}" aria-label="Close" style="flex: none; background: none; border: none; color: #6A4139; cursor: pointer; font-size: 24px; line-height: 1; padding: 4px 6px; margin-inline-start: 10px;">×</button>
+            <button class="madzo-mega-arr" onClick="{{ megaTabsRight }}" aria-label="Scroll categories right">›</button>
+            <button onClick="{{ closeMega }}" aria-label="Close" style="flex: none; width: 34px; height: 34px; border-radius: 50%; background: rgba(253,249,244,.7); border: 1px solid rgba(70,22,16,.14); color: #461610; cursor: pointer; font-size: 20px; line-height: 1; display: flex; align-items: center; justify-content: center;" style-hover="background: #FDF9F4;">×</button>
           </div>
-          <div style="padding: 20px 6px 30px;">
-            <a onClick="{{ megaViewAll }}" style="cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; color: #461610; text-decoration: none;">{{ megaViewAllLabel }} <span>{{ t.chev }}</span></a>
+          <div class="madzo-mega-body" style="padding: 16px 4px 24px;">
+            <a onClick="{{ megaViewAll }}" style="cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 14.5px; font-weight: 700; color: #FDF9F4; background: #461610; border-radius: 999px; padding: 9px 18px; text-decoration: none;" style-hover="background: #39120D;">{{ megaViewAllLabel }} <span>{{ t.chev }}</span></a>
             <sc-if value="{{ megaHasSubs }}" hint-placeholder-val="{{ true }}">
-              <div style="margin-top: 16px; column-width: 220px; column-gap: 44px;">
+              <div class="madzo-mega-grid" style="margin-top: 16px;">
                 <sc-for list="{{ megaGroups }}" as="mg" hint-placeholder-count="4">
-                  <div style="break-inside: avoid; margin-bottom: 18px;">
-                    <a onClick="{{ mg.open }}" style="display: block; cursor: pointer; padding: 4px 0 6px; font-size: 15px; font-weight: 700; color: #2E2A26; text-decoration: none;" style-hover="color: #461610;">{{ mg.label }}</a>
-                    <sc-for list="{{ mg.items }}" as="mi" hint-placeholder-count="3">
-                      <a onClick="{{ mi.open }}" style="display: block; cursor: pointer; padding: 5px 0; font-size: 14.5px; color: #5A3B34; text-decoration: none;" style-hover="color: #461610;">{{ mi.label }}</a>
-                    </sc-for>
+                  <div class="madzo-mega-card" style="background: {{ mg.bg }}; border-top: 4px solid {{ mg.accent }};">
+                    <a class="madzo-mega-head" onClick="{{ mg.open }}"><span style="display: flex; align-items: center; gap: 10px; min-width: 0;"><span class="madzo-mega-ico">{{ mg.emoji }}</span><span>{{ mg.label }}</span></span><span class="madzo-mega-arrow">{{ t.chev }}</span></a>
+                    <sc-if value="{{ mg.hasItems }}" hint-placeholder-val="{{ false }}">
+                      <div class="madzo-mega-sublist">
+                        <sc-for list="{{ mg.items }}" as="mi" hint-placeholder-count="3">
+                          <a class="madzo-mega-sub" onClick="{{ mi.open }}">{{ mi.emoji }} {{ mi.label }}</a>
+                        </sc-for>
+                      </div>
+                    </sc-if>
                   </div>
                 </sc-for>
               </div>
@@ -815,6 +843,19 @@ class Component extends DCLogic {
     const fmt = (n) => lang === 'ar' ? `${n} ر.ق` : `${n} QAR`;
     const go = (screen, extra) => () => { this.setState({ screen, error: '', menuOpen: false, searchOpen: false, megaOpen: false, query: '', detail: null, ...(extra || {}) }); window.scrollTo(0, 0); };
 
+    // A friendly picture for every category, picked from its name (English or Arabic). Falls back to ✨.
+    const MEGA_PALETTE = [['#F6DCD7', '#D98C84'], ['#F6E6C8', '#D9AE62'], ['#DDE9D2', '#8DB27A'], ['#D8E6EE', '#7FA7BF'], ['#E7DDF0', '#A58CC4'], ['#F9DDC9', '#E39A6B'], ['#D5EBE2', '#6FB59B'], ['#F2E2B9', '#C9A24A']];
+    const EMOJI_RULES = [
+      [/night|ليل/, '🌙'], [/sun|spf|واقي|شمس/, '☀️'], [/eye ?cream|eye care|عين/, '👁️'], [/mask|ماسك|قناع/, '🎭'], [/exfol|scrub|peel|تقشير|مقشر/, '✨'],
+      [/cleans|wash|foam|غسول/, '🫧'], [/toner|تونر/, '💧'], [/mist|رذاذ|بخاخ/, '🌫️'], [/serum|سيروم|ampoule/, '🧪'], [/acne|blemish|حب الشباب|بثور/, '🩹'],
+      [/moistur|lotion|hydrat|مرطب|لوشن/, '💦'], [/balm|بلسم/, '🌿'], [/cream|كريم/, '🧴'], [/lip|شفاه|شفاة/, '💋'], [/nail|polish|أظافر|اظافر/, '💅'],
+      [/mascara|eyeliner|eye ?shadow|brow|lash|رموش|حواجب/, '👁️'], [/foundation|concealer|powder|primer|blush|contour|فاونديشن|بودرة|كونسيلر/, '🎨'], [/makeup|make-up|cosmetic|مكياج/, '💄'],
+      [/shampoo|conditioner|hair oil|hair|شعر|شامبو/, '💇'], [/perfume|fragrance|scent|cologne|oud|عطر|عود|بخور/, '🌸'], [/bath|shower|soap|body|استحمام|جسم|صابون/, '🛁'],
+      [/\bmen\b|\bmen's\b|\bman\b|groom|beard|shav|رجال|حلاق|لحية/, '🧔'], [/brush|sponge|tool|accessor|فرش|فرشاة|أدوات|اكسسوار|إكسسوار/, '🖌️'], [/jewel|ring|necklace|مجوهرات|خاتم/, '💍'],
+      [/baby|kid|طفل|أطفال/, '🍼'], [/gift|\bsets?\b|هدي|طقم/, '🎁'], [/skin|face|facial|وجه|بشرة/, '🌷'], [/personal|hygiene|deodor|care|عناية|شخصي/, '🧼']
+    ];
+    const catEmoji = (name) => { const n = String(name || '').toLowerCase(); for (let i = 0; i < EMOJI_RULES.length; i++) if (EMOJI_RULES[i][0].test(n)) return EMOJI_RULES[i][1]; return '✨'; };
+
     const decorate = (p) => {
       const qty = cart[p.sku] || 0;
       const low = p.stock > 0 && p.stock <= 2;
@@ -961,18 +1002,21 @@ class Component extends DCLogic {
       openMega: () => this.setState({ megaOpen: true, menuOpen: false, searchOpen: false }, () => window.scrollTo({ top: 0, behavior: 'smooth' })),
       toggleMega: () => this.setState(st => ({ megaOpen: !st.megaOpen, menuOpen: false, searchOpen: false }), () => { if (this.state.megaOpen) window.scrollTo({ top: 0, behavior: 'smooth' }); }),
       closeMega: () => this.setState({ megaOpen: false }),
+      megaTabsLeft: () => { const el = document.getElementById('madzo-mega-tabs'); if (el) el.scrollBy({ left: -260, behavior: 'smooth' }); },
+      megaTabsRight: () => { const el = document.getElementById('madzo-mega-tabs'); if (el) el.scrollBy({ left: 260, behavior: 'smooth' }); },
       megaTabs: mainsSrc.map(m => {
         const on = !!megaActive && m.id === megaActive.id;
-        return { key: m.id, label: loc(m), weight: on ? 700 : 400, color: on ? '#461610' : '#6A4139', line: on ? '#461610' : 'transparent', pick: () => this.setState({ megaMain: m.id }) };
+        return { key: m.id, label: loc(m), emoji: catEmoji(m.name + ' ' + (m.nameAr || '')), weight: on ? 600 : 500, color: on ? '#FDF9F4' : '#5A3B34', bg: on ? '#461610' : 'transparent', pick: () => this.setState({ megaMain: m.id }) };
       }),
       megaViewAllLabel: megaActive ? t.viewAll + ' ' + loc(megaActive) : t.viewAll,
       megaViewAll: megaActive ? go('shop', { filter: 'main:' + megaActive.id }) : go('shop', { filter: 'all' }),
       megaHasSubs: megaSubsList.length > 0,
       megaNoSubs: megaSubsList.length === 0,
       // Each sub category is a group; its optional Sub category II items are listed under it.
-      megaGroups: megaSubsList.map(s => {
+      megaGroups: megaSubsList.map((s, i) => {
         const kids = this.state.dbSub2Cats.filter(x => x.sub === s.id);
-        return { key: s.id, label: loc(s), open: go('shop', { filter: s.id }), hasItems: kids.length > 0, items: kids.map(x => ({ key: x.id, label: loc(x), open: go('shop', { filter: 'sub2:' + x.id }) })) };
+        const pal = MEGA_PALETTE[i % MEGA_PALETTE.length];
+        return { key: s.id, label: loc(s), emoji: catEmoji(s.name + ' ' + (s.nameAr || '')), bg: pal[0], accent: pal[1], open: go('shop', { filter: s.id }), hasItems: kids.length > 0, items: kids.map(x => ({ key: x.id, label: loc(x), emoji: catEmoji(x.name + ' ' + (x.nameAr || '')), open: go('shop', { filter: 'sub2:' + x.id }) })) };
       }),
 
       // Our Brands: the logo set is repeated so the slider can loop forever (copies are hidden from screen readers)

@@ -100,6 +100,18 @@
         </sc-for>
       </datalist>
 
+      <!-- products offered while typing in the order forms -->
+      <datalist id="madzo-sale-prods">
+        <sc-for list="{{ prodOptions }}" as="spo" hint-placeholder-count="5">
+          <option value="{{ spo.label }}" label="{{ spo.sku }}"></option>
+        </sc-for>
+      </datalist>
+      <datalist id="madzo-sale-free">
+        <sc-for list="{{ freeProdOptions }}" as="sfo" hint-placeholder-count="3">
+          <option value="{{ sfo.label }}" label="{{ sfo.sku }}"></option>
+        </sc-for>
+      </datalist>
+
       <!-- every saved customer, offered while typing a name or phone on an order -->
       <datalist id="madzo-cust-names">
         <sc-for list="{{ custSuggestions }}" as="csg" hint-placeholder-count="5">
@@ -517,7 +529,7 @@
                       </label>
                     </div>
                     <span style="font-size: 12px; color: #857D72; word-break: break-word; line-height: 1.3;">{{ p.brand }}</span>
-                    <div style="font-size: 13.5px; color: #2E2A26; white-space: normal; word-break: break-word; line-height: 1.35;">{{ p.name }}<div style="font-size: 11px; color: #A9A091; margin-top: 2px;">{{ p.statLine }}</div><sc-if value="{{ p.freeItem }}" hint-placeholder-val="{{ false }}"> <span style="display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: #DDF0E2; color: #1E8A4C; vertical-align: 1px; white-space: nowrap;" title="Available in the Sales free-product list">🎁 Free item</span></sc-if></div>
+                    <div style="font-size: 13.5px; color: #2E2A26; white-space: normal; word-break: break-word; line-height: 1.35;">{{ p.name }}<sc-if value="{{ p.statLine }}" hint-placeholder-val="{{ false }}"><div style="font-size: 11px; color: #A9A091; margin-top: 2px;">{{ p.statLine }}</div></sc-if><sc-if value="{{ p.freeItem }}" hint-placeholder-val="{{ false }}"> <span style="display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: #DDF0E2; color: #1E8A4C; vertical-align: 1px; white-space: nowrap;" title="Available in the Sales free-product list">🎁 Free item</span></sc-if></div>
                     <span style="font-size: 12px; color: #857D72; word-break: break-word; line-height: 1.3;">{{ p.mainName }}</span>
                     <span style="font-size: 12px; color: #857D72; word-break: break-word; line-height: 1.3;">{{ p.subName }}</span>
                     <span style="font-size: 12px; color: #857D72; word-break: break-word; line-height: 1.3;">{{ p.sub2Name }}</span>
@@ -697,18 +709,8 @@
 
               <h3 style="font-size: 13.5px; font-weight: 600; margin: 6px 0 0; color: #2E2A26;">Items</h3>
               <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                <select value="" onChange="{{ onPickProduct }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; outline: none; cursor: pointer; max-width: 320px;">
-                  <option value="">+ Add from products…</option>
-                  <sc-for list="{{ prodOptions }}" as="op" hint-placeholder-count="3">
-                    <option value="{{ op.sku }}">{{ op.label }}</option>
-                  </sc-for>
-                </select>
-                <select value="" onChange="{{ onPickFreeProduct }}" style="background: #F1ECE2; border: 1px solid #1E8A4C; color: #1E8A4C; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; outline: none; cursor: pointer; max-width: 260px;">
-                  <option value="">🎁 Add free product…</option>
-                  <sc-for list="{{ freeProdOptions }}" as="fp" hint-placeholder-count="3">
-                    <option value="{{ fp.sku }}">{{ fp.label }}</option>
-                  </sc-for>
-                </select>
+                <input value="{{ pickNO }}" onChange="{{ onPickProduct }}" onKeyDown="{{ onPickProductKey }}" list="madzo-sale-prods" autocomplete="off" placeholder="+ Add from products… (type to search)" aria-label="+ Add from products… (type to search)" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; outline: none; width: 260px; max-width: 100%;" style-focus="border-color: #461610;">
+                <input value="{{ pickNOF }}" onChange="{{ onPickFreeProduct }}" onKeyDown="{{ onPickFreeProductKey }}" list="madzo-sale-free" autocomplete="off" placeholder="🎁 Add free product… (type)" aria-label="🎁 Add free product… (type)" style="background: #F1ECE2; border: 1px solid #1E8A4C; color: #1E8A4C; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; outline: none; width: 210px; max-width: 100%;" style-focus="border-color: #461610;">
                 <sc-if value="{{ noFreeProds }}" hint-placeholder-val="{{ false }}"><span style="font-size: 11.5px; color: #A9A091; align-self: center;">No product is marked as a free item yet — Products → Edit → tick “Can be given as a free product”.</span></sc-if>
                 <button onClick="{{ addOrderItem }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 9px 16px; font-size: 12.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">+ Add custom item</button>
               </div>
@@ -745,15 +747,15 @@
           </sc-if>
           <div style="overflow-x: auto;">
             <div style="min-width: 820px; display: flex; flex-direction: column; gap: 6px;">
-              <div style="display: grid; grid-template-columns: 18px minmax(140px,1fr) 120px 84px 92px 88px auto; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
-                <span></span><span>Customer</span><span>Order</span><span>Items</span><span>Total</span><span>Status</span><span>Payment</span><span></span>
+              <div style="display: grid; grid-template-columns: 18px minmax(140px,1fr) 190px 84px 92px 88px 96px 262px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                <span></span><span>Customer</span><span>Order · Date &amp; time</span><span>Items</span><span>Total</span><span>Status</span><span>Payment</span><span></span>
               </div>
               <sc-for list="{{ pagedOrders }}" as="o" hint-placeholder-count="6">
                 <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px;">
-                  <div onClick="{{ o.toggleDetails }}" style="display: grid; grid-template-columns: 18px minmax(140px,1fr) 120px 84px 92px 88px 96px auto; gap: 10px; align-items: center; padding: 9px 14px; cursor: pointer;">
+                  <div onClick="{{ o.toggleDetails }}" style="display: grid; grid-template-columns: 18px minmax(140px,1fr) 190px 84px 92px 88px 96px 262px; gap: 10px; align-items: center; padding: 9px 14px; cursor: pointer;">
                     <span style="color: #461610; font-size: 11px;">{{ o.chevron }}</span>
                     <span style="font-weight: 600; font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ o.name }}</span>
-                    <span style="font-size: 11.5px; color: #B0A697; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ o.meta }}</span>
+                    <span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-size: 12px; font-weight: 600; color: #8A7F70;">{{ o.metaId }}</span><span style="font-size: 11.5px; color: #8F8576; white-space: nowrap; direction: ltr; text-align: start;">{{ o.metaWhen }}</span></span>
                     <span style="font-size: 12px; color: #5C554B;">{{ o.itemCount }}</span>
                     <span style="font-weight: 600; font-size: 13.5px; color: #2E2A26;">{{ o.total }}</span>
                     <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ o.badgeBg }}; color: {{ o.badgeColor }}; text-align: center; white-space: nowrap;">{{ o.status }}</span>
@@ -832,18 +834,8 @@
 
                     <h3 style="font-size: 13px; font-weight: 600; margin: 4px 0 0; color: #2E2A26;">Items</h3>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                      <select value="" onChange="{{ o.onEdPickProduct }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 13px; outline: none; cursor: pointer; max-width: 300px;">
-                        <option value="">+ Add from products…</option>
-                        <sc-for list="{{ prodOptions }}" as="op" hint-placeholder-count="3">
-                          <option value="{{ op.sku }}">{{ op.label }}</option>
-                        </sc-for>
-                      </select>
-                      <select value="" onChange="{{ o.onEdPickFreeProduct }}" style="background: #F1ECE2; border: 1px solid #1E8A4C; color: #1E8A4C; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; outline: none; cursor: pointer; max-width: 260px;">
-                        <option value="">🎁 Add free product…</option>
-                        <sc-for list="{{ freeProdOptions }}" as="fp" hint-placeholder-count="3">
-                          <option value="{{ fp.sku }}">{{ fp.label }}</option>
-                        </sc-for>
-                      </select>
+                      <input value="{{ o.edPick }}" onChange="{{ o.onEdPickProduct }}" onKeyDown="{{ o.onEdPickProductKey }}" list="madzo-sale-prods" autocomplete="off" placeholder="+ Add from products… (type to search)" aria-label="+ Add from products… (type to search)" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 13.5px; outline: none; width: 260px; max-width: 100%;" style-focus="border-color: #461610;">
+                      <input value="{{ o.edPickF }}" onChange="{{ o.onEdPickFreeProduct }}" onKeyDown="{{ o.onEdPickFreeProductKey }}" list="madzo-sale-free" autocomplete="off" placeholder="🎁 Add free product… (type)" aria-label="🎁 Add free product… (type)" style="background: #F1ECE2; border: 1px solid #1E8A4C; color: #1E8A4C; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; outline: none; width: 210px; max-width: 100%;" style-focus="border-color: #461610;">
                       <sc-if value="{{ noFreeProds }}" hint-placeholder-val="{{ false }}"><span style="font-size: 11.5px; color: #A9A091; align-self: center;">No product is marked as a free item yet — Products → Edit → tick “Can be given as a free product”.</span></sc-if>
                       <button onClick="{{ o.addEdItem }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">+ Add custom item</button>
                     </div>
@@ -1405,7 +1397,41 @@
           <div style="position: relative; margin-bottom: 14px; max-width: 340px;">
             <input value="{{ custQuery }}" onChange="{{ onCustQuery }}" placeholder="Search name, phone, area…" style="width: 100%; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13.5px; outline: none;" style-focus="border-color: #461610;">
           </div>
+          <div style="display: inline-flex; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 999px; padding: 3px; margin: 0 0 14px 12px; vertical-align: top;">
+            <button onClick="{{ custViewCustomersBtn }}" style="border: none; border-radius: 999px; padding: 6px 16px; font-size: 12.5px; cursor: pointer; background: {{ custTabCustBg }}; color: {{ custTabCustColor }}; font-weight: 600;">Customers</button>
+            <button onClick="{{ custViewOrdersBtn }}" style="border: none; border-radius: 999px; padding: 6px 16px; font-size: 12.5px; cursor: pointer; background: {{ custTabOrdBg }}; color: {{ custTabOrdColor }}; font-weight: 600;">Order details</button>
+          </div>
           <div style="color: #857D72; font-size: 12.5px; margin-bottom: 10px;">{{ custCountLabel }}</div>
+          <sc-if value="{{ custViewOrders }}" hint-placeholder-val="{{ false }}">
+            <div style="overflow-x: auto;">
+              <div style="min-width: 900px; display: flex; flex-direction: column; gap: 6px;">
+                <div style="display: grid; grid-template-columns: 150px minmax(120px,1fr) 100px 84px 86px 92px 84px 84px 56px; gap: 10px; align-items: center; padding: 2px 8px; font-size: 10.5px; letter-spacing: .5px; text-transform: uppercase; color: #A9A091;">
+                  <span>Date &amp; time</span><span>Customer name</span><span>Platform</span><span>Total cost</span><span>Status</span><span>Payment status</span><span>Payment method</span><span>Invoice</span><span>Edit</span>
+                </div>
+                <sc-for list="{{ pagedCustOrders }}" as="co" hint-placeholder-count="4">
+                  <div style="display: grid; grid-template-columns: 150px minmax(120px,1fr) 100px 84px 86px 92px 84px 84px 56px; gap: 10px; align-items: center; background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 10px 8px;">
+                    <span style="font-size: 12.5px; color: #2E2A26; direction: ltr; text-align: start;">{{ co.when }}<span style="display: block; font-size: 10.5px; color: #A9A091;">{{ co.id }}</span></span>
+                    <span style="font-size: 12.5px; color: #2E2A26; font-weight: 600;">{{ co.name }}<span style="display: block; font-size: 10.5px; font-weight: 400; color: #A9A091; direction: ltr; text-align: start;">{{ co.phone }}</span></span>
+                    <span style="font-size: 12.5px; color: #2E2A26;">{{ co.platform }}</span>
+                    <span style="font-size: 12.5px; color: #2E2A26; font-weight: 600;">{{ co.total }}</span>
+                    <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ co.statusBg }}; color: {{ co.statusColor }}; text-align: center; justify-self: start;">{{ co.status }}</span>
+                    <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ co.payBg }}; color: {{ co.payColor }}; text-align: center; justify-self: start;">{{ co.payLabel }}</span>
+                    <span style="font-size: 12.5px; color: #2E2A26;">{{ co.method }}</span>
+                    <button onClick="{{ co.invoice }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 4px 10px; font-size: 11px; cursor: pointer; justify-self: start;" style-hover="background: #461610; color: #FDF9F4;">🖨 Invoice</button>
+                    <button onClick="{{ co.edit }}" style="background: none; border: 1px solid #D8CCBC; color: #461610; border-radius: 999px; padding: 4px 10px; font-size: 11px; cursor: pointer; justify-self: start;" style-hover="border-color: #461610;">Edit</button>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <sc-if value="{{ custOrdPager.show }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 16px;">
+                <button onClick="{{ custOrdPager.prev }}" disabled="{{ custOrdPager.atStart }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ custOrdPager.prevOpacity }};">← Prev</button>
+                <span style="font-size: 12.5px; color: #857D72;">{{ custOrdPager.label }}</span>
+                <button onClick="{{ custOrdPager.next }}" disabled="{{ custOrdPager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ custOrdPager.nextOpacity }};">Next →</button>
+              </div>
+            </sc-if>
+          </sc-if>
+          <sc-if value="{{ custViewCustomers }}" hint-placeholder-val="{{ true }}">
           <sc-if value="{{ custEmpty }}" hint-placeholder-val="{{ false }}"><p style="color: #857D72; font-size: 14px;">No customers yet — they appear here as soon as an order is placed.</p></sc-if>
           <div style="display: flex; flex-direction: column; gap: 10px;">
             <sc-for list="{{ pagedCusts }}" as="c" hint-placeholder-count="3">
@@ -1430,15 +1456,26 @@
                 </div>
                 <sc-if value="{{ c.open }}" hint-placeholder-val="{{ false }}">
                   <div style="margin-top: 12px; border-top: 1px solid #EFE6D8; padding-top: 10px; display: flex; flex-direction: column; gap: 8px;">
-                    <sc-for list="{{ c.orders }}" as="co" hint-placeholder-count="2">
-                      <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: baseline; font-size: 13px;">
-                        <span style="font-weight: 600; color: #461610; min-width: 84px;">{{ co.id }}</span>
-                        <span style="color: #857D72; min-width: 86px;">{{ co.date }}</span>
-                        <span style="color: #2E2A26; flex: 1; min-width: 160px;">{{ co.items }}</span>
-                        <span style="color: #857D72;">{{ co.status }}</span>
-                        <span style="font-weight: 600; color: #2E2A26;">{{ co.total }}</span>
+                    <div style="overflow-x: auto;">
+                      <div style="min-width: 900px; display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: grid; grid-template-columns: 150px minmax(120px,1fr) 100px 84px 86px 92px 84px 84px 56px; gap: 10px; align-items: center; padding: 2px 8px; font-size: 10.5px; letter-spacing: .5px; text-transform: uppercase; color: #A9A091;">
+                          <span>Date &amp; time</span><span>Customer name</span><span>Platform</span><span>Total cost</span><span>Status</span><span>Payment status</span><span>Payment method</span><span>Invoice</span><span>Edit</span>
+                        </div>
+                        <sc-for list="{{ c.orders }}" as="co" hint-placeholder-count="2">
+                          <div style="display: grid; grid-template-columns: 150px minmax(120px,1fr) 100px 84px 86px 92px 84px 84px 56px; gap: 10px; align-items: center; background: #F6F0E6; border-radius: 10px; padding: 8px;">
+                            <span style="font-size: 12.5px; color: #2E2A26; direction: ltr; text-align: start;">{{ co.when }}<span style="display: block; font-size: 10.5px; color: #A9A091;">{{ co.id }}</span></span>
+                            <span style="font-size: 12.5px; color: #2E2A26; font-weight: 600;">{{ co.name }}</span>
+                            <span style="font-size: 12.5px; color: #2E2A26;">{{ co.platform }}</span>
+                            <span style="font-size: 12.5px; color: #2E2A26; font-weight: 600;">{{ co.total }}</span>
+                            <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ co.statusBg }}; color: {{ co.statusColor }}; text-align: center; justify-self: start;">{{ co.status }}</span>
+                            <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ co.payBg }}; color: {{ co.payColor }}; text-align: center; justify-self: start;">{{ co.payLabel }}</span>
+                            <span style="font-size: 12.5px; color: #2E2A26;">{{ co.method }}</span>
+                            <button onClick="{{ co.invoice }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 4px 10px; font-size: 11px; cursor: pointer; justify-self: start;" style-hover="background: #461610; color: #FDF9F4;">🖨 Invoice</button>
+                            <button onClick="{{ co.edit }}" style="background: none; border: 1px solid #D8CCBC; color: #461610; border-radius: 999px; padding: 4px 10px; font-size: 11px; cursor: pointer; justify-self: start;" style-hover="border-color: #461610;">Edit</button>
+                          </div>
+                        </sc-for>
                       </div>
-                    </sc-for>
+                    </div>
                   </div>
                 </sc-if>
               </div>
@@ -1450,6 +1487,7 @@
               <span style="font-size: 12.5px; color: #857D72;">{{ custPager.label }}</span>
               <button onClick="{{ custPager.next }}" disabled="{{ custPager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ custPager.nextOpacity }};" style-hover="border-color: #461610; color: #461610;">Next →</button>
             </div>
+          </sc-if>
           </sc-if>
         </section>
       </sc-if>
@@ -1933,7 +1971,7 @@ class Component extends DCLogic {
       showCatManager: false, catForm: null, catError: '', savingCat: false, confirmDelCat: null,
       dbSub2Cats: [], sub2Ready: false, stockDraft: {}, delErr: null,
       dbBrands: [], brandsState: 'loading', brandsErr: '', brandBusy: false, brandMsg: '', brandMsgBad: false, newBrandName: '', brandDraft: {}, confirmDelBrand: null,
-      dbViews: [], viewsMissing: false, prodSort: 'default', statPeriod: '30', dbCustomers: [], custMissing: false, custQuery: '', custOpen: {}, custDraft: null, custErr: '', custConfirmDel: null, custPage: 1, custSaveMsg: '', notes: [], notesState: 'loading', notesErr: '', noteSection: 'notes', noteQuery: '', noteEd: null, noteImp: null, noteMsg: '', noteMsgBad: false, noteConfirm: null, cardPicker: null, noteLabelEdit: null,
+      pickText: {}, custView: 'customers', custOrdPage: 1, dbViews: [], viewsMissing: false, prodSort: 'default', statPeriod: '30', dbCustomers: [], custMissing: false, custQuery: '', custOpen: {}, custDraft: null, custErr: '', custConfirmDel: null, custPage: 1, custSaveMsg: '', notes: [], notesState: 'loading', notesErr: '', noteSection: 'notes', noteQuery: '', noteEd: null, noteImp: null, noteMsg: '', noteMsgBad: false, noteConfirm: null, cardPicker: null, noteLabelEdit: null,
       noteView: (() => { try { return localStorage.getItem('madzo-notes-view') === 'list' ? 'list' : 'masonry'; } catch (e) { return 'masonry'; } })(),
       invView: 'products', newProdFile: null,
       prodFilters: { photo: '', brand: '', id: '', name: '', cat: '', sub: '', sub2: '', expiry: '', buy: '', price: '', stock: '', active: '' },
@@ -3382,7 +3420,7 @@ class Component extends DCLogic {
       return {
         sku: p.sku, name: p.name,
         soldN: soldBy[p.sku] || 0, viewsN: viewsBy[p.sku] || 0,
-        statLine: '🛒 ' + (soldBy[p.sku] || 0) + ' sold' + (this.state.viewsMissing ? '' : ' · 👁 ' + (viewsBy[p.sku] || 0) + ' views'),
+        statLine: (this.state.prodSort === 'views' ? (this.state.viewsMissing ? '' : '👁 ' + (viewsBy[p.sku] || 0) + ' views') : (this.state.prodSort === 'sold' || this.state.prodSort === 'slow') ? '🛒 ' + (soldBy[p.sku] || 0) + ' sold' : ''),
         metaLine: mainName(p.mainCat) + ' · ' + this.catLabel(p.catKey) + (p.brand ? ' · ' + p.brand : ''),
         catLabel: this.catLabel(p.catKey),
         brandRaw: p.brand || '', mainId: p.mainCat, subId: p.catKey,
@@ -3587,7 +3625,7 @@ class Component extends DCLogic {
 
     const recentOrders = orders.slice(0, 6).map(o => ({
       name: o.name,
-      meta: o.id + ' · ' + new Date(o.ts).toLocaleDateString('en', { day: 'numeric', month: 'short' }),
+      meta: o.id + ' · ' + new Date(o.ts).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Qatar' }).replace(',', ''),
       total: fmt(o.total),
       status: o.status === 'new' ? 'New' : 'Delivered',
       badgeBg: o.status === 'new' ? '#FBEFD4' : '#DDF0E2',
@@ -3630,6 +3668,27 @@ class Component extends DCLogic {
         ? { label: 'Partially paid', bg: '#DCE8F6', color: '#2A5C99' }
         : { label: 'Pending', bg: '#FBEFD4', color: '#9A6E12' };
 
+    // ---- Type-to-add product pickers (new order / edit order, normal + free) ----
+    const pickVal = (k) => (this.state.pickText || {})[k] || '';
+    const setPick = (k, v) => this.setState(s => ({ pickText: { ...(s.pickText || {}), [k]: v } }));
+    const prodLabel = (p, free) => free ? p.name : (p.name + ' — ' + p.price + ' QAR');
+    const findPick = (v, free, loose) => {
+      const t = String(v || '').trim().toLowerCase(); if (!t) return null;
+      const list = free ? prods.filter(p => p.freeItem) : prods;
+      const exact = list.find(p => prodLabel(p, free).toLowerCase() === t || String(p.sku).toLowerCase() === t);
+      if (exact || !loose) return exact || null;
+      return list.find(p => (p.name + ' ' + p.sku + ' ' + (p.brand || '')).toLowerCase().indexOf(t) >= 0) || null;
+    };
+    const mkPick = (k, free, push) => {
+      const add = (pr) => push(free ? { name: pr.name, qty: 1, price: 0, free: true, sku: pr.sku, brand: pr.brand || '', nameEn: pr.name } : { name: pr.name, qty: 1, price: pr.price, sku: pr.sku, brand: pr.brand || '', nameEn: pr.name });
+      return {
+        onChange: (e) => { const v = e.target.value; const pr = findPick(v, free, false); if (pr) { add(pr); setPick(k, ''); } else setPick(k, v); },
+        onKey: (e) => { if (e.key !== 'Enter') return; e.preventDefault(); const pr = findPick(pickVal(k), free, true); if (pr) { add(pr); setPick(k, ''); } }
+      };
+    };
+    const pkNO = mkPick('no', false, (it) => pushItem(it)), pkNOF = mkPick('nof', true, (it) => pushItem(it));
+    const pkEd = mkPick('ed', false, (it) => pushEdItem(it)), pkEdF = mkPick('edf', true, (it) => pushEdItem(it));
+
     const allOrders = filteredOrders.map(o => {
       const editing = this.state.editOrderId === o.id;
       const ed = editing ? (this.state.editOrderDraft || {}) : {};
@@ -3650,6 +3709,8 @@ class Component extends DCLogic {
       return {
         id: o.id,
         name: o.name,
+        metaId: o.id,
+        metaWhen: new Date(o.ts).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Qatar' }).replace(',', '') + (o.source && o.source !== 'storefront' ? ' · ' + o.source : ''),
         meta: o.id + ' · ' + new Date(o.ts).toLocaleDateString('en', { day: 'numeric', month: 'short' })
           + (o.source && o.source !== 'storefront' ? ' · via ' + o.source : ''),
         itemCount: (o.lines || []).length + (((o.lines || []).length === 1) ? ' item' : ' items'),
@@ -3698,16 +3759,8 @@ class Component extends DCLogic {
         edStatus: ed.status || 'new', onEdStatus: setEd('status'),
         edPaymentStatus: ed.paymentStatus || 'pending', onEdPaymentStatus: setEd('paymentStatus'),
         edPayMethod: ed.payMethod || '', onEdPayMethod: setEd('payMethod'),
-        onEdPickProduct: (e) => {
-          const pr = prods.find(x => x.sku === e.target.value);
-          if (pr) pushEdItem({ name: pr.name, qty: 1, price: pr.price, sku: pr.sku, brand: pr.brand || '', nameEn: pr.name });
-          e.target.value = '';
-        },
-        onEdPickFreeProduct: (e) => {
-          const pr = prods.find(x => x.sku === e.target.value);
-          if (pr) pushEdItem({ name: pr.name, qty: 1, price: 0, free: true, sku: pr.sku, brand: pr.brand || '', nameEn: pr.name });
-          e.target.value = '';
-        },
+        edPick: pickVal('ed'), onEdPickProduct: pkEd.onChange, onEdPickProductKey: pkEd.onKey,
+        edPickF: pickVal('edf'), onEdPickFreeProduct: pkEdF.onChange, onEdPickFreeProductKey: pkEdF.onKey,
         addEdItem: () => pushEdItem({ name: '', qty: 1, price: '' }),
         edItems,
         edTotal: fmt(edTotalNum),
@@ -4098,7 +4151,7 @@ class Component extends DCLogic {
       const v = String(val || '').trim(); if (!v) return false;
       const o = orders.find(x => sameId(x.id, v)); if (!o) return false;
       this.setState({
-        showOrderForm: false, orderSearch: o.id, orderPage: 1, orderDeliveryFilter: 'all', orderPaymentFilter: 'all',
+        tab: 'orders', showOrderForm: false, orderSearch: o.id, orderPage: 1, orderDeliveryFilter: 'all', orderPaymentFilter: 'all',
         editOrderId: o.id, editOrderErr: '',
         editOrderDraft: {
           id: o.id, source: o.source && o.source !== 'storefront' ? o.source : '',
@@ -4125,6 +4178,28 @@ class Component extends DCLogic {
       flash('Purchase order ' + prow.id + ' already exists — opened for editing.');
       return true;
     };
+
+    const mkCustOrder = (o) => {
+      const pm = paymentBadgeMeta(o.paymentStatus), isNew = o.status === 'new';
+      return {
+        id: o.id,
+        when: new Date(o.ts).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Qatar' }).replace(',', ''),
+        name: o.name || '—', phone: o.phone || '',
+        platform: !o.source || o.source === 'storefront' ? 'Website' : o.source,
+        total: Math.round(Number(o.total) || 0) + ' QAR',
+        status: isNew ? 'New' : 'Delivered', statusBg: isNew ? '#FBEFD4' : '#DDF0E2', statusColor: isNew ? '#9A6E12' : '#1E8A4C',
+        payLabel: pm.label, payBg: pm.bg, payColor: pm.color,
+        method: ({ cash: 'Cash', card: 'Card', fawran: 'Fawran' })[o.payMethod] || '—',
+        invoice: () => this.setState({ invoiceOrderId: o.id }),
+        edit: () => openOrderById(o.id)
+      };
+    };
+    const custOrdAll = [];
+    custFiltered.forEach(c => c.orders.forEach(o => custOrdAll.push(o)));
+    custOrdAll.sort((a, b) => b.ts - a.ts);
+    const custOrdPager = makePager(custOrdAll.length, 'custOrdPage');
+    const pagedCustOrders = custOrdAll.slice((custOrdPager.page - 1) * PAGE_SIZE, custOrdPager.page * PAGE_SIZE).map(mkCustOrder);
+    const custView = this.state.custView === 'orders' ? 'orders' : 'customers';
 
     const newOrderTotalNum = no.items.reduce((a, it) => a + Math.round((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
 
@@ -4189,10 +4264,7 @@ class Component extends DCLogic {
           lastLabel: c.last ? 'Last: ' + new Date(c.last).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Qatar' }) : '',
           hasOrders: c.orders.length > 0, open, toggleLabel: open ? 'Hide orders' : 'Show orders',
           toggle: () => this.setState(s => ({ custOpen: { ...s.custOpen, [c.key]: !(s.custOpen || {})[c.key] } })),
-          orders: c.orders.map(o => ({
-            id: o.id, date: new Date(o.ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Qatar' }),
-            items: (o.lines || []).map(l => (l.qty || 1) + '× ' + (l.nameEn || l.name || '')).join(', '), status: o.status || '', total: Math.round(Number(o.total) || 0) + ' QAR'
-          })),
+          orders: c.orders.map(mkCustOrder),
           editLabel: c.saved ? 'Edit' : 'Save',
           edit: () => this.setState({ custDraft: { id: c.id, name: c.name, phone: c.phone || '', email: c.email || '', zone: c.zone || '', address: c.address || '', notes: c.notes || '' }, custErr: '' }, () => window.scrollTo(0, 0)),
           canDelete: c.saved && c.orders.length === 0, delLabel: confirming ? 'Confirm delete' : 'Delete',
@@ -4200,7 +4272,11 @@ class Component extends DCLogic {
         };
       }),
       custPager, custEmpty: custAll.length === 0, custMissing: this.state.custMissing, custSaveMsg: this.state.custSaveMsg,
-      custCountLabel: custFiltered.length + (custFiltered.length === 1 ? ' customer' : ' customers') + (custQ ? ' found' : ''),
+      custCountLabel: custView === 'orders' ? (custOrdAll.length + (custOrdAll.length === 1 ? ' order' : ' orders') + (custQ ? ' found' : '')) : (custFiltered.length + (custFiltered.length === 1 ? ' customer' : ' customers') + (custQ ? ' found' : '')),
+      custViewOrders: custView === 'orders', custViewCustomers: custView === 'customers', pagedCustOrders, custOrdPager,
+      custViewCustomersBtn: () => this.setState({ custView: 'customers' }), custViewOrdersBtn: () => this.setState({ custView: 'orders', custOrdPage: 1 }),
+      custTabCustBg: custView === 'customers' ? '#461610' : 'transparent', custTabCustColor: custView === 'customers' ? '#FDF9F4' : '#857D72',
+      custTabOrdBg: custView === 'orders' ? '#461610' : 'transparent', custTabOrdColor: custView === 'orders' ? '#FDF9F4' : '#857D72',
       custQuery: this.state.custQuery, onCustQuery: (e) => this.setState({ custQuery: e.target.value, custPage: 1 }),
       custFormOpen: !!this.state.custDraft, custDraft: this.state.custDraft || { name: '', phone: '', email: '', zone: '', address: '', notes: '' },
       custFormTitle: this.state.custDraft && this.state.custDraft.id ? 'Edit customer' : 'Add customer', custErr: this.state.custErr,
@@ -4399,18 +4475,11 @@ class Component extends DCLogic {
       onNOPaymentStatus: setNO('paymentStatus'),
       onNOPayMethod: setNO('payMethod'),
       prodOptions: prods.map(p => ({ sku: p.sku, label: p.name + ' — ' + p.price + ' QAR' })),
-      onPickProduct: (e) => {
-        const p = prods.find(x => x.sku === e.target.value);
-        if (p) pushItem({ name: p.name, qty: 1, price: p.price, sku: p.sku, brand: p.brand || '', nameEn: p.name });
-        e.target.value = '';
-      },
+      pickNO: pickVal('no'), onPickProduct: pkNO.onChange, onPickProductKey: pkNO.onKey,
+      pickNOF: pickVal('nof'), onPickFreeProduct: pkNOF.onChange, onPickFreeProductKey: pkNOF.onKey,
       freeProdOptions: prods.filter(p => p.freeItem).map(p => ({ sku: p.sku, label: p.name })),
       noFreeProds: !prods.some(p => p.freeItem),
-      onPickFreeProduct: (e) => {
-        const p = prods.find(x => x.sku === e.target.value);
-        if (p) pushItem({ name: p.name, qty: 1, price: 0, free: true, sku: p.sku, brand: p.brand || '', nameEn: p.name });
-        e.target.value = '';
-      },
+
       addOrderItem: () => pushItem({ name: '', qty: 1, price: '' }),
       orderItems,
       newOrderTotal: fmt(newOrderTotalNum),

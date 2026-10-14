@@ -31,7 +31,10 @@
     .madzo-mega-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; align-items: start; }
     .madzo-mega-card { border: 1px solid rgba(70,22,16,.10); border-radius: 14px; padding: 12px 14px 10px; transition: transform .12s, box-shadow .12s; }
     .madzo-mega-card:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(60,30,25,.14); }
-    .madzo-mega-ico { flex: none; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.78); display: flex; align-items: center; justify-content: center; font-size: 18px; line-height: 1; box-shadow: 0 1px 3px rgba(60,30,25,.12); }
+    .madzo-mega-ico { flex: none; width: 36px; height: 36px; border-radius: 50%; background: #461610; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(60,30,25,.22); }
+    .madzo-mega-ico img { width: 15px; height: auto; display: block; }
+    .madzo-mega-logo { flex: none; width: 24px; height: 24px; border-radius: 50%; background: #461610; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 0 0 1.5px rgba(253,249,244,.55); }
+    .madzo-mega-logo img { width: 10px; height: auto; display: block; }
     .madzo-mega-arr { flex: none; width: 34px; height: 34px; border-radius: 50%; background: rgba(253,249,244,.8); border: 1px solid rgba(70,22,16,.16); color: #461610; cursor: pointer; font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center; }
     .madzo-mega-arr:hover { background: #FDF9F4; }
     .madzo-mega-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; font-size: 15px; font-weight: 700; color: #2E2A26; padding: 2px 0 4px; }
@@ -152,7 +155,7 @@
             <button class="madzo-mega-arr" onClick="{{ megaTabsLeft }}" aria-label="Scroll categories left">‹</button>
             <div id="madzo-mega-tabs" class="madzo-scroll-row madzo-mega-tabs" style="flex: 1; min-width: 0; display: flex; gap: 6px; overflow-x: auto; justify-content: safe center; padding: 2px 10px;">
               <sc-for list="{{ megaTabs }}" as="mt" hint-placeholder-count="4">
-                <a class="madzo-mega-tab" onClick="{{ mt.pick }}" style="background: {{ mt.bg }}; color: {{ mt.color }}; font-weight: {{ mt.weight }};">{{ mt.emoji }} {{ mt.label }}</a>
+                <a class="madzo-mega-tab" onClick="{{ mt.pick }}" style="display: inline-flex; align-items: center; gap: 8px; background: {{ mt.bg }}; color: {{ mt.color }}; font-weight: {{ mt.weight }}; opacity: {{ mt.opacity }};" style-hover="opacity: 1;"><span class="madzo-mega-logo"><img src="{{ megaLogo }}" alt=""></span>{{ mt.label }}</a>
               </sc-for>
             </div>
             <button class="madzo-mega-arr" onClick="{{ megaTabsRight }}" aria-label="Scroll categories right">›</button>
@@ -164,11 +167,11 @@
               <div class="madzo-mega-grid" style="margin-top: 16px;">
                 <sc-for list="{{ megaGroups }}" as="mg" hint-placeholder-count="4">
                   <div class="madzo-mega-card" style="background: {{ mg.bg }}; border-top: 4px solid {{ mg.accent }};">
-                    <a class="madzo-mega-head" onClick="{{ mg.open }}"><span style="display: flex; align-items: center; gap: 10px; min-width: 0;"><span class="madzo-mega-ico">{{ mg.emoji }}</span><span>{{ mg.label }}</span></span><span class="madzo-mega-arrow">{{ t.chev }}</span></a>
+                    <a class="madzo-mega-head" onClick="{{ mg.open }}"><span style="display: flex; align-items: center; gap: 10px; min-width: 0;"><span class="madzo-mega-ico"><img src="{{ megaLogo }}" alt=""></span><span>{{ mg.label }}</span></span><span class="madzo-mega-arrow">{{ t.chev }}</span></a>
                     <sc-if value="{{ mg.hasItems }}" hint-placeholder-val="{{ false }}">
                       <div class="madzo-mega-sublist">
                         <sc-for list="{{ mg.items }}" as="mi" hint-placeholder-count="3">
-                          <a class="madzo-mega-sub" onClick="{{ mi.open }}">{{ mi.emoji }} {{ mi.label }}</a>
+                          <a class="madzo-mega-sub" onClick="{{ mi.open }}">{{ mi.label }}</a>
                         </sc-for>
                       </div>
                     </sc-if>
@@ -1002,11 +1005,12 @@ class Component extends DCLogic {
       openMega: () => this.setState({ megaOpen: true, menuOpen: false, searchOpen: false }, () => window.scrollTo({ top: 0, behavior: 'smooth' })),
       toggleMega: () => this.setState(st => ({ megaOpen: !st.megaOpen, menuOpen: false, searchOpen: false }), () => { if (this.state.megaOpen) window.scrollTo({ top: 0, behavior: 'smooth' }); }),
       closeMega: () => this.setState({ megaOpen: false }),
+      megaLogo: (() => { const el = document.querySelector('img[alt="Madzo"]'); return el ? el.src : ''; })(),
       megaTabsLeft: () => { const el = document.getElementById('madzo-mega-tabs'); if (el) el.scrollBy({ left: -260, behavior: 'smooth' }); },
       megaTabsRight: () => { const el = document.getElementById('madzo-mega-tabs'); if (el) el.scrollBy({ left: 260, behavior: 'smooth' }); },
       megaTabs: mainsSrc.map(m => {
         const on = !!megaActive && m.id === megaActive.id;
-        return { key: m.id, label: loc(m), emoji: catEmoji(m.name + ' ' + (m.nameAr || '')), weight: on ? 600 : 500, color: on ? '#FDF9F4' : '#5A3B34', bg: on ? '#461610' : 'transparent', pick: () => this.setState({ megaMain: m.id }) };
+        return { key: m.id, label: loc(m), opacity: on ? '1' : '.5', weight: on ? 600 : 500, color: on ? '#FDF9F4' : '#5A3B34', bg: on ? '#461610' : 'transparent', pick: () => this.setState({ megaMain: m.id }) };
       }),
       megaViewAllLabel: megaActive ? t.viewAll + ' ' + loc(megaActive) : t.viewAll,
       megaViewAll: megaActive ? go('shop', { filter: 'main:' + megaActive.id }) : go('shop', { filter: 'all' }),

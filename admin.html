@@ -706,6 +706,7 @@
                   <select value="{{ newOrder.payMethod }}" onChange="{{ onNOPayMethod }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
                     <option value="cash">Cash</option>
                     <option value="card">Credit card</option>
+                    <option value="credit">Credit</option>
                   </select>
                 </label>
               </div>
@@ -3985,7 +3986,7 @@ class Component extends DCLogic {
         metaId: o.id,
         dateLabel: new Date(o.ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Qatar' }),
         platform: platLabel(o),
-        methodLabel: ({ cash: 'Cash', card: 'Card', fawran: 'Fawran' })[o.payMethod] || '—',
+        methodLabel: ({ cash: 'Cash', card: 'Card', credit: 'Credit', fawran: 'Fawran' })[o.payMethod] || '—',
         meta: o.id + ' · ' + new Date(o.ts).toLocaleDateString('en', { day: 'numeric', month: 'short' })
           + (o.source && o.source !== 'storefront' ? ' · via ' + o.source : ''),
         itemCount: (o.lines || []).length + (((o.lines || []).length === 1) ? ' item' : ' items'),
@@ -4034,7 +4035,7 @@ class Component extends DCLogic {
         edStatus: ed.status || 'new', onEdStatus: setEd('status'),
         edPaymentStatus: ed.paymentStatus || 'pending', onEdPaymentStatus: setEd('paymentStatus'),
         edPayMethod: ed.payMethod || '', onEdPayMethod: setEd('payMethod'),
-        edPayOptions: [{ v: '', l: '— not set —' }, { v: 'cash', l: 'Cash' }, { v: 'card', l: 'Credit card' }].concat((ed.payMethod === 'fawran' || o.payMethod === 'fawran') ? [{ v: 'fawran', l: 'Fawran (old)' }] : []).map(x => ({ ...x, selected: x.v === (ed.payMethod || '') })),
+        edPayOptions: [{ v: '', l: '— not set —' }, { v: 'cash', l: 'Cash' }, { v: 'card', l: 'Credit card' }, { v: 'credit', l: 'Credit' }].concat((ed.payMethod === 'fawran' || o.payMethod === 'fawran') ? [{ v: 'fawran', l: 'Fawran (old)' }] : []).map(x => ({ ...x, selected: x.v === (ed.payMethod || '') })),
         edPick: pickVal('ed'), onEdPickProduct: pkEd.onChange, onEdPickProductKey: pkEd.onKey,
         edPickF: pickVal('edf'), onEdPickFreeProduct: pkEdF.onChange, onEdPickFreeProductKey: pkEdF.onKey,
         addEdItem: () => pushEdItem({ name: '', qty: 1, price: '' }),
@@ -4096,7 +4097,7 @@ class Component extends DCLogic {
 
     const invOrder = this.state.invoiceOrderId ? orders.find(o => o.id === this.state.invoiceOrderId) : null;
     const logoEl = (alt) => document.querySelector('header img[alt="' + alt + '"]');
-    const payNames = { cash: 'Cash / نقداً', card: 'Card / بطاقة', fawran: 'Fawran / فورًا' };
+    const payNames = { cash: 'Cash / نقداً', card: 'Card / بطاقة', credit: 'Credit / آجل', fawran: 'Fawran / فورًا' };
     const inv = invOrder ? {
       id: invOrder.id,
       // the header logo is cream; on the invoice it is printed in black (no brand colour) to save ink
@@ -4471,7 +4472,7 @@ class Component extends DCLogic {
         total: Math.round(Number(o.total) || 0) + ' QAR',
         status: isNew ? 'New' : 'Delivered', statusBg: isNew ? '#FBEFD4' : '#DDF0E2', statusColor: isNew ? '#9A6E12' : '#1E8A4C',
         payLabel: pm.label, payBg: pm.bg, payColor: pm.color,
-        method: ({ cash: 'Cash', card: 'Card', fawran: 'Fawran' })[o.payMethod] || '—',
+        method: ({ cash: 'Cash', card: 'Card', credit: 'Credit', fawran: 'Fawran' })[o.payMethod] || '—',
         invoice: () => this.setState({ invoiceOrderId: o.id }),
         edit: () => openOrderById(o.id)
       };
@@ -4801,7 +4802,7 @@ class Component extends DCLogic {
       on_ordFStatus: (e) => this.setState({ orderDeliveryFilter: e.target.value, orderPage: 1 }),
       on_ordFPay: (e) => this.setState({ orderPaymentFilter: e.target.value, orderPage: 1 }),
       ordPlatformOptions: (() => { const set = new Set(); orders.forEach(o => set.add(platLabel(o))); const rest = [...set].filter(x => x !== 'Website').sort((x, y) => x.localeCompare(y)); return [{ v: 'all', l: 'All' }].concat((set.has('Website') ? ['Website'] : []).concat(rest).map(x => ({ v: x, l: x }))).map(x => ({ ...x, selected: x.v.toLowerCase() === String(oF.platform || 'all').toLowerCase() })); })(),
-      ordMethodOptions: (() => { const base = [{ v: 'all', l: 'All' }, { v: 'cash', l: 'Cash' }, { v: 'card', l: 'Card' }]; if (orders.some(o => o.payMethod === 'fawran')) base.push({ v: 'fawran', l: 'Fawran (old)' }); return base.map(x => ({ ...x, selected: x.v === (oF.method || 'all') })); })(),
+      ordMethodOptions: (() => { const base = [{ v: 'all', l: 'All' }, { v: 'cash', l: 'Cash' }, { v: 'card', l: 'Card' }, { v: 'credit', l: 'Credit' }]; if (orders.some(o => o.payMethod === 'fawran')) base.push({ v: 'fawran', l: 'Fawran (old)' }); return base.map(x => ({ ...x, selected: x.v === (oF.method || 'all') })); })(),
       clearOrdFilters: () => this.setState({ ordF: { date: '', cust: '', platform: 'all', total: '', method: 'all' }, orderDeliveryFilter: 'all', orderPaymentFilter: 'all', orderSearch: '', orderPage: 1 }),
       pagedOrders, orderPager,
 

@@ -84,7 +84,7 @@
             <button onClick="{{ tabImages }}" style="background: {{ tImagesBg }}; color: {{ tImagesColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Images</button>
             <button onClick="{{ tabPO }}" style="background: {{ tPOBg }}; color: {{ tPOColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Purchase</button>
           <button onClick="{{ tabInv }}" style="background: {{ tInvBg }}; color: {{ tInvColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Inventory</button>
-          <button onClick="{{ tabCustomers }}" style="background: {{ tCustBg }}; color: {{ tCustColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Customers</button>
+          <sc-if value="{{ customersEnabled }}" hint-placeholder-val="{{ false }}"><button onClick="{{ tabCustomers }}" style="background: {{ tCustBg }}; color: {{ tCustColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Customers</button></sc-if>
           <button onClick="{{ tabNotes }}" style="background: {{ tNotesBg }}; color: {{ tNotesColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Notes</button>
           <button onClick="{{ tabSettings }}" style="background: {{ tSettingsBg }}; color: {{ tSettingsColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Settings</button>
         </nav>
@@ -165,10 +165,10 @@
               <span style="width: 84px; height: 84px; border-radius: 50%; background: #FDF9F4; border: 1px solid #E7DECF; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 6px 16px rgba(60,30,25,.08); transition: transform .12s;" style-hover="transform: scale(1.05); border-color: #461610;">📊</span>
               <span style="font-size: 13.5px; font-weight: 600; color: #2E2A26;">Dashboard</span>
             </button>
-            <button onClick="{{ tabCustomers }}" style="display: flex; flex-direction: column; align-items: center; gap: 10px; background: none; border: none; cursor: pointer; padding: 0;">
+            <sc-if value="{{ customersEnabled }}" hint-placeholder-val="{{ false }}"><button onClick="{{ tabCustomers }}" style="display: flex; flex-direction: column; align-items: center; gap: 10px; background: none; border: none; cursor: pointer; padding: 0;">
               <span style="width: 84px; height: 84px; border-radius: 50%; background: #FDF9F4; border: 1px solid #E7DECF; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 6px 16px rgba(60,30,25,.08); transition: transform .12s;" style-hover="transform: scale(1.05); border-color: #461610;">👥</span>
               <span style="font-size: 13.5px; font-weight: 600; color: #2E2A26;">Customers</span>
-            </button>
+            </button></sc-if>
             <button onClick="{{ tabNotes }}" style="display: flex; flex-direction: column; align-items: center; gap: 10px; background: none; border: none; cursor: pointer; padding: 0;">
               <span style="width: 84px; height: 84px; border-radius: 50%; background: #FDF9F4; border: 1px solid #E7DECF; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 6px 16px rgba(60,30,25,.08); transition: transform .12s;" style-hover="transform: scale(1.05); border-color: #461610;">📝</span>
               <span style="font-size: 13.5px; font-weight: 600; color: #2E2A26;">Notes</span>
@@ -648,23 +648,22 @@
           <sc-if value="{{ idFoundMsg }}" hint-placeholder-val="{{ false }}"><div style="background: #E3F3E8; border: 1px solid #B6DEC3; border-radius: 12px; padding: 10px 14px; font-size: 13px; color: #1F6B3A; max-width: 680px; margin-bottom: 14px;">{{ idFoundMsg }}</div></sc-if>
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; flex-wrap: wrap;">
             <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Sales</h1>
-            <button onClick="{{ toggleOrderForm }}" style="background: #461610; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #39120D;">{{ orderFormLabel }}</button>
+            <span style="display: flex; gap: 10px; align-items: center;">
+              <button onClick="{{ toggleOrderDetails }}" style="background: {{ odBtnBg }}; color: {{ odBtnColor }}; border: 1px solid #461610; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #461610; color: #FDF9F4;">Order Details</button>
+              <button onClick="{{ toggleOrderForm }}" style="background: #461610; border: 1px solid #461610; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #39120D;">{{ orderFormLabel }}</button>
+            </span>
           </div>
           <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Orders from the storefront checkout, plus orders you add manually from other platforms.</p>
+          <sc-if value="{{ salesDetails }}" hint-placeholder-val="{{ true }}">
           <div style="position: relative; margin-bottom: 10px; max-width: 320px;">
             <input value="{{ orderSearch }}" onChange="{{ onOrderSearch }}" placeholder="Search by customer, order ID, phone, item…" style="width: 100%; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13.5px; outline: none; box-sizing: border-box;" style-focus="border-color: #461610;">
           </div>
-          <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;">
-            <button onClick="{{ setDeliveryFilterAll }}" style="background: {{ dfAllBg }}; color: {{ dfAllColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 5px 13px; font-size: 12px; cursor: pointer;">All</button>
-            <button onClick="{{ setDeliveryFilterPending }}" style="background: {{ dfPendingBg }}; color: {{ dfPendingColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 5px 13px; font-size: 12px; cursor: pointer;">Pending delivery</button>
-            <button onClick="{{ setDeliveryFilterDelivered }}" style="background: {{ dfDeliveredBg }}; color: {{ dfDeliveredColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 5px 13px; font-size: 12px; cursor: pointer;">Delivered</button>
-          </div>
-          <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;">
-            <button onClick="{{ setPaymentFilterAll }}" style="background: {{ pfAllBg }}; color: {{ pfAllColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 5px 13px; font-size: 12px; cursor: pointer;">All payments</button>
-            <button onClick="{{ setPaymentFilterPaid }}" style="background: {{ pfPaidBg }}; color: {{ pfPaidColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 5px 13px; font-size: 12px; cursor: pointer;">Paid</button>
-            <button onClick="{{ setPaymentFilterPending }}" style="background: {{ pfPendingBg }}; color: {{ pfPendingColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 5px 13px; font-size: 12px; cursor: pointer;">Pending</button>
-            <button onClick="{{ setPaymentFilterPartial }}" style="background: {{ pfPartialBg }}; color: {{ pfPartialColor }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 5px 13px; font-size: 12px; cursor: pointer;">Partially paid</button>
-          </div>
+          <div style="color: #857D72; font-size: 12.5px; margin-bottom: 10px;">{{ ordCountLabel }}</div>
+
+          </sc-if>
+          <sc-if value="{{ salesMainHint }}" hint-placeholder-val="{{ false }}">
+            <div style="background: #FDF9F4; border: 1px dashed #D8CCBC; border-radius: 16px; padding: 22px; color: #857D72; font-size: 13.5px; line-height: 1.6;">Use <b style="color: #461610;">+ Add order</b> to record a new sale, or open <b style="color: #461610;">Order Details</b> to see, filter, edit and print all orders.<br>{{ salesHintCounts }}</div>
+          </sc-if>
 
           <sc-if value="{{ showOrderForm }}" hint-placeholder-val="{{ false }}">
             <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
@@ -679,14 +678,14 @@
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Customer name
                   <input value="{{ newOrder.name }}" onChange="{{ onNOName }}" list="madzo-cust-names" autocomplete="off" placeholder="Type a name — saved customers appear" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
-                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Phone
-                  <input value="{{ newOrder.phone }}" onChange="{{ onNOPhone }}" list="madzo-cust-phones" autocomplete="off" placeholder="+974 …" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
-                </label>
-                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Zone / area
-                  <input value="{{ newOrder.zone }}" onChange="{{ onNOZone }}" placeholder="e.g. Zone 25, Al Sadd" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Phone (Qatar number) *
+                  <input value="{{ newOrder.phone }}" onChange="{{ onNOPhone }}" list="madzo-cust-phones" autocomplete="off" inputmode="tel" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Address
-                  <input value="{{ newOrder.address }}" onChange="{{ onNOAddress }}" placeholder="Street, building, apartment" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                  <input value="{{ newOrder.address }}" onChange="{{ onNOAddress }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Building number / Zone number / Street number
+                  <input value="{{ newOrder.zone }}" onChange="{{ onNOZone }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Status
                   <select value="{{ newOrder.status }}" onChange="{{ onNOStatus }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
@@ -704,8 +703,7 @@
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Payment method
                   <select value="{{ newOrder.payMethod }}" onChange="{{ onNOPayMethod }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
                     <option value="cash">Cash</option>
-                    <option value="card">Card</option>
-                    <option value="fawran">Fawran</option>
+                    <option value="card">Credit card</option>
                   </select>
                 </label>
               </div>
@@ -748,29 +746,46 @@
             </div>
           </sc-if>
 
+          <sc-if value="{{ salesDetails }}" hint-placeholder-val="{{ true }}">
           <sc-if value="{{ noOrders }}" hint-placeholder-val="{{ false }}">
-            <p style="color: #857D72; text-align: center; padding: 30px 0;">No orders yet.</p>
+            <p style="color: #857D72; text-align: center; padding: 30px 0;">{{ noOrdersText }}</p>
           </sc-if>
           <div style="overflow-x: auto;">
-            <div style="min-width: 820px; display: flex; flex-direction: column; gap: 6px;">
-              <div style="display: grid; grid-template-columns: 18px minmax(140px,1fr) 190px 84px 92px 88px 96px 262px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
-                <span></span><span>Customer</span><span>Order · Date &amp; time</span><span>Items</span><span>Total</span><span>Status</span><span>Payment</span><span></span>
+            <div style="min-width: 1000px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: grid; grid-template-columns: 118px minmax(130px,1fr) 104px 92px 100px 112px 104px 92px 70px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                <span>Date</span><span>Customer name</span><span>Platform</span><span>Total cost</span><span>Status</span><span>Payment status</span><span>Payment method</span><span>Invoice</span><span>Edit</span>
+              </div>
+              <div style="display: grid; grid-template-columns: 118px minmax(130px,1fr) 104px 92px 100px 112px 104px 92px 70px; gap: 10px; align-items: center; padding: 0 14px 4px;">
+                <input type="date" value="{{ ordFDate }}" onChange="{{ on_ordFDate }}" aria-label="Filter by date" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;" style-focus="border-color: #461610;">
+                <input value="{{ ordFCust }}" onChange="{{ on_ordFCust }}" placeholder="Customer…" aria-label="Filter by customer" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;" style-focus="border-color: #461610;">
+                <select value="{{ ordFPlatform }}" onChange="{{ on_ordFPlatform }}" aria-label="Filter by platform" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; cursor: pointer;">
+                  <sc-for list="{{ ordPlatformOptions }}" as="po" hint-placeholder-count="2"><option value="{{ po.v }}" selected="{{ po.selected }}">{{ po.l }}</option></sc-for>
+                </select>
+                <input value="{{ ordFTotal }}" onChange="{{ on_ordFTotal }}" placeholder="Total…" aria-label="Filter by total cost" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;" style-focus="border-color: #461610;">
+                <select value="{{ ordFStatus }}" onChange="{{ on_ordFStatus }}" aria-label="Filter by status" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; cursor: pointer;">
+                  <option value="all">All</option><option value="new">New</option><option value="delivered">Delivered</option>
+                </select>
+                <select value="{{ ordFPay }}" onChange="{{ on_ordFPay }}" aria-label="Filter by payment status" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; cursor: pointer;">
+                  <option value="all">All</option><option value="paid">Paid</option><option value="pending">Pending</option><option value="partially_paid">Partially paid</option>
+                </select>
+                <select value="{{ ordFMethod }}" onChange="{{ on_ordFMethod }}" aria-label="Filter by payment method" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; cursor: pointer;">
+                  <sc-for list="{{ ordMethodOptions }}" as="mo" hint-placeholder-count="2"><option value="{{ mo.v }}" selected="{{ mo.selected }}">{{ mo.l }}</option></sc-for>
+                </select>
+                <span></span>
+                <button onClick="{{ clearOrdFilters }}" aria-label="Clear order filters" title="Clear filters" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 8px; padding: 4px 0; font-size: 11px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">Clear</button>
               </div>
               <sc-for list="{{ pagedOrders }}" as="o" hint-placeholder-count="6">
                 <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px;">
-                  <div onClick="{{ o.toggleDetails }}" style="display: grid; grid-template-columns: 18px minmax(140px,1fr) 190px 84px 92px 88px 96px 262px; gap: 10px; align-items: center; padding: 9px 14px; cursor: pointer;">
-                    <span style="color: #461610; font-size: 11px;">{{ o.chevron }}</span>
-                    <span style="font-weight: 600; font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ o.name }}</span>
-                    <span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-size: 12px; font-weight: 600; color: #8A7F70;">{{ o.metaId }}</span><span style="font-size: 11.5px; color: #8F8576; white-space: nowrap; direction: ltr; text-align: start;">{{ o.metaWhen }}</span></span>
-                    <span style="font-size: 12px; color: #5C554B;">{{ o.itemCount }}</span>
-                    <span style="font-weight: 600; font-size: 13.5px; color: #2E2A26;">{{ o.total }}</span>
-                    <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ o.badgeBg }}; color: {{ o.badgeColor }}; text-align: center; white-space: nowrap;">{{ o.status }}</span>
-                    <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ o.paymentBg }}; color: {{ o.paymentColor }}; text-align: center; white-space: nowrap;">{{ o.paymentLabel }}</span>
-                    <span onClick="{{ stopClick }}" style="display: flex; gap: 6px; justify-self: end; flex-wrap: wrap;">
-                      <button onClick="{{ o.toggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">{{ o.toggleLabel }}</button>
-                      <button onClick="{{ o.openInvoice }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="background: #461610; color: #FDF9F4;">🖨 Invoice</button>
-                      <button onClick="{{ o.toggleEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">{{ o.editLabel }}</button>
-                    </span>
+                  <div onClick="{{ o.toggleDetails }}" style="display: grid; grid-template-columns: 118px minmax(130px,1fr) 104px 92px 100px 112px 104px 92px 70px; gap: 10px; align-items: center; padding: 9px 14px; cursor: pointer;">
+                    <span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-size: 12.5px; font-weight: 600; color: #2E2A26; white-space: nowrap;">{{ o.dateLabel }}</span><span style="font-size: 10.5px; color: #A9A091; white-space: nowrap;">{{ o.metaId }}</span></span>
+                    <span style="font-weight: 600; font-size: 13px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ o.name }}</span>
+                    <span style="font-size: 12.5px; color: #2E2A26;">{{ o.platform }}</span>
+                    <span style="font-weight: 600; font-size: 13px; color: #2E2A26;">{{ o.total }}</span>
+                    <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ o.badgeBg }}; color: {{ o.badgeColor }}; text-align: center; white-space: nowrap; justify-self: start;">{{ o.status }}</span>
+                    <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ o.paymentBg }}; color: {{ o.paymentColor }}; text-align: center; white-space: nowrap; justify-self: start;">{{ o.paymentLabel }}</span>
+                    <span style="font-size: 12.5px; color: #2E2A26;">{{ o.methodLabel }}</span>
+                    <span onClick="{{ stopClick }}" style="justify-self: start;"><button onClick="{{ o.openInvoice }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 4px 10px; font-size: 11px; cursor: pointer;" style-hover="background: #461610; color: #FDF9F4;">🖨 Invoice</button></span>
+                    <span onClick="{{ stopClick }}" style="justify-self: start;"><button onClick="{{ o.toggleEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #461610; border-radius: 999px; padding: 4px 10px; font-size: 11px; cursor: pointer;" style-hover="border-color: #461610;">{{ o.editLabel }}</button></span>
                   </div>
 
                   <sc-if value="{{ o.detailsOpen }}" hint-placeholder-val="{{ false }}">
@@ -784,6 +799,7 @@
                         </sc-for>
                       </div>
                       <div style="color: #857D72; font-size: 12.5px;">📞 {{ o.phone }}</div>
+                      <div><button onClick="{{ o.toggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">{{ o.toggleLabel }}</button></div>
                       <div style="color: #857D72; font-size: 12.5px;">📍 <span style="font-weight: 600; color: #5C554B;">Shipping:</span> {{ o.shipping }}</div>
                       <sc-if value="{{ o.hasNotes }}" hint-placeholder-val="{{ false }}">
                         <div style="color: #857D72; font-size: 12.5px;">📝 {{ o.notes }}</div>
@@ -803,14 +819,14 @@
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Customer name
                         <input value="{{ o.edName }}" onChange="{{ o.onEdName }}" list="madzo-cust-names" autocomplete="off" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                       </label>
-                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Phone
-                        <input value="{{ o.edPhone }}" onChange="{{ o.onEdPhone }}" list="madzo-cust-phones" autocomplete="off" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
-                      </label>
-                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Zone / area
-                        <input value="{{ o.edZone }}" onChange="{{ o.onEdZone }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Phone (Qatar number) *
+                        <input value="{{ o.edPhone }}" inputmode="tel" onChange="{{ o.onEdPhone }}" list="madzo-cust-phones" autocomplete="off" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                       </label>
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Address
                         <input value="{{ o.edAddress }}" onChange="{{ o.onEdAddress }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                      </label>
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Building number / Zone number / Street number
+                        <input value="{{ o.edZone }}" onChange="{{ o.onEdZone }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                       </label>
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Status
                         <select value="{{ o.edStatus }}" onChange="{{ o.onEdStatus }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; cursor: pointer;">
@@ -827,10 +843,7 @@
                       </label>
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Payment method
                         <select value="{{ o.edPayMethod }}" onChange="{{ o.onEdPayMethod }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; cursor: pointer;">
-                          <option value="">— not set —</option>
-                          <option value="cash">Cash</option>
-                          <option value="card">Card</option>
-                          <option value="fawran">Fawran</option>
+                          <sc-for list="{{ o.edPayOptions }}" as="pmo" hint-placeholder-count="3"><option value="{{ pmo.v }}" selected="{{ pmo.selected }}">{{ pmo.l }}</option></sc-for>
                         </select>
                       </label>
                     </div>
@@ -882,6 +895,7 @@
               <span style="font-size: 12.5px; color: #857D72;">{{ orderPager.label }}</span>
               <button onClick="{{ orderPager.next }}" disabled="{{ orderPager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ orderPager.nextOpacity }};" style-hover="border-color: #461610; color: #461610;">Next →</button>
             </div>
+          </sc-if>
           </sc-if>
         </section>
       </sc-if>
@@ -1383,11 +1397,8 @@
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Email (optional)
                   <input value="{{ custDraft.email }}" onChange="{{ onCustEmail }}" placeholder="name@email.com" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                 </label>
-                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Zone / area
-                  <input value="{{ custDraft.zone }}" onChange="{{ onCustZone }}" placeholder="e.g. Zone 25, Al Sadd" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
-                </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Address
-                  <input value="{{ custDraft.address }}" onChange="{{ onCustAddress }}" placeholder="Street, building, apartment" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                  <input value="{{ custDraft.address }}" onChange="{{ onCustAddress }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Notes
                   <input value="{{ custDraft.notes }}" onChange="{{ onCustNotes }}" placeholder="Anything worth remembering" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
@@ -1403,40 +1414,7 @@
           <div style="position: relative; margin-bottom: 14px; max-width: 340px;">
             <input value="{{ custQuery }}" onChange="{{ onCustQuery }}" placeholder="Search name, phone, area…" style="width: 100%; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13.5px; outline: none;" style-focus="border-color: #461610;">
           </div>
-          <div style="display: inline-flex; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 999px; padding: 3px; margin: 0 0 14px 12px; vertical-align: top;">
-            <button onClick="{{ custViewCustomersBtn }}" style="border: none; border-radius: 999px; padding: 6px 16px; font-size: 12.5px; cursor: pointer; background: {{ custTabCustBg }}; color: {{ custTabCustColor }}; font-weight: 600;">Customers</button>
-            <button onClick="{{ custViewOrdersBtn }}" style="border: none; border-radius: 999px; padding: 6px 16px; font-size: 12.5px; cursor: pointer; background: {{ custTabOrdBg }}; color: {{ custTabOrdColor }}; font-weight: 600;">Order details</button>
-          </div>
           <div style="color: #857D72; font-size: 12.5px; margin-bottom: 10px;">{{ custCountLabel }}</div>
-          <sc-if value="{{ custViewOrders }}" hint-placeholder-val="{{ false }}">
-            <div style="overflow-x: auto;">
-              <div style="min-width: 900px; display: flex; flex-direction: column; gap: 6px;">
-                <div style="display: grid; grid-template-columns: 150px minmax(120px,1fr) 100px 84px 86px 92px 84px 84px 56px; gap: 10px; align-items: center; padding: 2px 8px; font-size: 10.5px; letter-spacing: .5px; text-transform: uppercase; color: #A9A091;">
-                  <span>Date &amp; time</span><span>Customer name</span><span>Platform</span><span>Total cost</span><span>Status</span><span>Payment status</span><span>Payment method</span><span>Invoice</span><span>Edit</span>
-                </div>
-                <sc-for list="{{ pagedCustOrders }}" as="co" hint-placeholder-count="4">
-                  <div style="display: grid; grid-template-columns: 150px minmax(120px,1fr) 100px 84px 86px 92px 84px 84px 56px; gap: 10px; align-items: center; background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 10px 8px;">
-                    <span style="font-size: 12.5px; color: #2E2A26; direction: ltr; text-align: start;">{{ co.when }}<span style="display: block; font-size: 10.5px; color: #A9A091;">{{ co.id }}</span></span>
-                    <span style="font-size: 12.5px; color: #2E2A26; font-weight: 600;">{{ co.name }}<span style="display: block; font-size: 10.5px; font-weight: 400; color: #A9A091; direction: ltr; text-align: start;">{{ co.phone }}</span></span>
-                    <span style="font-size: 12.5px; color: #2E2A26;">{{ co.platform }}</span>
-                    <span style="font-size: 12.5px; color: #2E2A26; font-weight: 600;">{{ co.total }}</span>
-                    <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ co.statusBg }}; color: {{ co.statusColor }}; text-align: center; justify-self: start;">{{ co.status }}</span>
-                    <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ co.payBg }}; color: {{ co.payColor }}; text-align: center; justify-self: start;">{{ co.payLabel }}</span>
-                    <span style="font-size: 12.5px; color: #2E2A26;">{{ co.method }}</span>
-                    <button onClick="{{ co.invoice }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 4px 10px; font-size: 11px; cursor: pointer; justify-self: start;" style-hover="background: #461610; color: #FDF9F4;">🖨 Invoice</button>
-                    <button onClick="{{ co.edit }}" style="background: none; border: 1px solid #D8CCBC; color: #461610; border-radius: 999px; padding: 4px 10px; font-size: 11px; cursor: pointer; justify-self: start;" style-hover="border-color: #461610;">Edit</button>
-                  </div>
-                </sc-for>
-              </div>
-            </div>
-            <sc-if value="{{ custOrdPager.show }}" hint-placeholder-val="{{ false }}">
-              <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 16px;">
-                <button onClick="{{ custOrdPager.prev }}" disabled="{{ custOrdPager.atStart }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ custOrdPager.prevOpacity }};">← Prev</button>
-                <span style="font-size: 12.5px; color: #857D72;">{{ custOrdPager.label }}</span>
-                <button onClick="{{ custOrdPager.next }}" disabled="{{ custOrdPager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ custOrdPager.nextOpacity }};">Next →</button>
-              </div>
-            </sc-if>
-          </sc-if>
           <sc-if value="{{ custViewCustomers }}" hint-placeholder-val="{{ true }}">
           <sc-if value="{{ custEmpty }}" hint-placeholder-val="{{ false }}"><p style="color: #857D72; font-size: 14px;">No customers yet — they appear here as soon as an order is placed.</p></sc-if>
           <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -1462,26 +1440,16 @@
                 </div>
                 <sc-if value="{{ c.open }}" hint-placeholder-val="{{ false }}">
                   <div style="margin-top: 12px; border-top: 1px solid #EFE6D8; padding-top: 10px; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="overflow-x: auto;">
-                      <div style="min-width: 900px; display: flex; flex-direction: column; gap: 6px;">
-                        <div style="display: grid; grid-template-columns: 150px minmax(120px,1fr) 100px 84px 86px 92px 84px 84px 56px; gap: 10px; align-items: center; padding: 2px 8px; font-size: 10.5px; letter-spacing: .5px; text-transform: uppercase; color: #A9A091;">
-                          <span>Date &amp; time</span><span>Customer name</span><span>Platform</span><span>Total cost</span><span>Status</span><span>Payment status</span><span>Payment method</span><span>Invoice</span><span>Edit</span>
-                        </div>
-                        <sc-for list="{{ c.orders }}" as="co" hint-placeholder-count="2">
-                          <div style="display: grid; grid-template-columns: 150px minmax(120px,1fr) 100px 84px 86px 92px 84px 84px 56px; gap: 10px; align-items: center; background: #F6F0E6; border-radius: 10px; padding: 8px;">
-                            <span style="font-size: 12.5px; color: #2E2A26; direction: ltr; text-align: start;">{{ co.when }}<span style="display: block; font-size: 10.5px; color: #A9A091;">{{ co.id }}</span></span>
-                            <span style="font-size: 12.5px; color: #2E2A26; font-weight: 600;">{{ co.name }}</span>
-                            <span style="font-size: 12.5px; color: #2E2A26;">{{ co.platform }}</span>
-                            <span style="font-size: 12.5px; color: #2E2A26; font-weight: 600;">{{ co.total }}</span>
-                            <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ co.statusBg }}; color: {{ co.statusColor }}; text-align: center; justify-self: start;">{{ co.status }}</span>
-                            <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ co.payBg }}; color: {{ co.payColor }}; text-align: center; justify-self: start;">{{ co.payLabel }}</span>
-                            <span style="font-size: 12.5px; color: #2E2A26;">{{ co.method }}</span>
-                            <button onClick="{{ co.invoice }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 4px 10px; font-size: 11px; cursor: pointer; justify-self: start;" style-hover="background: #461610; color: #FDF9F4;">🖨 Invoice</button>
-                            <button onClick="{{ co.edit }}" style="background: none; border: 1px solid #D8CCBC; color: #461610; border-radius: 999px; padding: 4px 10px; font-size: 11px; cursor: pointer; justify-self: start;" style-hover="border-color: #461610;">Edit</button>
-                          </div>
-                        </sc-for>
+                    <sc-for list="{{ c.orders }}" as="co" hint-placeholder-count="2">
+                      <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; background: #F6F0E6; border-radius: 10px; padding: 8px 12px; font-size: 12.5px; color: #2E2A26;">
+                        <span style="font-weight: 600; min-width: 96px;">{{ co.when }}</span>
+                        <span style="color: #8A7F70; min-width: 84px;">{{ co.id }}</span>
+                        <span style="color: #5C554B;">{{ co.platform }}</span>
+                        <span style="font-weight: 600;">{{ co.total }}</span>
+                        <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ co.statusBg }}; color: {{ co.statusColor }};">{{ co.status }}</span>
+                        <button onClick="{{ co.edit }}" style="margin-inline-start: auto; background: none; border: 1px solid #D8CCBC; color: #461610; border-radius: 999px; padding: 4px 12px; font-size: 11px; cursor: pointer;" style-hover="border-color: #461610;">Open in Sales</button>
                       </div>
-                    </div>
+                    </sc-for>
                   </div>
                 </sc-if>
               </div>
@@ -1950,6 +1918,8 @@ class Component extends DCLogic {
       prodSearch: '',
       invSearch: '',
       orderSearch: '',
+      salesView: 'main',
+      ordF: { date: '', cust: '', platform: 'all', total: '', method: 'all' },
       poSearch: '',
       orderDeliveryFilter: 'all',
       orderPaymentFilter: 'all',
@@ -2138,6 +2108,13 @@ class Component extends DCLogic {
     if (d.length > 8 && d.indexOf('974') === 0) d = d.slice(3);
     return d;
   }
+  // Qatar numbers only: 8 digits starting 3-7 (mobile 3/5/6/7, landline 4), with optional +974 / 00974.
+  qatarPhone(v) {
+    let d = String(v || '').replace(/\D/g, '');
+    if (d.indexOf('00') === 0) d = d.slice(2);
+    if (d.length === 11 && d.indexOf('974') === 0) d = d.slice(3);
+    return /^[3-7]\d{7}$/.test(d) ? '+974 ' + d : null;
+  }
   custKey(name, phone) { return this.phoneKey(phone) || ('n:' + String(name || '').trim().toLowerCase()); }
   isMissingTable(err) { return !!err && (err.code === '42P01' || err.code === 'PGRST205' || /does not exist|schema cache|Could not find the table/i.test(err.message || '')); }
 
@@ -2207,7 +2184,9 @@ class Component extends DCLogic {
     const d = this.state.custDraft || {};
     const name = String(d.name || '').trim();
     if (!name) { this.setState({ custErr: 'Please enter the customer name.' }); return; }
-    const phone = String(d.phone || '').trim(), pk = this.phoneKey(phone);
+    let phone = String(d.phone || '').trim();
+    if (phone) { const qp = this.qatarPhone(phone); if (!qp) { this.setState({ custErr: 'Phone must be a Qatar number: 8 digits starting with 3, 4, 5, 6 or 7 (with or without +974).' }); return; } phone = qp; }
+    const pk = this.phoneKey(phone);
     const clash = (this.state.dbCustomers || []).find(c => c.id !== d.id && ((pk && c.phoneKey === pk) || (!pk && !c.phoneKey && c.name.trim().toLowerCase() === name.toLowerCase())));
     if (clash) { this.setState({ custErr: 'This ' + (pk ? 'phone number' : 'name') + ' already belongs to "' + clash.name + '".' }); return; }
     const row = { name, phone: phone || null, phone_key: pk || null, email: String(d.email || '').trim() || null, zone: String(d.zone || '').trim() || null, address: String(d.address || '').trim() || null, notes: String(d.notes || '').trim() || null, updated_at: new Date().toISOString() };
@@ -3290,7 +3269,15 @@ class Component extends DCLogic {
 
     const orders = this.orders().slice().sort((a, b) => b.ts - a.ts);
     const orderQ = this.state.orderSearch.trim().toLowerCase();
+    const platLabel = (o) => (!o.source || o.source === 'storefront') ? 'Website' : o.source;
+    const qDay = (ts) => new Date(ts).toLocaleDateString('en-CA', { timeZone: 'Asia/Qatar' });
+    const oF = this.state.ordF || {};
     const filteredOrders = orders
+      .filter(o => !oF.date || qDay(o.ts) === oF.date)
+      .filter(o => !String(oF.cust || '').trim() || (o.name || '').toLowerCase().includes(String(oF.cust).trim().toLowerCase()))
+      .filter(o => !oF.platform || oF.platform === 'all' || platLabel(o).toLowerCase() === oF.platform.toLowerCase())
+      .filter(o => !String(oF.total || '').trim() || String(Math.round(Number(o.total) || 0)).includes(String(oF.total).trim()))
+      .filter(o => !oF.method || oF.method === 'all' || (o.payMethod || '') === oF.method)
       .filter(o => orderQ ? (
         o.id + ' ' + (o.name || '') + ' ' + (o.phone || '') + ' ' + (o.lines || []).map(l => l.name).join(' ')
       ).toLowerCase().includes(orderQ) : true)
@@ -3638,7 +3625,7 @@ class Component extends DCLogic {
 
     const recentOrders = orders.slice(0, 6).map(o => ({
       name: o.name,
-      meta: o.id + ' · ' + new Date(o.ts).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Qatar' }).replace(',', ''),
+      meta: o.id + ' · ' + new Date(o.ts).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Qatar' }),
       total: fmt(o.total),
       status: o.status === 'new' ? 'New' : 'Delivered',
       badgeBg: o.status === 'new' ? '#FBEFD4' : '#DDF0E2',
@@ -3723,7 +3710,9 @@ class Component extends DCLogic {
         id: o.id,
         name: o.name,
         metaId: o.id,
-        metaWhen: new Date(o.ts).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Qatar' }).replace(',', '') + (o.source && o.source !== 'storefront' ? ' · ' + o.source : ''),
+        dateLabel: new Date(o.ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Qatar' }),
+        platform: platLabel(o),
+        methodLabel: ({ cash: 'Cash', card: 'Card', fawran: 'Fawran' })[o.payMethod] || '—',
         meta: o.id + ' · ' + new Date(o.ts).toLocaleDateString('en', { day: 'numeric', month: 'short' })
           + (o.source && o.source !== 'storefront' ? ' · via ' + o.source : ''),
         itemCount: (o.lines || []).length + (((o.lines || []).length === 1) ? ' item' : ' items'),
@@ -3732,7 +3721,7 @@ class Component extends DCLogic {
         toggleDetails: () => this.setState(s => ({ openOrderIds: { ...(s.openOrderIds || {}), [o.id]: !(s.openOrderIds || {})[o.id] } })),
         itemLines: (o.lines || []).map(l => ({ qtyName: `${l.qty} × ${l.name}` + (l.free ? ' 🎁' : ''), price: l.free ? 'FREE' : fmt(l.total || 0) })),
         phone: o.phone || '—',
-        shipping: [o.zone, o.address].filter(Boolean).join(' — ') || '—',
+        shipping: [o.address, o.zone].filter(Boolean).join(' — ') || '—',
         hasNotes: !!o.notes, notes: o.notes || '',
         total: fmt(o.total),
         status: o.status === 'new' ? 'New' : 'Delivered',
@@ -3772,6 +3761,7 @@ class Component extends DCLogic {
         edStatus: ed.status || 'new', onEdStatus: setEd('status'),
         edPaymentStatus: ed.paymentStatus || 'pending', onEdPaymentStatus: setEd('paymentStatus'),
         edPayMethod: ed.payMethod || '', onEdPayMethod: setEd('payMethod'),
+        edPayOptions: [{ v: '', l: '— not set —' }, { v: 'cash', l: 'Cash' }, { v: 'card', l: 'Credit card' }].concat((ed.payMethod === 'fawran' || o.payMethod === 'fawran') ? [{ v: 'fawran', l: 'Fawran (old)' }] : []).map(x => ({ ...x, selected: x.v === (ed.payMethod || '') })),
         edPick: pickVal('ed'), onEdPickProduct: pkEd.onChange, onEdPickProductKey: pkEd.onKey,
         edPickF: pickVal('edf'), onEdPickFreeProduct: pkEdF.onChange, onEdPickFreeProductKey: pkEdF.onKey,
         addEdItem: () => pushEdItem({ name: '', qty: 1, price: '' }),
@@ -3791,11 +3781,17 @@ class Component extends DCLogic {
           if (!items.length) { this.setState({ editOrderErr: 'Add at least one item.' }); return; }
           const lines = items.map(it => ({ ...(it.sku ? { sku: it.sku } : {}), ...(it.brand ? { brand: it.brand } : {}), qty: it.qty, name: it.name, ...(it.nameEn ? { nameEn: it.nameEn } : {}), unit: it.unit, total: it.free ? 0 : Math.round(it.qty * it.unit), ...(it.free ? { free: true } : {}) }));
           const total = lines.reduce((a, l) => a + l.total, 0);
+          let phoneSave = String(dr.phone || '').trim();
+          if (phoneSave !== String(o.phone || '').trim()) {
+            const qp = this.qatarPhone(phoneSave);
+            if (!qp) { this.setState({ editOrderErr: 'Phone must be a Qatar number: 8 digits starting with 3, 4, 5, 6 or 7 (with or without +974).' }); return; }
+            phoneSave = qp;
+          }
           this.setState({ savingOrderId: o.id });
           const patchO = {
             id: newId,
             customer_name: String(dr.name).trim(),
-            phone: String(dr.phone || '').trim(),
+            phone: phoneSave,
             zone: String(dr.zone || '').trim(),
             address: String(dr.address || '').trim(),
             notes: String(dr.notes || '').trim(),
@@ -4164,7 +4160,7 @@ class Component extends DCLogic {
       const v = String(val || '').trim(); if (!v) return false;
       const o = orders.find(x => sameId(x.id, v)); if (!o) return false;
       this.setState({
-        tab: 'orders', showOrderForm: false, orderSearch: o.id, orderPage: 1, orderDeliveryFilter: 'all', orderPaymentFilter: 'all',
+        tab: 'orders', salesView: 'details', showOrderForm: false, orderSearch: o.id, orderPage: 1, orderDeliveryFilter: 'all', orderPaymentFilter: 'all', ordF: { date: '', cust: '', platform: 'all', total: '', method: 'all' },
         editOrderId: o.id, editOrderErr: '',
         editOrderDraft: {
           id: o.id, source: o.source && o.source !== 'storefront' ? o.source : '',
@@ -4196,7 +4192,7 @@ class Component extends DCLogic {
       const pm = paymentBadgeMeta(o.paymentStatus), isNew = o.status === 'new';
       return {
         id: o.id,
-        when: new Date(o.ts).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Qatar' }).replace(',', ''),
+        when: new Date(o.ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Qatar' }),
         name: o.name || '—', phone: o.phone || '',
         platform: !o.source || o.source === 'storefront' ? 'Website' : o.source,
         total: Math.round(Number(o.total) || 0) + ' QAR',
@@ -4207,12 +4203,7 @@ class Component extends DCLogic {
         edit: () => openOrderById(o.id)
       };
     };
-    const custOrdAll = [];
-    custFiltered.forEach(c => c.orders.forEach(o => custOrdAll.push(o)));
-    custOrdAll.sort((a, b) => b.ts - a.ts);
-    const custOrdPager = makePager(custOrdAll.length, 'custOrdPage');
-    const pagedCustOrders = custOrdAll.slice((custOrdPager.page - 1) * PAGE_SIZE, custOrdPager.page * PAGE_SIZE).map(mkCustOrder);
-    const custView = this.state.custView === 'orders' ? 'orders' : 'customers';
+    const custView = 'customers';
 
     const newOrderTotalNum = no.items.reduce((a, it) => a + Math.round((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
 
@@ -4242,7 +4233,7 @@ class Component extends DCLogic {
         this.fetchNextPoId().then((id) => this.setState(s => ({ newPO: { ...s.newPO, id: s.newPO.id || id } })));
       },
       goCreateOrder: () => {
-        this.setState({ tab: 'orders', showOrderForm: true, newOrderError: '' });
+        this.setState({ tab: 'orders', salesView: 'main', showOrderForm: true, newOrderError: '' });
         if (!this.state.newOrder.id) {
           this.fetchNextOrderId().then((id) => this.setState(s => ({ newOrder: { ...s.newOrder, id: s.newOrder.id || id } })));
         }
@@ -4266,7 +4257,7 @@ class Component extends DCLogic {
       tDashBg: pd.bg, tDashColor: pd.color, tStockBg: ps.bg, tStockColor: ps.color,
       tImagesBg: pi.bg, tImagesColor: pi.color, tOrdersBg: po.bg, tOrdersColor: po.color, tSettingsBg: pt.bg, tSettingsColor: pt.color,
 
-      tCustBg: pcust.bg, tCustColor: pcust.color, isCustomers: tab === 'customers', tabCustomers: () => this.setState({ tab: 'customers' }),
+      tCustBg: pcust.bg, tCustColor: pcust.color, customersEnabled: false, isCustomers: tab === 'customers' && false, tabCustomers: () => this.setState({ tab: 'customers' }),
       custSuggestions, pagedCusts: custPaged.map(c => {
         const open = !!(this.state.custOpen || {})[c.key], confirming = this.state.custConfirmDel === c.key;
         return {
@@ -4285,11 +4276,8 @@ class Component extends DCLogic {
         };
       }),
       custPager, custEmpty: custAll.length === 0, custMissing: this.state.custMissing, custSaveMsg: this.state.custSaveMsg,
-      custCountLabel: custView === 'orders' ? (custOrdAll.length + (custOrdAll.length === 1 ? ' order' : ' orders') + (custQ ? ' found' : '')) : (custFiltered.length + (custFiltered.length === 1 ? ' customer' : ' customers') + (custQ ? ' found' : '')),
-      custViewOrders: custView === 'orders', custViewCustomers: custView === 'customers', pagedCustOrders, custOrdPager,
-      custViewCustomersBtn: () => this.setState({ custView: 'customers' }), custViewOrdersBtn: () => this.setState({ custView: 'orders', custOrdPage: 1 }),
-      custTabCustBg: custView === 'customers' ? '#461610' : 'transparent', custTabCustColor: custView === 'customers' ? '#FDF9F4' : '#857D72',
-      custTabOrdBg: custView === 'orders' ? '#461610' : 'transparent', custTabOrdColor: custView === 'orders' ? '#FDF9F4' : '#857D72',
+      custCountLabel: (custFiltered.length + (custFiltered.length === 1 ? ' customer' : ' customers') + (custQ ? ' found' : '')),
+      custViewCustomers: true,
       custQuery: this.state.custQuery, onCustQuery: (e) => this.setState({ custQuery: e.target.value, custPage: 1 }),
       custFormOpen: !!this.state.custDraft, custDraft: this.state.custDraft || { name: '', phone: '', email: '', zone: '', address: '', notes: '' },
       custFormTitle: this.state.custDraft && this.state.custDraft.id ? 'Edit customer' : 'Add customer', custErr: this.state.custErr,
@@ -4300,6 +4288,21 @@ class Component extends DCLogic {
       tNotesBg: pnotes.bg, tNotesColor: pnotes.color, isNotes: tab === 'notes', tabNotes: () => this.setState({ tab: 'notes' }),
       stopClick: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }, impMultiple: true, ...this.noteBindings(),
       allOrders, noOrders: allOrders.length === 0,
+      noOrdersText: orders.length ? 'No orders match these filters.' : 'No orders yet.',
+      ordCountLabel: allOrders.length + (allOrders.length === 1 ? ' order' : ' orders') + (allOrders.length !== orders.length ? ' found' : ''),
+      ordFDate: oF.date || '', ordFCust: oF.cust || '', ordFTotal: oF.total || '',
+      ordFPlatform: oF.platform || 'all', ordFMethod: oF.method || 'all',
+      ordFStatus: this.state.orderDeliveryFilter, ordFPay: this.state.orderPaymentFilter,
+      on_ordFDate: (e) => { const v = e.target.value; this.setState(s => ({ ordF: { ...s.ordF, date: v }, orderPage: 1 })); },
+      on_ordFCust: (e) => { const v = e.target.value; this.setState(s => ({ ordF: { ...s.ordF, cust: v }, orderPage: 1 })); },
+      on_ordFTotal: (e) => { const v = e.target.value; this.setState(s => ({ ordF: { ...s.ordF, total: v }, orderPage: 1 })); },
+      on_ordFPlatform: (e) => { const v = e.target.value; this.setState(s => ({ ordF: { ...s.ordF, platform: v }, orderPage: 1 })); },
+      on_ordFMethod: (e) => { const v = e.target.value; this.setState(s => ({ ordF: { ...s.ordF, method: v }, orderPage: 1 })); },
+      on_ordFStatus: (e) => this.setState({ orderDeliveryFilter: e.target.value, orderPage: 1 }),
+      on_ordFPay: (e) => this.setState({ orderPaymentFilter: e.target.value, orderPage: 1 }),
+      ordPlatformOptions: (() => { const set = new Set(); orders.forEach(o => set.add(platLabel(o))); const rest = [...set].filter(x => x !== 'Website').sort((x, y) => x.localeCompare(y)); return [{ v: 'all', l: 'All' }].concat((set.has('Website') ? ['Website'] : []).concat(rest).map(x => ({ v: x, l: x }))).map(x => ({ ...x, selected: x.v.toLowerCase() === String(oF.platform || 'all').toLowerCase() })); })(),
+      ordMethodOptions: (() => { const base = [{ v: 'all', l: 'All' }, { v: 'cash', l: 'Cash' }, { v: 'card', l: 'Card' }]; if (orders.some(o => o.payMethod === 'fawran')) base.push({ v: 'fawran', l: 'Fawran (old)' }); return base.map(x => ({ ...x, selected: x.v === (oF.method || 'all') })); })(),
+      clearOrdFilters: () => this.setState({ ordF: { date: '', cust: '', platform: 'all', total: '', method: 'all' }, orderDeliveryFilter: 'all', orderPaymentFilter: 'all', orderSearch: '', orderPage: 1 }),
       pagedOrders, orderPager,
 
       pagedPOs, noPOs: pos.length === 0, poPager,
@@ -4473,9 +4476,15 @@ class Component extends DCLogic {
       doSavePdf: () => this.saveInvoicePdf(inv),
       showOrderForm: this.state.showOrderForm,
       orderFormLabel: this.state.showOrderForm ? 'Close' : '+ Add order',
+      salesDetails: this.state.salesView === 'details',
+      salesMainHint: this.state.salesView !== 'details' && !this.state.showOrderForm,
+      salesHintCounts: orders.length + (orders.length === 1 ? ' order' : ' orders') + ' in total · ' + orders.filter(o => o.status === 'new').length + ' waiting for delivery.',
+      odBtnBg: this.state.salesView === 'details' ? '#461610' : '#FDF9F4',
+      odBtnColor: this.state.salesView === 'details' ? '#FDF9F4' : '#461610',
+      toggleOrderDetails: () => this.setState(s => ({ salesView: s.salesView === 'details' ? 'main' : 'details', showOrderForm: false, newOrderError: '' })),
       toggleOrderForm: () => {
         const opening = !this.state.showOrderForm;
-        this.setState(s => ({ showOrderForm: !s.showOrderForm, newOrderError: '' }));
+        this.setState(s => ({ showOrderForm: !s.showOrderForm, newOrderError: '', ...(!s.showOrderForm ? { salesView: 'main' } : {}) }));
         if (opening && !this.state.newOrder.id) {
           this.fetchNextOrderId().then((id) => this.setState(s => ({ newOrder: { ...s.newOrder, id: s.newOrder.id || id } })));
         }
@@ -4501,6 +4510,8 @@ class Component extends DCLogic {
           .map(it => ({ qty: Math.max(1, parseInt(it.qty, 10) || 1), name: String(it.name || '').trim(), unit: it.free ? 0 : (Number(it.price) || 0), free: !!it.free, sku: it.sku || '', brand: it.brand || '', nameEn: it.nameEn || '' }))
           .filter(it => it.name);
         if (!no.name.trim()) { this.setState({ newOrderError: 'Please enter the customer name.' }); return; }
+        const qPhone = this.qatarPhone(no.phone);
+        if (!qPhone) { this.setState({ newOrderError: String(no.phone || '').trim() ? 'Please enter a valid Qatar phone number: 8 digits starting with 3, 4, 5, 6 or 7 (with or without +974).' : 'Phone number is required (Qatar number).' }); return; }
         if (!items.length) { this.setState({ newOrderError: 'Add at least one item.' }); return; }
         let id = String(no.id || '').trim();
         if (!id) id = await this.fetchNextOrderId();
@@ -4510,7 +4521,7 @@ class Component extends DCLogic {
         const orderRow = {
           id,
           customer_name: no.name.trim(),
-          phone: no.phone.trim(),
+          phone: qPhone,
           zone: no.zone.trim(),
           address: no.address.trim(),
           notes: no.notes.trim(),
@@ -4529,7 +4540,7 @@ class Component extends DCLogic {
         this.rememberCustomer(orderRow.customer_name, orderRow.phone, orderRow.zone, orderRow.address);
         if (methodNotSaved) alert('Order saved — but its payment method could not be stored yet. Run madzo-update-3.sql in Supabase, then set it from Edit.');
         this.setState({
-          showOrderForm: false, newOrderError: '',
+          showOrderForm: false, newOrderError: '', salesView: 'details',
           newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', paymentStatus: 'pending', payMethod: 'cash', items: [] }
         });
         this.loadOrders();
@@ -4681,27 +4692,6 @@ class Component extends DCLogic {
       onInvSearch: (e) => this.setState({ invSearch: e.target.value, invStockPage: 1, batchPage: 1 }),
       orderSearch: this.state.orderSearch,
       onOrderSearch: (e) => this.setState({ orderSearch: e.target.value, orderPage: 1 }),
-      setDeliveryFilterAll: () => this.setState({ orderDeliveryFilter: 'all', orderPage: 1 }),
-      setDeliveryFilterPending: () => this.setState({ orderDeliveryFilter: 'new', orderPage: 1 }),
-      setDeliveryFilterDelivered: () => this.setState({ orderDeliveryFilter: 'delivered', orderPage: 1 }),
-      dfAllBg: this.state.orderDeliveryFilter === 'all' ? '#461610' : '#FDF9F4',
-      dfAllColor: this.state.orderDeliveryFilter === 'all' ? '#FDF9F4' : '#857D72',
-      dfPendingBg: this.state.orderDeliveryFilter === 'new' ? '#461610' : '#FDF9F4',
-      dfPendingColor: this.state.orderDeliveryFilter === 'new' ? '#FDF9F4' : '#857D72',
-      dfDeliveredBg: this.state.orderDeliveryFilter === 'delivered' ? '#461610' : '#FDF9F4',
-      dfDeliveredColor: this.state.orderDeliveryFilter === 'delivered' ? '#FDF9F4' : '#857D72',
-      setPaymentFilterAll: () => this.setState({ orderPaymentFilter: 'all', orderPage: 1 }),
-      setPaymentFilterPaid: () => this.setState({ orderPaymentFilter: 'paid', orderPage: 1 }),
-      setPaymentFilterPending: () => this.setState({ orderPaymentFilter: 'pending', orderPage: 1 }),
-      setPaymentFilterPartial: () => this.setState({ orderPaymentFilter: 'partially_paid', orderPage: 1 }),
-      pfAllBg: this.state.orderPaymentFilter === 'all' ? '#1E8A4C' : '#FDF9F4',
-      pfAllColor: this.state.orderPaymentFilter === 'all' ? '#FDF9F4' : '#857D72',
-      pfPaidBg: this.state.orderPaymentFilter === 'paid' ? '#1E8A4C' : '#FDF9F4',
-      pfPaidColor: this.state.orderPaymentFilter === 'paid' ? '#FDF9F4' : '#857D72',
-      pfPendingBg: this.state.orderPaymentFilter === 'pending' ? '#1E8A4C' : '#FDF9F4',
-      pfPendingColor: this.state.orderPaymentFilter === 'pending' ? '#FDF9F4' : '#857D72',
-      pfPartialBg: this.state.orderPaymentFilter === 'partially_paid' ? '#1E8A4C' : '#FDF9F4',
-      pfPartialColor: this.state.orderPaymentFilter === 'partially_paid' ? '#FDF9F4' : '#857D72',
       poSearch: this.state.poSearch,
       onPoSearch: (e) => this.setState({ poSearch: e.target.value, poPage: 1 }),
       pagedInvStock, invStockPager,
@@ -4734,7 +4724,7 @@ class Component extends DCLogic {
           homeTodayTotal: fmt(sum(td)), homeTodayCount: cnt(td.length),
           homeMonthTotal: fmt(sum(mo)), homeMonthCount: cnt(mo.length),
           homeToDeliver: String(orders.filter(o => o.status === 'new').length),
-          homeGoToDeliver: () => this.setState({ tab: 'orders', orderDeliveryFilter: 'new', orderPaymentFilter: 'all', orderSearch: '', orderPage: 1 })
+          homeGoToDeliver: () => this.setState({ tab: 'orders', salesView: 'details', orderDeliveryFilter: 'new', orderPaymentFilter: 'all', orderSearch: '', ordF: { date: '', cust: '', platform: 'all', total: '', method: 'all' }, orderPage: 1 })
         };
       })(),
 

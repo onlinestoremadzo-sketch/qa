@@ -287,6 +287,9 @@
               <sc-if value="{{ item.oos }}" hint-placeholder-val="{{ false }}">
                 <span style="position: absolute; bottom: 10px; inset-inline-start: 50%; transform: translateX(-50%); background: #F0B428; color: #3D3013; font-size: 12.5px; font-weight: 600; padding: 6px 14px; border-radius: 10px; white-space: nowrap;">{{ t.outOfStock }}</span>
               </sc-if>
+              <sc-if value="{{ item.hasCompare }}" hint-placeholder-val="{{ false }}">
+                <span style="position: absolute; top: 8px; inset-inline-start: 8px; background: #E0242B; color: #fff; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; line-height: 1.2; pointer-events: none;">{{ item.discLabel }}</span>
+              </sc-if>
             </div>
             <sc-if value="{{ item.hasBrand }}" hint-placeholder-val="{{ false }}">
               <span style="font-size: 11px; color: #461610; letter-spacing: 1.2px; text-transform: uppercase; font-weight: 600;">{{ item.brand }}</span>
@@ -300,8 +303,8 @@
             </sc-if>
             <sc-if value="{{ item.notOos }}" hint-placeholder-val="{{ true }}">
               <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto;">
-                <span style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;">
-                  <span style="font-size: 16px; font-weight: 600; color: #2E2A26;">{{ item.priceLabel }}</span>
+                <span style="display: flex; flex-direction: column; align-items: flex-start; gap: 1px;">
+                  <span style="font-size: 16px; font-weight: 700; color: {{ item.priceColor }};">{{ item.priceLabel }}</span>
                   <sc-if value="{{ item.hasCompare }}" hint-placeholder-val="{{ false }}">
                     <span style="font-size: 13px; color: #9B9184; text-decoration: line-through;">{{ item.compareLabel }}</span>
                   </sc-if>
@@ -481,9 +484,10 @@
           </sc-if>
           <h2 style="font-family: Marcellus, serif; font-weight: 400; font-size: 22px; margin: 0; color: #2E2A26; line-height: 1.35;">{{ d.name }}</h2>
           <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
-            <span style="font-size: 20px; font-weight: 600; color: #2E2A26;">{{ d.priceLabel }}</span>
+            <span style="font-size: 20px; font-weight: 700; color: {{ d.priceColor }};">{{ d.priceLabel }}</span>
             <sc-if value="{{ d.hasCompare }}" hint-placeholder-val="{{ false }}">
               <span style="font-size: 14px; color: #9B9184; text-decoration: line-through;">{{ d.compareLabel }}</span>
+              <span style="background: #E0242B; color: #fff; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 6px;">{{ d.discLabel }}</span>
             </sc-if>
           </div>
           <sc-if value="{{ d.oos }}" hint-placeholder-val="{{ false }}">
@@ -871,8 +875,10 @@ class Component extends DCLogic {
         hasDesc: !!(lang === 'ar' ? (p.descAr || p.desc) : p.desc),
         openDetail: () => { this.trackView(p.sku); this.setState({ detail: p.sku }); },
         priceLabel: fmt(p.price),
-        hasCompare: !!p.compare,
-        compareLabel: p.compare ? fmt(p.compare) : '',
+        hasCompare: Number(p.compare) > Number(p.price) && Number(p.price) > 0,
+        compareLabel: Number(p.compare) > Number(p.price) ? fmt(p.compare) : '',
+        discLabel: Number(p.compare) > Number(p.price) ? '-' + Math.round((1 - Number(p.price) / Number(p.compare)) * 100) + '%' : '',
+        priceColor: (Number(p.compare) > Number(p.price) && Number(p.price) > 0) ? '#E0242B' : '#2E2A26',
         oos: p.stock === 0, notOos: p.stock > 0,
         lowStock: low,
         lowStockLabel: (p.stock === 1 ? t.onlyLeft : t.onlyLeftPl).replace('{n}', lang === 'ar' ? String(p.stock) : String(p.stock)),

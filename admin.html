@@ -443,6 +443,9 @@
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Sell price (QAR) — shown on storefront
                   <input value="{{ newProd.price }}" onChange="{{ onNewPrice }}" type="number" min="0" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Discounted from (QAR) — old price, optional
+                  <input value="{{ newProd.compare }}" onChange="{{ onNewCompare }}" type="number" min="0" placeholder="Leave empty = no discount" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Expiry date
                   <input value="{{ newProd.expiry }}" onChange="{{ onNewExpiry }}" type="date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
@@ -535,7 +538,7 @@
                     <span style="font-size: 12px; color: #857D72; word-break: break-word; line-height: 1.3;">{{ p.sub2Name }}</span>
                     <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ p.expBg }}; color: {{ p.expColor }}; text-align: center; white-space: nowrap; justify-self: start;" title="{{ p.expTitle }}">{{ p.expLabel }}</span>
                     <span style="font-size: 13px; color: #5C554B;" title="Change prices from Edit">{{ p.buyPriceText }}</span>
-                    <span style="font-size: 13px; font-weight: 600; color: #2E2A26;" title="Change prices from Edit">{{ p.sellPriceText }}</span>
+                    <span style="font-size: 13px; font-weight: 600; color: {{ p.sellColor }};" title="Change prices from Edit">{{ p.sellPriceText }}<sc-if value="{{ p.hasCompare }}" hint-placeholder-val="{{ false }}"><span style="display: block; font-size: 11px; font-weight: 400; color: #9B9184; text-decoration: line-through;">{{ p.compareText }}</span></sc-if></span>
                     <span style="display: flex; align-items: center; gap: 2px;">
                       <button onClick="{{ p.decStock }}" aria-label="Decrease stock" style="background: none; border: none; color: #461610; font-size: 16px; cursor: pointer; padding: 0 3px; line-height: 1;">−</button>
                       <input value="{{ p.stockShown }}" onChange="{{ p.onStockType }}" onBlur="{{ p.onStockCommit }}" onKeyDown="{{ p.onStockKey }}" type="number" min="0" aria-label="Stock" style="width: 100%; min-width: 0; box-sizing: border-box; text-align: center; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 6px 2px; font-size: 13px; font-weight: 600; color: {{ p.stockColor }}; outline: none;" style-focus="border-color: #461610;">
@@ -597,6 +600,9 @@
                       </label>
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Sell price (QAR) — shown on storefront
                         <input value="{{ p.edPrice }}" onChange="{{ p.onEdPrice }}" type="number" min="0" step="1" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                      </label>
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Discounted from (QAR) — old price, optional
+                        <input value="{{ p.edCompare }}" onChange="{{ p.onEdCompare }}" type="number" min="0" step="1" placeholder="Leave empty = no discount" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                       </label>
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Expiry date
                         <input value="{{ p.edExpiry }}" onChange="{{ p.onEdExpiry }}" type="date" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
@@ -1929,7 +1935,7 @@ class Component extends DCLogic {
       savedMsg: false,
       setWa: '',
       showAddForm: false,
-      newProd: { id: '', name: '', mainCat: 'cosmetics', cat: 'skincare', cat2: '', brand: '', desc: '', price: '', stock: '', buyPrice: '', expiry: '', freeItem: false },
+      newProd: { id: '', name: '', mainCat: 'cosmetics', cat: 'skincare', cat2: '', brand: '', desc: '', price: '', compare: '', stock: '', buyPrice: '', expiry: '', freeItem: false },
       newProdError: '',
       editSku: null,
       editDraft: null,
@@ -2824,13 +2830,13 @@ class Component extends DCLogic {
         mainCat: p.main_category || 'cosmetics', catKey: p.category,
         brand: p.brand || '', desc: p.description || '', descAr: p.description_ar || '',
         price: p.price, stock: p.stock, img: p.image_url, active: p.active !== false,
-        cat2: p.category2 || '', buyPrice: Number(p.buy_price) || 0, expiry: p.expiry_date || '', freeItem: p.free_item === true
+        cat2: p.category2 || '', buyPrice: Number(p.buy_price) || 0, compare: Number(p.compare_price) || 0, expiry: p.expiry_date || '', freeItem: p.free_item === true
       })) });
     } catch (e) { console.warn('Madzo admin: could not load products', e); }
   }
 
   // true when a save failed only because madzo-products-v2.sql hasn't been run yet
-  needsSql(err) { return /buy_price|expiry_date|category2|subcategories2|free_item|payment_method|show_on_front/.test((err && err.message) || ''); }
+  needsSql(err) { return /buy_price|compare_price|expiry_date|category2|subcategories2|free_item|payment_method|show_on_front/.test((err && err.message) || ''); }
 
   esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -3433,6 +3439,7 @@ class Component extends DCLogic {
         img: p.img || '',
         price: p.price, stock: p.stock,
         buyPriceText: fmtPrice(p.buyPrice, true), sellPriceText: fmtPrice(p.price, false),
+        hasCompare: Number(p.compare) > Number(p.price), compareText: fmtPrice(p.compare, false), sellColor: Number(p.compare) > Number(p.price) ? '#B03A2E' : '#2E2A26',
         stockColor: p.stock === 0 ? '#B03A2E' : p.stock <= 2 ? '#9A6E12' : '#2E2A26',
         ...badge(p),
         active: p.active,
@@ -3462,7 +3469,7 @@ class Component extends DCLogic {
             id: p.sku, name: p.name || '', nameAr: p.nameAr || '',
             mainCat: p.mainCat || 'cosmetics', cat: p.catKey || 'skincare', cat2: p.cat2 || '',
             brand: p.brand || '', desc: p.desc || '', descAr: p.descAr || '',
-            buyPrice: p.buyPrice ? String(p.buyPrice) : '', price: (p.price == null ? '' : String(p.price)), expiry: p.expiry || '', freeItem: !!p.freeItem
+            buyPrice: p.buyPrice ? String(p.buyPrice) : '', price: (p.price == null ? '' : String(p.price)), compare: p.compare ? String(p.compare) : '', expiry: p.expiry || '', freeItem: !!p.freeItem
           }
         }),
         edId: d.id || '', onEdId: setDraft('id'),
@@ -3480,6 +3487,7 @@ class Component extends DCLogic {
         onEdCat2: setDraft('cat2'),
         edBuy: d.buyPrice || '', onEdBuy: setDraft('buyPrice'),
         edPrice: d.price == null ? '' : d.price, onEdPrice: setDraft('price'),
+        edCompare: d.compare || '', onEdCompare: setDraft('compare'),
         edExpiry: d.expiry || '', onEdExpiry: setDraft('expiry'),
         edFree: !!d.freeItem, onEdFree: (e) => { const on = !!e.target.checked; this.setState(s => ({ editDraft: { ...s.editDraft, freeItem: on }, editError: '' })); },
         edBrand: d.brand || '', onEdBrand: setDraft('brand'),
@@ -3516,6 +3524,10 @@ class Component extends DCLogic {
           const buyRaw = String(dr.buyPrice == null ? '' : dr.buyPrice).trim();
           const buyNum = buyRaw === '' ? 0 : Number(buyRaw);
           if (!isFinite(buyNum) || buyNum < 0) { this.setState({ editError: 'Buy price must be a number, 0 or more.' }); return; }
+          const cmpRaw = String(dr.compare == null ? '' : dr.compare).trim();
+          const cmpNum = cmpRaw === '' ? 0 : Number(cmpRaw);
+          if (!isFinite(cmpNum) || cmpNum < 0) { this.setState({ editError: '"Discounted from" must be a number, 0 or more (or leave it empty).' }); return; }
+          if (cmpNum > 0 && cmpNum <= sellNum) { this.setState({ editError: '"Discounted from" is the old price, so it must be higher than the sell price. Clear it if there is no discount.' }); return; }
           this.setState({ savingEditSku: p.sku });
           const nameAr = String(dr.nameAr || '').trim() || await this.translateAr(dr.name);
           const descAr = String(dr.descAr || '').trim() || await this.translateAr(dr.desc);
@@ -3535,12 +3547,13 @@ class Component extends DCLogic {
           const cat2Save = resolveCat2(rcSave.cat, dr.cat2);
           if (cat2Save !== (p.cat2 || '')) patch.category2 = cat2Save || null;
           if (buyNum !== (Number(p.buyPrice) || 0)) patch.buy_price = buyNum;
+          if (cmpNum !== (Number(p.compare) || 0)) patch.compare_price = cmpNum > 0 ? cmpNum : null;
           const expSave = String(dr.expiry || '').trim();
           if (!!dr.freeItem !== !!p.freeItem) patch.free_item = !!dr.freeItem;
           if (expSave !== (p.expiry || '')) patch.expiry_date = expSave || null;
           const { error } = await window.getSupabase().from('products').update(patch).eq('sku', p.sku);
           this.setState({ savingEditSku: null });
-          if (error) { this.setState({ editError: this.needsSql(error) ? 'Buy price, expiry, Sub category II and the free-product tick need a one-time database update — run madzo-products-v2.sql and madzo-update-3.sql in Supabase, then save again.' : error.message }); return; }
+          if (error) { this.setState({ editError: this.needsSql(error) ? 'Buy price, discount price, expiry, Sub category II and the free-product tick need a one-time database update — run madzo-products-v2.sql, madzo-update-3.sql and madzo-update-9.sql in Supabase, then save again.' : error.message }); return; }
           this.setState({ editSku: null, editDraft: null, editError: '' });
           this.loadProducts();
         },
@@ -4141,7 +4154,7 @@ class Component extends DCLogic {
           id: p.sku, name: p.name || '', nameAr: p.nameAr || '',
           mainCat: p.mainCat || 'cosmetics', cat: p.catKey || 'skincare', cat2: p.cat2 || '',
           brand: p.brand || '', desc: p.desc || '', descAr: p.descAr || '',
-          buyPrice: p.buyPrice ? String(p.buyPrice) : '', price: (p.price == null ? '' : String(p.price)), expiry: p.expiry || '', freeItem: !!p.freeItem
+          buyPrice: p.buyPrice ? String(p.buyPrice) : '', price: (p.price == null ? '' : String(p.price)), compare: p.compare ? String(p.compare) : '', expiry: p.expiry || '', freeItem: !!p.freeItem
         }
       }, () => window.scrollTo(0, 0));
       flash('Product ' + p.sku + ' already exists — opened for editing.');
@@ -4601,6 +4614,7 @@ class Component extends DCLogic {
       },
       onNewBrand: (e) => this.setState(s => ({ newProd: { ...s.newProd, brand: e.target.value } })),
       onNewDesc: (e) => this.setState(s => ({ newProd: { ...s.newProd, desc: e.target.value } })),
+      onNewCompare: (e) => this.setState(s => ({ newProd: { ...s.newProd, compare: e.target.value } })),
       onNewPrice: (e) => this.setState(s => ({ newProd: { ...s.newProd, price: e.target.value } })),
       onNewStock: (e) => this.setState(s => ({ newProd: { ...s.newProd, stock: e.target.value } })),
       saveNewProd: async () => {
@@ -4612,6 +4626,10 @@ class Component extends DCLogic {
         if (!Number.isInteger(sellNew)) { this.setState({ newProdError: 'Sell price must be a whole number of QAR (no decimals).' }); return; }
         const buyNew = String(np.buyPrice || '').trim() === '' ? 0 : Number(np.buyPrice);
         if (!isFinite(buyNew) || buyNew < 0) { this.setState({ newProdError: 'Buy price must be a number, 0 or more.' }); return; }
+        const cmpNewRaw = String(np.compare || '').trim();
+        const cmpNew = cmpNewRaw === '' ? 0 : Number(cmpNewRaw);
+        if (!isFinite(cmpNew) || cmpNew < 0) { this.setState({ newProdError: '"Discounted from" must be a number, 0 or more (or leave it empty).' }); return; }
+        if (cmpNew > 0 && cmpNew <= sellNew) { this.setState({ newProdError: '"Discounted from" is the old price, so it must be higher than the sell price. Clear it if there is no discount.' }); return; }
         const price = sellNew;
         const stock = Math.max(0, parseInt(np.stock || '0', 10) || 0);
         const buyPrice = buyNew;
@@ -4638,13 +4656,14 @@ class Component extends DCLogic {
         // Only sent when filled in, so adding a plain product works even before madzo-products-v2.sql is run.
         if (cat2New) row.category2 = cat2New;
         if (buyPrice > 0) row.buy_price = buyPrice;
+        if (cmpNew > 0) row.compare_price = cmpNew;
         if (expiry) row.expiry_date = expiry;
         if (np.freeItem) row.free_item = true;
         const { error } = await window.getSupabase().from('products').insert(row);
-        if (error) { this.setState({ savingProd: false, newProdError: this.needsSql(error) ? 'Buy price, expiry and Sub category II need a one-time database update — run madzo-products-v2.sql in Supabase, then save again.' : error.message }); return; }
+        if (error) { this.setState({ savingProd: false, newProdError: this.needsSql(error) ? 'Buy price, discount price, expiry and Sub category II need a one-time database update — run madzo-products-v2.sql and madzo-update-9.sql in Supabase, then save again.' : error.message }); return; }
         if (this.state.newProdFile) await this.uploadProductImage(sku, this.state.newProdFile);
         this.setState({ savingProd: false, newProdFile: null });
-        this.setState({ newProd: { id: '', name: '', mainCat: 'cosmetics', cat: 'skincare', cat2: '', brand: '', desc: '', price: '', stock: '', buyPrice: '', expiry: '', freeItem: false }, newProdError: '', showAddForm: false });
+        this.setState({ newProd: { id: '', name: '', mainCat: 'cosmetics', cat: 'skincare', cat2: '', brand: '', desc: '', price: '', compare: '', stock: '', buyPrice: '', expiry: '', freeItem: false }, newProdError: '', showAddForm: false });
         this.loadProducts();
       },
       editError: this.state.editError,

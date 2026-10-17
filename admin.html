@@ -23,6 +23,8 @@
     html, body { margin: 0; padding: 0; background: #F1ECE2; }
     * { box-sizing: border-box; }
     input, textarea, select, button { font-family: inherit; }
+    input, textarea, select { color: #2E2A26; text-overflow: ellipsis; min-width: 0; }
+    option { color: #2E2A26; }
     a { color: #461610; }
     a:hover { color: #39120D; }
     .madzo-prod-row .madzo-del-btn { opacity: 0; transition: opacity .15s ease; }
@@ -561,7 +563,7 @@
                 </sc-if>
                 <sc-if value="{{ p.editing }}" hint-placeholder-val="{{ false }}">
                   <div style="border-top: 1px solid #E7DECF; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: #FAF5EC; border-radius: 0 0 16px 16px;">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px;">
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Product ID
                         <input value="{{ p.edId }}" onChange="{{ p.onEdId }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                       </label>
@@ -668,15 +670,15 @@
           <sc-if value="{{ showOrderForm }}" hint-placeholder-val="{{ false }}">
             <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
               <h2 style="font-size: 15px; font-weight: 600; margin: 0;">Add order manually</h2>
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; align-items: end;">
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Order ID (auto — editable)
                   <input value="{{ newOrder.id }}" onChange="{{ onNOId }}" placeholder="MZO-0001" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Platform / source
-                  <input value="{{ newOrder.source }}" onChange="{{ onNOSource }}" placeholder="Instagram / WhatsApp / Phone…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                  <input value="{{ newOrder.source }}" onChange="{{ onNOSource }}" placeholder="Instagram, WhatsApp…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Customer name
-                  <input value="{{ newOrder.name }}" onChange="{{ onNOName }}" list="madzo-cust-names" autocomplete="off" placeholder="Type a name — saved customers appear" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                  <input value="{{ newOrder.name }}" onChange="{{ onNOName }}" list="madzo-cust-names" autocomplete="off" placeholder="Type a name…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Phone (Qatar number) *
                   <input value="{{ newOrder.phone }}" onChange="{{ onNOPhone }}" list="madzo-cust-phones" autocomplete="off" inputmode="tel" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
@@ -713,8 +715,8 @@
 
               <h3 style="font-size: 13.5px; font-weight: 600; margin: 6px 0 0; color: #2E2A26;">Items</h3>
               <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                <input value="{{ pickNO }}" onChange="{{ onPickProduct }}" onKeyDown="{{ onPickProductKey }}" list="madzo-sale-prods" autocomplete="off" placeholder="+ Add from products… (type to search)" aria-label="+ Add from products… (type to search)" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; outline: none; width: 260px; max-width: 100%;" style-focus="border-color: #461610;">
-                <input value="{{ pickNOF }}" onChange="{{ onPickFreeProduct }}" onKeyDown="{{ onPickFreeProductKey }}" list="madzo-sale-free" autocomplete="off" placeholder="🎁 Add free product… (type)" aria-label="🎁 Add free product… (type)" style="background: #F1ECE2; border: 1px solid #1E8A4C; color: #1E8A4C; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; outline: none; width: 210px; max-width: 100%;" style-focus="border-color: #461610;">
+                <input value="{{ pickNO }}" onChange="{{ onPickProduct }}" onKeyDown="{{ onPickProductKey }}" list="madzo-sale-prods" autocomplete="off" placeholder="+ Add from products… (type to search)" aria-label="+ Add from products… (type to search)" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; outline: none; width: 400px; max-width: 100%;" style-focus="border-color: #461610;">
+                <input value="{{ pickNOF }}" onChange="{{ onPickFreeProduct }}" onKeyDown="{{ onPickFreeProductKey }}" list="madzo-sale-free" autocomplete="off" placeholder="🎁 Add free product… (type)" aria-label="🎁 Add free product… (type)" style="background: #F1ECE2; border: 1px solid #1E8A4C; color: #1E8A4C; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; outline: none; width: 320px; max-width: 100%;" style-focus="border-color: #461610;">
                 <sc-if value="{{ noFreeProds }}" hint-placeholder-val="{{ false }}"><span style="font-size: 11.5px; color: #A9A091; align-self: center;">No product is marked as a free item yet — Products → Edit → tick “Can be given as a free product”.</span></sc-if>
                 <button onClick="{{ addOrderItem }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 9px 16px; font-size: 12.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">+ Add custom item</button>
               </div>
@@ -809,7 +811,7 @@
 
                 <sc-if value="{{ o.editing }}" hint-placeholder-val="{{ false }}">
                   <div style="border-top: 1px solid #E7DECF; margin-top: 6px; padding-top: 14px; display: flex; flex-direction: column; gap: 12px;">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px;">
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Order ID
                         <input value="{{ o.edId }}" onChange="{{ o.onEdId }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                       </label>
@@ -853,8 +855,8 @@
 
                     <h3 style="font-size: 13px; font-weight: 600; margin: 4px 0 0; color: #2E2A26;">Items</h3>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                      <input value="{{ o.edPick }}" onChange="{{ o.onEdPickProduct }}" onKeyDown="{{ o.onEdPickProductKey }}" list="madzo-sale-prods" autocomplete="off" placeholder="+ Add from products… (type to search)" aria-label="+ Add from products… (type to search)" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 13.5px; outline: none; width: 260px; max-width: 100%;" style-focus="border-color: #461610;">
-                      <input value="{{ o.edPickF }}" onChange="{{ o.onEdPickFreeProduct }}" onKeyDown="{{ o.onEdPickFreeProductKey }}" list="madzo-sale-free" autocomplete="off" placeholder="🎁 Add free product… (type)" aria-label="🎁 Add free product… (type)" style="background: #F1ECE2; border: 1px solid #1E8A4C; color: #1E8A4C; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; outline: none; width: 210px; max-width: 100%;" style-focus="border-color: #461610;">
+                      <input value="{{ o.edPick }}" onChange="{{ o.onEdPickProduct }}" onKeyDown="{{ o.onEdPickProductKey }}" list="madzo-sale-prods" autocomplete="off" placeholder="+ Add from products… (type to search)" aria-label="+ Add from products… (type to search)" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 13.5px; outline: none; width: 400px; max-width: 100%;" style-focus="border-color: #461610;">
+                      <input value="{{ o.edPickF }}" onChange="{{ o.onEdPickFreeProduct }}" onKeyDown="{{ o.onEdPickFreeProductKey }}" list="madzo-sale-free" autocomplete="off" placeholder="🎁 Add free product… (type)" aria-label="🎁 Add free product… (type)" style="background: #F1ECE2; border: 1px solid #1E8A4C; color: #1E8A4C; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; outline: none; width: 320px; max-width: 100%;" style-focus="border-color: #461610;">
                       <sc-if value="{{ noFreeProds }}" hint-placeholder-val="{{ false }}"><span style="font-size: 11.5px; color: #A9A091; align-self: center;">No product is marked as a free item yet — Products → Edit → tick “Can be given as a free product”.</span></sc-if>
                       <button onClick="{{ o.addEdItem }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 14px; font-size: 12px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">+ Add custom item</button>
                     </div>
@@ -905,53 +907,44 @@
         <section data-screen-label="Purchase Orders Admin">
           <sc-if value="{{ idFoundMsg }}" hint-placeholder-val="{{ false }}"><div style="background: #E3F3E8; border: 1px solid #B6DEC3; border-radius: 12px; padding: 10px 14px; font-size: 13px; color: #1F6B3A; max-width: 680px; margin-bottom: 14px;">{{ idFoundMsg }}</div></sc-if>
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; flex-wrap: wrap;">
-            <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Purchase orders</h1>
+            <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Purchases</h1>
             <span style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <button onClick="{{ newPOReturn }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #461610; color: #FDF9F4;">{{ poReturnLabel }}</button>
-              <button onClick="{{ togglePOForm }}" style="background: #461610; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #39120D;">{{ poFormLabel }}</button>
+              <sc-if value="{{ poViewPO }}" hint-placeholder-val="{{ true }}"><button onClick="{{ newPOReturn }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #461610; color: #FDF9F4;">{{ poReturnLabel }}</button>
+              <button onClick="{{ togglePOForm }}" style="background: #461610; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #39120D;">{{ poFormLabel }}</button></sc-if>
             </span>
           </div>
-          <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Orders you place with suppliers to restock — not visible to customers.</p>
+          <div style="display: inline-flex; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 999px; padding: 3px; margin: 8px 0 14px;">
+            <button onClick="{{ poGoPO }}" style="border: none; border-radius: 999px; padding: 6px 16px; font-size: 12.5px; cursor: pointer; font-weight: 600; background: {{ poTabPoBg }}; color: {{ poTabPoColor }};">Purchase invoices</button>
+            <button onClick="{{ poGoGRN }}" style="border: none; border-radius: 999px; padding: 6px 16px; font-size: 12.5px; cursor: pointer; font-weight: 600; background: {{ poTabGrnBg }}; color: {{ poTabGrnColor }};">GRN entry</button>
+            <button onClick="{{ poGoOM }}" style="border: none; border-radius: 999px; padding: 6px 16px; font-size: 12.5px; cursor: pointer; font-weight: 600; background: {{ poTabOmBg }}; color: {{ poTabOmColor }};">Order monitoring</button>
+          </div>
+          <sc-if value="{{ poViewPO }}" hint-placeholder-val="{{ true }}">
+          <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Purchase invoices from your suppliers to restock — not visible to customers.</p>
           <div style="position: relative; margin-bottom: 14px; max-width: 320px;">
-            <input value="{{ poSearch }}" onChange="{{ onPoSearch }}" placeholder="Search by supplier or PO number…" style="width: 100%; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13.5px; outline: none; box-sizing: border-box;" style-focus="border-color: #461610;">
+            <input value="{{ poSearch }}" onChange="{{ onPoSearch }}" placeholder="Search by supplier or invoice number…" style="width: 100%; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13.5px; outline: none; box-sizing: border-box;" style-focus="border-color: #461610;">
           </div>
 
           <sc-if value="{{ showPOForm }}" hint-placeholder-val="{{ false }}">
             <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
               <h2 style="font-size: 15px; font-weight: 600; margin: 0;">{{ poFormTitle }}</h2>
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
-                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">PO # (auto — editable)
-                  <input value="{{ newPO.id }}" onChange="{{ onPOId }}" placeholder="PO-0001" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; align-items: end;">
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Invoice # (auto — editable)
+                  <input value="{{ newPO.id }}" onChange="{{ onPOId }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier name (M/S)
-                  <input value="{{ newPO.supplier }}" onChange="{{ onPOSupplier }}" list="madzo-supplier-names" placeholder="Type or pick a saved supplier…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
-                  <sc-if value="{{ poSupplierMatched }}" hint-placeholder-val="{{ false }}">
-                    <span style="font-size: 11px; color: #1E8A4C;">✓ Using saved contact details — edit below if they've changed</span>
-                  </sc-if>
+                  <input value="{{ newPO.supplier }}" onChange="{{ onPOSupplier }}" list="madzo-supplier-names" placeholder="Type or pick…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                   <datalist id="madzo-supplier-names">
                     <sc-for list="{{ supplierOptions }}" as="sn" hint-placeholder-count="3">
                       <option value="{{ sn.name }}"></option>
                     </sc-for>
                   </datalist>
                 </label>
-                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier email
-                  <input value="{{ newPO.email }}" onChange="{{ onPOEmail }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
-                </label>
-                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier phone (with country code, for WhatsApp)
-                  <input value="{{ newPO.phone }}" onChange="{{ onPOPhone }}" placeholder="+974 XXXX XXXX" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
-                </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Date
                   <input value="{{ newPO.date }}" onChange="{{ onPODate }}" type="date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
-                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Delivery expected
-                  <input value="{{ newPO.delivery }}" onChange="{{ onPODelivery }}" type="date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
-                </label>
-                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Terms
-                  <input value="{{ newPO.terms }}" onChange="{{ onPOTerms }}" placeholder="As Per Agreement" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
-                </label>
                 <sc-if value="{{ poIsReturn }}" hint-placeholder-val="{{ false }}">
-                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Against PO # (optional)
-                    <input value="{{ newPO.refPo }}" onChange="{{ onPORefPo }}" placeholder="e.g. PO-0007" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Against invoice # (optional)
+                    <input value="{{ newPO.refPo }}" onChange="{{ onPORefPo }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                   </label>
                 </sc-if>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Status
@@ -988,7 +981,7 @@
               </span>
 
               <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 880px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 940px;">
                   <thead>
                     <tr style="text-align: start; color: #857D72;">
                       <th style="padding: 6px 4px; font-weight: 600;">Code</th>
@@ -1006,7 +999,7 @@
                   <tbody>
                     <sc-for list="{{ poItems }}" as="it" hint-placeholder-count="2">
                       <tr style="border-top: 1px solid #EDE4D3;">
-                        <td style="padding: 5px 4px;"><input value="{{ it.code }}" onChange="{{ it.onCode }}" list="madzo-po-product-codes" placeholder="ID…" style="width: 84px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
+                        <td style="padding: 5px 4px;"><input value="{{ it.code }}" onChange="{{ it.onCode }}" list="madzo-po-product-codes" placeholder="ID…" style="width: 130px; min-width: 130px; box-sizing: border-box; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
                         <td style="padding: 5px 4px;">
                           <input value="{{ it.desc }}" onChange="{{ it.onDesc }}" list="madzo-po-product-names" placeholder="Type or pick a product…" style="width: 100%; min-width: 320px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                           <sc-if value="{{ it.isMatched }}" hint-placeholder-val="{{ false }}">
@@ -1064,7 +1057,7 @@
           <div style="overflow-x: auto;">
             <div style="min-width: 700px; display: flex; flex-direction: column; gap: 6px;">
               <div style="display: grid; grid-template-columns: minmax(150px,1fr) 130px 110px 110px 100px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
-                <span>Supplier</span><span>PO # / Date</span><span>Status</span><span>Payment</span><span>Net Amount</span>
+                <span>Supplier</span><span>Invoice # / Date</span><span>Status</span><span>Payment</span><span>Net Amount</span>
               </div>
               <sc-for list="{{ pagedPOs }}" as="po" hint-placeholder-count="6">
                 <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px;">
@@ -1106,6 +1099,266 @@
               <span style="font-size: 12.5px; color: #857D72;">{{ poPager.label }}</span>
               <button onClick="{{ poPager.next }}" disabled="{{ poPager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ poPager.nextOpacity }};" style-hover="border-color: #461610; color: #461610;">Next →</button>
             </div>
+          </sc-if>
+          </sc-if>
+          <sc-if value="{{ poViewGRN }}" hint-placeholder-val="{{ false }}">
+            <sc-if value="{{ grnMissing }}" hint-placeholder-val="{{ false }}"><div style="background: #FBEFD4; border: 1px solid #EBD9A8; border-radius: 12px; padding: 10px 14px; font-size: 13px; color: #7A5F27; max-width: 680px; margin-bottom: 14px;">GRN entries need a one-time database update — run <b>madzo-update-10.sql</b> in Supabase (SQL Editor), then reload this page.</div></sc-if>
+            <sc-if value="{{ grnMsg }}" hint-placeholder-val="{{ false }}"><div style="background: #E3F3E8; border: 1px solid #B6DEC3; border-radius: 12px; padding: 10px 14px; font-size: 13px; color: #1F6B3A; max-width: 680px; margin-bottom: 14px;">{{ grnMsg }}</div></sc-if>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap;">
+              <p style="color: #857D72; font-size: 13px; margin: 0;">Record goods received against a supplier invoice. Saving a GRN adds the stock to each product.</p>
+              <button onClick="{{ grnToggleForm }}" style="background: #461610; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #39120D;">{{ grnFormLabel }}</button>
+            </div>
+
+            <sc-if value="{{ grnFormOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
+                <h2 style="font-size: 15px; font-weight: 600; margin: 0;">{{ grnFormTitle }}</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px;">
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">GRN no.
+                    <input value="{{ grnD.id }}" readonly style="background: #EAE3D6; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr; color: #5C554B;">
+                  </label>
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Invoice number *
+                    <input value="{{ grnD.invoice }}" onChange="{{ onGrnInvoice }}" aria-label="GRN invoice number" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
+                  </label>
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier name *
+                    <input value="{{ grnD.supplier }}" onChange="{{ onGrnSupplier }}" list="madzo-grn-suppliers" autocomplete="off" aria-label="GRN supplier name" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                    <datalist id="madzo-grn-suppliers">
+                      <sc-for list="{{ supplierOptions }}" as="gsn" hint-placeholder-count="3"><option value="{{ gsn.name }}"></option></sc-for>
+                    </datalist>
+                  </label>
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Date
+                    <input value="{{ grnD.date }}" onChange="{{ onGrnDate }}" type="date" aria-label="GRN date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                  </label>
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Payment mode
+                    <select value="{{ grnD.payMode }}" onChange="{{ onGrnPayMode }}" aria-label="GRN payment mode" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                      <option value="cash">Cash</option>
+                      <option value="card">Card</option>
+                      <option value="credit">Credit</option>
+                    </select>
+                  </label>
+                </div>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Remarks
+                  <input value="{{ grnD.remarks }}" onChange="{{ onGrnRemarks }}" aria-label="GRN remarks" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                </label>
+
+                <h3 style="font-size: 13.5px; font-weight: 600; margin: 6px 0 0; color: #2E2A26;">Items received</h3>
+                <div style="overflow-x: auto;">
+                  <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 900px;">
+                    <thead>
+                      <tr style="text-align: start; color: #857D72;">
+                        <th style="padding: 6px 4px; font-weight: 600;">Code</th>
+                        <th style="padding: 6px 4px; font-weight: 600;">Product name</th>
+                        <th style="padding: 6px 4px; font-weight: 600;">Qty</th>
+                        <th style="padding: 6px 4px; font-weight: 600;">Free qty</th>
+                        <th style="padding: 6px 4px; font-weight: 600;">Buy price</th>
+                        <th style="padding: 6px 4px; font-weight: 600;">Sell price</th>
+                        <th style="padding: 6px 4px; font-weight: 600;">Expiry (mm/yy)</th>
+                        <th style="padding: 6px 4px; font-weight: 600; text-align: end;">Total</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <sc-for list="{{ grnItems }}" as="gi" hint-placeholder-count="2">
+                        <tr style="border-top: 1px solid #EDE4D3;">
+                          <td style="padding: 5px 4px;"><input value="{{ gi.code }}" onChange="{{ gi.onCode }}" list="madzo-grn-codes" autocomplete="off" aria-label="GRN item code" style="width: 130px; min-width: 130px; box-sizing: border-box; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none; direction: ltr;" style-focus="border-color: #461610;"></td>
+                          <td style="padding: 5px 4px;">
+                            <input value="{{ gi.name }}" onChange="{{ gi.onName }}" list="madzo-grn-names" autocomplete="off" aria-label="GRN item product name" style="width: 100%; min-width: 260px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 10px; font-size: 12.5px; outline: none;" style-focus="border-color: #461610;">
+                            <sc-if value="{{ gi.notMatched }}" hint-placeholder-val="{{ false }}"><div style="font-size: 11px; color: #B0852A; margin-top: 3px;">Pick a product from your catalog</div></sc-if>
+                          </td>
+                          <td style="padding: 5px 4px;"><input value="{{ gi.qty }}" onChange="{{ gi.onQty }}" type="number" min="0" aria-label="GRN item qty" style="width: 58px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;" style-focus="border-color: #461610;"></td>
+                          <td style="padding: 5px 4px;"><input value="{{ gi.free }}" onChange="{{ gi.onFree }}" type="number" min="0" aria-label="GRN item free qty" style="width: 58px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;" style-focus="border-color: #461610;"></td>
+                          <td style="padding: 5px 4px;"><input value="{{ gi.buy }}" onChange="{{ gi.onBuy }}" type="number" min="0" step="0.01" aria-label="GRN item buy price" style="width: 76px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;" style-focus="border-color: #461610;"></td>
+                          <td style="padding: 5px 4px;"><input value="{{ gi.sell }}" onChange="{{ gi.onSell }}" type="number" min="0" aria-label="GRN item sell price" style="width: 76px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;" style-focus="border-color: #461610;"></td>
+                          <td style="padding: 5px 4px;"><input value="{{ gi.expiry }}" onChange="{{ gi.onExpiry }}" maxlength="5" inputmode="numeric" aria-label="GRN item expiry" style="width: 70px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none; direction: ltr;" style-focus="border-color: #461610;"></td>
+                          <td style="padding: 5px 4px; text-align: end; font-weight: 600; white-space: nowrap;">{{ gi.lineTotal }}</td>
+                          <td style="padding: 5px 4px;"><button onClick="{{ gi.remove }}" aria-label="Remove GRN line" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 17px;" style-hover="color: #C0392B;">×</button></td>
+                        </tr>
+                      </sc-for>
+                    </tbody>
+                  </table>
+                  <datalist id="madzo-grn-codes">
+                    <sc-for list="{{ grnCodeOptions }}" as="gc" hint-placeholder-count="5"><option value="{{ gc.sku }}" label="{{ gc.label }}"></option></sc-for>
+                  </datalist>
+                  <datalist id="madzo-grn-names">
+                    <sc-for list="{{ grnNameOptions }}" as="gn" hint-placeholder-count="5"><option value="{{ gn.name }}"></option></sc-for>
+                  </datalist>
+                </div>
+                <button onClick="{{ grnAddLine }}" style="align-self: flex-start; background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 12.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">+ Add line</button>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #5C554B; cursor: pointer;">
+                  <input type="checkbox" checked="{{ grnD.updatePrices }}" onChange="{{ onGrnUpdatePrices }}" aria-label="Update product prices" style="width: 16px; height: 16px; accent-color: #461610;">
+                  Also update each product's buy &amp; sell price to the values above
+                </label>
+                <div style="display: flex; justify-content: flex-end; font-size: 15px; font-weight: 700; color: #2E2A26;">Total: {{ grnTotal }}</div>
+                <sc-if value="{{ grnError }}" hint-placeholder-val="{{ false }}"><p style="color: #C0392B; font-size: 13px; margin: 0;">{{ grnError }}</p></sc-if>
+                <span style="display: flex; gap: 10px;">
+                  <button onClick="{{ saveGRN }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 11px 22px; font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="filter: brightness(1.07);">{{ saveGrnLabel }}</button>
+                  <button onClick="{{ grnToggleForm }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 11px 22px; font-size: 14px; cursor: pointer;">Cancel</button>
+                </span>
+              </div>
+            </sc-if>
+
+            <div style="position: relative; margin-bottom: 14px; max-width: 320px;">
+              <input value="{{ grnSearch }}" onChange="{{ onGrnSearch }}" placeholder="Search by invoice, supplier or GRN no…" aria-label="Search GRN" style="width: 100%; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13.5px; outline: none; box-sizing: border-box;" style-focus="border-color: #461610;">
+            </div>
+            <sc-if value="{{ noGRNs }}" hint-placeholder-val="{{ false }}"><p style="color: #857D72; text-align: center; padding: 30px 0;">{{ noGrnText }}</p></sc-if>
+            <div style="overflow-x: auto;">
+              <div style="min-width: 760px; display: flex; flex-direction: column; gap: 6px;">
+                <div style="display: grid; grid-template-columns: 100px 130px minmax(140px,1fr) 100px 90px 70px 100px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                  <span>GRN no.</span><span>Invoice no.</span><span>Supplier</span><span>Date</span><span>Payment</span><span>Items</span><span>Total</span>
+                </div>
+                <sc-for list="{{ pagedGRNs }}" as="g" hint-placeholder-count="4">
+                  <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: grid; grid-template-columns: 100px 130px minmax(140px,1fr) 100px 90px 70px 100px; gap: 10px; align-items: center; font-size: 13px; color: #2E2A26;">
+                      <span style="font-size: 12px; font-weight: 600; color: #8A7F70;">{{ g.id }}</span>
+                      <span style="font-weight: 600;">{{ g.invoice }}</span>
+                      <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ g.supplier }}</span>
+                      <span>{{ g.dateLabel }}</span>
+                      <span>{{ g.payLabel }}</span>
+                      <span>{{ g.itemCount }}</span>
+                      <span style="font-weight: 600;">{{ g.totalLabel }}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                      <button onClick="{{ g.toggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">{{ g.toggleLabel }}</button>
+                      <button onClick="{{ g.edit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">Edit</button>
+                      <button onClick="{{ g.askRemove }}" aria-label="Delete GRN" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px; margin-inline-start: auto;" style-hover="color: #C0392B;">×</button>
+                    </div>
+                    <sc-if value="{{ g.open }}" hint-placeholder-val="{{ false }}">
+                      <div style="border-top: 1px solid #EFE6D8; padding-top: 8px; display: flex; flex-direction: column; gap: 4px;">
+                        <sc-if value="{{ g.hasRemarks }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12.5px; color: #857D72; margin-bottom: 4px;">📝 {{ g.remarks }}</div></sc-if>
+                        <sc-for list="{{ g.lines }}" as="gl" hint-placeholder-count="2">
+                          <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 12.5px; color: #5C554B; background: #F6F0E6; border-radius: 8px; padding: 6px 10px;">
+                            <span style="flex: 1; min-width: 200px; font-weight: 600; color: #2E2A26;">{{ gl.name }} <span style="font-weight: 400; color: #A9A091;">{{ gl.code }}</span></span>
+                            <span>Qty {{ gl.qty }}</span><span>Free {{ gl.free }}</span><span>Buy {{ gl.buy }}</span><span>Sell {{ gl.sell }}</span><span>Exp {{ gl.expiry }}</span>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ g.confirming }}" hint-placeholder-val="{{ false }}">
+                      <div style="width: 100%; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #FCECEA; border: 1px solid #F3D9D6; border-radius: 10px; padding: 10px 14px;">
+                        <span style="font-size: 13px; color: #96352C;">Delete {{ g.id }} and take its stock back out?</span>
+                        <span style="display: flex; gap: 8px; margin-inline-start: auto;">
+                          <button onClick="{{ g.confirmRemove }}" style="background: #C0392B; color: #fff; border: none; border-radius: 999px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer;">Yes, delete</button>
+                          <button onClick="{{ g.cancelRemove }}" style="background: none; border: 1px solid #E3B7B1; color: #96352C; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer;">Cancel</button>
+                        </span>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <sc-if value="{{ grnPager.show }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 18px;">
+                <button onClick="{{ grnPager.prev }}" disabled="{{ grnPager.atStart }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ grnPager.prevOpacity }};">← Prev</button>
+                <span style="font-size: 12.5px; color: #857D72;">{{ grnPager.label }}</span>
+                <button onClick="{{ grnPager.next }}" disabled="{{ grnPager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ grnPager.nextOpacity }};">Next →</button>
+              </div>
+            </sc-if>
+          </sc-if>
+          <sc-if value="{{ poViewOM }}" hint-placeholder-val="{{ false }}">
+            <sc-if value="{{ omMissing }}" hint-placeholder-val="{{ false }}"><div style="background: #FBEFD4; border: 1px solid #EBD9A8; border-radius: 12px; padding: 10px 14px; font-size: 13px; color: #7A5F27; max-width: 680px; margin-bottom: 14px;">Order monitoring needs a one-time database update — run <b>madzo-update-11.sql</b> in Supabase (SQL Editor), then reload this page.</div></sc-if>
+            <sc-if value="{{ omMsg }}" hint-placeholder-val="{{ false }}"><div style="background: #E3F3E8; border: 1px solid #B6DEC3; border-radius: 12px; padding: 10px 14px; font-size: 13px; color: #1F6B3A; max-width: 680px; margin-bottom: 14px;">{{ omMsg }}</div></sc-if>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap;">
+              <p style="color: #857D72; font-size: 13px; margin: 0;">Keep track of orders you have placed with suppliers — what was ordered, when it should arrive and where it stands. {{ omSummary }}</p>
+              <button onClick="{{ omToggleForm }}" style="background: #461610; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #39120D;">{{ omFormLabel }}</button>
+            </div>
+
+            <sc-if value="{{ omFormOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
+                <h2 style="font-size: 15px; font-weight: 600; margin: 0;">{{ omFormTitle }}</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; align-items: end;">
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Date
+                    <input value="{{ omD.date }}" onChange="{{ onOmDate }}" type="date" aria-label="Order date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                  </label>
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Invoice no *
+                    <input value="{{ omD.invoice }}" onChange="{{ onOmInvoice }}" aria-label="Order invoice no" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
+                  </label>
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Source
+                    <input value="{{ omD.source }}" onChange="{{ onOmSource }}" list="madzo-om-sources" autocomplete="off" aria-label="Order source" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                    <datalist id="madzo-om-sources"><sc-for list="{{ omSourceOptions }}" as="so" hint-placeholder-count="3"><option value="{{ so.name }}"></option></sc-for></datalist>
+                  </label>
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Payment mode
+                    <select value="{{ omD.payMode }}" onChange="{{ onOmPayMode }}" aria-label="Order payment mode" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                      <option value="cash">Cash</option><option value="card">Card</option><option value="credit">Credit</option>
+                    </select>
+                  </label>
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Total amount (QAR)
+                    <input value="{{ omD.total }}" onChange="{{ onOmTotal }}" type="number" min="0" step="0.01" aria-label="Order total amount" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                  </label>
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Expected delivery date
+                    <input value="{{ omD.expected }}" onChange="{{ onOmExpected }}" type="date" aria-label="Order expected delivery date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                  </label>
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Package size
+                    <input value="{{ omD.size }}" onChange="{{ onOmSize }}" list="madzo-om-sizes" autocomplete="off" aria-label="Order package size" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                    <datalist id="madzo-om-sizes"><option value="Small"></option><option value="Medium"></option><option value="Large"></option><option value="Pallet"></option></datalist>
+                  </label>
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Order status
+                    <select value="{{ omD.status }}" onChange="{{ onOmStatus }}" aria-label="Order status" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                      <sc-for list="{{ omStatusOptions }}" as="st" hint-placeholder-count="3"><option value="{{ st.v }}" selected="{{ st.selected }}">{{ st.l }}</option></sc-for>
+                    </select>
+                  </label>
+                </div>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Remarks
+                  <input value="{{ omD.remarks }}" onChange="{{ onOmRemarks }}" aria-label="Order remarks" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                </label>
+                <sc-if value="{{ omError }}" hint-placeholder-val="{{ false }}"><p style="color: #C0392B; font-size: 13px; margin: 0;">{{ omError }}</p></sc-if>
+                <span style="display: flex; gap: 10px;">
+                  <button onClick="{{ saveOM }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 11px 22px; font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="filter: brightness(1.07);">{{ saveOmLabel }}</button>
+                  <button onClick="{{ omToggleForm }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 11px 22px; font-size: 14px; cursor: pointer;">Cancel</button>
+                </span>
+              </div>
+            </sc-if>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px;">
+              <input value="{{ omSearch }}" onChange="{{ onOmSearch }}" placeholder="Search invoice, source or remarks…" aria-label="Search orders" style="width: 320px; max-width: 100%; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13.5px; outline: none; box-sizing: border-box;" style-focus="border-color: #461610;">
+              <select value="{{ omStatusF }}" onChange="{{ onOmStatusF }}" aria-label="Filter by order status" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13px; outline: none; cursor: pointer;">
+                <sc-for list="{{ omStatusFilterOptions }}" as="sf" hint-placeholder-count="3"><option value="{{ sf.v }}" selected="{{ sf.selected }}">{{ sf.l }}</option></sc-for>
+              </select>
+              <span style="font-size: 12.5px; color: #857D72;">{{ omCountLabel }}</span>
+            </div>
+            <sc-if value="{{ noOMs }}" hint-placeholder-val="{{ false }}"><p style="color: #857D72; text-align: center; padding: 30px 0;">{{ noOmText }}</p></sc-if>
+            <div style="overflow-x: auto;">
+              <div style="min-width: 1100px; display: flex; flex-direction: column; gap: 6px;">
+                <div style="display: grid; grid-template-columns: 100px 120px minmax(120px,1fr) 80px 110px 130px 100px 120px minmax(120px,1.2fr) 90px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                  <span>Date</span><span>Invoice no</span><span>Source</span><span>Payment</span><span>Total amount</span><span>Expected delivery</span><span>Package size</span><span>Order status</span><span>Remarks</span><span></span>
+                </div>
+                <sc-for list="{{ pagedOMs }}" as="om" hint-placeholder-count="4">
+                  <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: grid; grid-template-columns: 100px 120px minmax(120px,1fr) 80px 110px 130px 100px 120px minmax(120px,1.2fr) 90px; gap: 10px; align-items: center; font-size: 12.5px; color: #2E2A26;">
+                      <span style="font-weight: 600;">{{ om.dateLabel }}</span>
+                      <span style="font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ om.invoice }}</span>
+                      <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ om.source }}</span>
+                      <span>{{ om.payLabel }}</span>
+                      <span style="font-weight: 600;">{{ om.totalLabel }}</span>
+                      <span style="color: {{ om.expColor }}; font-weight: {{ om.expWeight }};">{{ om.expLabel }}</span>
+                      <span>{{ om.size }}</span>
+                      <span><select value="{{ om.status }}" onChange="{{ om.onStatus }}" aria-label="Change order status" style="font-size: 11.5px; font-weight: 600; padding: 4px 6px; border-radius: 999px; border: 1px solid {{ om.badgeColor }}; background: {{ om.badgeBg }}; color: {{ om.badgeColor }}; outline: none; cursor: pointer; max-width: 112px;">
+                        <sc-for list="{{ om.statusOptions }}" as="ost" hint-placeholder-count="3"><option value="{{ ost.v }}" selected="{{ ost.selected }}">{{ ost.l }}</option></sc-for>
+                      </select></span>
+                      <span style="color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ om.remarks }}">{{ om.remarks }}</span>
+                      <span style="display: flex; align-items: center; gap: 6px; justify-self: end;">
+                        <button onClick="{{ om.edit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 4px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">Edit</button>
+                        <button onClick="{{ om.askRemove }}" aria-label="Delete order" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px;" style-hover="color: #C0392B;">×</button>
+                      </span>
+                    </div>
+                    <sc-if value="{{ om.confirming }}" hint-placeholder-val="{{ false }}">
+                      <div style="width: 100%; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #FCECEA; border: 1px solid #F3D9D6; border-radius: 10px; padding: 10px 14px;">
+                        <span style="font-size: 13px; color: #96352C;">Delete the tracking entry for <strong>{{ om.invoice }}</strong>?</span>
+                        <span style="display: flex; gap: 8px; margin-inline-start: auto;">
+                          <button onClick="{{ om.confirmRemove }}" style="background: #C0392B; color: #fff; border: none; border-radius: 999px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer;">Yes, delete</button>
+                          <button onClick="{{ om.cancelRemove }}" style="background: none; border: 1px solid #E3B7B1; color: #96352C; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer;">Cancel</button>
+                        </span>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <sc-if value="{{ omPager.show }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 18px;">
+                <button onClick="{{ omPager.prev }}" disabled="{{ omPager.atStart }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ omPager.prevOpacity }};">← Prev</button>
+                <span style="font-size: 12.5px; color: #857D72;">{{ omPager.label }}</span>
+                <button onClick="{{ omPager.next }}" disabled="{{ omPager.atEnd }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ omPager.nextOpacity }};">Next →</button>
+              </div>
+            </sc-if>
           </sc-if>
         </section>
       </sc-if>
@@ -1185,7 +1438,7 @@
                   <input value="{{ newBatch.received }}" onChange="{{ onBatchReceived }}" type="date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier
-                  <input value="{{ newBatch.supplier }}" onChange="{{ onBatchSupplier }}" list="madzo-inv-supplier-names" placeholder="Type or pick a saved supplier…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                  <input value="{{ newBatch.supplier }}" onChange="{{ onBatchSupplier }}" list="madzo-inv-supplier-names" placeholder="Type or pick…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                   <datalist id="madzo-inv-supplier-names">
                     <sc-for list="{{ supplierOptions }}" as="sn" hint-placeholder-count="3">
                       <option value="{{ sn.name }}"></option>
@@ -1806,15 +2059,15 @@
 
             <div class="madzo-invoice-sheet" style="padding: 26px 22px; font-family: 'Poppins', Arial, sans-serif; color: #222;">
               <div style="text-align: center; margin-bottom: 14px;">
-                <div style="background: #461610; border-radius: 10px; padding: 14px 10px 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                <div style="padding: 2px 10px 8px;">
                   <sc-if value="{{ inv.hasLogo }}" hint-placeholder-val="{{ true }}">
                     <div>
-                      <img src="{{ inv.logoIcon }}" alt="Madzo logo" style="height: 46px; width: auto; display: block; margin: 0 auto;">
-                      <img src="{{ inv.logoWord }}" alt="Madzo wordmark" style="height: 20px; width: auto; display: block; margin: 6px auto 0;">
+                      <img src="{{ inv.logoIcon }}" alt="Madzo logo" style="height: 46px; width: auto; display: block; margin: 0 auto; filter: brightness(0);">
+                      <img src="{{ inv.logoWord }}" alt="Madzo wordmark" style="height: 20px; width: auto; display: block; margin: 6px auto 0; filter: brightness(0);">
                     </div>
                   </sc-if>
                   <sc-if value="{{ inv.noLogo }}" hint-placeholder-val="{{ false }}">
-                    <div style="font-family: Marcellus, serif; font-size: 22px; letter-spacing: 2px; color: #F1E9DB;">MADZO</div>
+                    <div style="font-family: Marcellus, serif; font-size: 22px; letter-spacing: 2px; color: #000;">MADZO</div>
                   </sc-if>
                 </div>
                 <div style="font-size: 13px; color: #555; margin-top: 8px;">مدزو للمستحضرات التجميلية</div>
@@ -1930,6 +2183,7 @@ class Component extends DCLogic {
       openOrderIds: {},
       poPage: 1,
       showPOForm: false,
+      poView: 'po', dbOMs: [], omMissing: false, omDraft: null, omError: '', savingOM: false, omSearch: '', omStatusF: 'all', omPage: 1, omConfirmDel: null, omMsg: '', dbGRNs: [], grnMissing: false, grnDraft: null, grnError: '', savingGRN: false, grnSearch: '', grnPage: 1, grnOpen: {}, grnConfirmDel: null, grnMsg: '',
       poFormMode: 'new',
       newPO: { id: '', supplier: '', email: '', phone: '', date: '', delivery: '', terms: 'As Per Agreement', status: 'draft', paymentStatus: 'pending', preparedBy: '', approvedBy: '', remarks: '', items: [] },
       poError: '',
@@ -1970,7 +2224,7 @@ class Component extends DCLogic {
   }
 
   async loadAll() {
-    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadSuppliers(), this.loadBatches(), this.loadCategories(), this.loadBrands(), this.loadNotes(), this.loadCustomers(), this.loadViews()]);
+    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadGRNs(), this.loadOMs(), this.loadSuppliers(), this.loadBatches(), this.loadCategories(), this.loadBrands(), this.loadNotes(), this.loadCustomers(), this.loadViews()]);
     this.backfillCustomersAndSuppliers();
   }
 
@@ -2087,6 +2341,34 @@ class Component extends DCLogic {
     } catch (e) { console.warn('Madzo admin: could not load purchase orders', e); }
   }
 
+  async loadGRNs() {
+    try {
+      const { data, error } = await window.getSupabase().from('grn_entries').select('*').order('created_at', { ascending: false });
+      if (error) { if (this.isMissingTable(error)) this.setState({ grnMissing: true, dbGRNs: [] }); else console.warn('Madzo admin: could not load GRNs', error); return; }
+      this.setState({ grnMissing: false, dbGRNs: (data || []).map(g => ({
+        id: g.id, ts: new Date(g.created_at).getTime(), invoice: g.invoice_no || '', supplier: g.supplier_name || '',
+        date: g.grn_date || '', payMode: g.payment_mode || 'cash', remarks: g.remarks || '', items: g.items || [], total: Number(g.total_amount) || 0
+      })) });
+    } catch (e) { console.warn('Madzo admin: could not load GRNs', e); }
+  }
+  async loadOMs() {
+    try {
+      const { data, error } = await window.getSupabase().from('order_monitor').select('*').order('order_date', { ascending: false }).order('created_at', { ascending: false });
+      if (error) { if (this.isMissingTable(error)) this.setState({ omMissing: true, dbOMs: [] }); else console.warn('Madzo admin: could not load order monitoring', error); return; }
+      this.setState({ omMissing: false, dbOMs: (data || []).map(o => ({
+        id: o.id, date: o.order_date || '', invoice: o.invoice_no || '', source: o.source || '', payMode: o.payment_mode || 'cash',
+        total: Number(o.total_amount) || 0, expected: o.expected_date || '', size: o.package_size || '', status: o.status || 'ordered', remarks: o.remarks || ''
+      })) });
+    } catch (e) { console.warn('Madzo admin: could not load order monitoring', e); }
+  }
+  nextOmId() {
+    const nums = (this.state.dbOMs || []).map(o => { const m = /^OM-(\d+)$/i.exec(o.id || ''); return m ? parseInt(m[1], 10) : 0; });
+    return 'OM-' + String(Math.max(0, ...nums) + 1).padStart(4, '0');
+  }
+  nextGrnId() {
+    const nums = (this.state.dbGRNs || []).map(g => { const m = /^GRN-(\d+)$/i.exec(g.id || ''); return m ? parseInt(m[1], 10) : 0; });
+    return 'GRN-' + String(Math.max(0, ...nums) + 1).padStart(4, '0');
+  }
   async fetchNextPoId() {
     try {
       const { data, error } = await window.getSupabase().rpc('next_po_id');
@@ -2832,7 +3114,7 @@ class Component extends DCLogic {
       </tr>`).join('');
     return `
   <div style="text-align:center;margin-bottom:14px;">
-    <div style="background:#461610;border-radius:10px;padding:14px 10px 12px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">${inv.logoIcon && inv.logoWord ? `<img src="${inv.logoIcon}" alt="Madzo" style="height:46px;width:auto;display:block;margin:0 auto;"><img src="${inv.logoWord}" alt="MADZO" style="height:20px;width:auto;display:block;margin:6px auto 0;">` : `<div style="font-size:22px;letter-spacing:2px;font-family:Georgia,serif;color:#F1E9DB;">MADZO</div>`}</div>
+    <div style="padding:2px 10px 8px;">${inv.logoIcon && inv.logoWord ? `<img src="${inv.logoIcon}" alt="Madzo" style="height:46px;width:auto;display:block;margin:0 auto;filter:brightness(0);"><img src="${inv.logoWord}" alt="MADZO" style="height:20px;width:auto;display:block;margin:6px auto 0;filter:brightness(0);">` : `<div style="font-size:22px;letter-spacing:2px;font-family:Georgia,serif;color:#000;">MADZO</div>`}</div>
     <div style="font-size:13px;color:#555;margin-top:8px;">مدزو للمستحضرات التجميلية</div>
     <div style="font-size:11.5px;color:#777;margin-top:2px;">Doha, Qatar${inv.waLine ? ' · ' + this.esc(inv.waLine) : ''}</div>
     <div style="font-size:12.5px;font-weight:600;margin-top:8px;border-top:1px dashed #bbb;border-bottom:1px dashed #bbb;padding:5px 0;">Invoice &nbsp;·&nbsp; فاتورة</div>
@@ -2987,15 +3269,12 @@ class Component extends DCLogic {
     <div style="font-size:20px;letter-spacing:2px;font-family: Georgia, serif;">MADZO</div>
     <div style="font-size:12px;color:#555;">مدزو للمستحضرات التجميلية</div>
     <div style="font-size:11px;color:#777;margin-top:2px;">Doha, Qatar${po.waLine ? ' · ' + this.esc(po.waLine) : ''}</div>
-    <div style="font-size:13px;font-weight:700;margin-top:8px;letter-spacing:1px;">${po.type === 'return' ? 'PURCHASE RETURN' : 'PURCHASE ORDER'}</div>${po.type === 'return' && po.refPo ? '<div style="font-size:11px;color:#555;margin-top:3px;">Against PO # ' + this.esc(po.refPo) + '</div>' : ''}
+    <div style="font-size:13px;font-weight:700;margin-top:8px;letter-spacing:1px;">${po.type === 'return' ? 'PURCHASE RETURN' : 'PURCHASE ORDER'}</div>${po.type === 'return' && po.refPo ? '<div style="font-size:11px;color:#555;margin-top:3px;">Against invoice # ' + this.esc(po.refPo) + '</div>' : ''}
   </div>
   <div style="border:1px solid #ccc;border-radius:6px;padding:10px 12px;font-size:12px;margin-bottom:12px;word-break:break-word;">
     <div style="margin-bottom:3px;"><strong>M/S:</strong> ${this.esc(po.supplier)}</div>
-    <div style="margin-bottom:3px;"><strong>PO #:</strong> ${this.esc(po.id)}</div>
+    <div style="margin-bottom:3px;"><strong>Invoice #:</strong> ${this.esc(po.id)}</div>
     <div style="margin-bottom:3px;"><strong>Date:</strong> ${this.esc(po.date)}</div>
-    <div style="margin-bottom:3px;"><strong>Delivery expect:</strong> ${this.esc(po.delivery)}</div>
-    <div style="margin-bottom:3px;"><strong>Terms:</strong> ${this.esc(po.terms)}</div>
-    <div><strong>Tel:</strong> ${this.esc(po.phone)}</div>
   </div>
   <div style="font-size:12.5px;font-weight:700;margin-bottom:6px;">Items</div>
   ${itemsHtml}
@@ -3061,22 +3340,16 @@ class Component extends DCLogic {
     <div style="font-size:24px;letter-spacing:3px;font-family: Georgia, serif;">MADZO</div>
     <div style="font-size:13px;color:#555;">مدزو للمستحضرات التجميلية</div>
     <div style="font-size:12px;color:#777;margin-top:2px;">Doha, Qatar${po.waLine ? ' · ' + this.esc(po.waLine) : ''}</div>
-    <div style="font-size:15px;font-weight:700;margin-top:12px;letter-spacing:1px;">${po.type === 'return' ? 'PURCHASE RETURN' : 'PURCHASE ORDER'}</div>${po.type === 'return' && po.refPo ? '<div style="font-size:12px;color:#555;margin-top:3px;">Against PO # ' + this.esc(po.refPo) + '</div>' : ''}
+    <div style="font-size:15px;font-weight:700;margin-top:12px;letter-spacing:1px;">${po.type === 'return' ? 'PURCHASE RETURN' : 'PURCHASE ORDER'}</div>${po.type === 'return' && po.refPo ? '<div style="font-size:12px;color:#555;margin-top:3px;">Against invoice # ' + this.esc(po.refPo) + '</div>' : ''}
   </div>
   <div style="display:flex;justify-content:space-between;gap:14px;border:1px solid #ccc;border-radius:6px;padding:14px 16px;font-size:12.5px;margin-bottom:10px;">
     <div style="flex:1;min-width:0;word-break:break-word;">
       <div style="margin-bottom:4px;"><strong>M/S:</strong> ${this.esc(po.supplier)}</div>
-      <div style="margin-bottom:4px;"><strong>Email:</strong> ${this.esc(po.email)}</div>
-      <div><strong>Tel:</strong> ${this.esc(po.phone)}</div>
+      <div><strong>Currency:</strong> QATAR RIYAL</div>
     </div>
     <div style="flex:1;min-width:0;word-break:break-word;">
-      <div style="margin-bottom:4px;"><strong>PO #:</strong> ${this.esc(po.id)}</div>
-      <div style="margin-bottom:4px;"><strong>Currency:</strong> QATAR RIYAL</div>
-      <div><strong>Terms:</strong> ${this.esc(po.terms)}</div>
-    </div>
-    <div style="flex:1;min-width:0;word-break:break-word;">
-      <div style="margin-bottom:4px;"><strong>Date:</strong> ${this.esc(po.date)}</div>
-      <div><strong>Delivery expect:</strong> ${this.esc(po.delivery)}</div>
+      <div style="margin-bottom:4px;"><strong>Invoice #:</strong> ${this.esc(po.id)}</div>
+      <div><strong>Date:</strong> ${this.esc(po.date)}</div>
     </div>
   </div>
   <table style="width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 12px; margin-top: 10px;">
@@ -3826,7 +4099,7 @@ class Component extends DCLogic {
     const payNames = { cash: 'Cash / نقداً', card: 'Card / بطاقة', fawran: 'Fawran / فورًا' };
     const inv = invOrder ? {
       id: invOrder.id,
-      // the logo is the one already in the page header (cream on maroon), so the invoice puts it on a maroon band
+      // the header logo is cream; on the invoice it is printed in black (no brand colour) to save ink
       logoIcon: logoEl('Madzo') ? logoEl('Madzo').src : '', logoWord: logoEl('MADZO') ? logoEl('MADZO').src : '',
       hasLogo: !!(logoEl('Madzo') && logoEl('MADZO')), noLogo: !(logoEl('Madzo') && logoEl('MADZO')),
       date: new Date(invOrder.ts).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Asia/Qatar' }),
@@ -4205,6 +4478,232 @@ class Component extends DCLogic {
     };
     const custView = 'customers';
 
+    // ---- GRN entry (goods received) ----
+    const grnQ = String(this.state.grnSearch || '').trim().toLowerCase();
+    const grnAll = (this.state.dbGRNs || []).filter(g => !grnQ || (g.id + ' ' + g.invoice + ' ' + g.supplier).toLowerCase().indexOf(grnQ) >= 0);
+    const grnPager = makePager(grnAll.length, 'grnPage');
+    const grnBlank = () => ({ code: '', name: '', qty: '', free: '', buy: '', sell: '', expiry: '', matched: '' });
+    const grnD = this.state.grnDraft || { id: '', invoice: '', supplier: '', date: '', payMode: 'cash', remarks: '', updatePrices: true, items: [] };
+    const setGrn = (patch) => this.setState(s => ({ grnDraft: { ...s.grnDraft, ...patch }, grnError: '' }));
+    const setGrnItem = (i, patch) => this.setState(s => { const items = s.grnDraft.items.slice(); items[i] = { ...items[i], ...patch }; return { grnDraft: { ...s.grnDraft, items }, grnError: '' }; });
+    const skuProd = (v) => { const k = String(v || '').trim().toLowerCase(); return k ? prods.find(p => String(p.sku).toLowerCase() === k) : null; };
+    const nameProd = (v) => { const k = String(v || '').trim().toLowerCase(); return k ? prods.find(p => String(p.name).toLowerCase() === k) : null; };
+    const fillGrnLine = (i, p) => setGrnItem(i, { code: p.sku, name: p.name, buy: p.buyPrice ? String(p.buyPrice) : '', sell: (p.price == null ? '' : String(p.price)), matched: p.sku });
+    const fmtExpiry = (raw, prev) => {
+      const v = String(raw || ''), d = v.replace(/\D/g, '').slice(0, 4);
+      if (d.length > 2) return d.slice(0, 2) + '/' + d.slice(2);
+      if (d.length === 2 && v.length >= 3 && v.charAt(2) === '/') return d + '/';
+      return d;
+    };
+    const grnLines = grnD.items.map((it, i) => {
+      const q = Math.max(0, Number(it.qty) || 0), b = Math.max(0, Number(it.buy) || 0);
+      return {
+        code: it.code, name: it.name, qty: it.qty, free: it.free, buy: it.buy, sell: it.sell, expiry: it.expiry,
+        notMatched: !!(String(it.code || '').trim() || String(it.name || '').trim()) && !(skuProd(it.code) || nameProd(it.name)),
+        onCode: (e) => { const v = e.target.value, p = skuProd(v); if (p && it.matched !== p.sku) fillGrnLine(i, p); else setGrnItem(i, { code: v, ...(p ? {} : { matched: '' }) }); },
+        onName: (e) => { const v = e.target.value, p = nameProd(v); if (p && it.matched !== p.sku) fillGrnLine(i, p); else setGrnItem(i, { name: v, ...(p ? {} : { matched: '' }) }); },
+        onQty: (e) => setGrnItem(i, { qty: e.target.value }), onFree: (e) => setGrnItem(i, { free: e.target.value }),
+        onBuy: (e) => setGrnItem(i, { buy: e.target.value }), onSell: (e) => setGrnItem(i, { sell: e.target.value }),
+        onExpiry: (e) => setGrnItem(i, { expiry: fmtExpiry(e.target.value) }),
+        lineTotal: (q * b).toFixed(2),
+        remove: () => this.setState(s => { const items = s.grnDraft.items.filter((_, k) => k !== i); return { grnDraft: { ...s.grnDraft, items: items.length ? items : [grnBlank()] } }; })
+      };
+    });
+    const grnTotalNum = grnD.items.reduce((a, it) => a + (Math.max(0, Number(it.qty) || 0) * Math.max(0, Number(it.buy) || 0)), 0);
+    const grnOpenForm = (entry) => this.setState({
+      grnError: '', grnMsg: '',
+      grnDraft: entry ? {
+        origId: entry.id, id: entry.id, invoice: entry.invoice, supplier: entry.supplier, date: entry.date || today, payMode: entry.payMode || 'cash', remarks: entry.remarks || '', updatePrices: false,
+        items: (entry.items || []).map(l => ({ code: l.code || '', name: l.name || '', qty: String(l.qty || ''), free: l.free ? String(l.free) : '', buy: l.buy ? String(l.buy) : '', sell: l.sell ? String(l.sell) : '', expiry: l.expiry || '', matched: l.code || '' }))
+      } : {
+        origId: null, id: this.nextGrnId(), invoice: '', supplier: '', date: today, payMode: 'cash', remarks: '', updatePrices: true,
+        items: [grnBlank(), grnBlank(), grnBlank()]
+      }
+    }, () => window.scrollTo(0, 0));
+
+    // ---- Order monitoring ----
+    const OM_STATUS = [{ v: 'ordered', l: 'Ordered', bg: '#FBEFD4', c: '#9A6E12' }, { v: 'shipped', l: 'Shipped', bg: '#E1ECF8', c: '#2A5D9F' }, { v: 'delivered', l: 'Delivered', bg: '#DDF0E2', c: '#1E8A4C' }, { v: 'delayed', l: 'Delayed', bg: '#FBE3E0', c: '#B03A2E' }, { v: 'cancelled', l: 'Cancelled', bg: '#ECE8E0', c: '#7A7367' }];
+    const omMeta = (v) => OM_STATUS.find(s => s.v === v) || OM_STATUS[0];
+    const omToday = today;
+    const omQ = String(this.state.omSearch || '').trim().toLowerCase(), omSF = this.state.omStatusF || 'all';
+    const omAll = (this.state.dbOMs || []).filter(o => (omSF === 'all' || o.status === omSF) && (!omQ || (o.invoice + ' ' + o.source + ' ' + o.remarks + ' ' + o.id).toLowerCase().indexOf(omQ) >= 0));
+    const omPager = makePager(omAll.length, 'omPage');
+    const omBlankDraft = () => ({ origId: null, id: this.nextOmId(), date: today, invoice: '', source: '', payMode: 'cash', total: '', expected: '', size: '', status: 'ordered', remarks: '' });
+    const omD = this.state.omDraft || { date: '', invoice: '', source: '', payMode: 'cash', total: '', expected: '', size: '', status: 'ordered', remarks: '' };
+    const setOm = (patch) => this.setState(s => ({ omDraft: { ...s.omDraft, ...patch }, omError: '' }));
+    const omDateLabel = (d) => d ? new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '—';
+    const omOpen = (this.state.dbOMs || []).filter(o => o.status === 'ordered' || o.status === 'shipped' || o.status === 'delayed');
+    const omLate = omOpen.filter(o => o.expected && o.expected < omToday).length;
+    const omProps = {
+      poViewOM: this.state.poView === 'om',
+      poGoOM: () => this.setState({ poView: 'om' }),
+      poTabOmBg: this.state.poView === 'om' ? '#461610' : 'transparent', poTabOmColor: this.state.poView === 'om' ? '#FDF9F4' : '#857D72',
+      omMissing: this.state.omMissing, omMsg: this.state.omMsg, omError: this.state.omError,
+      omSummary: omOpen.length + ' on the way' + (omLate ? ' · ' + omLate + ' overdue.' : '.'),
+      omFormOpen: !!this.state.omDraft,
+      omFormLabel: this.state.omDraft ? 'Close' : '+ New order',
+      omFormTitle: this.state.omDraft && this.state.omDraft.origId ? 'Edit order ' + this.state.omDraft.invoice : 'New order to track',
+      omToggleForm: () => { if (this.state.omDraft) this.setState({ omDraft: null, omError: '' }); else this.setState({ omDraft: omBlankDraft(), omError: '', omMsg: '' }); },
+      omD,
+      omStatusOptions: OM_STATUS.map(s => ({ v: s.v, l: s.l, selected: s.v === omD.status })),
+      omStatusFilterOptions: [{ v: 'all', l: 'All statuses' }].concat(OM_STATUS.map(s => ({ v: s.v, l: s.l }))).map(s => ({ ...s, selected: s.v === omSF })),
+      omSourceOptions: [...new Set([...(this.state.dbOMs || []).map(o => o.source).filter(Boolean), ...(this.state.dbSuppliers || []).map(s => s.name)])].map(name => ({ name })),
+      onOmDate: (e) => setOm({ date: e.target.value }), onOmInvoice: (e) => setOm({ invoice: e.target.value }), onOmSource: (e) => setOm({ source: e.target.value }),
+      onOmPayMode: (e) => setOm({ payMode: e.target.value }), onOmTotal: (e) => setOm({ total: e.target.value }), onOmExpected: (e) => setOm({ expected: e.target.value }),
+      onOmSize: (e) => setOm({ size: e.target.value }), onOmStatus: (e) => setOm({ status: e.target.value }), onOmRemarks: (e) => setOm({ remarks: e.target.value }),
+      saveOmLabel: this.state.savingOM ? 'Saving…' : (this.state.omDraft && this.state.omDraft.origId ? 'Save changes' : 'Save order'),
+      saveOM: async () => {
+        if (this.state.savingOM) return;
+        const d = this.state.omDraft; if (!d) return;
+        const fail = (m) => this.setState({ omError: m });
+        const inv = String(d.invoice || '').trim();
+        if (!d.date) return fail('Please set the date.');
+        if (!inv) return fail('Please enter the invoice no.');
+        const total = String(d.total || '').trim() === '' ? 0 : Number(d.total);
+        if (!isFinite(total) || total < 0) return fail('Total amount must be a number, 0 or more.');
+        if (d.expected && d.expected < d.date) return fail('The expected delivery date can\'t be before the order date.');
+        const dup = (this.state.dbOMs || []).find(o => o.id !== d.origId && o.invoice.trim().toLowerCase() === inv.toLowerCase() && o.source.trim().toLowerCase() === String(d.source || '').trim().toLowerCase());
+        if (dup) return fail('Invoice ' + inv + ' is already being tracked (' + dup.id + ').');
+        const sb = window.getSupabase(), isEdit = !!d.origId, id = isEdit ? d.origId : this.nextOmId();
+        const row = { order_date: d.date, invoice_no: inv, source: String(d.source || '').trim() || null, payment_mode: d.payMode || 'cash', total_amount: Math.round(total * 100) / 100, expected_date: d.expected || null, package_size: String(d.size || '').trim() || null, status: d.status || 'ordered', remarks: String(d.remarks || '').trim() || null };
+        this.setState({ savingOM: true, omError: '' });
+        const res = isEdit ? await sb.from('order_monitor').update(row).eq('id', id) : await sb.from('order_monitor').insert({ id, ...row });
+        this.setState({ savingOM: false });
+        if (res.error) { if (this.isMissingTable(res.error)) { this.setState({ omMissing: true }); return fail('Run madzo-update-11.sql in Supabase first, then save again.'); } return fail(res.error.message); }
+        this.setState({ omDraft: null, omError: '', omMsg: 'Order ' + inv + (isEdit ? ' updated.' : ' added to monitoring.') });
+        this.loadOMs();
+      },
+      omSearch: this.state.omSearch, onOmSearch: (e) => this.setState({ omSearch: e.target.value, omPage: 1 }),
+      omStatusF: omSF, onOmStatusF: (e) => this.setState({ omStatusF: e.target.value, omPage: 1 }),
+      omCountLabel: omAll.length + (omAll.length === 1 ? ' order' : ' orders') + (omAll.length !== (this.state.dbOMs || []).length ? ' found' : ''),
+      noOMs: omAll.length === 0, noOmText: (this.state.dbOMs || []).length ? 'No orders match these filters.' : 'No orders being monitored yet.',
+      omPager,
+      pagedOMs: omAll.slice((omPager.page - 1) * PAGE_SIZE, omPager.page * PAGE_SIZE).map(o => {
+        const m = omMeta(o.status), late = !!o.expected && o.expected < omToday && (o.status === 'ordered' || o.status === 'shipped' || o.status === 'delayed');
+        return {
+          id: o.id, invoice: o.invoice, source: o.source || '—', remarks: o.remarks || '—', size: o.size || '—',
+          dateLabel: omDateLabel(o.date), expLabel: omDateLabel(o.expected) + (late ? ' ⚠' : ''), expColor: late ? '#B03A2E' : '#2E2A26', expWeight: late ? '700' : '400',
+          payLabel: ({ cash: 'Cash', card: 'Card', credit: 'Credit' })[o.payMode] || o.payMode, totalLabel: Number(o.total || 0).toFixed(2) + ' QAR',
+          status: o.status, badgeBg: m.bg, badgeColor: m.c, statusOptions: OM_STATUS.map(s => ({ v: s.v, l: s.l, selected: s.v === o.status })),
+          onStatus: async (e) => { const v = e.target.value; await window.getSupabase().from('order_monitor').update({ status: v }).eq('id', o.id); this.loadOMs(); },
+          edit: () => this.setState({ omError: '', omMsg: '', omDraft: { origId: o.id, id: o.id, date: o.date || today, invoice: o.invoice, source: o.source, payMode: o.payMode || 'cash', total: o.total ? String(o.total) : '', expected: o.expected || '', size: o.size, status: o.status, remarks: o.remarks } }, () => window.scrollTo(0, 0)),
+          confirming: this.state.omConfirmDel === o.id, askRemove: () => this.setState({ omConfirmDel: o.id }), cancelRemove: () => this.setState({ omConfirmDel: null }),
+          confirmRemove: async () => { const r = await window.getSupabase().from('order_monitor').delete().eq('id', o.id); this.setState({ omConfirmDel: null, omMsg: r.error ? '' : 'Entry for ' + o.invoice + ' deleted.', omError: r.error ? r.error.message : '' }); this.loadOMs(); }
+        };
+      })
+    };
+
+    const grnProps = {
+      poViewPO: this.state.poView !== 'grn' && this.state.poView !== 'om', poViewGRN: this.state.poView === 'grn',
+      poGoPO: () => this.setState({ poView: 'po' }), poGoGRN: () => this.setState({ poView: 'grn' }),
+      poTabPoBg: (this.state.poView !== 'grn' && this.state.poView !== 'om') ? '#461610' : 'transparent', poTabPoColor: (this.state.poView !== 'grn' && this.state.poView !== 'om') ? '#FDF9F4' : '#857D72',
+      poTabGrnBg: this.state.poView === 'grn' ? '#461610' : 'transparent', poTabGrnColor: this.state.poView === 'grn' ? '#FDF9F4' : '#857D72',
+      grnMissing: this.state.grnMissing, grnMsg: this.state.grnMsg, grnError: this.state.grnError,
+      grnFormOpen: !!this.state.grnDraft,
+      grnFormLabel: this.state.grnDraft ? 'Close' : '+ New GRN entry',
+      grnFormTitle: this.state.grnDraft && this.state.grnDraft.origId ? 'Edit ' + this.state.grnDraft.origId : 'New GRN entry',
+      grnToggleForm: () => { if (this.state.grnDraft) this.setState({ grnDraft: null, grnError: '' }); else grnOpenForm(null); },
+      grnD,
+      onGrnInvoice: (e) => setGrn({ invoice: e.target.value }), onGrnSupplier: (e) => setGrn({ supplier: e.target.value }),
+      onGrnDate: (e) => setGrn({ date: e.target.value }), onGrnPayMode: (e) => setGrn({ payMode: e.target.value }),
+      onGrnRemarks: (e) => setGrn({ remarks: e.target.value }), onGrnUpdatePrices: (e) => setGrn({ updatePrices: !!e.target.checked }),
+      grnItems: grnLines, grnAddLine: () => this.setState(s => ({ grnDraft: { ...s.grnDraft, items: s.grnDraft.items.concat([grnBlank()]) } })),
+      grnCodeOptions: prods.map(p => ({ sku: p.sku, label: p.name })), grnNameOptions: prods.map(p => ({ name: p.name })),
+      grnTotal: grnTotalNum.toFixed(2) + ' QAR',
+      saveGrnLabel: this.state.savingGRN ? 'Saving…' : (this.state.grnDraft && this.state.grnDraft.origId ? 'Save changes' : 'Save GRN & update stock'),
+      saveGRN: async () => {
+        if (this.state.savingGRN) return;
+        const d = this.state.grnDraft; if (!d) return;
+        const fail = (m) => this.setState({ grnError: m });
+        const inv = String(d.invoice || '').trim(), sup = String(d.supplier || '').trim();
+        if (!inv) return fail('Please enter the invoice number.');
+        if (!sup) return fail('Please enter the supplier name.');
+        if (!d.date) return fail('Please set the date.');
+        const lines = [];
+        for (let i = 0; i < d.items.length; i++) {
+          const it = d.items[i], n = i + 1;
+          if (!String(it.code || '').trim() && !String(it.name || '').trim() && !String(it.qty || '').trim() && !String(it.free || '').trim()) continue;
+          const p = skuProd(it.code) || nameProd(it.name);
+          if (!p) return fail('Line ' + n + ': pick a product from your catalog (by code or name).');
+          const qty = Math.max(0, Math.floor(Number(it.qty) || 0)), free = Math.max(0, Math.floor(Number(it.free) || 0));
+          if (qty + free <= 0) return fail('Line ' + n + ': enter a quantity or a free quantity.');
+          const buy = Math.max(0, Number(it.buy) || 0), sell = Math.max(0, Number(it.sell) || 0);
+          if (sell && !Number.isInteger(sell)) return fail('Line ' + n + ': sell price must be a whole number of QAR.');
+          let expiryDate = null; const ex = String(it.expiry || '').trim();
+          if (ex) {
+            const m = /^(\d{2})\/(\d{2})$/.exec(ex);
+            if (!m || +m[1] < 1 || +m[1] > 12) return fail('Line ' + n + ': expiry must be mm/yy, for example 08/27.');
+            expiryDate = new Date(Date.UTC(2000 + (+m[2]), +m[1], 0)).toISOString().slice(0, 10);
+          }
+          lines.push({ sku: p.sku, name: p.name, qty, free, buy, sell, expiry: ex, expiryDate, oldPrice: Number(p.price) || 0, oldBuy: Number(p.buyPrice) || 0 });
+        }
+        if (!lines.length) return fail('Add at least one product line.');
+        const dup = (this.state.dbGRNs || []).find(g => g.id !== d.origId && g.invoice.trim().toLowerCase() === inv.toLowerCase() && g.supplier.trim().toLowerCase() === sup.toLowerCase());
+        if (dup) return fail('Invoice ' + inv + ' from ' + sup + ' was already entered as ' + dup.id + '.');
+        const sb = window.getSupabase(), isEdit = !!d.origId, id = isEdit ? d.origId : this.nextGrnId();
+        const total = lines.reduce((a, l) => a + l.qty * l.buy, 0);
+        const row = {
+          invoice_no: inv, supplier_name: sup, grn_date: d.date, payment_mode: d.payMode || 'cash', remarks: String(d.remarks || '').trim() || null,
+          items: lines.map(l => ({ code: l.sku, name: l.name, qty: l.qty, free: l.free, buy: l.buy, sell: l.sell, expiry: l.expiry })), total_amount: Math.round(total * 100) / 100
+        };
+        this.setState({ savingGRN: true, grnError: '' });
+        const res = isEdit ? await sb.from('grn_entries').update(row).eq('id', id) : await sb.from('grn_entries').insert({ id, ...row });
+        if (res.error) { this.setState({ savingGRN: false }); if (this.isMissingTable(res.error)) { this.setState({ grnMissing: true }); return fail('Run madzo-update-10.sql in Supabase first, then save again.'); } return fail(res.error.message); }
+        // stock: replace this GRN's earlier movements (if any), then add the new ones (paid qty and free qty are separate so cost stays right)
+        await sb.from('inventory_batches').delete().eq('source_type', 'grn').eq('source_id', id);
+        const note = 'GRN ' + id + ' · Invoice ' + inv;
+        const batches = [];
+        lines.forEach(l => {
+          const base = { sku: l.sku, batch_no: inv, expiry_date: l.expiryDate, supplier_name: sup, selling_price: l.sell, received_date: d.date, source_type: 'grn', source_id: id };
+          if (l.qty > 0) batches.push({ ...base, quantity: l.qty, buying_price: l.buy, notes: note });
+          if (l.free > 0) batches.push({ ...base, quantity: l.free, buying_price: 0, notes: note + ' (free)' });
+        });
+        const ins = await sb.from('inventory_batches').insert(batches);
+        if (ins.error) {
+          if (!isEdit) await sb.from('grn_entries').delete().eq('id', id);
+          this.setState({ savingGRN: false });
+          return fail('Stock could not be updated: ' + ins.error.message + (/source_type|source_id/.test(ins.error.message || '') ? ' — run madzo-stock-sync.sql in Supabase first.' : '') + (isEdit ? ' Please save again.' : ' Nothing was saved.'));
+        }
+        if (d.updatePrices) {
+          for (const l of lines) {
+            const patch = {};
+            if (l.sell > 0 && l.sell !== l.oldPrice) patch.price = l.sell;
+            if (l.buy > 0 && l.buy !== l.oldBuy) patch.buy_price = l.buy;
+            if (!Object.keys(patch).length) continue;
+            let r = await sb.from('products').update(patch).eq('sku', l.sku);
+            if (r.error && patch.buy_price != null && patch.price != null) await sb.from('products').update({ price: patch.price }).eq('sku', l.sku);
+          }
+        }
+        if (!(this.state.dbSuppliers || []).some(s => String(s.name).trim().toLowerCase() === sup.toLowerCase())) this.upsertSupplier(sup, '', '');
+        this.setState({ savingGRN: false, grnDraft: null, grnError: '', grnMsg: id + (isEdit ? ' updated' : ' saved') + ' — stock updated for ' + new Set(lines.map(l => l.sku)).size + (new Set(lines.map(l => l.sku)).size === 1 ? ' product.' : ' products.') });
+        this.loadGRNs(); this.loadProducts(); this.loadBatches();
+      },
+      grnSearch: this.state.grnSearch, onGrnSearch: (e) => this.setState({ grnSearch: e.target.value, grnPage: 1 }),
+      noGRNs: grnAll.length === 0, noGrnText: (this.state.dbGRNs || []).length ? 'No GRN entries match.' : 'No GRN entries yet.',
+      grnPager,
+      pagedGRNs: grnAll.slice((grnPager.page - 1) * PAGE_SIZE, grnPager.page * PAGE_SIZE).map(g => {
+        const open = !!(this.state.grnOpen || {})[g.id], confirming = this.state.grnConfirmDel === g.id;
+        return {
+          id: g.id, invoice: g.invoice, supplier: g.supplier,
+          dateLabel: g.date ? new Date(g.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '—',
+          payLabel: ({ cash: 'Cash', card: 'Card', credit: 'Credit' })[g.payMode] || g.payMode,
+          itemCount: String((g.items || []).length), totalLabel: Number(g.total || 0).toFixed(2) + ' QAR',
+          open, toggleLabel: open ? 'Hide items' : 'Show items', hasRemarks: !!g.remarks, remarks: g.remarks,
+          toggle: () => this.setState(s => ({ grnOpen: { ...s.grnOpen, [g.id]: !(s.grnOpen || {})[g.id] } })),
+          lines: (g.items || []).map(l => ({ name: l.name || l.code, code: l.code, qty: l.qty || 0, free: l.free || 0, buy: Number(l.buy || 0).toFixed(2), sell: l.sell || 0, expiry: l.expiry || '—' })),
+          edit: () => grnOpenForm(g),
+          confirming, askRemove: () => this.setState({ grnConfirmDel: g.id }), cancelRemove: () => this.setState({ grnConfirmDel: null }),
+          confirmRemove: async () => {
+            const sb = window.getSupabase();
+            await sb.from('inventory_batches').delete().eq('source_type', 'grn').eq('source_id', g.id);
+            const r = await sb.from('grn_entries').delete().eq('id', g.id);
+            this.setState({ grnConfirmDel: null, grnMsg: r.error ? '' : g.id + ' deleted — its stock was taken back out.', grnError: r.error ? r.error.message : '' });
+            this.loadGRNs(); this.loadProducts(); this.loadBatches();
+          }
+        };
+      })
+    };
+
     const newOrderTotalNum = no.items.reduce((a, it) => a + Math.round((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
 
     return {
@@ -4219,7 +4718,7 @@ class Component extends DCLogic {
       doLogin,
       doLogout: () => { window.getSupabase().auth.signOut(); this.setState({ authed: false }); },
 
-      pageMaxCss: tab === 'inv' ? '1500px' : tab === 'customers' ? '1000px' : tab === 'notes' ? '1300px' : '1100px',
+      pageMaxCss: (tab === 'inv' || tab === 'orders' || tab === 'po') ? '1500px' : tab === 'customers' ? '1000px' : tab === 'notes' ? '1300px' : '1100px',
       isHome: tab === 'home', isDash: tab === 'dash', isStock: tab === 'inv', isImages: tab === 'images', isOrders: tab === 'orders', isPO: tab === 'po', isInv: false, isInvArea: false, isSettings: tab === 'settings',
       tabDash: () => this.setState({ tab: 'dash' }),
       tabHome: () => this.setState({ tab: 'home' }),
@@ -4287,6 +4786,7 @@ class Component extends DCLogic {
       onCustName: setCust('name'), onCustPhone: setCust('phone'), onCustEmail: setCust('email'), onCustZone: setCust('zone'), onCustAddress: setCust('address'), onCustNotes: setCust('notes'),
       tNotesBg: pnotes.bg, tNotesColor: pnotes.color, isNotes: tab === 'notes', tabNotes: () => this.setState({ tab: 'notes' }),
       stopClick: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }, impMultiple: true, ...this.noteBindings(),
+      ...grnProps, ...omProps,
       allOrders, noOrders: allOrders.length === 0,
       noOrdersText: orders.length ? 'No orders match these filters.' : 'No orders yet.',
       ordCountLabel: allOrders.length + (allOrders.length === 1 ? ' order' : ' orders') + (allOrders.length !== orders.length ? ' found' : ''),
@@ -4363,7 +4863,7 @@ class Component extends DCLogic {
         if (!id) id = await this.fetchNextPoId();
         const origId = this.state.editingPOOriginalId;
         if ((this.state.poFormMode === 'new' || id !== origId) && pos.some(p => p.id === id)) {
-          this.setState({ poError: 'PO # "' + id + '" already exists.' }); return;
+          this.setState({ poError: 'Invoice # "' + id + '" already exists.' }); return;
         }
         const totals = poCalcTotals(cleanItems);
         this.setState({ savingPO: true });

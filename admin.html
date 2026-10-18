@@ -700,8 +700,8 @@
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Payment method
                   <select value="{{ newOrder.payMethod }}" onChange="{{ onNOPayMethod }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
                     <option value="cash">Cash</option>
-                    <option value="card">Credit card</option>
                     <option value="credit">Credit</option>
+                    <option value="card">Card</option>
                   </select>
                 </label>
               </div>
@@ -1219,6 +1219,16 @@
                       <option value="credit">Credit</option>
                     </select>
                   </label>
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Currency
+                    <select value="{{ grnD.currency }}" onChange="{{ onGrnCurrency }}" aria-label="GRN currency" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                      <sc-for list="{{ grnCurrencyOpts }}" as="cu" hint-placeholder-count="4"><option value="{{ cu.v }}" selected="{{ cu.selected }}">{{ cu.l }}</option></sc-for>
+                    </select>
+                  </label>
+                  <sc-if value="{{ grnForeign }}" hint-placeholder-val="{{ false }}">
+                    <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">{{ grnRateLabel }}
+                      <input value="{{ grnD.rate }}" onChange="{{ onGrnRate }}" type="number" min="0" step="0.0001" aria-label="GRN exchange rate" placeholder="e.g. 3.64" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
+                    </label>
+                  </sc-if>
                 </div>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Remarks
                   <input value="{{ grnD.remarks }}" onChange="{{ onGrnRemarks }}" aria-label="GRN remarks" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
@@ -1233,10 +1243,10 @@
                         <th style="padding: 6px 4px; font-weight: 600;">Product name</th>
                         <th style="padding: 6px 4px; font-weight: 600;">Qty</th>
                         <th style="padding: 6px 4px; font-weight: 600;">Free qty</th>
-                        <th style="padding: 6px 4px; font-weight: 600;">Buy price</th>
-                        <th style="padding: 6px 4px; font-weight: 600;">Sell price</th>
+                        <th style="padding: 6px 4px; font-weight: 600;">{{ grnBuyHead }}</th>
+                        <th style="padding: 6px 4px; font-weight: 600;">Sell price (QAR)</th>
                         <th style="padding: 6px 4px; font-weight: 600;">Expiry (mm/yy)</th>
-                        <th style="padding: 6px 4px; font-weight: 600; text-align: end;">Total</th>
+                        <th style="padding: 6px 4px; font-weight: 600; text-align: end;">{{ grnTotalHead }}</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -2208,6 +2218,7 @@
                 <span><strong>Time / الوقت</strong></span>
                 <span>{{ inv.time }}</span>
               </div>
+              <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: #666; margin-bottom: 4px;"><span>Printed / تاريخ الطباعة</span><span>{{ inv.printedAt }}</span></div>
               <div style="display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 10px;">
                 <span><strong>Mode of payment / طريقة الدفع</strong></span>
                 <span>{{ inv.method }}</span>
@@ -2437,7 +2448,7 @@ class Component extends DCLogic {
         rows.push({ day, kind: isRet ? 'return' : 'invoice', kindLabel: isRet ? 'Purchase return' : 'Purchase invoice', ref: p.id, supplier: p.supplier || '—', pay: this.repLabel(p.paymentStatus), payKey: String(p.paymentStatus || 'pending').toLowerCase(), amt });
       });
       (st.dbGRNs || []).forEach(g => {
-        rows.push({ day: g.date || this.qDayOf(g.ts), kind: 'grn', kindLabel: 'GRN entry', ref: g.id + (g.invoice ? ' · ' + g.invoice : ''), supplier: g.supplier || '—', pay: this.repLabel(g.payMode), payKey: String(g.payMode || '').toLowerCase(), amt: Number(g.total) || 0 });
+        rows.push({ day: g.date || this.qDayOf(g.ts), kind: 'grn', kindLabel: 'GRN entry', ref: g.id + (g.invoice ? ' · ' + g.invoice : '') + (g.currency && g.currency !== 'QAR' ? ' · ' + Number(g.totalOrig || 0).toFixed(2) + ' ' + g.currency : ''), supplier: g.supplier || '—', pay: this.repLabel(g.payMode), payKey: String(g.payMode || '').toLowerCase(), amt: Number(g.total) || 0 });
       });
       const out = rows
         .filter(r => inRange(r.day))
@@ -2462,7 +2473,7 @@ class Component extends DCLogic {
     }
     // sales
     const platOf = (o) => (!o.source || o.source === 'storefront') ? 'Website' : o.source;
-    let rows = (st.dbOrders || []).map(o => ({ o, day: this.qDayOf(o.ts), plat: platOf(o), status: String(o.status || 'new').toLowerCase(), pay: String(o.paymentStatus || 'pending').toLowerCase(), method: o.payMethod || '', total: Number(o.total) || 0 }))
+    let rows = (st.dbOrders || []).map(o => ({ o, day: this.qDayOf(o.ts), time: new Date(o.ts).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Qatar' }), plat: platOf(o), status: String(o.status || 'new').toLowerCase(), pay: String(o.paymentStatus || 'pending').toLowerCase(), method: o.payMethod || '', total: Number(o.total) || 0 }))
       .filter(r => inRange(r.day))
       .filter(r => st.repPlat === 'all' || r.plat === st.repPlat)
       .filter(r => st.repStatus === 'all' ? r.status !== 'cancelled' : r.status === st.repStatus)
@@ -2472,12 +2483,12 @@ class Component extends DCLogic {
     const total = rows.reduce((a, r) => a + r.total, 0);
     const paid = rows.filter(r => r.pay === 'paid').reduce((a, r) => a + r.total, 0);
     const items = rows.reduce((a, r) => a + (r.o.lines || []).reduce((b, l) => b + (l.free ? 0 : (Number(l.qty) || 0)), 0), 0);
-    const mLabel = (m) => ({ cash: 'Cash', card: 'Credit card', credit: 'Credit', fawran: 'Fawran' })[m] || '—';
+    const mLabel = (m) => ({ cash: 'Cash', card: 'Card', credit: 'Credit', fawran: 'Fawran' })[m] || '—';
     return {
       type: 'sales', title: 'Sales report',
-      head: [A('Date'), A('Order ID'), A('Customer'), A('Platform'), R('Total (QAR)'), A('Status'), A('Payment status'), A('Method')],
-      grid: '100px 90px minmax(150px,1.2fr) 120px 110px 100px 130px 110px',
-      cells: rows.map(r => [A(r.day), A(r.o.id), A(r.o.name || '—'), A(r.plat), { ...R(money(r.total)), w: 600 }, A(this.repLabel(r.status)), A(this.repLabel(r.pay)), A(mLabel(r.method))]),
+      head: [A('Date'), A('Time'), A('Order ID'), A('Customer'), A('Platform'), R('Total (QAR)'), A('Status'), A('Payment status'), A('Method')],
+      grid: '100px 80px 90px minmax(150px,1.2fr) 120px 110px 100px 130px 110px',
+      cells: rows.map(r => [A(r.day), A(r.time), A(r.o.id), A(r.o.name || '—'), A(r.plat), { ...R(money(r.total)), w: 600 }, A(this.repLabel(r.status)), A(this.repLabel(r.pay)), A(mLabel(r.method))]),
       tiles: [
         { label: 'Orders', value: String(rows.length) }, { label: 'Total sales', value: money(total) + ' QAR' },
         { label: 'Paid', value: money(paid) + ' QAR' }, { label: 'Pending / unpaid', value: money(total - paid) + ' QAR' },
@@ -2658,7 +2669,8 @@ class Component extends DCLogic {
       if (error) { if (this.isMissingTable(error)) this.setState({ grnMissing: true, dbGRNs: [] }); else console.warn('Madzo admin: could not load GRNs', error); return; }
       this.setState({ grnMissing: false, dbGRNs: (data || []).map(g => ({
         id: g.id, ts: new Date(g.created_at).getTime(), invoice: g.invoice_no || '', supplier: g.supplier_name || '',
-        date: g.grn_date || '', payMode: g.payment_mode || 'cash', remarks: g.remarks || '', items: g.items || [], total: Number(g.total_amount) || 0
+        date: g.grn_date || '', payMode: g.payment_mode || 'cash', remarks: g.remarks || '', items: g.items || [], total: Number(g.total_amount) || 0,
+        currency: g.currency || 'QAR', rate: Number(g.exchange_rate) || 1, totalOrig: g.total_original != null ? Number(g.total_original) : Number(g.total_amount) || 0
       })) });
     } catch (e) { console.warn('Madzo admin: could not load GRNs', e); }
   }
@@ -3438,6 +3450,9 @@ class Component extends DCLogic {
   </div>
   <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px;">
     <span><strong>Time / الوقت</strong></span><span>${this.esc(inv.time)}</span>
+  </div>
+  <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#666;margin-bottom:4px;">
+    <span>Printed / تاريخ الطباعة</span><span>${this.esc(inv.printedAt || '')}</span>
   </div>
   <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:10px;">
     <span><strong>Mode of payment / طريقة الدفع</strong></span><span>${this.esc(inv.method)}</span>
@@ -4370,7 +4385,7 @@ class Component extends DCLogic {
         edStatus: ed.status || 'new', onEdStatus: setEd('status'),
         edPaymentStatus: ed.paymentStatus || 'pending', onEdPaymentStatus: setEd('paymentStatus'),
         edPayMethod: ed.payMethod || '', onEdPayMethod: setEd('payMethod'),
-        edPayOptions: [{ v: '', l: '— not set —' }, { v: 'cash', l: 'Cash' }, { v: 'card', l: 'Credit card' }, { v: 'credit', l: 'Credit' }].concat((ed.payMethod === 'fawran' || o.payMethod === 'fawran') ? [{ v: 'fawran', l: 'Fawran (old)' }] : []).map(x => ({ ...x, selected: x.v === (ed.payMethod || '') })),
+        edPayOptions: [{ v: '', l: '— not set —' }, { v: 'cash', l: 'Cash' }, { v: 'credit', l: 'Credit' }, { v: 'card', l: 'Card' }].concat((ed.payMethod === 'fawran' || o.payMethod === 'fawran') ? [{ v: 'fawran', l: 'Fawran (old)' }] : []).map(x => ({ ...x, selected: x.v === (ed.payMethod || '') })),
         edPick: pickVal('ed'), onEdPickProduct: pkEd.onChange, onEdPickProductKey: pkEd.onKey,
         edPickF: pickVal('edf'), onEdPickFreeProduct: pkEdF.onChange, onEdPickFreeProductKey: pkEdF.onKey,
         addEdItem: () => pushEdItem({ name: '', qty: 1, price: '' }),
@@ -4440,6 +4455,7 @@ class Component extends DCLogic {
       hasLogo: !!(logoEl('Madzo') && logoEl('MADZO')), noLogo: !(logoEl('Madzo') && logoEl('MADZO')),
       date: new Date(invOrder.ts).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Asia/Qatar' }),
       time: new Date(invOrder.ts).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Qatar' }),
+      printedAt: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Asia/Qatar' }) + ' · ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Qatar' }),
       method: payNames[invOrder.payMethod] || '—',
       name: invOrder.name || '—',
       phone: invOrder.phone || '—',
@@ -4819,18 +4835,20 @@ class Component extends DCLogic {
     const grnAll = (this.state.dbGRNs || []).filter(g => !grnQ || (g.id + ' ' + g.invoice + ' ' + g.supplier).toLowerCase().indexOf(grnQ) >= 0);
     const grnPager = makePager(grnAll.length, 'grnPage');
     const grnBlank = () => ({ code: '', name: '', qty: '', free: '', buy: '', sell: '', expiry: '', matched: '' });
-    const grnD = this.state.grnDraft || { id: '', invoice: '', supplier: '', date: '', payMode: 'cash', remarks: '', updatePrices: true, items: [] };
+    const grnD = this.state.grnDraft || { id: '', invoice: '', supplier: '', date: '', payMode: 'cash', currency: 'QAR', rate: '', remarks: '', updatePrices: true, items: [] };
     const setGrn = (patch) => this.setState(s => ({ grnDraft: { ...s.grnDraft, ...patch }, grnError: '' }));
     const setGrnItem = (i, patch) => this.setState(s => { const items = s.grnDraft.items.slice(); items[i] = { ...items[i], ...patch }; return { grnDraft: { ...s.grnDraft, items }, grnError: '' }; });
     const skuProd = (v) => { const k = String(v || '').trim().toLowerCase(); return k ? prods.find(p => String(p.sku).toLowerCase() === k) : null; };
     const nameProd = (v) => { const k = String(v || '').trim().toLowerCase(); return k ? prods.find(p => String(p.name).toLowerCase() === k) : null; };
-    const fillGrnLine = (i, p) => setGrnItem(i, { code: p.sku, name: p.name, buy: p.buyPrice ? String(p.buyPrice) : '', sell: (p.price == null ? '' : String(p.price)), matched: p.sku });
+    const fillGrnLine = (i, p) => setGrnItem(i, { code: p.sku, name: p.name, ...(((this.state.grnDraft || {}).currency || 'QAR') === 'QAR' ? { buy: p.buyPrice ? String(p.buyPrice) : '' } : {}), sell: (p.price == null ? '' : String(p.price)), matched: p.sku });
     const fmtExpiry = (raw, prev) => {
       const v = String(raw || ''), d = v.replace(/\D/g, '').slice(0, 4);
       if (d.length > 2) return d.slice(0, 2) + '/' + d.slice(2);
       if (d.length === 2 && v.length >= 3 && v.charAt(2) === '/') return d + '/';
       return d;
     };
+    const GRN_CURRENCIES = [{ code: 'QAR', rate: 1 }, { code: 'USD', rate: 3.64 }, { code: 'EUR', rate: null }, { code: 'GBP', rate: null }, { code: 'AED', rate: 0.99 }, { code: 'SAR', rate: 0.97 }, { code: 'KWD', rate: null }, { code: 'BHD', rate: 9.66 }, { code: 'OMR', rate: 9.46 }, { code: 'INR', rate: null }, { code: 'PKR', rate: null }, { code: 'CNY', rate: null }, { code: 'JPY', rate: null }, { code: 'KRW', rate: null }, { code: 'TRY', rate: null }, { code: 'EGP', rate: null }];
+    const grnCur = grnD.currency || 'QAR', grnForeignNow = grnCur !== 'QAR', grnRateNum = grnForeignNow ? (Number(grnD.rate) || 0) : 1;
     const grnLines = grnD.items.map((it, i) => {
       const q = Math.max(0, Number(it.qty) || 0), b = Math.max(0, Number(it.buy) || 0);
       return {
@@ -4849,16 +4867,16 @@ class Component extends DCLogic {
     const grnOpenForm = (entry) => this.setState({
       grnError: '', grnMsg: '',
       grnDraft: entry ? {
-        origId: entry.id, id: entry.id, invoice: entry.invoice, supplier: entry.supplier, date: entry.date || today, payMode: entry.payMode || 'cash', remarks: entry.remarks || '', updatePrices: false,
+        origId: entry.id, id: entry.id, invoice: entry.invoice, supplier: entry.supplier, date: entry.date || today, payMode: entry.payMode || 'cash', currency: entry.currency || 'QAR', rate: (entry.currency && entry.currency !== 'QAR' && entry.rate) ? String(entry.rate) : '', remarks: entry.remarks || '', updatePrices: false,
         items: (entry.items || []).map(l => ({ code: l.code || '', name: l.name || '', qty: String(l.qty || ''), free: l.free ? String(l.free) : '', buy: l.buy ? String(l.buy) : '', sell: l.sell ? String(l.sell) : '', expiry: l.expiry || '', matched: l.code || '' }))
       } : {
-        origId: null, id: this.nextGrnId(), invoice: '', supplier: '', date: today, payMode: 'cash', remarks: '', updatePrices: true,
+        origId: null, id: this.nextGrnId(), invoice: '', supplier: '', date: today, payMode: 'cash', currency: 'QAR', rate: '', remarks: '', updatePrices: true,
         items: [grnBlank(), grnBlank(), grnBlank()]
       }
     }, () => window.scrollTo(0, 0));
 
     // ---- Order monitoring ----
-    const OM_STATUS = [{ v: 'ordered', l: 'Ordered', bg: '#FBEFD4', c: '#9A6E12' }, { v: 'shipped', l: 'Shipped', bg: '#E1ECF8', c: '#2A5D9F' }, { v: 'delivered', l: 'Delivered', bg: '#DDF0E2', c: '#1E8A4C' }, { v: 'delayed', l: 'Delayed', bg: '#FBE3E0', c: '#B03A2E' }, { v: 'cancelled', l: 'Cancelled', bg: '#ECE8E0', c: '#7A7367' }];
+    const OM_STATUS = [{ v: 'ordered', l: 'Ordered', bg: '#FBEFD4', c: '#9A6E12' }, { v: 'processed', l: 'Order processed', bg: '#EDE4F7', c: '#6B3FA0' }, { v: 'shipped', l: 'Shipped', bg: '#E1ECF8', c: '#2A5D9F' }, { v: 'delivered', l: 'Delivered', bg: '#DDF0E2', c: '#1E8A4C' }, { v: 'delayed', l: 'Delayed', bg: '#FBE3E0', c: '#B03A2E' }, { v: 'cancelled', l: 'Cancelled', bg: '#ECE8E0', c: '#7A7367' }];
     const omMeta = (v) => OM_STATUS.find(s => s.v === v) || OM_STATUS[0];
     const omToday = today;
     const omQ = String(this.state.omSearch || '').trim().toLowerCase(), omSF = this.state.omStatusF || 'all';
@@ -4868,7 +4886,7 @@ class Component extends DCLogic {
     const omD = this.state.omDraft || { date: '', invoice: '', source: '', payMode: 'cash', total: '', expected: '', size: '', status: 'ordered', remarks: '' };
     const setOm = (patch) => this.setState(s => ({ omDraft: { ...s.omDraft, ...patch }, omError: '' }));
     const omDateLabel = (d) => d ? new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '—';
-    const omOpen = (this.state.dbOMs || []).filter(o => o.status === 'ordered' || o.status === 'shipped' || o.status === 'delayed');
+    const omOpen = (this.state.dbOMs || []).filter(o => o.status === 'ordered' || o.status === 'processed' || o.status === 'shipped' || o.status === 'delayed');
     const omLate = omOpen.filter(o => o.expected && o.expected < omToday).length;
     const omProps = {
       poViewOM: this.state.poView === 'om',
@@ -4915,7 +4933,7 @@ class Component extends DCLogic {
       noOMs: omAll.length === 0, noOmText: (this.state.dbOMs || []).length ? 'No orders match these filters.' : 'No orders being monitored yet.',
       omPager,
       pagedOMs: omAll.slice((omPager.page - 1) * PAGE_SIZE, omPager.page * PAGE_SIZE).map(o => {
-        const m = omMeta(o.status), late = !!o.expected && o.expected < omToday && (o.status === 'ordered' || o.status === 'shipped' || o.status === 'delayed');
+        const m = omMeta(o.status), late = !!o.expected && o.expected < omToday && (o.status === 'ordered' || o.status === 'processed' || o.status === 'shipped' || o.status === 'delayed');
         return {
           id: o.id, invoice: o.invoice, source: o.source || '—', remarks: o.remarks || '—', size: o.size || '—',
           dateLabel: omDateLabel(o.date), expLabel: omDateLabel(o.expected) + (late ? ' ⚠' : ''), expColor: late ? '#B03A2E' : '#2E2A26', expWeight: late ? '700' : '400',
@@ -4945,7 +4963,12 @@ class Component extends DCLogic {
       onGrnRemarks: (e) => setGrn({ remarks: e.target.value }), onGrnUpdatePrices: (e) => setGrn({ updatePrices: !!e.target.checked }),
       grnItems: grnLines, grnAddLine: () => this.setState(s => ({ grnDraft: { ...s.grnDraft, items: s.grnDraft.items.concat([grnBlank()]) } })),
       grnCodeOptions: prods.map(p => ({ sku: p.sku, label: p.name })), grnNameOptions: prods.map(p => ({ name: p.name })),
-      grnTotal: grnTotalNum.toFixed(2) + ' QAR',
+      grnTotal: grnForeignNow ? (grnTotalNum.toFixed(2) + ' ' + grnCur + (grnRateNum > 0 ? '  ≈  ' + (grnTotalNum * grnRateNum).toFixed(2) + ' QAR' : '  (enter the exchange rate)')) : (grnTotalNum.toFixed(2) + ' QAR'),
+      grnForeign: grnForeignNow, grnBuyHead: 'Buy price (' + grnCur + ')', grnTotalHead: 'Total (' + grnCur + ')',
+      grnRateLabel: '1 ' + grnCur + ' = ? QAR',
+      grnCurrencyOpts: GRN_CURRENCIES.map(c => ({ v: c.code, l: c.code === 'QAR' ? 'QAR — Qatari riyal' : c.code, selected: c.code === grnCur })),
+      onGrnCurrency: (e) => { const v = e.target.value, c = GRN_CURRENCIES.find(x => x.code === v); setGrn({ currency: v, rate: v === 'QAR' ? '' : (c && c.rate ? String(c.rate) : '') }); },
+      onGrnRate: (e) => setGrn({ rate: e.target.value }),
       saveGrnLabel: this.state.savingGRN ? 'Saving…' : (this.state.grnDraft && this.state.grnDraft.origId ? 'Save changes' : 'Save GRN & update stock'),
       saveGRN: async () => {
         if (this.state.savingGRN) return;
@@ -4977,21 +5000,27 @@ class Component extends DCLogic {
         const dup = (this.state.dbGRNs || []).find(g => g.id !== d.origId && g.invoice.trim().toLowerCase() === inv.toLowerCase() && g.supplier.trim().toLowerCase() === sup.toLowerCase());
         if (dup) return fail('Invoice ' + inv + ' from ' + sup + ' was already entered as ' + dup.id + '.');
         const sb = window.getSupabase(), isEdit = !!d.origId, id = isEdit ? d.origId : this.nextGrnId();
-        const total = lines.reduce((a, l) => a + l.qty * l.buy, 0);
+        const curS = d.currency || 'QAR', foreign = curS !== 'QAR', rate = foreign ? Number(d.rate) : 1;
+        if (foreign && !(rate > 0)) return fail('Enter the exchange rate: how many QAR is 1 ' + curS + '.');
+        lines.forEach(l => { l.buyQar = Math.round(l.buy * rate * 100) / 100; });
+        const totalOrig = lines.reduce((a, l) => a + l.qty * l.buy, 0);
+        const total = totalOrig * rate;
         const row = {
           invoice_no: inv, supplier_name: sup, grn_date: d.date, payment_mode: d.payMode || 'cash', remarks: String(d.remarks || '').trim() || null,
           items: lines.map(l => ({ code: l.sku, name: l.name, qty: l.qty, free: l.free, buy: l.buy, sell: l.sell, expiry: l.expiry })), total_amount: Math.round(total * 100) / 100
         };
+        if (foreign) { row.currency = curS; row.exchange_rate = rate; row.total_original = Math.round(totalOrig * 100) / 100; }
+        else if (isEdit && ((this.state.dbGRNs || []).find(g => g.id === id) || {}).currency && ((this.state.dbGRNs || []).find(g => g.id === id) || {}).currency !== 'QAR') { row.currency = 'QAR'; row.exchange_rate = 1; row.total_original = null; }
         this.setState({ savingGRN: true, grnError: '' });
         const res = isEdit ? await sb.from('grn_entries').update(row).eq('id', id) : await sb.from('grn_entries').insert({ id, ...row });
-        if (res.error) { this.setState({ savingGRN: false }); if (this.isMissingTable(res.error)) { this.setState({ grnMissing: true }); return fail('Run madzo-update-10.sql in Supabase first, then save again.'); } return fail(res.error.message); }
+        if (res.error) { this.setState({ savingGRN: false }); if (this.isMissingTable(res.error)) { this.setState({ grnMissing: true }); return fail('Run madzo-update-10.sql in Supabase first, then save again.'); } if (/currency|exchange_rate|total_original/.test(res.error.message || '')) return fail('Other currencies need a one-time database update — run madzo-update-13.sql in Supabase, then save again.'); return fail(res.error.message); }
         // stock: replace this GRN's earlier movements (if any), then add the new ones (paid qty and free qty are separate so cost stays right)
         await sb.from('inventory_batches').delete().eq('source_type', 'grn').eq('source_id', id);
         const note = 'GRN ' + id + ' · Invoice ' + inv;
         const batches = [];
         lines.forEach(l => {
           const base = { sku: l.sku, batch_no: inv, expiry_date: l.expiryDate, supplier_name: sup, selling_price: l.sell, received_date: d.date, source_type: 'grn', source_id: id };
-          if (l.qty > 0) batches.push({ ...base, quantity: l.qty, buying_price: l.buy, notes: note });
+          if (l.qty > 0) batches.push({ ...base, quantity: l.qty, buying_price: l.buyQar, notes: note });
           if (l.free > 0) batches.push({ ...base, quantity: l.free, buying_price: 0, notes: note + ' (free)' });
         });
         const ins = await sb.from('inventory_batches').insert(batches);
@@ -5004,7 +5033,7 @@ class Component extends DCLogic {
           for (const l of lines) {
             const patch = {};
             if (l.sell > 0 && l.sell !== l.oldPrice) patch.price = l.sell;
-            if (l.buy > 0 && l.buy !== l.oldBuy) patch.buy_price = l.buy;
+            if (l.buyQar > 0 && l.buyQar !== l.oldBuy) patch.buy_price = l.buyQar;
             if (!Object.keys(patch).length) continue;
             let r = await sb.from('products').update(patch).eq('sku', l.sku);
             if (r.error && patch.buy_price != null && patch.price != null) await sb.from('products').update({ price: patch.price }).eq('sku', l.sku);
@@ -5023,10 +5052,10 @@ class Component extends DCLogic {
           id: g.id, invoice: g.invoice, supplier: g.supplier,
           dateLabel: g.date ? new Date(g.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '—',
           payLabel: ({ cash: 'Cash', card: 'Card', credit: 'Credit' })[g.payMode] || g.payMode,
-          itemCount: String((g.items || []).length), totalLabel: Number(g.total || 0).toFixed(2) + ' QAR',
+          itemCount: String((g.items || []).length), totalLabel: (g.currency && g.currency !== 'QAR' ? Number(g.totalOrig || 0).toFixed(2) + ' ' + g.currency + ' (≈ ' + Number(g.total || 0).toFixed(2) + ' QAR)' : Number(g.total || 0).toFixed(2) + ' QAR'),
           open, toggleLabel: open ? 'Hide items' : 'Show items', hasRemarks: !!g.remarks, remarks: g.remarks,
           toggle: () => this.setState(s => ({ grnOpen: { ...s.grnOpen, [g.id]: !(s.grnOpen || {})[g.id] } })),
-          lines: (g.items || []).map(l => ({ name: l.name || l.code, code: l.code, qty: l.qty || 0, free: l.free || 0, buy: Number(l.buy || 0).toFixed(2), sell: l.sell || 0, expiry: l.expiry || '—' })),
+          lines: (g.items || []).map(l => ({ name: l.name || l.code, code: l.code, qty: l.qty || 0, free: l.free || 0, buy: Number(l.buy || 0).toFixed(2) + (g.currency && g.currency !== 'QAR' ? ' ' + g.currency : ''), sell: l.sell || 0, expiry: l.expiry || '—' })),
           edit: () => grnOpenForm(g),
           confirming, askRemove: () => this.setState({ grnConfirmDel: g.id }), cancelRemove: () => this.setState({ grnConfirmDel: null }),
           confirmRemove: async () => {
@@ -5139,7 +5168,7 @@ class Component extends DCLogic {
       on_ordFStatus: (e) => this.setState({ orderDeliveryFilter: e.target.value, orderPage: 1 }),
       on_ordFPay: (e) => this.setState({ orderPaymentFilter: e.target.value, orderPage: 1 }),
       ordPlatformOptions: (() => { const set = new Set(); orders.forEach(o => set.add(platLabel(o))); const rest = [...set].filter(x => x !== 'Website').sort((x, y) => x.localeCompare(y)); return [{ v: 'all', l: 'All' }].concat((set.has('Website') ? ['Website'] : []).concat(rest).map(x => ({ v: x, l: x }))).map(x => ({ ...x, selected: x.v.toLowerCase() === String(oF.platform || 'all').toLowerCase() })); })(),
-      ordMethodOptions: (() => { const base = [{ v: 'all', l: 'All' }, { v: 'cash', l: 'Cash' }, { v: 'card', l: 'Card' }, { v: 'credit', l: 'Credit' }]; if (orders.some(o => o.payMethod === 'fawran')) base.push({ v: 'fawran', l: 'Fawran (old)' }); return base.map(x => ({ ...x, selected: x.v === (oF.method || 'all') })); })(),
+      ordMethodOptions: (() => { const base = [{ v: 'all', l: 'All' }, { v: 'cash', l: 'Cash' }, { v: 'credit', l: 'Credit' }, { v: 'card', l: 'Card' }]; if (orders.some(o => o.payMethod === 'fawran')) base.push({ v: 'fawran', l: 'Fawran (old)' }); return base.map(x => ({ ...x, selected: x.v === (oF.method || 'all') })); })(),
       clearOrdFilters: () => this.setState({ ordF: { date: '', id: '', cust: '', platform: 'all', total: '', method: 'all' }, orderDeliveryFilter: 'all', orderPaymentFilter: 'all', orderSearch: '', orderPage: 1 }),
       pagedOrders, orderPager,
 
@@ -5338,7 +5367,7 @@ class Component extends DCLogic {
       repPayStatus: this.state.repPayStatus, onRepPayStatus: (e) => this.setState({ repPayStatus: e.target.value }),
       repPayStatusOpts: [{ v: 'all', l: 'All' }, { v: 'paid', l: 'Paid' }, { v: 'pending', l: 'Pending' }, { v: 'partially_paid', l: 'Partially paid' }].map(x => ({ ...x, selected: x.v === this.state.repPayStatus })),
       repMethod: this.state.repMethod, onRepMethod: (e) => this.setState({ repMethod: e.target.value }),
-      repMethodOpts: [{ v: 'all', l: 'All' }, { v: 'cash', l: 'Cash' }, { v: 'card', l: 'Credit card' }, { v: 'credit', l: 'Credit' }].map(x => ({ ...x, selected: x.v === this.state.repMethod })),
+      repMethodOpts: [{ v: 'all', l: 'All' }, { v: 'cash', l: 'Cash' }, { v: 'credit', l: 'Credit' }, { v: 'card', l: 'Card' }].map(x => ({ ...x, selected: x.v === this.state.repMethod })),
       repKind: this.state.repKind, onRepKind: (e) => this.setState({ repKind: e.target.value }),
       repKindOpts: [{ v: 'all', l: 'All entries' }, { v: 'invoice', l: 'Purchase invoices' }, { v: 'grn', l: 'GRN entries' }, { v: 'return', l: 'Purchase returns' }].map(x => ({ ...x, selected: x.v === this.state.repKind })),
       repSup: this.state.repSup, onRepSup: (e) => this.setState({ repSup: e.target.value }),

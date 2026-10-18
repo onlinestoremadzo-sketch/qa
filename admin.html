@@ -85,6 +85,7 @@
         <button onClick="{{ tabDash }}" style="background: {{ tDashBg }}; color: {{ tDashColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Dashboard</button>
             <button onClick="{{ tabImages }}" style="background: {{ tImagesBg }}; color: {{ tImagesColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Images</button>
             <button onClick="{{ tabPO }}" style="background: {{ tPOBg }}; color: {{ tPOColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Purchase</button>
+            <button onClick="{{ tabReports }}" style="background: {{ tReportsBg }}; color: {{ tReportsColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Reports</button>
           <button onClick="{{ tabInv }}" style="background: {{ tInvBg }}; color: {{ tInvColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Inventory</button>
           <sc-if value="{{ customersEnabled }}" hint-placeholder-val="{{ false }}"><button onClick="{{ tabCustomers }}" style="background: {{ tCustBg }}; color: {{ tCustColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Customers</button></sc-if>
           <button onClick="{{ tabNotes }}" style="background: {{ tNotesBg }}; color: {{ tNotesColor }}; border: none; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-weight: 500;">Notes</button>
@@ -434,11 +435,8 @@
                   </sc-if>
                 </div>
               </sc-if>
-              <div style="font-size: 11px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px; margin-top: 4px;">Stock &amp; pricing <span style="text-transform: none; font-weight: 400; letter-spacing: 0;">— all optional, you can change them any time from the list</span></div>
+              <div style="font-size: 11px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px; margin-top: 4px;">Stock &amp; pricing <span style="text-transform: none; font-weight: 400; letter-spacing: 0;">— all optional. Quantity and expiry (mm/yy) come from <b>Purchases → GRN entry</b>, so they are not asked here.</span></div>
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
-                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Quantity (stock)
-                  <input value="{{ newProd.stock }}" onChange="{{ onNewStock }}" type="number" min="0" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
-                </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Buy price (QAR)
                   <input value="{{ newProd.buyPrice }}" onChange="{{ onNewBuyPrice }}" type="number" min="0" step="0.01" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
@@ -447,9 +445,6 @@
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Discounted from (QAR) — old price, optional
                   <input value="{{ newProd.compare }}" onChange="{{ onNewCompare }}" type="number" min="0" placeholder="Leave empty = no discount" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
-                </label>
-                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Expiry date
-                  <input value="{{ newProd.expiry }}" onChange="{{ onNewExpiry }}" type="date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
               </div>
               <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #5C554B; cursor: pointer;">
@@ -606,8 +601,8 @@
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Discounted from (QAR) — old price, optional
                         <input value="{{ p.edCompare }}" onChange="{{ p.onEdCompare }}" type="number" min="0" step="1" placeholder="Leave empty = no discount" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                       </label>
-                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Expiry date
-                        <input value="{{ p.edExpiry }}" onChange="{{ p.onEdExpiry }}" type="date" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Expiry (mm/yy)
+                        <input value="{{ p.edExpiry }}" onChange="{{ p.onEdExpiry }}" maxlength="5" inputmode="numeric" placeholder="mm/yy" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                       </label>
                       <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #5C554B; cursor: pointer; align-self: end; padding-bottom: 10px;">
                         <input type="checkbox" checked="{{ p.edFree }}" onChange="{{ p.onEdFree }}">
@@ -672,10 +667,10 @@
               <h2 style="font-size: 15px; font-weight: 600; margin: 0;">Add order manually</h2>
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; align-items: end;">
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Order ID (auto — editable)
-                  <input value="{{ newOrder.id }}" onChange="{{ onNOId }}" placeholder="MZO-0001" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
+                  <input value="{{ newOrder.id }}" onChange="{{ onNOId }}" placeholder="IQ-01" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Platform / source
-                  <input value="{{ newOrder.source }}" onChange="{{ onNOSource }}" placeholder="Instagram, WhatsApp…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                  <div style="display: flex; gap: 6px; align-items: stretch;"><select value="{{ newOrder.source }}" onChange="{{ onNOSource }}" aria-label="Platform" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; flex: 1; min-width: 0; cursor: pointer; color: #2E2A26;" style-focus="border-color: #461610;"><sc-for list="{{ newOrderSourceOpts }}" as="so" hint-placeholder-count="3"><option value="{{ so.v }}" selected="{{ so.selected }}">{{ so.l }}</option></sc-for></select><button type="button" onClick="{{ openMgrPlatform }}" title="Add / edit the list" aria-label="Manage list" style="background: none; border: 1px solid #D8CCBC; color: #461610; border-radius: 10px; padding: 0 11px; font-size: 14px; cursor: pointer; white-space: nowrap;" style-hover="border-color: #461610;">✎</button></div>
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Customer name
                   <input value="{{ newOrder.name }}" onChange="{{ onNOName }}" list="madzo-cust-names" autocomplete="off" placeholder="Type a name…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
@@ -754,12 +749,13 @@
             <p style="color: #857D72; text-align: center; padding: 30px 0;">{{ noOrdersText }}</p>
           </sc-if>
           <div style="overflow-x: auto;">
-            <div style="min-width: 1000px; display: flex; flex-direction: column; gap: 6px;">
-              <div style="display: grid; grid-template-columns: 118px minmax(130px,1fr) 104px 92px 100px 112px 104px 92px 70px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
-                <span>Date</span><span>Customer name</span><span>Platform</span><span>Total cost</span><span>Status</span><span>Payment status</span><span>Payment method</span><span>Invoice</span><span>Edit</span>
+            <div style="min-width: 1240px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: grid; grid-template-columns: 100px 88px 170px 110px 96px 100px 116px 110px 96px 74px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                <span>Date</span><span>Order ID</span><span>Customer name</span><span>Platform</span><span>Total cost</span><span>Status</span><span>Payment status</span><span>Payment method</span><span>Invoice</span><span>Edit</span>
               </div>
-              <div style="display: grid; grid-template-columns: 118px minmax(130px,1fr) 104px 92px 100px 112px 104px 92px 70px; gap: 10px; align-items: center; padding: 0 14px 4px;">
+              <div style="display: grid; grid-template-columns: 100px 88px 170px 110px 96px 100px 116px 110px 96px 74px; gap: 10px; align-items: center; padding: 0 14px 4px;">
                 <input type="date" value="{{ ordFDate }}" onChange="{{ on_ordFDate }}" aria-label="Filter by date" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;" style-focus="border-color: #461610;">
+                <input value="{{ ordFId }}" onChange="{{ on_ordFId }}" placeholder="ID…" aria-label="Filter by order ID" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;" style-focus="border-color: #461610;">
                 <input value="{{ ordFCust }}" onChange="{{ on_ordFCust }}" placeholder="Customer…" aria-label="Filter by customer" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;" style-focus="border-color: #461610;">
                 <select value="{{ ordFPlatform }}" onChange="{{ on_ordFPlatform }}" aria-label="Filter by platform" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; cursor: pointer;">
                   <sc-for list="{{ ordPlatformOptions }}" as="po" hint-placeholder-count="2"><option value="{{ po.v }}" selected="{{ po.selected }}">{{ po.l }}</option></sc-for>
@@ -779,8 +775,9 @@
               </div>
               <sc-for list="{{ pagedOrders }}" as="o" hint-placeholder-count="6">
                 <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px;">
-                  <div onClick="{{ o.toggleDetails }}" style="display: grid; grid-template-columns: 118px minmax(130px,1fr) 104px 92px 100px 112px 104px 92px 70px; gap: 10px; align-items: center; padding: 9px 14px; cursor: pointer;">
-                    <span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-size: 12.5px; font-weight: 600; color: #2E2A26; white-space: nowrap;">{{ o.dateLabel }}</span><span style="font-size: 10.5px; color: #A9A091; white-space: nowrap;">{{ o.metaId }}</span></span>
+                  <div onClick="{{ o.toggleDetails }}" style="display: grid; grid-template-columns: 100px 88px 170px 110px 96px 100px 116px 110px 96px 74px; gap: 10px; align-items: center; padding: 9px 14px; cursor: pointer;">
+                    <span style="font-size: 12.5px; font-weight: 600; color: #2E2A26; white-space: nowrap;">{{ o.dateLabel }}</span>
+                    <span style="font-size: 12px; color: #5C554B; white-space: nowrap;">{{ o.metaId }}</span>
                     <span style="font-weight: 600; font-size: 13px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ o.name }}</span>
                     <span style="font-size: 12.5px; color: #2E2A26;">{{ o.platform }}</span>
                     <span style="font-weight: 600; font-size: 13px; color: #2E2A26;">{{ o.total }}</span>
@@ -817,7 +814,7 @@
                         <input value="{{ o.edId }}" onChange="{{ o.onEdId }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                       </label>
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Platform / source
-                        <input value="{{ o.edSource }}" onChange="{{ o.onEdSource }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                        <div style="display: flex; gap: 6px; align-items: stretch;"><select value="{{ o.edSource }}" onChange="{{ o.onEdSource }}" aria-label="Platform" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; flex: 1; min-width: 0; cursor: pointer; color: #2E2A26;" style-focus="border-color: #461610;"><sc-for list="{{ o.edSourceOptions }}" as="so" hint-placeholder-count="3"><option value="{{ so.v }}" selected="{{ so.selected }}">{{ so.l }}</option></sc-for></select><button type="button" onClick="{{ openMgrPlatform }}" title="Add / edit the list" aria-label="Manage list" style="background: none; border: 1px solid #D8CCBC; color: #461610; border-radius: 10px; padding: 0 11px; font-size: 14px; cursor: pointer; white-space: nowrap;" style-hover="border-color: #461610;">✎</button></div>
                       </label>
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Customer name
                         <input value="{{ o.edName }}" onChange="{{ o.onEdName }}" list="madzo-cust-names" autocomplete="off" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
@@ -904,6 +901,92 @@
       </sc-if>
 
       <!-- ---- PURCHASE ORDERS ---- -->
+      <!-- ---- REPORTS ---- -->
+      <sc-if value="{{ isReports }}" hint-placeholder-val="{{ false }}">
+        <section style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+            <div>
+              <h2 style="margin: 0; font-size: 22px; color: #2E2A26;">Reports</h2>
+              <p style="margin: 4px 0 0; color: #857D72; font-size: 13px;">Pick the dates and filters, then print or download the result.</p>
+            </div>
+            <div style="display: flex; gap: 6px; background: #F1ECE2; border-radius: 999px; padding: 4px;">
+              <button onClick="{{ repGoSales }}" style="background: {{ repSalesBg }}; color: {{ repSalesColor }}; border: none; border-radius: 999px; padding: 8px 20px; font-size: 13.5px; font-weight: 600; cursor: pointer;">Sales report</button>
+              <button onClick="{{ repGoPurch }}" style="background: {{ repPurchBg }}; color: {{ repPurchColor }}; border: none; border-radius: 999px; padding: 8px 20px; font-size: 13.5px; font-weight: 600; cursor: pointer;">Purchases report</button>
+            </div>
+          </div>
+
+          <div style="background: #fff; border: 1px solid #E7DECF; border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+              <span style="font-size: 12px; color: #857D72; margin-inline-end: 4px;">Quick range:</span>
+              <sc-for list="{{ repPresets }}" as="pr" hint-placeholder-count="5">
+                <button onClick="{{ pr.go }}" style="background: {{ pr.bg }}; color: {{ pr.color }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 5px 13px; font-size: 12px; cursor: pointer;">{{ pr.label }}</button>
+              </sc-for>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; align-items: end;">
+              <label style="display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: #857D72; min-width: 0;">From date<input type="date" value="{{ repFrom }}" onChange="{{ onRepFrom }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 11px; font-size: 13.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26;"></label>
+              <label style="display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: #857D72; min-width: 0;">To date<input type="date" value="{{ repTo }}" onChange="{{ onRepTo }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 11px; font-size: 13.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26;"></label>
+              <sc-if value="{{ repIsSales }}" hint-placeholder-val="{{ true }}">
+                <label style="display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: #857D72; min-width: 0;">Platform<select value="{{ repPlat }}" onChange="{{ onRepPlat }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 11px; font-size: 13.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26; cursor: pointer;"><sc-for list="{{ repPlatOpts }}" as="ro" hint-placeholder-count="3"><option value="{{ ro.v }}" selected="{{ ro.selected }}">{{ ro.l }}</option></sc-for></select></label>
+                <label style="display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: #857D72; min-width: 0;">Order status<select value="{{ repStatus }}" onChange="{{ onRepStatus }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 11px; font-size: 13.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26; cursor: pointer;"><sc-for list="{{ repStatusOpts }}" as="ro" hint-placeholder-count="3"><option value="{{ ro.v }}" selected="{{ ro.selected }}">{{ ro.l }}</option></sc-for></select></label>
+                <label style="display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: #857D72; min-width: 0;">Payment status<select value="{{ repPayStatus }}" onChange="{{ onRepPayStatus }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 11px; font-size: 13.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26; cursor: pointer;"><sc-for list="{{ repPayStatusOpts }}" as="ro" hint-placeholder-count="3"><option value="{{ ro.v }}" selected="{{ ro.selected }}">{{ ro.l }}</option></sc-for></select></label>
+                <label style="display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: #857D72; min-width: 0;">Payment method<select value="{{ repMethod }}" onChange="{{ onRepMethod }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 11px; font-size: 13.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26; cursor: pointer;"><sc-for list="{{ repMethodOpts }}" as="ro" hint-placeholder-count="3"><option value="{{ ro.v }}" selected="{{ ro.selected }}">{{ ro.l }}</option></sc-for></select></label>
+              </sc-if>
+              <sc-if value="{{ repIsPurch }}" hint-placeholder-val="{{ false }}">
+                <label style="display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: #857D72; min-width: 0;">Entry type<select value="{{ repKind }}" onChange="{{ onRepKind }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 11px; font-size: 13.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26; cursor: pointer;"><sc-for list="{{ repKindOpts }}" as="ro" hint-placeholder-count="3"><option value="{{ ro.v }}" selected="{{ ro.selected }}">{{ ro.l }}</option></sc-for></select></label>
+                <label style="display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: #857D72; min-width: 0;">Supplier<select value="{{ repSup }}" onChange="{{ onRepSup }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 11px; font-size: 13.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26; cursor: pointer;"><sc-for list="{{ repSupOpts }}" as="ro" hint-placeholder-count="3"><option value="{{ ro.v }}" selected="{{ ro.selected }}">{{ ro.l }}</option></sc-for></select></label>
+                <label style="display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: #857D72; min-width: 0;">Payment<select value="{{ repPay }}" onChange="{{ onRepPay }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 11px; font-size: 13.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26; cursor: pointer;"><sc-for list="{{ repPayOpts }}" as="ro" hint-placeholder-count="3"><option value="{{ ro.v }}" selected="{{ ro.selected }}">{{ ro.l }}</option></sc-for></select></label>
+              </sc-if>
+              <button onClick="{{ repClear }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 10px; padding: 9px 14px; font-size: 13px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">Clear filters</button>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+            <sc-for list="{{ repTiles }}" as="tl" hint-placeholder-count="5">
+              <div style="background: #fff; border: 1px solid #E7DECF; border-radius: 14px; padding: 12px 14px;">
+                <div style="font-size: 11px; color: #A9A091; text-transform: uppercase; letter-spacing: .5px; font-weight: 700;">{{ tl.label }}</div>
+                <div style="font-size: 20px; font-weight: 700; color: #2E2A26; margin-top: 4px;">{{ tl.value }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px;">
+            <sc-for list="{{ repGroups }}" as="rg" hint-placeholder-count="2">
+              <div style="background: #fff; border: 1px solid #E7DECF; border-radius: 14px; padding: 14px 16px;">
+                <div style="font-size: 13px; font-weight: 700; color: #2E2A26; margin-bottom: 8px;">{{ rg.title }}</div>
+                <sc-if value="{{ rg.empty }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12.5px; color: #A9A091;">Nothing in this range.</div></sc-if>
+                <sc-for list="{{ rg.rows }}" as="gr" hint-placeholder-count="3">
+                  <div style="display: grid; grid-template-columns: 1fr 52px 100px 52px; gap: 8px; font-size: 12.5px; padding: 5px 0; border-top: 1px solid #F1E9DA; color: #2E2A26;">
+                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ gr.name }}</span><span style="text-align: end; color: #857D72;">{{ gr.count }}</span><span style="text-align: end; font-weight: 600;">{{ gr.total }}</span><span style="text-align: end; color: #857D72;">{{ gr.share }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;">
+            <div style="font-size: 13.5px; font-weight: 700; color: #2E2A26;">{{ repCountLabel }}</div>
+            <div style="display: flex; gap: 8px;">
+              <button onClick="{{ repCsv }}" style="background: #1E8A4C; color: #fff; border: none; border-radius: 999px; padding: 9px 18px; font-size: 13px; font-weight: 600; cursor: pointer;">⬇ Download CSV</button>
+              <button onClick="{{ repPrint }}" style="background: #461610; color: #FDF9F4; border: none; border-radius: 999px; padding: 9px 18px; font-size: 13px; font-weight: 600; cursor: pointer;">🖨 Print</button>
+            </div>
+          </div>
+          <div style="overflow-x: auto;">
+            <div style="min-width: 900px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: grid; grid-template-columns: {{ repGrid }}; gap: 10px; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                <sc-for list="{{ repHead }}" as="rh" hint-placeholder-count="6"><span style="text-align: {{ rh.align }};">{{ rh.t }}</span></sc-for>
+              </div>
+              <sc-if value="{{ repNoRows }}" hint-placeholder-val="{{ false }}"><p style="color: #857D72; text-align: center; padding: 26px 0; margin: 0;">No records match these filters.</p></sc-if>
+              <sc-for list="{{ repRows }}" as="rr" hint-placeholder-count="6">
+                <div style="display: grid; grid-template-columns: {{ repGrid }}; gap: 10px; align-items: center; background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 10px; padding: 9px 14px; font-size: 12.5px; color: #2E2A26;">
+                  <sc-for list="{{ rr.cells }}" as="rc" hint-placeholder-count="6"><span style="text-align: {{ rc.align }}; font-weight: {{ rc.w }}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ rc.t }}</span></sc-for>
+                </div>
+              </sc-for>
+              <sc-if value="{{ repMore }}" hint-placeholder-val="{{ false }}"><p style="color: #A9A091; text-align: center; font-size: 12px; margin: 4px 0 0;">{{ repMoreText }}</p></sc-if>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
       <sc-if value="{{ isPO }}" hint-placeholder-val="{{ false }}">
         <section data-screen-label="Purchase Orders Admin">
           <sc-if value="{{ idFoundMsg }}" hint-placeholder-val="{{ false }}"><div style="background: #E3F3E8; border: 1px solid #B6DEC3; border-radius: 12px; padding: 10px 14px; font-size: 13px; color: #1F6B3A; max-width: 680px; margin-bottom: 14px;">{{ idFoundMsg }}</div></sc-if>
@@ -933,7 +1016,7 @@
                   <input value="{{ newPO.id }}" onChange="{{ onPOId }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier name (M/S)
-                  <input value="{{ newPO.supplier }}" onChange="{{ onPOSupplier }}" list="madzo-supplier-names" placeholder="Type or pick…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                  <div style="display: flex; gap: 6px; align-items: stretch;"><select value="{{ newPO.supplier }}" onChange="{{ onPOSupplier }}" aria-label="Supplier" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; flex: 1; min-width: 0; cursor: pointer; color: #2E2A26;" style-focus="border-color: #461610;"><sc-for list="{{ poSupplierOpts }}" as="so" hint-placeholder-count="3"><option value="{{ so.v }}" selected="{{ so.selected }}">{{ so.l }}</option></sc-for></select><button type="button" onClick="{{ openMgrSupplier }}" title="Add / edit the list" aria-label="Manage list" style="background: none; border: 1px solid #D8CCBC; color: #461610; border-radius: 10px; padding: 0 11px; font-size: 14px; cursor: pointer; white-space: nowrap;" style-hover="border-color: #461610;">✎</button></div>
                   <datalist id="madzo-supplier-names">
                     <sc-for list="{{ supplierOptions }}" as="sn" hint-placeholder-count="3">
                       <option value="{{ sn.name }}"></option>
@@ -1121,7 +1204,7 @@
                     <input value="{{ grnD.invoice }}" onChange="{{ onGrnInvoice }}" aria-label="GRN invoice number" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                   </label>
                   <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier name *
-                    <input value="{{ grnD.supplier }}" onChange="{{ onGrnSupplier }}" list="madzo-grn-suppliers" autocomplete="off" aria-label="GRN supplier name" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                    <div style="display: flex; gap: 6px; align-items: stretch;"><select value="{{ grnD.supplier }}" onChange="{{ onGrnSupplier }}" aria-label="GRN supplier" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; flex: 1; min-width: 0; cursor: pointer; color: #2E2A26;" style-focus="border-color: #461610;"><sc-for list="{{ grnSupplierOpts }}" as="so" hint-placeholder-count="3"><option value="{{ so.v }}" selected="{{ so.selected }}">{{ so.l }}</option></sc-for></select><button type="button" onClick="{{ openMgrSupplier }}" title="Add / edit the list" aria-label="Manage list" style="background: none; border: 1px solid #D8CCBC; color: #461610; border-radius: 10px; padding: 0 11px; font-size: 14px; cursor: pointer; white-space: nowrap;" style-hover="border-color: #461610;">✎</button></div>
                     <datalist id="madzo-grn-suppliers">
                       <sc-for list="{{ supplierOptions }}" as="gsn" hint-placeholder-count="3"><option value="{{ gsn.name }}"></option></sc-for>
                     </datalist>
@@ -1273,7 +1356,7 @@
                     <input value="{{ omD.invoice }}" onChange="{{ onOmInvoice }}" aria-label="Order invoice no" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                   </label>
                   <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Source
-                    <input value="{{ omD.source }}" onChange="{{ onOmSource }}" list="madzo-om-sources" autocomplete="off" aria-label="Order source" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                    <div style="display: flex; gap: 6px; align-items: stretch;"><select value="{{ omD.source }}" onChange="{{ onOmSource }}" aria-label="Order source" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; flex: 1; min-width: 0; cursor: pointer; color: #2E2A26;" style-focus="border-color: #461610;"><sc-for list="{{ omSourceOpts }}" as="so" hint-placeholder-count="3"><option value="{{ so.v }}" selected="{{ so.selected }}">{{ so.l }}</option></sc-for></select><button type="button" onClick="{{ openMgrSupplier }}" title="Add / edit the list" aria-label="Manage list" style="background: none; border: 1px solid #D8CCBC; color: #461610; border-radius: 10px; padding: 0 11px; font-size: 14px; cursor: pointer; white-space: nowrap;" style-hover="border-color: #461610;">✎</button></div>
                     <datalist id="madzo-om-sources"><sc-for list="{{ omSourceOptions }}" as="so" hint-placeholder-count="3"><option value="{{ so.name }}"></option></sc-for></datalist>
                   </label>
                   <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Payment mode
@@ -1432,14 +1515,14 @@
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Batch No.
                   <input value="{{ newBatch.batchNo }}" onChange="{{ onBatchNo }}" placeholder="e.g. B-2026-014" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
-                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Expiry date
-                  <input value="{{ newBatch.expiry }}" onChange="{{ onBatchExpiry }}" type="date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Expiry (mm/yy)
+                  <input value="{{ newBatch.expiry }}" onChange="{{ onBatchExpiry }}" maxlength="5" inputmode="numeric" placeholder="mm/yy" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Received date
                   <input value="{{ newBatch.received }}" onChange="{{ onBatchReceived }}" type="date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier
-                  <input value="{{ newBatch.supplier }}" onChange="{{ onBatchSupplier }}" list="madzo-inv-supplier-names" placeholder="Type or pick…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                  <div style="display: flex; gap: 6px; align-items: stretch;"><select value="{{ newBatch.supplier }}" onChange="{{ onBatchSupplier }}" aria-label="Supplier" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; flex: 1; min-width: 0; cursor: pointer; color: #2E2A26;" style-focus="border-color: #461610;"><sc-for list="{{ batchSupplierOpts }}" as="so" hint-placeholder-count="3"><option value="{{ so.v }}" selected="{{ so.selected }}">{{ so.l }}</option></sc-for></select><button type="button" onClick="{{ openMgrSupplier }}" title="Add / edit the list" aria-label="Manage list" style="background: none; border: 1px solid #D8CCBC; color: #461610; border-radius: 10px; padding: 0 11px; font-size: 14px; cursor: pointer; white-space: nowrap;" style-hover="border-color: #461610;">✎</button></div>
                   <datalist id="madzo-inv-supplier-names">
                     <sc-for list="{{ supplierOptions }}" as="sn" hint-placeholder-count="3">
                       <option value="{{ sn.name }}"></option>
@@ -2047,6 +2130,43 @@
         </section>
       </sc-if>
 
+      <!-- ---- MANAGE PLATFORMS / SUPPLIERS ---- -->
+      <sc-if value="{{ mgrOpen }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeMgr }}" style="position: fixed; inset: 0; background: rgba(46,42,38,.55); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px;">
+          <div onClick="{{ stopClick }}" style="background: #FDF9F4; width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto; border-radius: 16px; box-shadow: 0 24px 60px rgba(0,0,0,.35); padding: 20px 22px; display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <h3 style="margin: 0; font-size: 17px; color: #2E2A26;">{{ mgrTitle }}</h3>
+              <button onClick="{{ closeMgr }}" aria-label="Close" style="background: none; border: none; font-size: 22px; color: #857D72; cursor: pointer;">×</button>
+            </div>
+            <sc-if value="{{ mgrMissing }}" hint-placeholder-val="{{ false }}">
+              <p style="margin: 0; font-size: 12.5px; color: #9A6E12; background: #FBEFD4; border-radius: 10px; padding: 8px 12px;">Run <b>madzo-update-12.sql</b> in Supabase once to save this list in the database.</p>
+            </sc-if>
+            <div style="display: flex; gap: 8px;">
+              <input value="{{ mgrNew }}" onChange="{{ onMgrNew }}" onKeyDown="{{ onMgrNewKey }}" placeholder="{{ mgrPlaceholder }}" aria-label="New name" style="flex: 1; min-width: 0; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+              <button onClick="{{ mgrAddNow }}" style="background: #461610; color: #FDF9F4; border: none; border-radius: 10px; padding: 0 18px; font-size: 13.5px; font-weight: 600; cursor: pointer;">+ Add</button>
+            </div>
+            <sc-if value="{{ mgrErr }}" hint-placeholder-val="{{ false }}"><p style="margin: 0; color: #C0392B; font-size: 13px;">{{ mgrErr }}</p></sc-if>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <sc-for list="{{ mgrRows }}" as="mr" hint-placeholder-count="4">
+                <div style="display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid #E7DECF; border-radius: 10px; padding: 7px 10px;">
+                  <sc-if value="{{ mr.editing }}" hint-placeholder-val="{{ false }}">
+                    <input value="{{ mr.editVal }}" onChange="{{ mr.onEditVal }}" aria-label="Rename" style="flex: 1; min-width: 0; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 10px; font-size: 13.5px; outline: none;" style-focus="border-color: #461610;">
+                    <button onClick="{{ mr.saveEdit }}" style="background: #21B858; color: #fff; border: none; border-radius: 8px; padding: 6px 12px; font-size: 12.5px; cursor: pointer;">Save</button>
+                    <button onClick="{{ mr.cancelEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 8px; padding: 6px 10px; font-size: 12.5px; cursor: pointer;">Cancel</button>
+                  </sc-if>
+                  <sc-if value="{{ mr.notEditing }}" hint-placeholder-val="{{ true }}">
+                    <span style="flex: 1; min-width: 0; font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ mr.name }}</span>
+                    <button onClick="{{ mr.startEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #461610; border-radius: 8px; padding: 5px 11px; font-size: 12px; cursor: pointer;" style-hover="border-color: #461610;">Edit</button>
+                    <button onClick="{{ mr.onDelete }}" style="background: none; border: 1px solid #E8C5C0; color: #B03A2E; border-radius: 8px; padding: 5px 11px; font-size: 12px; cursor: pointer;">{{ mr.delLabel }}</button>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+            <p style="margin: 0; font-size: 11.5px; color: #A9A091;">Renaming also updates the records that already use the name. Deleting only removes it from the list — old records keep their text.</p>
+          </div>
+        </div>
+      </sc-if>
+
       <!-- ---- PRINTABLE INVOICE OVERLAY ---- -->
       <sc-if value="{{ hasInvoice }}" hint-placeholder-val="{{ false }}">
         <div class="madzo-invoice-backdrop" onClick="{{ closeInvoice }}" style="position: fixed; inset: 0; background: rgba(46,42,38,.6); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px;">
@@ -2173,7 +2293,7 @@ class Component extends DCLogic {
       invSearch: '',
       orderSearch: '',
       salesView: 'main',
-      ordF: { date: '', cust: '', platform: 'all', total: '', method: 'all' },
+      ordF: { date: '', id: '', cust: '', platform: 'all', total: '', method: 'all' },
       poSearch: '',
       orderDeliveryFilter: 'all',
       orderPaymentFilter: 'all',
@@ -2197,7 +2317,7 @@ class Component extends DCLogic {
       newBatch: { productName: '', batchNo: '', expiry: '', received: '', supplier: '', qty: '', buyPrice: '', sellPrice: '', updatePrice: false, notes: '' },
       batchError: '',
       confirmDeleteBatch: null,
-      dbProducts: [], dbOrders: [], dbPOs: [], dbSuppliers: [], dbBatches: [],
+      dbProducts: [], dbOrders: [], dbPOs: [], dbSuppliers: [], dbBatches: [], dbPlatforms: [], platMissing: false, repType: 'sales', repFrom: '', repTo: '', repPlat: 'all', repStatus: 'all', repPayStatus: 'all', repMethod: 'all', repKind: 'all', repSup: 'all', repPay: 'all', mgr: null, mgrNew: '', mgrEdit: '', mgrEditVal: '', mgrDel: '', mgrErr: '',
       dbMainCats: [], dbSubCats: [], catsLoaded: false, catsError: '',
       showCatManager: false, catForm: null, catError: '', savingCat: false, confirmDelCat: null,
       dbSub2Cats: [], sub2Ready: false, stockDraft: {}, delErr: null,
@@ -2225,7 +2345,7 @@ class Component extends DCLogic {
   }
 
   async loadAll() {
-    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadGRNs(), this.loadOMs(), this.loadSuppliers(), this.loadBatches(), this.loadCategories(), this.loadBrands(), this.loadNotes(), this.loadCustomers(), this.loadViews()]);
+    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadGRNs(), this.loadOMs(), this.loadSuppliers(), this.loadPlatforms(), this.loadBatches(), this.loadCategories(), this.loadBrands(), this.loadNotes(), this.loadCustomers(), this.loadViews()]);
     this.backfillCustomersAndSuppliers();
   }
 
@@ -2292,6 +2412,196 @@ class Component extends DCLogic {
         sourceType: b.source_type || '', sourceId: b.source_id || ''
       })) });
     } catch (e) { console.warn('Madzo admin: could not load inventory batches', e); }
+  }
+
+  // ---------- Reports ----------
+  qDayOf(ts) { return new Date(ts).toLocaleDateString('en-CA', { timeZone: 'Asia/Qatar' }); }
+  repMoney(n) { return (Math.round((Number(n) || 0) * 100) / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
+  repLabel(v) { const t = String(v || '').replace(/_/g, ' '); return t ? t.charAt(0).toUpperCase() + t.slice(1) : '—'; }
+  reportData() {
+    const st = this.state, money = (n) => this.repMoney(n);
+    const from = st.repFrom, to = st.repTo;
+    const inRange = (d) => !!d && (!from || d >= from) && (!to || d <= to);
+    const A = (t) => ({ t, align: 'start', w: 400 }), R = (t) => ({ t, align: 'end', w: 400 });
+    const groupBy = (rows, keyFn, valFn, title, total) => {
+      const m = {};
+      rows.forEach(r => { const k = keyFn(r) || '—'; (m[k] = m[k] || { name: k, c: 0, v: 0 }); m[k].c += 1; m[k].v += valFn(r); });
+      const list = Object.values(m).sort((a, b) => b.v - a.v);
+      return { title, empty: !list.length, rows: list.map(g => ({ name: g.name, count: String(g.c), total: money(g.v), share: total ? Math.round(g.v / total * 100) + '%' : '—' })) };
+    };
+    if (st.repType === 'purchases') {
+      const rows = [];
+      (st.dbPOs || []).forEach(p => {
+        const day = p.date || this.qDayOf(p.ts), isRet = p.type === 'return';
+        const amt = (Number(p.netAmount) || Number(p.amount) || 0) * (isRet ? -1 : 1);
+        rows.push({ day, kind: isRet ? 'return' : 'invoice', kindLabel: isRet ? 'Purchase return' : 'Purchase invoice', ref: p.id, supplier: p.supplier || '—', pay: this.repLabel(p.paymentStatus), payKey: String(p.paymentStatus || 'pending').toLowerCase(), amt });
+      });
+      (st.dbGRNs || []).forEach(g => {
+        rows.push({ day: g.date || this.qDayOf(g.ts), kind: 'grn', kindLabel: 'GRN entry', ref: g.id + (g.invoice ? ' · ' + g.invoice : ''), supplier: g.supplier || '—', pay: this.repLabel(g.payMode), payKey: String(g.payMode || '').toLowerCase(), amt: Number(g.total) || 0 });
+      });
+      const out = rows
+        .filter(r => inRange(r.day))
+        .filter(r => st.repKind === 'all' || r.kind === st.repKind)
+        .filter(r => st.repSup === 'all' || r.supplier === st.repSup)
+        .filter(r => st.repPay === 'all' || r.payKey === st.repPay)
+        .sort((a, b) => (a.day < b.day ? 1 : a.day > b.day ? -1 : 0));
+      const sum = (k) => out.filter(r => r.kind === k).reduce((a, r) => a + r.amt, 0);
+      const total = out.reduce((a, r) => a + r.amt, 0), absTotal = out.reduce((a, r) => a + Math.abs(r.amt), 0);
+      return {
+        type: 'purchases', title: 'Purchases report',
+        head: [A('Date'), A('Type'), A('Invoice / GRN'), A('Supplier'), A('Payment'), R('Amount (QAR)')],
+        grid: '100px 140px minmax(150px,1.2fr) minmax(140px,1fr) 110px 120px',
+        cells: out.map(r => [A(r.day), A(r.kindLabel), A(r.ref), A(r.supplier), A(r.pay), { ...R(money(r.amt)), w: 600 }]),
+        tiles: [
+          { label: 'Entries', value: String(out.length) }, { label: 'Net total', value: money(total) + ' QAR' },
+          { label: 'Purchase invoices', value: money(sum('invoice')) + ' QAR' }, { label: 'GRN entries', value: money(sum('grn')) + ' QAR' }, { label: 'Returns', value: money(sum('return')) + ' QAR' }
+        ],
+        groups: [groupBy(out, r => r.supplier, r => Math.abs(r.amt), 'By supplier', absTotal), groupBy(out, r => r.kindLabel, r => Math.abs(r.amt), 'By type', absTotal)],
+        count: out.length, total
+      };
+    }
+    // sales
+    const platOf = (o) => (!o.source || o.source === 'storefront') ? 'Website' : o.source;
+    let rows = (st.dbOrders || []).map(o => ({ o, day: this.qDayOf(o.ts), plat: platOf(o), status: String(o.status || 'new').toLowerCase(), pay: String(o.paymentStatus || 'pending').toLowerCase(), method: o.payMethod || '', total: Number(o.total) || 0 }))
+      .filter(r => inRange(r.day))
+      .filter(r => st.repPlat === 'all' || r.plat === st.repPlat)
+      .filter(r => st.repStatus === 'all' ? r.status !== 'cancelled' : r.status === st.repStatus)
+      .filter(r => st.repPayStatus === 'all' || r.pay === st.repPayStatus)
+      .filter(r => st.repMethod === 'all' || r.method === st.repMethod)
+      .sort((a, b) => b.o.ts - a.o.ts);
+    const total = rows.reduce((a, r) => a + r.total, 0);
+    const paid = rows.filter(r => r.pay === 'paid').reduce((a, r) => a + r.total, 0);
+    const items = rows.reduce((a, r) => a + (r.o.lines || []).reduce((b, l) => b + (l.free ? 0 : (Number(l.qty) || 0)), 0), 0);
+    const mLabel = (m) => ({ cash: 'Cash', card: 'Credit card', credit: 'Credit', fawran: 'Fawran' })[m] || '—';
+    return {
+      type: 'sales', title: 'Sales report',
+      head: [A('Date'), A('Order ID'), A('Customer'), A('Platform'), R('Total (QAR)'), A('Status'), A('Payment status'), A('Method')],
+      grid: '100px 90px minmax(150px,1.2fr) 120px 110px 100px 130px 110px',
+      cells: rows.map(r => [A(r.day), A(r.o.id), A(r.o.name || '—'), A(r.plat), { ...R(money(r.total)), w: 600 }, A(this.repLabel(r.status)), A(this.repLabel(r.pay)), A(mLabel(r.method))]),
+      tiles: [
+        { label: 'Orders', value: String(rows.length) }, { label: 'Total sales', value: money(total) + ' QAR' },
+        { label: 'Paid', value: money(paid) + ' QAR' }, { label: 'Pending / unpaid', value: money(total - paid) + ' QAR' },
+        { label: 'Average order', value: money(rows.length ? total / rows.length : 0) + ' QAR' }, { label: 'Items sold', value: String(items) }
+      ],
+      groups: [groupBy(rows, r => r.plat, r => r.total, 'By platform', total), groupBy(rows, r => mLabel(r.method), r => r.total, 'By payment method', total)],
+      count: rows.length, total
+    };
+  }
+  repFilterText() {
+    const st = this.state, parts = [];
+    parts.push((st.repFrom || st.repTo) ? ('Dates: ' + (st.repFrom || 'start') + ' → ' + (st.repTo || 'today')) : 'Dates: all');
+    if (st.repType === 'sales') {
+      if (st.repPlat !== 'all') parts.push('Platform: ' + st.repPlat);
+      if (st.repStatus !== 'all') parts.push('Status: ' + this.repLabel(st.repStatus)); else parts.push('Cancelled orders excluded');
+      if (st.repPayStatus !== 'all') parts.push('Payment status: ' + this.repLabel(st.repPayStatus));
+      if (st.repMethod !== 'all') parts.push('Method: ' + this.repLabel(st.repMethod));
+    } else {
+      if (st.repKind !== 'all') parts.push('Type: ' + this.repLabel(st.repKind));
+      if (st.repSup !== 'all') parts.push('Supplier: ' + st.repSup);
+      if (st.repPay !== 'all') parts.push('Payment: ' + this.repLabel(st.repPay));
+    }
+    return parts.join('  ·  ');
+  }
+  downloadReportCsv() {
+    const d = this.reportData();
+    const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const lines = [d.head.map(h => q(h.t)).join(',')].concat(d.cells.map(r => r.map(c => q(String(c.t).replace(/,/g, ''))).join(',')));
+    lines.push(''); lines.push(q(d.title) + ',' + q(this.repFilterText()));
+    const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = d.type + '-report-' + new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Qatar' }) + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+  printReport() {
+    const d = this.reportData(), esc = (v) => this.esc(v);
+    const th = d.head.map(h => '<th style="text-align:' + (h.align === 'end' ? 'right' : 'left') + ';padding:6px 5px;border-bottom:1px solid #333;font-size:11px;">' + esc(h.t) + '</th>').join('');
+    const body = d.cells.map(r => '<tr>' + r.map(c => '<td style="text-align:' + (c.align === 'end' ? 'right' : 'left') + ';padding:5px;border-bottom:1px solid #ddd;font-size:11px;' + (c.w > 500 ? 'font-weight:700;' : '') + '">' + esc(c.t) + '</td>').join('') + '</tr>').join('');
+    const tiles = d.tiles.map(t => '<div style="border:1px solid #ccc;border-radius:6px;padding:6px 10px;min-width:110px;"><div style="font-size:9.5px;color:#666;text-transform:uppercase;">' + esc(t.label) + '</div><div style="font-size:14px;font-weight:700;">' + esc(t.value) + '</div></div>').join('');
+    const groups = d.groups.map(g => '<div style="flex:1;min-width:240px;"><div style="font-weight:700;font-size:12px;margin-bottom:4px;">' + esc(g.title) + '</div>' + g.rows.map(r => '<div style="display:flex;justify-content:space-between;font-size:11px;border-top:1px solid #eee;padding:2px 0;"><span>' + esc(r.name) + '</span><span>' + esc(r.count) + ' · ' + esc(r.total) + ' · ' + esc(r.share) + '</span></div>').join('') + '</div>').join('');
+    const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + esc(d.title) + '</title><style>body{font-family:Arial,Helvetica,sans-serif;color:#222;margin:0;padding:22px 24px;}table{width:100%;border-collapse:collapse;}@media print{@page{size:A4 landscape;margin:12mm;}}</style></head><body>'
+      + '<h2 style="margin:0 0 2px;font-size:18px;">MADZO — ' + esc(d.title) + '</h2><div style="font-size:11px;color:#555;margin-bottom:10px;">' + esc(this.repFilterText()) + '<br>Generated ' + esc(new Date().toLocaleString('en-GB', { timeZone: 'Asia/Qatar' })) + '</div>'
+      + '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">' + tiles + '</div><div style="display:flex;flex-wrap:wrap;gap:20px;margin-bottom:14px;">' + groups + '</div>'
+      + '<table><thead><tr>' + th + '</tr></thead><tbody>' + body + '</tbody></table><script>window.onload=function(){setTimeout(function(){window.print();},300);};<\/script></body></html>';
+    const win = window.open('', '_blank', 'width=1000,height=800');
+    if (!win) { alert('Please allow pop-ups for this site to print the report.'); return; }
+    win.document.open(); win.document.write(html); win.document.close(); win.focus();
+  }
+
+  async loadPlatforms() {
+    try {
+      const { data, error } = await window.getSupabase().from('platforms').select('name').order('name', { ascending: true });
+      if (error) throw error;
+      this.setState({ dbPlatforms: (data || []).map(x => ({ name: x.name })), platMissing: false });
+    } catch (e) { this.setState({ platMissing: true }); console.warn('Madzo admin: could not load platforms', e); }
+  }
+
+  // Names for the Platform dropdown: saved ones + any platform already used on an order.
+  platformNames() {
+    const used = (this.state.dbOrders || []).map(o => o.source).filter(x => x && x !== 'storefront' && x !== 'manual');
+    return [...new Set([...(this.state.dbPlatforms || []).map(x => x.name), ...used])].sort((a, b) => a.localeCompare(b));
+  }
+  supplierNames() {
+    return [...new Set((this.state.dbSuppliers || []).map(x => x.name).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  }
+  mgrNames() { return this.state.mgr === 'platform' ? this.platformNames() : this.supplierNames(); }
+
+  async openMgr(kind) {
+    this.setState({ mgr: kind, mgrNew: '', mgrEdit: '', mgrEditVal: '', mgrDel: '', mgrErr: '' });
+    // platforms that so far only exist on orders get saved to the list, so they can be edited here
+    if (kind === 'platform' && !this.state.platMissing) {
+      const have = new Set((this.state.dbPlatforms || []).map(x => x.name));
+      const rows = this.platformNames().filter(n => !have.has(n)).map(name => ({ name }));
+      if (rows.length) { const r = await window.getSupabase().from('platforms').upsert(rows, { onConflict: 'name', ignoreDuplicates: true }); if (!r.error) await this.loadPlatforms(); }
+    }
+  }
+
+  async mgrAdd() {
+    const kind = this.state.mgr, name = String(this.state.mgrNew || '').trim();
+    if (!name) { this.setState({ mgrErr: 'Type a name first.' }); return; }
+    if (this.mgrNames().some(n => n.toLowerCase() === name.toLowerCase())) { this.setState({ mgrErr: '"' + name + '" is already in the list.' }); return; }
+    const sb = window.getSupabase();
+    const r = kind === 'platform' ? await sb.from('platforms').insert({ name }) : await sb.from('suppliers').upsert({ name, updated_at: new Date().toISOString() });
+    if (r.error) { this.setState({ mgrErr: this.isMissingTable(r.error) ? 'Run madzo-update-12.sql in Supabase first (one time).' : r.error.message }); return; }
+    this.setState({ mgrNew: '', mgrErr: '' });
+    await (kind === 'platform' ? this.loadPlatforms() : this.loadSuppliers());
+  }
+
+  async mgrRename(old) {
+    const kind = this.state.mgr, nv = String(this.state.mgrEditVal || '').trim();
+    if (!nv) { this.setState({ mgrErr: 'The name cannot be empty.' }); return; }
+    if (nv === old) { this.setState({ mgrEdit: '', mgrErr: '' }); return; }
+    if (this.mgrNames().some(n => n !== old && n.toLowerCase() === nv.toLowerCase())) { this.setState({ mgrErr: '"' + nv + '" is already in the list.' }); return; }
+    const sb = window.getSupabase();
+    let r;
+    if (kind === 'platform') {
+      r = await sb.from('platforms').update({ name: nv }).eq('name', old);
+      if (!r.error) { await sb.from('orders').update({ source: nv }).eq('source', old); }
+    } else {
+      r = await sb.from('suppliers').update({ name: nv, updated_at: new Date().toISOString() }).eq('name', old);
+      if (!r.error) {
+        await Promise.all([
+          sb.from('purchase_orders').update({ supplier_name: nv }).eq('supplier_name', old),
+          sb.from('grn_entries').update({ supplier_name: nv }).eq('supplier_name', old),
+          sb.from('order_monitor').update({ source: nv }).eq('source', old),
+          sb.from('inventory_batches').update({ supplier_name: nv }).eq('supplier_name', old)
+        ].map(q => Promise.resolve(q).catch(() => null)));
+      }
+    }
+    if (r.error) { this.setState({ mgrErr: r.error.message }); return; }
+    this.setState({ mgrEdit: '', mgrErr: '' });
+    if (kind === 'platform') await Promise.all([this.loadPlatforms(), this.loadOrders()]);
+    else await Promise.all([this.loadSuppliers(), this.loadPOs(), this.loadGRNs(), this.loadOMs(), this.loadBatches()]);
+  }
+
+  async mgrRemove(name) {
+    const kind = this.state.mgr;
+    const sb = window.getSupabase();
+    const r = kind === 'platform' ? await sb.from('platforms').delete().eq('name', name) : await sb.from('suppliers').delete().eq('name', name);
+    if (r.error) { this.setState({ mgrErr: r.error.message }); return; }
+    this.setState({ mgrDel: '', mgrErr: '' });
+    await (kind === 'platform' ? this.loadPlatforms() : this.loadSuppliers());
   }
 
   async loadSuppliers() {
@@ -3411,6 +3721,24 @@ class Component extends DCLogic {
     return sub ? sub.name : (key || '—');
   }
 
+  // expiry helpers: the UI uses mm/yy, the database keeps the last day of that month
+  fmtExpiryInput(raw) {
+    const v = String(raw || ''), d = v.replace(/\D/g, '').slice(0, 4);
+    if (d.length > 2) return d.slice(0, 2) + '/' + d.slice(2);
+    if (d.length === 2 && v.length >= 3 && v.charAt(2) === '/') return d + '/';
+    return d;
+  }
+  expToDate(raw) { // '' -> null, bad -> false, 'mm/yy' -> 'YYYY-MM-DD'
+    const ex = String(raw || '').trim();
+    if (!ex) return null;
+    const m = /^(\d{1,2})\s*\/\s*(\d{2})$/.exec(ex);
+    if (!m || +m[1] < 1 || +m[1] > 12) return false;
+    return new Date(Date.UTC(2000 + (+m[2]), +m[1], 0)).toISOString().slice(0, 10);
+  }
+  dateToExp(d) {
+    const m = /^(\d{4})-(\d{2})/.exec(String(d || ''));
+    return m ? m[2] + '/' + m[1].slice(2) : '';
+  }
   nextId() {
     const nums = this.state.dbProducts.map(p => {
       const m = /^MZ-(\d+)$/i.exec(p.sku || '');
@@ -3441,10 +3769,10 @@ class Component extends DCLogic {
     } catch (e) { /* fall through */ }
     // Fallback: compute locally from loaded orders
     const nums = this.state.dbOrders.map(o => {
-      const m = /^MZO-(\d+)$/i.exec(o.id || '');
+      const m = /^IQ-(\d+)$/i.exec(o.id || '');
       return m ? parseInt(m[1], 10) : 0;
     });
-    return 'MZO-' + String(Math.max(0, ...nums) + 1).padStart(4, '0');
+    return 'IQ-' + String(Math.max(0, ...nums) + 1).padStart(2, '0');
   }
 
   async loadSettings() {
@@ -3548,6 +3876,7 @@ class Component extends DCLogic {
     const oF = this.state.ordF || {};
     const filteredOrders = orders
       .filter(o => !oF.date || qDay(o.ts) === oF.date)
+      .filter(o => !String(oF.id || '').trim() || String(o.id || '').toLowerCase().includes(String(oF.id).trim().toLowerCase()))
       .filter(o => !String(oF.cust || '').trim() || (o.name || '').toLowerCase().includes(String(oF.cust).trim().toLowerCase()))
       .filter(o => !oF.platform || oF.platform === 'all' || platLabel(o).toLowerCase() === oF.platform.toLowerCase())
       .filter(o => !String(oF.total || '').trim() || String(Math.round(Number(o.total) || 0)).includes(String(oF.total).trim()))
@@ -3586,6 +3915,8 @@ class Component extends DCLogic {
     const bestSellers = best.map(([name, qty]) => ({ name, qty, w: Math.round((qty / maxQ) * 100) + '%' }));
 
     const prods = this.products();
+    const mkOpts = (names, cur, blank) => [{ v: '', l: blank, selected: !cur }, ...names.map(n => ({ v: n, l: n, selected: n === cur })), ...(cur && !names.includes(cur) ? [{ v: cur, l: cur, selected: true }] : [])];
+    const platNamesList = this.platformNames(), supNamesList = this.supplierNames();
     const lowCount = prods.filter(p => p.stock <= 2).length;
 
     const badge = (p) => p.stock === 0
@@ -3648,9 +3979,10 @@ class Component extends DCLogic {
     const expInfo = (d) => {
       if (!d) return { key: 'none', label: '—', bg: '#F1ECE2', color: '#B0A697', title: 'No expiry date set' };
       const days = Math.ceil((new Date(d) - new Date(new Date().toDateString())) / 86400000);
-      if (days < 0) return { key: 'expired', label: 'Expired', bg: '#FCE3E0', color: '#B03A2E', title: 'Expired on ' + d };
-      if (days <= 30) return { key: 'soon', label: d, bg: '#FBEFD4', color: '#9A6E12', title: 'Expires in ' + days + ' day(s)' };
-      return { key: 'ok', label: d, bg: '#DDF0E2', color: '#1E8A4C', title: 'Expires on ' + d };
+      const mmyy = this.dateToExp(d) || d;
+      if (days < 0) return { key: 'expired', label: 'Expired ' + mmyy, bg: '#FCE3E0', color: '#B03A2E', title: 'Expired on ' + d };
+      if (days <= 30) return { key: 'soon', label: mmyy, bg: '#FBEFD4', color: '#9A6E12', title: 'Expires in ' + days + ' day(s)' };
+      return { key: 'ok', label: mmyy, bg: '#DDF0E2', color: '#1E8A4C', title: 'Expires on ' + d };
     };
     // Prices are shown as plain text in the list; they're changed from Edit.
     const fmtPrice = (n, dashIfZero) => { const v = Number(n) || 0; if (!v && dashIfZero) return '—'; return Number.isInteger(v) ? String(v) : v.toFixed(2); };
@@ -3680,8 +4012,10 @@ class Component extends DCLogic {
       (o.lines || []).forEach(l => { if (l.sku && !l.free) soldBy[l.sku] = (soldBy[l.sku] || 0) + (Number(l.qty) || 0); });
     });
     (this.state.dbViews || []).forEach(v => { if (!cutoffDay || v.day >= cutoffDay) viewsBy[v.sku] = (viewsBy[v.sku] || 0) + v.views; });
+    const batchExpBy = {};
+    (this.state.dbBatches || []).forEach(b => { if (b.sku && b.expiry && (Number(b.qty) || 0) > 0 && (!batchExpBy[b.sku] || b.expiry < batchExpBy[b.sku])) batchExpBy[b.sku] = b.expiry; });
     const adminProducts = prods.map(p => {
-      const ex = expInfo(p.expiry);
+      const ex = expInfo(batchExpBy[p.sku] || p.expiry);
       const editing = this.state.editSku === p.sku;
       const d = editing ? (this.state.editDraft || {}) : {};
       return {
@@ -3730,7 +4064,7 @@ class Component extends DCLogic {
             id: p.sku, name: p.name || '', nameAr: p.nameAr || '',
             mainCat: p.mainCat || 'cosmetics', cat: p.catKey || 'skincare', cat2: p.cat2 || '',
             brand: p.brand || '', desc: p.desc || '', descAr: p.descAr || '',
-            buyPrice: p.buyPrice ? String(p.buyPrice) : '', price: (p.price == null ? '' : String(p.price)), compare: p.compare ? String(p.compare) : '', expiry: p.expiry || '', freeItem: !!p.freeItem
+            buyPrice: p.buyPrice ? String(p.buyPrice) : '', price: (p.price == null ? '' : String(p.price)), compare: p.compare ? String(p.compare) : '', expiry: this.dateToExp(p.expiry), freeItem: !!p.freeItem
           }
         }),
         edId: d.id || '', onEdId: setDraft('id'),
@@ -3749,7 +4083,7 @@ class Component extends DCLogic {
         edBuy: d.buyPrice || '', onEdBuy: setDraft('buyPrice'),
         edPrice: d.price == null ? '' : d.price, onEdPrice: setDraft('price'),
         edCompare: d.compare || '', onEdCompare: setDraft('compare'),
-        edExpiry: d.expiry || '', onEdExpiry: setDraft('expiry'),
+        edExpiry: d.expiry || '', onEdExpiry: (e) => { const v = this.fmtExpiryInput(e.target.value); this.setState(s => ({ editDraft: { ...s.editDraft, expiry: v }, editError: '' })); },
         edFree: !!d.freeItem, onEdFree: (e) => { const on = !!e.target.checked; this.setState(s => ({ editDraft: { ...s.editDraft, freeItem: on }, editError: '' })); },
         edBrand: d.brand || '', onEdBrand: setDraft('brand'),
         edName: d.name || '', onEdName: setDraft('name'),
@@ -3809,9 +4143,10 @@ class Component extends DCLogic {
           if (cat2Save !== (p.cat2 || '')) patch.category2 = cat2Save || null;
           if (buyNum !== (Number(p.buyPrice) || 0)) patch.buy_price = buyNum;
           if (cmpNum !== (Number(p.compare) || 0)) patch.compare_price = cmpNum > 0 ? cmpNum : null;
-          const expSave = String(dr.expiry || '').trim();
+          const expDate = this.expToDate(dr.expiry);
+          if (expDate === false) { this.setState({ savingEditSku: null, editError: 'Expiry must be mm/yy, for example 08/27.' }); return; }
           if (!!dr.freeItem !== !!p.freeItem) patch.free_item = !!dr.freeItem;
-          if (expSave !== (p.expiry || '')) patch.expiry_date = expSave || null;
+          if ((expDate || '') !== (p.expiry || '')) patch.expiry_date = expDate;
           const { error } = await window.getSupabase().from('products').update(patch).eq('sku', p.sku);
           this.setState({ savingEditSku: null });
           if (error) { this.setState({ editError: this.needsSql(error) ? 'Buy price, discount price, expiry, Sub category II and the free-product tick need a one-time database update — run madzo-products-v2.sql, madzo-update-3.sql and madzo-update-9.sql in Supabase, then save again.' : error.message }); return; }
@@ -3926,7 +4261,7 @@ class Component extends DCLogic {
     const pickByPhone = (val) => { const k = this.phoneKey(val); if (!k || k.length < 7) return null; return custAll.find(c => c.phoneKey === k) || null; };
 
     const pill = (active) => ({ bg: active ? '#FDF9F4' : 'transparent', color: active ? '#461610' : '#FDF9F4' });
-    const pd = pill(tab === 'dash'), ps = pill(tab === 'stock'), pi = pill(tab === 'images'), po = pill(tab === 'orders'), ppo = pill(tab === 'po'), pinv = pill(tab === 'inv'), pt = pill(tab === 'settings'), phome = pill(tab === 'home'), pnotes = pill(tab === 'notes'), pcust = pill(tab === 'customers');
+    const pd = pill(tab === 'dash'), ps = pill(tab === 'stock'), pi = pill(tab === 'images'), po = pill(tab === 'orders'), ppo = pill(tab === 'po'), pinv = pill(tab === 'inv'), pt = pill(tab === 'settings'), phome = pill(tab === 'home'), pnotes = pill(tab === 'notes'), pcust = pill(tab === 'customers'), prep = pill(tab === 'reports');
 
     const setEd = (key) => (e) => this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, [key]: e.target.value }, editOrderErr: '' }));
     const setEdItem = (i, key) => (e) => this.setState(s => {
@@ -4026,9 +4361,9 @@ class Component extends DCLogic {
           }
         }),
         edId: ed.id || '', onEdId: setEd('id'),
-        edSource: ed.source || '', onEdSource: setEd('source'),
+        edSource: ed.source || '', onEdSource: setEd('source'), edSourceOptions: mkOpts(platNamesList, ed.source || '', '— choose platform —'),
         edName: ed.name || '', onEdName: (e) => { const v = e.target.value; const c = pickByName(v); this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, name: v, ...(c ? fillFromCust(s.editOrderDraft || {}, c) : {}) }, editOrderErr: '' })); },
-        edPhone: ed.phone || '', onEdPhone: (e) => { const v = e.target.value; const c = pickByPhone(v); this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, phone: v, ...(c ? { name: s.editOrderDraft.name || c.name, zone: s.editOrderDraft.zone || c.zone || '', address: s.editOrderDraft.address || c.address || '' } : {}) }, editOrderErr: '' })); },
+        edPhone: ed.phone || '', onEdPhone: (e) => { const v = String(e.target.value).replace(/[^\d+\s]/g, ''); const c = pickByPhone(v); this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, phone: v, ...(c ? { name: s.editOrderDraft.name || c.name, zone: s.editOrderDraft.zone || c.zone || '', address: s.editOrderDraft.address || c.address || '' } : {}) }, editOrderErr: '' })); },
         edZone: ed.zone || '', onEdZone: setEd('zone'),
         edAddress: ed.address || '', onEdAddress: setEd('address'),
         edNotes: ed.notes || '', onEdNotes: setEd('notes'),
@@ -4111,7 +4446,7 @@ class Component extends DCLogic {
       shipping: [invOrder.zone, invOrder.address].filter(Boolean).join(' — ') || '—',
       waLine: this.state.setWa ? ('Tel: ' + this.state.setWa) : '',
       rows: (invOrder.lines || []).map(l => ({
-        name: l.name,
+        name: ((l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand || '') && !String(l.name || '').toLowerCase().startsWith(String(l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand || '').toLowerCase()) ? (l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand) + ' ' : '') + l.name,
         qty: l.qty,
         unit: l.free ? 'FREE' : String(Math.round((l.total || 0) / (l.qty || 1))),
         amt: l.free ? 'FREE' : String(l.total || 0)
@@ -4382,7 +4717,7 @@ class Component extends DCLogic {
         startEdit: () => this.setState({
           showBatchForm: true, batchFormMode: 'edit', editingBatchId: b.id, batchError: '',
           newBatch: {
-            productName: prod ? prod.name : b.sku, batchNo: b.batchNo, expiry: b.expiry, received: b.received,
+            productName: prod ? prod.name : b.sku, batchNo: b.batchNo, expiry: this.dateToExp(b.expiry), received: b.received,
             supplier: b.supplier, qty: b.qty, buyPrice: b.buyPrice, sellPrice: b.sellPrice,
             updatePrice: false, notes: b.notes
           }
@@ -4424,7 +4759,7 @@ class Component extends DCLogic {
           id: p.sku, name: p.name || '', nameAr: p.nameAr || '',
           mainCat: p.mainCat || 'cosmetics', cat: p.catKey || 'skincare', cat2: p.cat2 || '',
           brand: p.brand || '', desc: p.desc || '', descAr: p.descAr || '',
-          buyPrice: p.buyPrice ? String(p.buyPrice) : '', price: (p.price == null ? '' : String(p.price)), compare: p.compare ? String(p.compare) : '', expiry: p.expiry || '', freeItem: !!p.freeItem
+          buyPrice: p.buyPrice ? String(p.buyPrice) : '', price: (p.price == null ? '' : String(p.price)), compare: p.compare ? String(p.compare) : '', expiry: this.dateToExp(p.expiry), freeItem: !!p.freeItem
         }
       }, () => window.scrollTo(0, 0));
       flash('Product ' + p.sku + ' already exists — opened for editing.');
@@ -4434,7 +4769,7 @@ class Component extends DCLogic {
       const v = String(val || '').trim(); if (!v) return false;
       const o = orders.find(x => sameId(x.id, v)); if (!o) return false;
       this.setState({
-        tab: 'orders', salesView: 'details', showOrderForm: false, orderSearch: o.id, orderPage: 1, orderDeliveryFilter: 'all', orderPaymentFilter: 'all', ordF: { date: '', cust: '', platform: 'all', total: '', method: 'all' },
+        tab: 'orders', salesView: 'details', showOrderForm: false, orderSearch: o.id, orderPage: 1, orderDeliveryFilter: 'all', orderPaymentFilter: 'all', ordF: { date: '', id: '', cust: '', platform: 'all', total: '', method: 'all' },
         editOrderId: o.id, editOrderErr: '',
         editOrderDraft: {
           id: o.id, source: o.source && o.source !== 'storefront' ? o.source : '',
@@ -4719,7 +5054,7 @@ class Component extends DCLogic {
       doLogin,
       doLogout: () => { window.getSupabase().auth.signOut(); this.setState({ authed: false }); },
 
-      pageMaxCss: (tab === 'inv' || tab === 'orders' || tab === 'po') ? '1500px' : tab === 'customers' ? '1000px' : tab === 'notes' ? '1300px' : '1100px',
+      pageMaxCss: (tab === 'inv' || tab === 'orders' || tab === 'po' || tab === 'reports') ? '1500px' : tab === 'customers' ? '1000px' : tab === 'notes' ? '1300px' : '1100px',
       isHome: tab === 'home', isDash: tab === 'dash', isStock: tab === 'inv', isImages: tab === 'images', isOrders: tab === 'orders', isPO: tab === 'po', isInv: false, isInvArea: false, isSettings: tab === 'settings',
       tabDash: () => this.setState({ tab: 'dash' }),
       tabHome: () => this.setState({ tab: 'home' }),
@@ -4747,6 +5082,7 @@ class Component extends DCLogic {
       tabOrders: () => this.setState({ tab: 'orders' }),
       tabSettings: () => this.setState({ tab: 'settings', savedMsg: false }),
       tabPO: () => this.setState({ tab: 'po' }),
+      tabReports: () => this.setState({ tab: 'reports' }), tReportsBg: prep.bg, tReportsColor: prep.color, isReports: tab === 'reports',
       tPOBg: ppo.bg, tPOColor: ppo.color,
       tabInv: () => this.setState({ tab: 'inv' }),
       invViewProducts: () => this.setState({ invView: 'products' }),
@@ -4784,13 +5120,14 @@ class Component extends DCLogic {
       custSaveLabel: this.state.custBusy ? 'Saving…' : 'Save customer',
       custAdd: () => this.setState({ custDraft: { id: null, name: '', phone: '', email: '', zone: '', address: '', notes: '' }, custErr: '' }),
       custCancel: () => this.setState({ custDraft: null, custErr: '' }), custSave: () => this.saveCustomerDraft(),
-      onCustName: setCust('name'), onCustPhone: setCust('phone'), onCustEmail: setCust('email'), onCustZone: setCust('zone'), onCustAddress: setCust('address'), onCustNotes: setCust('notes'),
+      onCustName: setCust('name'), onCustPhone: (e) => { const v = String(e.target.value).replace(/[^\d+\s]/g, ''); this.setState(s => ({ custDraft: { ...s.custDraft, phone: v }, custErr: '' })); }, onCustEmail: setCust('email'), onCustZone: setCust('zone'), onCustAddress: setCust('address'), onCustNotes: setCust('notes'),
       tNotesBg: pnotes.bg, tNotesColor: pnotes.color, isNotes: tab === 'notes', tabNotes: () => this.setState({ tab: 'notes' }),
       stopClick: (e) => { if (e && e.stopPropagation) e.stopPropagation(); }, impMultiple: true, ...this.noteBindings(),
       ...grnProps, ...omProps,
       allOrders, noOrders: allOrders.length === 0,
       noOrdersText: orders.length ? 'No orders match these filters.' : 'No orders yet.',
       ordCountLabel: allOrders.length + (allOrders.length === 1 ? ' order' : ' orders') + (allOrders.length !== orders.length ? ' found' : ''),
+      ordFId: oF.id || '', on_ordFId: (e) => { const v = e.target.value; this.setState(s => ({ ordF: { ...s.ordF, id: v }, orderPage: 1 })); },
       ordFDate: oF.date || '', ordFCust: oF.cust || '', ordFTotal: oF.total || '',
       ordFPlatform: oF.platform || 'all', ordFMethod: oF.method || 'all',
       ordFStatus: this.state.orderDeliveryFilter, ordFPay: this.state.orderPaymentFilter,
@@ -4803,7 +5140,7 @@ class Component extends DCLogic {
       on_ordFPay: (e) => this.setState({ orderPaymentFilter: e.target.value, orderPage: 1 }),
       ordPlatformOptions: (() => { const set = new Set(); orders.forEach(o => set.add(platLabel(o))); const rest = [...set].filter(x => x !== 'Website').sort((x, y) => x.localeCompare(y)); return [{ v: 'all', l: 'All' }].concat((set.has('Website') ? ['Website'] : []).concat(rest).map(x => ({ v: x, l: x }))).map(x => ({ ...x, selected: x.v.toLowerCase() === String(oF.platform || 'all').toLowerCase() })); })(),
       ordMethodOptions: (() => { const base = [{ v: 'all', l: 'All' }, { v: 'cash', l: 'Cash' }, { v: 'card', l: 'Card' }, { v: 'credit', l: 'Credit' }]; if (orders.some(o => o.payMethod === 'fawran')) base.push({ v: 'fawran', l: 'Fawran (old)' }); return base.map(x => ({ ...x, selected: x.v === (oF.method || 'all') })); })(),
-      clearOrdFilters: () => this.setState({ ordF: { date: '', cust: '', platform: 'all', total: '', method: 'all' }, orderDeliveryFilter: 'all', orderPaymentFilter: 'all', orderSearch: '', orderPage: 1 }),
+      clearOrdFilters: () => this.setState({ ordF: { date: '', id: '', cust: '', platform: 'all', total: '', method: 'all' }, orderDeliveryFilter: 'all', orderPaymentFilter: 'all', orderSearch: '', orderPage: 1 }),
       pagedOrders, orderPager,
 
       pagedPOs, noPOs: pos.length === 0, poPager,
@@ -4930,7 +5267,7 @@ class Component extends DCLogic {
         this.loadProducts();
       },
       onBatchProduct: onBatchProductSmart,
-      onBatchNo: setBatch('batchNo'), onBatchExpiry: setBatch('expiry'), onBatchReceived: setBatch('received'),
+      onBatchNo: setBatch('batchNo'), onBatchExpiry: (e) => { const v = this.fmtExpiryInput(e.target.value); this.setState(s => ({ newBatch: { ...s.newBatch, expiry: v }, batchError: '' })); }, onBatchReceived: setBatch('received'),
       onBatchSupplier: setBatch('supplier'), onBatchQty: setBatch('qty'),
       onBatchBuyPrice: setBatch('buyPrice'), onBatchSellPrice: setBatch('sellPrice'),
       onBatchUpdatePrice: setBatch('updatePrice'), onBatchNotes: setBatch('notes'),
@@ -4939,12 +5276,14 @@ class Component extends DCLogic {
         const prod = findProdByName(nb.productName);
         if (!prod) { this.setState({ batchError: 'Pick a product from the list, or add it to the catalog first.' }); return; }
         const qty = Math.max(0, parseInt(nb.qty, 10) || 0);
+        const batchExpDate = this.expToDate(nb.expiry);
+        if (batchExpDate === false) { this.setState({ batchError: 'Expiry must be mm/yy, for example 08/27.' }); return; }
         if (!nb.received) { this.setState({ batchError: 'Please set a received date.' }); return; }
         this.setState({ savingBatch: true });
         const payload = {
           sku: prod.sku,
           batch_no: String(nb.batchNo || '').trim() || null,
-          expiry_date: nb.expiry || null,
+          expiry_date: batchExpDate,
           supplier_name: String(nb.supplier || '').trim() || null,
           buying_price: Math.max(0, Number(nb.buyPrice) || 0),
           selling_price: Math.max(0, Number(nb.sellPrice) || 0),
@@ -4972,6 +5311,76 @@ class Component extends DCLogic {
       hasInvoice: !!inv, inv: inv || {},
       closeInvoice: () => this.setState({ invoiceOrderId: null }),
       stopClick: (e) => e.stopPropagation(),
+      repIsSales: this.state.repType !== 'purchases', repIsPurch: this.state.repType === 'purchases',
+      repSalesBg: this.state.repType !== 'purchases' ? '#461610' : 'transparent', repSalesColor: this.state.repType !== 'purchases' ? '#FDF9F4' : '#5C554B',
+      repPurchBg: this.state.repType === 'purchases' ? '#461610' : 'transparent', repPurchColor: this.state.repType === 'purchases' ? '#FDF9F4' : '#5C554B',
+      repGoSales: () => this.setState({ repType: 'sales' }), repGoPurch: () => this.setState({ repType: 'purchases' }),
+      repFrom: this.state.repFrom, repTo: this.state.repTo,
+      onRepFrom: (e) => this.setState({ repFrom: e.target.value }), onRepTo: (e) => this.setState({ repTo: e.target.value }),
+      repPresets: (() => {
+        const now = new Date(); const qd = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Qatar' }));
+        const iso = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        const y = qd.getFullYear(), m = qd.getMonth(), today = iso(qd);
+        const defs = [
+          { label: 'Today', f: today, t: today },
+          { label: 'Last 7 days', f: iso(new Date(y, m, qd.getDate() - 6)), t: today },
+          { label: 'This month', f: iso(new Date(y, m, 1)), t: today },
+          { label: 'Last month', f: iso(new Date(y, m - 1, 1)), t: iso(new Date(y, m, 0)) },
+          { label: 'This year', f: iso(new Date(y, 0, 1)), t: today },
+          { label: 'All time', f: '', t: '' }
+        ];
+        return defs.map(dd => { const on = this.state.repFrom === dd.f && this.state.repTo === dd.t; return { label: dd.label, bg: on ? '#461610' : '#FDF9F4', color: on ? '#FDF9F4' : '#5C554B', go: () => this.setState({ repFrom: dd.f, repTo: dd.t }) }; });
+      })(),
+      repPlat: this.state.repPlat, onRepPlat: (e) => this.setState({ repPlat: e.target.value }),
+      repPlatOpts: [{ v: 'all', l: 'All platforms' }, { v: 'Website', l: 'Website' }, ...platNamesList.map(n => ({ v: n, l: n }))].map(x => ({ ...x, selected: x.v === this.state.repPlat })),
+      repStatus: this.state.repStatus, onRepStatus: (e) => this.setState({ repStatus: e.target.value }),
+      repStatusOpts: [{ v: 'all', l: 'All (excl. cancelled)' }, { v: 'new', l: 'New' }, { v: 'delivered', l: 'Delivered' }, { v: 'cancelled', l: 'Cancelled' }].map(x => ({ ...x, selected: x.v === this.state.repStatus })),
+      repPayStatus: this.state.repPayStatus, onRepPayStatus: (e) => this.setState({ repPayStatus: e.target.value }),
+      repPayStatusOpts: [{ v: 'all', l: 'All' }, { v: 'paid', l: 'Paid' }, { v: 'pending', l: 'Pending' }, { v: 'partially_paid', l: 'Partially paid' }].map(x => ({ ...x, selected: x.v === this.state.repPayStatus })),
+      repMethod: this.state.repMethod, onRepMethod: (e) => this.setState({ repMethod: e.target.value }),
+      repMethodOpts: [{ v: 'all', l: 'All' }, { v: 'cash', l: 'Cash' }, { v: 'card', l: 'Credit card' }, { v: 'credit', l: 'Credit' }].map(x => ({ ...x, selected: x.v === this.state.repMethod })),
+      repKind: this.state.repKind, onRepKind: (e) => this.setState({ repKind: e.target.value }),
+      repKindOpts: [{ v: 'all', l: 'All entries' }, { v: 'invoice', l: 'Purchase invoices' }, { v: 'grn', l: 'GRN entries' }, { v: 'return', l: 'Purchase returns' }].map(x => ({ ...x, selected: x.v === this.state.repKind })),
+      repSup: this.state.repSup, onRepSup: (e) => this.setState({ repSup: e.target.value }),
+      repSupOpts: [{ v: 'all', l: 'All suppliers' }, ...[...new Set([...supNamesList, ...(this.state.dbPOs || []).map(x => x.supplier), ...(this.state.dbGRNs || []).map(x => x.supplier)].filter(Boolean))].sort((a, b) => a.localeCompare(b)).map(n => ({ v: n, l: n }))].map(x => ({ ...x, selected: x.v === this.state.repSup })),
+      repPay: this.state.repPay, onRepPay: (e) => this.setState({ repPay: e.target.value }),
+      repPayOpts: [{ v: 'all', l: 'All' }, { v: 'cash', l: 'Cash' }, { v: 'card', l: 'Card' }, { v: 'credit', l: 'Credit' }, { v: 'paid', l: 'Paid' }, { v: 'pending', l: 'Pending' }].map(x => ({ ...x, selected: x.v === this.state.repPay })),
+      repClear: () => this.setState({ repFrom: '', repTo: '', repPlat: 'all', repStatus: 'all', repPayStatus: 'all', repMethod: 'all', repKind: 'all', repSup: 'all', repPay: 'all' }),
+      ...(tab === 'reports' ? (() => {
+        const rd = this.reportData(), LIMIT = 500;
+        return {
+          repTiles: rd.tiles, repGroups: rd.groups, repHead: rd.head, repGrid: rd.grid,
+          repRows: rd.cells.slice(0, LIMIT).map(cells => ({ cells })),
+          repNoRows: rd.cells.length === 0, repMore: rd.cells.length > LIMIT,
+          repMoreText: 'Showing the first ' + LIMIT + ' of ' + rd.cells.length + ' rows — Download CSV or Print includes all of them.',
+          repCountLabel: rd.count + (rd.count === 1 ? ' record' : ' records')
+        };
+      })() : { repTiles: [], repGroups: [], repHead: [], repGrid: '1fr', repRows: [], repNoRows: false, repMore: false, repMoreText: '', repCountLabel: '' }),
+      repCsv: () => this.downloadReportCsv(), repPrint: () => this.printReport(),
+      newOrderSourceOpts: mkOpts(platNamesList, this.state.newOrder.source || '', '— choose platform —'),
+      poSupplierOpts: mkOpts(supNamesList, this.state.newPO.supplier || '', '— choose supplier —'),
+      grnSupplierOpts: mkOpts(supNamesList, (this.state.grnDraft || {}).supplier || '', '— choose supplier —'),
+      omSourceOpts: mkOpts(supNamesList, (this.state.omDraft || {}).source || '', '— choose source —'),
+      batchSupplierOpts: mkOpts(supNamesList, this.state.newBatch.supplier || '', '— choose supplier —'),
+      openMgrPlatform: () => this.openMgr('platform'), openMgrSupplier: () => this.openMgr('supplier'),
+      closeMgr: () => this.setState({ mgr: null, mgrErr: '', mgrEdit: '', mgrDel: '' }),
+      mgrOpen: !!this.state.mgr,
+      mgrTitle: this.state.mgr === 'supplier' ? 'Suppliers / sources' : 'Platforms',
+      mgrPlaceholder: this.state.mgr === 'supplier' ? 'New supplier name…' : 'New platform, e.g. Instagram…',
+      mgrMissing: this.state.mgr === 'platform' && !!this.state.platMissing,
+      mgrNew: this.state.mgrNew, mgrErr: this.state.mgrErr,
+      onMgrNew: (e) => this.setState({ mgrNew: e.target.value, mgrErr: '' }),
+      onMgrNewKey: (e) => { if (e.key === 'Enter') { e.preventDefault(); this.mgrAdd(); } },
+      mgrAddNow: () => this.mgrAdd(),
+      mgrRows: !this.state.mgr ? [] : this.mgrNames().map(name => ({
+        name, editing: this.state.mgrEdit === name, notEditing: this.state.mgrEdit !== name, editVal: this.state.mgrEditVal,
+        onEditVal: (e) => this.setState({ mgrEditVal: e.target.value, mgrErr: '' }),
+        startEdit: () => this.setState({ mgrEdit: name, mgrEditVal: name, mgrDel: '', mgrErr: '' }),
+        cancelEdit: () => this.setState({ mgrEdit: '', mgrErr: '' }),
+        saveEdit: () => this.mgrRename(name),
+        delLabel: this.state.mgrDel === name ? 'Sure? Delete' : 'Delete',
+        onDelete: () => { if (this.state.mgrDel === name) this.mgrRemove(name); else this.setState({ mgrDel: name, mgrEdit: '', mgrErr: '' }); }
+      })),
       doPrint: () => this.printInvoice(inv),
       doShare: () => this.shareInvoicePdf(inv),
       doSavePdf: () => this.saveInvoicePdf(inv),
@@ -4993,7 +5402,7 @@ class Component extends DCLogic {
       newOrder: no,
       newOrderError: this.state.newOrderError,
       onNOId: (e) => { const v = e.target.value; if (!openOrderById(v)) setNO('id')(e); }, onNOSource: setNO('source'), onNOName: (e) => { const v = e.target.value; const c = pickByName(v); this.setState(s => ({ newOrder: { ...s.newOrder, name: v, ...(c ? fillFromCust(s.newOrder, c) : {}) }, newOrderError: '' })); },
-      onNOPhone: (e) => { const v = e.target.value; const c = pickByPhone(v); this.setState(s => ({ newOrder: { ...s.newOrder, phone: v, ...(c ? { name: s.newOrder.name || c.name, zone: s.newOrder.zone || c.zone || '', address: s.newOrder.address || c.address || '' } : {}) }, newOrderError: '' })); },
+      onNOPhone: (e) => { const v = String(e.target.value).replace(/[^\d+\s]/g, ''); const c = pickByPhone(v); this.setState(s => ({ newOrder: { ...s.newOrder, phone: v, ...(c ? { name: s.newOrder.name || c.name, zone: s.newOrder.zone || c.zone || '', address: s.newOrder.address || c.address || '' } : {}) }, newOrderError: '' })); },
       onNOZone: setNO('zone'), onNOAddress: setNO('address'), onNONotes: setNO('notes'), onNOStatus: setNO('status'),
       onNOPaymentStatus: setNO('paymentStatus'),
       onNOPayMethod: setNO('payMethod'),
@@ -5143,9 +5552,9 @@ class Component extends DCLogic {
         if (!isFinite(cmpNew) || cmpNew < 0) { this.setState({ newProdError: '"Discounted from" must be a number, 0 or more (or leave it empty).' }); return; }
         if (cmpNew > 0 && cmpNew <= sellNew) { this.setState({ newProdError: '"Discounted from" is the old price, so it must be higher than the sell price. Clear it if there is no discount.' }); return; }
         const price = sellNew;
-        const stock = Math.max(0, parseInt(np.stock || '0', 10) || 0);
+        const stock = 0; // quantity is added through GRN entry
         const buyPrice = buyNew;
-        const expiry = String(np.expiry || '').trim();
+        const expiry = ''; // expiry (mm/yy) is recorded per batch in GRN entry
         const rcNew = resolveCat(np.mainCat, np.cat);
         if (!rcNew.cat) { this.setState({ newProdError: 'Please choose a sub category — or create one with "+ New sub category…" in the Sub category dropdown.' }); return; }
         const cat2New = resolveCat2(rcNew.cat, np.cat2);
@@ -5225,7 +5634,7 @@ class Component extends DCLogic {
           homeTodayTotal: fmt(sum(td)), homeTodayCount: cnt(td.length),
           homeMonthTotal: fmt(sum(mo)), homeMonthCount: cnt(mo.length),
           homeToDeliver: String(orders.filter(o => o.status === 'new').length),
-          homeGoToDeliver: () => this.setState({ tab: 'orders', salesView: 'details', orderDeliveryFilter: 'new', orderPaymentFilter: 'all', orderSearch: '', ordF: { date: '', cust: '', platform: 'all', total: '', method: 'all' }, orderPage: 1 })
+          homeGoToDeliver: () => this.setState({ tab: 'orders', salesView: 'details', orderDeliveryFilter: 'new', orderPaymentFilter: 'all', orderSearch: '', ordF: { date: '', id: '', cust: '', platform: 'all', total: '', method: 'all' }, orderPage: 1 })
         };
       })(),
 

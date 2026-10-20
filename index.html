@@ -204,6 +204,7 @@
             <span style="font-size: 13.5px; color: #2E2A26; text-align: center;">{{ cc.label }}</span>
           </a>
         </sc-for>
+        <sc-if value="{{ showOthers }}" hint-placeholder-val="{{ false }}">
         <a onClick="{{ openOthers }}" aria-label="{{ t.others }}" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 96px; text-decoration: none;">
           <sc-if value="{{ hasOthersImg }}" hint-placeholder-val="{{ false }}">
             <image-slot id="v3-cat-others" src="{{ imgOthers }}" shape="circle" placeholder="Photo" style="width: 96px; height: 96px; display: block; background: #FDF9F4; border-radius: 50%;"></image-slot>
@@ -215,6 +216,7 @@
           </sc-if>
           <span style="font-size: 13.5px; color: #2E2A26; text-align: center;">{{ t.others }}</span>
         </a>
+        </sc-if>
       </div>
 
       <!-- Hero banner -->
@@ -528,7 +530,7 @@
       <span style="font-size: 12.5px; direction: ltr; unicode-bidi: embed;">{{ waDisplay }}</span>
       <span style="display: flex; gap: 18px; justify-content: center;">
         <a onClick="{{ goAbout }}" style="color: #FDF9F4; font-size: 12.5px; cursor: pointer; text-decoration: underline;">{{ t.navAbout }}</a>
-        <a href="admin.html" style="color: #D9C2B4; font-size: 12.5px; text-decoration: underline;">{{ t.managerLink }}</a>
+        <a href="admin.html" onClick="{{ goManager }}" style="color: #D9C2B4; font-size: 12.5px; text-decoration: underline;">{{ t.managerLink }}</a>
       </span>
     </div>
   </footer>
@@ -576,7 +578,8 @@ class Component extends DCLogic {
       dbSub2Cats: [],
       siteImages: {},
       detail: null,
-      waFromDb: ''
+      waFromDb: '',
+      showOthers: false
     };
   }
 
@@ -726,9 +729,10 @@ class Component extends DCLogic {
   async loadSettings() {
     try {
       const sb = window.getSupabase();
-      const { data, error } = await sb.from('settings').select('whatsapp').eq('id', 1).single();
+      const { data, error } = await sb.from('settings').select('*').eq('id', 1).single();
       if (error) throw error;
       if (data && data.whatsapp) this.setState({ waFromDb: data.whatsapp });
+      this.setState({ showOthers: !!(data && data.show_others === true) });
     } catch (e) { console.warn('Madzo: could not load settings from Supabase', e); }
   }
 
@@ -1044,6 +1048,8 @@ class Component extends DCLogic {
       // "Others": the Home-page doorway to everything that isn't a circle. Opens the All categories panel,
       // landing on the first category that is not shown on the front (or the usual first one if all are).
       imgOthers: sImg('cat-others'), hasOthersImg: !!sImg('cat-others'), noOthersImg: !sImg('cat-others'),
+      showOthers: !!this.state.showOthers,
+      goManager: (e) => { if (e && e.stopPropagation) e.stopPropagation(); window.location.assign('admin.html'); if (e && e.preventDefault) e.preventDefault(); },
       openOthers: () => { const firstOther = mainsSrc.find(m => m.front === false); this.setState({ megaOpen: true, menuOpen: false, searchOpen: false, megaMain: firstOther ? firstOther.id : '' }, () => window.scrollTo({ top: 0, behavior: 'smooth' })); },
 
       shopTitle: q ? t.resultsFor + ' “' + this.state.query.trim() + '”' : filterTitle,
@@ -1122,6 +1128,241 @@ class Component extends DCLogic {
   }
 
 }
+</script>
+<!-- ================= MADZO inauguration intro (scroll: delivery car → package → party) ================= -->
+<script>
+(function () {
+  'use strict';
+  var KEY = 'madzoIntroSeen';
+  var params = new URLSearchParams(location.search);
+  var force = params.has('intro');
+  try { if (!force && sessionStorage.getItem(KEY)) return; } catch (e) {}
+  // only on the plain home page (not deep links such as an order link), and not for people who prefer reduced motion
+  if (!force && (location.hash.length > 1 || (location.search && !/^\?(lang|ref|utm_)/.test(location.search)))) return;
+  if (!force && window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var css = '\
+#mi{position:fixed;inset:0;z-index:99990;overflow-y:scroll;overflow-x:hidden;overscroll-behavior:contain;background:#F6EBDD;scrollbar-width:none;-webkit-overflow-scrolling:touch}\
+#mi::-webkit-scrollbar{display:none}\
+#mi .mi-track{height:560vh;position:relative}\
+#mi .mi-stage{position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden;font-family:Poppins,Tajawal,sans-serif}\
+#mi .mi-sky{position:absolute;inset:0;background:linear-gradient(180deg,#F7D9C4 0%,#FBEBDD 46%,#FDF9F4 72%)}\
+#mi .mi-sun{position:absolute;left:50%;top:14%;width:min(34vw,260px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#FFE8B8 0%,#FFD28A 55%,rgba(255,210,138,0) 72%);transform:translateX(-50%)}\
+#mi .mi-cloud{position:absolute;background:#fff;border-radius:999px;opacity:.85;filter:blur(.3px)}\
+#mi .mi-cloud:before,#mi .mi-cloud:after{content:"";position:absolute;background:#fff;border-radius:50%}\
+#mi .mi-city{position:absolute;left:0;bottom:26vh;width:200%;height:30vh;will-change:transform}\
+#mi .mi-road{position:absolute;left:0;right:0;bottom:0;height:27vh;background:#4A3B36}\
+#mi .mi-road:before{content:"";position:absolute;left:0;right:0;top:0;height:10px;background:#D8C7B6}\
+#mi .mi-dash{position:absolute;left:0;top:58%;width:300%;height:7px;will-change:transform;background:repeating-linear-gradient(90deg,#F3E7D6 0 70px,transparent 70px 140px);border-radius:4px}\
+#mi .mi-car{position:absolute;bottom:calc(27vh - 22px);left:0;width:min(440px,78vw);will-change:transform}\
+#mi .mi-car svg{display:block;width:100%;height:auto;overflow:visible}\
+#mi .mi-wheel{transform-box:fill-box;transform-origin:center}\
+#mi .mi-pkg{position:absolute;left:0;top:0;width:min(190px,36vw);will-change:transform;filter:drop-shadow(0 14px 18px rgba(70,22,16,.28))}\
+#mi .mi-pkg svg{display:block;width:100%;height:auto;overflow:visible}\
+#mi .mi-glow{position:absolute;left:50%;top:50%;width:130vmax;height:130vmax;margin:-65vmax 0 0 -65vmax;border-radius:50%;background:conic-gradient(from 0deg,rgba(255,226,160,.0),rgba(255,226,160,.55),rgba(255,226,160,0),rgba(255,226,160,.55),rgba(255,226,160,0),rgba(255,226,160,.55),rgba(255,226,160,0),rgba(255,226,160,.55),rgba(255,226,160,0));opacity:0;pointer-events:none;will-change:transform,opacity;-webkit-mask-image:radial-gradient(circle,#000 0,transparent 55%);mask-image:radial-gradient(circle,#000 0,transparent 55%)}\
+#mi .mi-cap{position:absolute;left:0;right:0;top:9vh;text-align:center;padding:0 20px;color:#461610;pointer-events:none}\
+#mi .mi-cap h1{margin:0;font-family:Marcellus,serif;font-weight:400;font-size:clamp(24px,5.2vw,46px);letter-spacing:.04em;transition:opacity .3s}\
+#mi .mi-cap p{margin:8px 0 0;font-size:clamp(13px,2.4vw,17px);color:#7A5A50;transition:opacity .3s}\
+#mi .mi-hint{position:absolute;left:0;right:0;bottom:4vh;text-align:center;color:#FDF9F4;text-shadow:0 1px 6px rgba(0,0,0,.4);font-size:13px;letter-spacing:.14em;text-transform:uppercase;transition:opacity .4s}\
+#mi .mi-hint i{display:block;margin:6px auto 0;width:22px;height:22px;border-right:3px solid #FDF9F4;border-bottom:3px solid #FDF9F4;transform:rotate(45deg);animation:miBob 1.3s ease-in-out infinite}\
+@keyframes miBob{0%,100%{transform:translateY(0) rotate(45deg)}50%{transform:translateY(9px) rotate(45deg)}}\
+#mi .mi-btns{position:absolute;right:14px;top:14px;display:flex;gap:8px;z-index:3}\
+#mi .mi-btn{background:rgba(255,255,255,.7);border:1px solid #461610;color:#461610;border-radius:999px;padding:7px 14px;font:500 12.5px Poppins,Tajawal,sans-serif;cursor:pointer}\
+#mi .mi-btn:hover{background:#461610;color:#FDF9F4}\
+#mi .mi-brand{position:absolute;left:16px;top:14px;font-family:Marcellus,serif;letter-spacing:.3em;color:#461610;font-size:15px}\
+.mi-party{position:fixed;inset:0;z-index:99995;pointer-events:none;overflow:hidden}\
+.mi-party canvas{position:absolute;inset:0;width:100%;height:100%}\
+.mi-balloon{position:absolute;bottom:-120px;width:56px;height:68px;border-radius:50% 50% 50% 50%/42% 42% 58% 58%;animation:miRise linear forwards,miSway ease-in-out infinite;box-shadow:inset -8px -10px 0 rgba(0,0,0,.09),inset 7px 8px 0 rgba(255,255,255,.28)}\
+.mi-balloon:before{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-5px;border:5px solid transparent;border-bottom:9px solid inherit;border-top:0}\
+.mi-balloon:after{content:"";position:absolute;left:50%;top:100%;width:1.5px;height:90px;background:rgba(70,22,16,.45);margin-top:3px;transform-origin:top}\
+@keyframes miRise{from{transform:translateY(0)}to{transform:translateY(-135vh)}}\
+@keyframes miSway{0%,100%{margin-left:-14px}50%{margin-left:14px}}\
+';
+  var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+
+  // ---------- scene markup ----------
+  var carSvg = '<svg viewBox="0 0 440 170" aria-hidden="true">\
+<ellipse cx="220" cy="156" rx="205" ry="9" fill="rgba(0,0,0,.28)"/>\
+<path d="M20 112 Q20 92 44 88 L118 84 Q140 46 168 42 L282 42 Q312 44 332 82 L398 90 Q424 96 424 116 L424 132 Q424 140 414 140 L30 140 Q20 140 20 130 Z" fill="#7A2A22"/>\
+<path d="M20 112 Q20 92 44 88 L118 84 L120 100 L20 108 Z" fill="#8E3328"/>\
+<path d="M136 84 Q152 54 172 52 L222 52 L222 84 Z" fill="#CFE6EE"/><path d="M232 52 L280 52 Q302 54 318 84 L232 84 Z" fill="#CFE6EE"/>\
+<path d="M136 84 Q152 54 172 52 L186 52 L168 84 Z" fill="rgba(255,255,255,.45)"/>\
+<rect x="222" y="52" width="10" height="34" fill="#7A2A22"/>\
+<path d="M38 100 L402 100" stroke="#5E1F19" stroke-width="2"/><rect x="226" y="92" width="26" height="4" rx="2" fill="#E8C9A8"/><rect x="150" y="92" width="26" height="4" rx="2" fill="#E8C9A8"/>\
+<rect x="20" y="104" width="14" height="14" rx="4" fill="#E9524A"/><path d="M410 104 L424 108 L424 120 L406 118 Z" fill="#FFE9A8"/>\
+<rect x="40" y="119" width="340" height="14" fill="rgba(0,0,0,.08)"/>\
+<text x="226" y="128" text-anchor="middle" font-family="Marcellus,serif" font-size="15" letter-spacing="5" fill="#F6E2CE">MADZO</text>\
+<rect x="150" y="150" width="140" height="0" fill="none"/>\
+<g class="mi-wheel" id="mi-w1"><circle cx="92" cy="138" r="27" fill="#2B2321"/><circle cx="92" cy="138" r="15" fill="#D8C7B6"/><g stroke="#8C7C6C" stroke-width="3"><path d="M92 125V151M79 138H105M82 128L102 148M102 128L82 148"/></g><circle cx="92" cy="138" r="4" fill="#4A3B36"/></g>\
+<g class="mi-wheel" id="mi-w2"><circle cx="348" cy="138" r="27" fill="#2B2321"/><circle cx="348" cy="138" r="15" fill="#D8C7B6"/><g stroke="#8C7C6C" stroke-width="3"><path d="M348 125V151M335 138H361M338 128L358 148M358 128L338 148"/></g><circle cx="348" cy="138" r="4" fill="#4A3B36"/></g>\
+</svg>';
+  var pkgSvg = '<svg viewBox="0 0 200 180" aria-hidden="true">\
+<defs><linearGradient id="miKraft" x1="0" x2="1"><stop offset="0" stop-color="#D9A872"/><stop offset="1" stop-color="#C08F58"/></linearGradient><linearGradient id="miTape" x1="0" x2="1"><stop offset="0" stop-color="#5A1D17"/><stop offset="1" stop-color="#7A2A22"/></linearGradient><radialGradient id="miIn" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFF3C8"/><stop offset="1" stop-color="rgba(255,243,200,0)"/></radialGradient></defs>\
+<ellipse id="mi-inglow" cx="100" cy="58" rx="90" ry="46" fill="url(#miIn)" opacity="0"/>\
+<rect x="22" y="64" width="156" height="108" rx="6" fill="url(#miKraft)"/><rect x="84" y="64" width="32" height="108" fill="url(#miTape)"/>\
+<rect x="22" y="64" width="156" height="12" fill="rgba(0,0,0,.12)"/>\
+<g transform="translate(100 124)"><rect x="-44" y="-17" width="88" height="34" rx="5" fill="#FDF3E6"/><text x="0" y="6" text-anchor="middle" font-family="Marcellus,serif" font-size="17" letter-spacing="3" fill="#461610">MADZO</text></g>\
+<g id="mi-lid" style="transform-box:view-box;transform-origin:14px 62px"><rect x="12" y="40" width="176" height="28" rx="5" fill="#C9985F"/><rect x="84" y="40" width="32" height="28" fill="url(#miTape)"/><path d="M100 40 C78 14 56 26 76 40 Z M100 40 C122 14 144 26 124 40 Z" fill="#7A2A22"/><circle cx="100" cy="40" r="7" fill="#5A1D17"/></g>\
+</svg>';
+  var cities = '<svg viewBox="0 0 1600 240" preserveAspectRatio="none" style="width:100%;height:100%" aria-hidden="true"><g fill="#E7C9B6" opacity=".9"><rect x="20" y="120" width="70" height="120"/><rect x="110" y="70" width="54" height="170"/><rect x="180" y="140" width="90" height="100"/><path d="M300 240V60l30-40 30 40v180z"/><rect x="390" y="110" width="80" height="130"/><rect x="490" y="150" width="60" height="90"/><rect x="570" y="40" width="40" height="200"/><rect x="620" y="100" width="90" height="140"/><rect x="730" y="130" width="70" height="110"/></g><g fill="#DDB9A4" opacity=".95"><rect x="820" y="100" width="70" height="140"/><rect x="900" y="60" width="50" height="180"/><rect x="960" y="140" width="100" height="100"/><path d="M1090 240V70l26-44 26 44v170z"/><rect x="1170" y="120" width="80" height="120"/><rect x="1270" y="150" width="60" height="90"/><rect x="1350" y="50" width="40" height="190"/><rect x="1400" y="110" width="90" height="130"/><rect x="1510" y="140" width="80" height="100"/></g></svg>';
+
+  var root = document.createElement('div'); root.id = 'mi'; root.setAttribute('role', 'dialog'); root.setAttribute('aria-label', 'MADZO intro');
+  root.innerHTML = '<div class="mi-track"><div class="mi-stage">\
+<div class="mi-sky"></div><div class="mi-sun"></div>\
+<div class="mi-cloud" style="left:8%;top:22%;width:120px;height:34px"></div><div class="mi-cloud" style="left:64%;top:30%;width:150px;height:40px"></div><div class="mi-cloud" style="left:30%;top:42%;width:90px;height:26px"></div>\
+<div class="mi-city" id="mi-city">' + cities + '</div>\
+<div class="mi-road"><div class="mi-dash" id="mi-dash"></div></div>\
+<div class="mi-glow" id="mi-glow"></div>\
+<div class="mi-car" id="mi-car">' + carSvg + '</div>\
+<div class="mi-pkg" id="mi-pkg">' + pkgSvg + '</div>\
+<div class="mi-brand">MADZO</div>\
+<div class="mi-btns"><button class="mi-btn" id="mi-play" type="button">▶ Play</button><button class="mi-btn" id="mi-skip" type="button">Skip ✕</button></div>\
+<div class="mi-cap"><h1 id="mi-h"></h1><p id="mi-s"></p></div>\
+<div class="mi-hint" id="mi-hint">Scroll down · مرّر للأسفل<i></i></div>\
+</div></div>';
+
+  function mount() {
+    document.body.appendChild(root);
+    document.documentElement.style.overflow = 'hidden';
+    init();
+  }
+  if (document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
+
+  function init() {
+    var $ = function (id) { return document.getElementById(id); };
+    var car = $('mi-car'), pkg = $('mi-pkg'), city = $('mi-city'), dash = $('mi-dash'), glow = $('mi-glow'), lid = $('mi-lid'), inglow = $('mi-inglow');
+    var w1 = $('mi-w1'), w2 = $('mi-w2'), h = $('mi-h'), sub = $('mi-s'), hint = $('mi-hint');
+    var partyDone = false, finished = false, autoRaf = 0, curCaption = '';
+    var clamp = function (v) { return Math.max(0, Math.min(1, v)); };
+    var seg = function (p, a, b) { return clamp((p - a) / (b - a)); };
+    var ease = function (t) { return t * t * (3 - 2 * t); };
+    var bounce = function (t) { var n = 7.5625, d = 2.75; if (t < 1 / d) return n * t * t; if (t < 2 / d) { t -= 1.5 / d; return n * t * t + .75; } if (t < 2.5 / d) { t -= 2.25 / d; return n * t * t + .9375; } t -= 2.625 / d; return n * t * t + .984375; };
+
+    function caption(t, s) { var k = t + '|' + s; if (k === curCaption) return; curCaption = k; h.textContent = t; sub.textContent = s; }
+
+    function render() {
+      var max = root.scrollHeight - root.clientHeight, p = max > 0 ? root.scrollTop / max : 0;
+      var W = root.clientWidth, H = root.clientHeight, cw = car.offsetWidth, pw = pkg.offsetWidth;
+      // --- background parallax
+      city.style.transform = 'translateX(' + (-p * W * 0.9) + 'px)';
+      dash.style.transform = 'translateX(' + (-(p * 5200) % 140) + 'px)';
+      // --- car: drives in (0–.30), waits while the package drops, drives off (.40–.56)
+      var inT = ease(seg(p, 0, .30)), outT = ease(seg(p, .40, .56));
+      var arriveX = W * 0.66 - cw / 2, startX = -cw * 1.15;
+      var carX = outT > 0 ? arriveX + (W + cw * 0.6 - arriveX) * outT : startX + (arriveX - startX) * inT;
+      var bob = (inT > 0 && inT < 1 || outT > 0 && outT < 1) ? Math.sin(p * 520) * 1.6 : 0;
+      car.style.transform = 'translate(' + carX + 'px,' + bob + 'px)';
+      var rot = (carX + cw) * 0.9; w1.style.transform = 'rotate(' + rot + 'deg)'; w2.style.transform = 'rotate(' + rot + 'deg)';
+      // --- package: drops behind the car (.30–.40) → grows & moves to the centre (.44–.62) → lid opens (.68–.80)
+      var drop = seg(p, .30, .40), move = ease(seg(p, .44, .62));
+      var roadTop = H - H * 0.27 - 8;                      // top of the road surface
+      var baseW = pw, groundY = roadTop + H * 0.06 - baseW * 0.9;
+      var sx0 = W * 0.66 - cw / 2 - baseW * 0.6, sy0 = -baseW * 1.6;            // start: above the car's tail
+      var dropY = sy0 + (groundY - sy0) * bounce(drop);
+      var tx = sx0 + (W / 2 - baseW / 2 - sx0) * move;
+      var ph = pkg.offsetHeight || baseW * 0.9;
+      var ty = (drop > 0 ? dropY : -H) + ((H * 0.80 - ph) - groundY) * move;
+      var sc = 1 + 1.55 * move;
+      var shake = (p > .62 && p < .68) ? Math.sin((p - .62) * 1800) * 2.2 : 0;
+      pkg.style.opacity = drop > 0 ? '1' : '0';
+      pkg.style.transform = 'translate(' + (tx + shake) + 'px,' + ty + 'px) scale(' + sc + ')';
+      pkg.style.transformOrigin = '50% 100%';
+      var open = ease(seg(p, .68, .80));
+      lid.style.transform = 'rotate(' + (-open * 118) + 'deg) translateY(' + (-open * 6) + 'px)';
+      lid.style.opacity = String(1 - seg(p, .8, .86));
+      inglow.setAttribute('opacity', String(open));
+      glow.style.opacity = String(open * (1 - seg(p, .9, 1)) * .9);
+      glow.style.transform = 'rotate(' + (p * 400) + 'deg)';
+      glow.style.top = (ty + ph - ph * sc * 0.85) + 'px'; glow.style.left = (W / 2) + 'px'; glow.style.marginTop = '-65vmax';
+      // --- captions
+      hint.style.opacity = p < .03 ? '1' : '0';
+      if (p < .30) caption('Your MADZO delivery is on its way…', 'طلبك في الطريق إليك');
+      else if (p < .62) caption('We are launching… 🚀', 'نحن نُطلق مدزو'); 
+      else if (p < .80) caption('Open your package', 'افتح طردك');
+      else caption('Welcome to MADZO 🎉', 'أهلاً بكم في مدزو');
+      // --- party + finish
+      if (p >= .80 && !partyDone) { partyDone = true; party(W / 2, H * 0.55); autoFinish(); }
+      var fade = seg(p, .90, 1);
+      root.style.opacity = String(1 - fade);
+      if (p >= .995 && !finished) done(false);
+    }
+
+    function autoFinish() {   // once the package is open, glide the rest of the way automatically
+      setTimeout(function () { if (!finished) glideTo(root.scrollHeight - root.clientHeight, 1500); }, 900);
+    }
+    function glideTo(target, ms) {
+      cancelAnimationFrame(autoRaf);
+      var from = root.scrollTop, t0 = performance.now();
+      (function step(t) {
+        if (finished) return;
+        var k = clamp((t - t0) / ms), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+        root.scrollTop = from + (target - from) * e;
+        if (k < 1) autoRaf = requestAnimationFrame(step);
+      })(t0);
+    }
+    function done(skip) {
+      if (finished) return; finished = true; cancelAnimationFrame(autoRaf);
+      try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
+      root.style.transition = 'opacity .35s'; root.style.opacity = '0';
+      setTimeout(function () { if (root.parentNode) root.parentNode.removeChild(root); document.documentElement.style.overflow = ''; window.scrollTo(0, 0); }, 380);
+      if (skip) return;
+    }
+
+    // ---------- party: confetti burst + rising balloons (they keep going over the home page) ----------
+    function party(cx, cy) {
+      var layer = document.createElement('div'); layer.className = 'mi-party';
+      var cv = document.createElement('canvas'); layer.appendChild(cv); document.body.appendChild(layer);
+      var dpr = Math.min(2, window.devicePixelRatio || 1), W = innerWidth, H = innerHeight;
+      cv.width = W * dpr; cv.height = H * dpr; var g = cv.getContext('2d'); g.scale(dpr, dpr);
+      var cols = ['#461610', '#7A2A22', '#E8A0A8', '#F4C46A', '#FDF9F4', '#5FB3A6', '#B79AD8', '#E9524A'];
+      var ps = [];
+      function burst(n, x, y, spread, power) {
+        for (var i = 0; i < n; i++) {
+          var a = -Math.PI / 2 + (Math.random() - .5) * spread, v = power * (.45 + Math.random() * .75);
+          ps.push({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: 4 + Math.random() * 6, rot: Math.random() * 6, vr: (Math.random() - .5) * .4, c: cols[(Math.random() * cols.length) | 0], shape: Math.random() < .3 ? 1 : 0, life: 0, max: 220 + Math.random() * 120 });
+        }
+      }
+      burst(170, cx, cy, Math.PI * 1.5, Math.max(11, W / 60));
+      setTimeout(function () { burst(70, W * .15, H, 1.1, 20); burst(70, W * .85, H, 1.1, 20); }, 500);
+      setTimeout(function () { burst(90, W / 2, H * .45, Math.PI * 2, 14); }, 1300);
+      var t0 = performance.now();
+      (function loop(t) {
+        g.clearRect(0, 0, W, H);
+        for (var i = ps.length - 1; i >= 0; i--) {
+          var p = ps[i]; p.life++; p.vy += .22; p.vx *= .992; p.vy *= .992; p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+          if (p.life > p.max || p.y > H + 30) { ps.splice(i, 1); continue; }
+          g.save(); g.translate(p.x, p.y); g.rotate(p.rot); g.globalAlpha = Math.min(1, (p.max - p.life) / 40); g.fillStyle = p.c;
+          if (p.shape) { g.beginPath(); g.arc(0, 0, p.r / 1.6, 0, 6.3); g.fill(); } else g.fillRect(-p.r / 2, -p.r / 3, p.r, p.r * .6);
+          g.restore();
+        }
+        if (t - t0 < 7500 || ps.length) requestAnimationFrame(loop); else if (layer.parentNode) layer.parentNode.removeChild(layer);
+      })(t0);
+      // balloons
+      var bc = ['#7A2A22', '#E8A0A8', '#F4C46A', '#5FB3A6', '#B79AD8', '#E9524A', '#FDF9F4', '#461610'];
+      var count = Math.max(14, Math.min(26, Math.round(W / 60)));
+      for (var b = 0; b < count; b++) {
+        (function (b) {
+          setTimeout(function () {
+            var el = document.createElement('div'); el.className = 'mi-balloon';
+            var c = bc[b % bc.length], s = .75 + Math.random() * .7;
+            el.style.cssText = 'left:' + (3 + Math.random() * 92) + '%;background:' + c + ';border-color:' + c + ';transform-origin:50% 100%;width:' + (56 * s) + 'px;height:' + (68 * s) + 'px;animation-duration:' + (6.5 + Math.random() * 4) + 's,' + (2 + Math.random() * 1.6) + 's;';
+            layer.appendChild(el);
+          }, b * 130);
+        })(b);
+      }
+    }
+
+    root.addEventListener('scroll', function () { requestAnimationFrame(render); }, { passive: true });
+    window.addEventListener('resize', render);
+    $('mi-skip').addEventListener('click', function () { done(true); });
+    $('mi-play').addEventListener('click', function () { glideTo(root.scrollHeight - root.clientHeight, 11000); });
+    document.addEventListener('keydown', function (e) { if (!finished && e.key === 'Escape') done(true); });
+    render();
+    // a gentle nudge if nobody scrolls
+    setTimeout(function () { if (!finished && root.scrollTop < 5) $('mi-play').style.boxShadow = '0 0 0 4px rgba(70,22,16,.18)'; }, 5000);
+    window.__miRender = render;
+  }
+})();
 </script>
 </body>
 </html>

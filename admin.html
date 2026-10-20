@@ -284,6 +284,14 @@
                   <button onClick="{{ toggleCatManager }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 8px 16px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #461610; color: #FDF9F4;">Close</button>
                 </span>
               </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: #fff; border: 1px solid #E7DECF; border-radius: 12px; padding: 10px 14px;">
+                <div>
+                  <div style="font-size: 13.5px; font-weight: 600; color: #2E2A26;">"Others" on the Home page</div>
+                  <div style="font-size: 12px; color: #857D72; margin-top: 2px;">The "Others" circle opens the categories that are switched off for the Home page. Currently <strong>{{ othersState }}</strong>.</div>
+                  <sc-if value="{{ othersErr }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12.5px; color: #C0392B; margin-top: 4px;">{{ othersErr }}</div></sc-if>
+                </div>
+                <button onClick="{{ toggleOthers }}" role="switch" aria-checked="{{ othersOn }}" aria-label="Show Others on the Home page" style="background: {{ othersBg }}; color: {{ othersColor }}; border: none; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; font-weight: 600; cursor: pointer; min-width: 96px;">{{ othersBtn }}</button>
+              </div>
               <sc-if value="{{ catsError }}" hint-placeholder-val="{{ false }}">
                 <div style="background: #F6EDDB; border: 1px solid #E0C9A2; border-radius: 12px; padding: 10px 14px; font-size: 12.5px; color: #7A5F27;">Categories can't be saved yet — run <strong>madzo-categories.sql</strong> once in Supabase (SQL Editor), then reload this page. Until then you're seeing the default categories.</div>
               </sc-if>
@@ -2355,7 +2363,7 @@ class Component extends DCLogic {
       newBatch: { productName: '', batchNo: '', expiry: '', received: '', supplier: '', qty: '', buyPrice: '', sellPrice: '', updatePrice: false, notes: '' },
       batchError: '',
       confirmDeleteBatch: null,
-      dbProducts: [], dbOrders: [], dbPOs: [], dbSuppliers: [], dbBatches: [], dbPlatforms: [], platMissing: false, repType: 'sales', repFrom: '', repTo: '', repPlat: 'all', repStatus: 'all', repPayStatus: 'all', repMethod: 'all', repKind: 'all', repSup: 'all', repPay: 'all', mgr: null, mgrNew: '', mgrEdit: '', mgrEditVal: '', mgrDel: '', mgrErr: '',
+      dbProducts: [], dbOrders: [], dbPOs: [], dbSuppliers: [], dbBatches: [], dbPlatforms: [], platMissing: false, showOthers: false, othersErr: '', repType: 'sales', repFrom: '', repTo: '', repPlat: 'all', repStatus: 'all', repPayStatus: 'all', repMethod: 'all', repKind: 'all', repSup: 'all', repPay: 'all', mgr: null, mgrNew: '', mgrEdit: '', mgrEditVal: '', mgrDel: '', mgrErr: '',
       dbMainCats: [], dbSubCats: [], catsLoaded: false, catsError: '',
       showCatManager: false, catForm: null, catError: '', savingCat: false, confirmDelCat: null,
       dbSub2Cats: [], sub2Ready: false, stockDraft: {}, delErr: null,
@@ -3822,9 +3830,9 @@ class Component extends DCLogic {
   async loadSettings() {
     try {
       const sb = window.getSupabase();
-      const { data, error } = await sb.from('settings').select('whatsapp').eq('id', 1).single();
+      const { data, error } = await sb.from('settings').select('*').eq('id', 1).single();
       if (error) throw error;
-      this.setState({ setWa: (data && data.whatsapp) || '+974 3082 5852' });
+      this.setState({ setWa: (data && data.whatsapp) || '+974 3082 5852', showOthers: !!(data && data.show_others === true) });
     } catch (e) { console.warn('Madzo admin: could not load settings', e); }
   }
 
@@ -5444,6 +5452,14 @@ class Component extends DCLogic {
         };
       })() : { repTiles: [], repGroups: [], repHead: [], repGrid: '1fr', repRows: [], repNoRows: false, repMore: false, repMoreText: '', repCountLabel: '' }),
       repCsv: () => this.downloadReportCsv(), repPrint: () => this.printReport(),
+      othersOn: !!this.state.showOthers, othersState: this.state.showOthers ? 'shown' : 'hidden', othersErr: this.state.othersErr || '',
+      othersBtn: this.state.showOthers ? 'Enabled' : 'Disabled', othersBg: this.state.showOthers ? '#1E8A4C' : '#E7DECF', othersColor: this.state.showOthers ? '#fff' : '#5C554B',
+      toggleOthers: async () => {
+        const next = !this.state.showOthers;
+        const { error } = await window.getSupabase().from('settings').update({ show_others: next }).eq('id', 1);
+        if (error) { this.setState({ othersErr: /show_others/.test(error.message || '') ? 'Run madzo-update-15.sql in Supabase once, then try again.' : error.message }); return; }
+        this.setState({ showOthers: next, othersErr: '' });
+      },
       newOrderSourceOpts: mkOpts(platNamesList, this.state.newOrder.source || '', '— choose platform —'),
       poSupplierOpts: mkOpts(supNamesList, this.state.newPO.supplier || '', '— choose supplier —'),
       grnSupplierOpts: mkOpts(supNamesList, (this.state.grnDraft || {}).supplier || '', '— choose supplier —'),

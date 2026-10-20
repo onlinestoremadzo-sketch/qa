@@ -718,6 +718,7 @@
               </div>
               <sc-for list="{{ orderItems }}" as="it" hint-placeholder-count="2">
                 <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: #FAF5EC; border: 1px solid #EDE4D3; border-radius: 12px; padding: 10px 12px;">
+                  <sc-if value="{{ it.hasBrand }}" hint-placeholder-val="{{ false }}"><span style="font-size: 11.5px; font-weight: 700; color: #461610; background: #EFE3D3; border-radius: 999px; padding: 4px 10px; white-space: nowrap;">{{ it.brand }}</span></sc-if>
                   <input value="{{ it.name }}" onChange="{{ it.onName }}" placeholder="Item name" style="flex: 4; min-width: 260px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                   <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #857D72;">Qty
                     <input value="{{ it.qty }}" onChange="{{ it.onQty }}" type="number" min="1" style="width: 50px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 10px; font-size: 13.5px; outline: none;" style-focus="border-color: #461610;">
@@ -860,7 +861,8 @@
                     </div>
                     <sc-for list="{{ o.edItems }}" as="it" hint-placeholder-count="2">
                       <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: #FAF5EC; border: 1px solid #EDE4D3; border-radius: 12px; padding: 9px 12px;">
-                        <input value="{{ it.name }}" onChange="{{ it.onName }}" placeholder="Item name" style="flex: 4; min-width: 260px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                        <sc-if value="{{ it.hasBrand }}" hint-placeholder-val="{{ false }}"><span style="font-size: 11.5px; font-weight: 700; color: #461610; background: #EFE3D3; border-radius: 999px; padding: 4px 10px; white-space: nowrap;">{{ it.brand }}</span></sc-if>
+                  <input value="{{ it.name }}" onChange="{{ it.onName }}" placeholder="Item name" style="flex: 4; min-width: 260px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                         <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #857D72;">Qty
                           <input value="{{ it.qty }}" onChange="{{ it.onQty }}" type="number" min="1" style="width: 50px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 8px 10px; font-size: 13px; outline: none;" style-focus="border-color: #461610;">
                         </label>
@@ -1065,11 +1067,12 @@
               </span>
 
               <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 940px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 1040px;">
                   <thead>
                     <tr style="text-align: start; color: #857D72;">
                       <th style="padding: 6px 4px; font-weight: 600;">Code</th>
                       <th style="padding: 6px 4px; font-weight: 600;">Product Name</th>
+                      <th style="padding: 6px 4px; font-weight: 600;">Brand</th>
                       <th style="padding: 6px 4px; font-weight: 600;">Unit</th>
                       <th style="padding: 6px 4px; font-weight: 600;">Qty</th>
                       <th style="padding: 6px 4px; font-weight: 600;">Bonus</th>
@@ -1093,6 +1096,7 @@
                             <button onClick="{{ it.addToCatalog }}" style="margin-top: 3px; background: none; border: none; color: #461610; font-size: 11px; cursor: pointer; padding: 0; text-decoration: underline;">+ Add "{{ it.desc }}" to product catalog</button>
                           </sc-if>
                         </td>
+                        <td style="padding: 5px 4px; font-size: 12px; color: #5C554B; white-space: nowrap;">{{ it.brand }}</td>
                         <td style="padding: 5px 4px;"><input value="{{ it.unit }}" onChange="{{ it.onUnit }}" placeholder="PC" style="width: 44px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
                         <td style="padding: 5px 4px;"><input value="{{ it.qty }}" onChange="{{ it.onQty }}" type="number" min="0" style="width: 48px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
                         <td style="padding: 5px 4px;"><input value="{{ it.bonus }}" onChange="{{ it.onBonus }}" type="number" min="0" style="width: 40px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;"></td>
@@ -1112,7 +1116,7 @@
                 </datalist>
                 <datalist id="madzo-po-product-names">
                   <sc-for list="{{ poProductOptions }}" as="pn" hint-placeholder-count="5">
-                    <option value="{{ pn.name }}"></option>
+                    <option value="{{ pn.name }}" label="{{ pn.brand }}"></option>
                   </sc-for>
                 </datalist>
               </div>
@@ -1236,11 +1240,12 @@
 
                 <h3 style="font-size: 13.5px; font-weight: 600; margin: 6px 0 0; color: #2E2A26;">Items received</h3>
                 <div style="overflow-x: auto;">
-                  <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 900px;">
+                  <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 1060px;">
                     <thead>
                       <tr style="text-align: start; color: #857D72;">
                         <th style="padding: 6px 4px; font-weight: 600;">Code</th>
                         <th style="padding: 6px 4px; font-weight: 600;">Product name</th>
+                        <th style="padding: 6px 4px; font-weight: 600;">Brand</th>
                         <th style="padding: 6px 4px; font-weight: 600;">Qty</th>
                         <th style="padding: 6px 4px; font-weight: 600;">Free qty</th>
                         <th style="padding: 6px 4px; font-weight: 600;">{{ grnBuyHead }}</th>
@@ -1258,6 +1263,7 @@
                             <input value="{{ gi.name }}" onChange="{{ gi.onName }}" list="madzo-grn-names" autocomplete="off" aria-label="GRN item product name" style="width: 100%; min-width: 260px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 10px; font-size: 12.5px; outline: none;" style-focus="border-color: #461610;">
                             <sc-if value="{{ gi.notMatched }}" hint-placeholder-val="{{ false }}"><div style="font-size: 11px; color: #B0852A; margin-top: 3px;">Pick a product from your catalog</div></sc-if>
                           </td>
+                          <td style="padding: 5px 4px; font-size: 12px; color: #5C554B; white-space: nowrap;">{{ gi.brand }}</td>
                           <td style="padding: 5px 4px;"><input value="{{ gi.qty }}" onChange="{{ gi.onQty }}" type="number" min="0" aria-label="GRN item qty" style="width: 58px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;" style-focus="border-color: #461610;"></td>
                           <td style="padding: 5px 4px;"><input value="{{ gi.free }}" onChange="{{ gi.onFree }}" type="number" min="0" aria-label="GRN item free qty" style="width: 58px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;" style-focus="border-color: #461610;"></td>
                           <td style="padding: 5px 4px;"><input value="{{ gi.buy }}" onChange="{{ gi.onBuy }}" type="number" min="0" step="0.01" aria-label="GRN item buy price" style="width: 76px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 12.5px; outline: none;" style-focus="border-color: #461610;"></td>
@@ -1273,7 +1279,7 @@
                     <sc-for list="{{ grnCodeOptions }}" as="gc" hint-placeholder-count="5"><option value="{{ gc.sku }}" label="{{ gc.label }}"></option></sc-for>
                   </datalist>
                   <datalist id="madzo-grn-names">
-                    <sc-for list="{{ grnNameOptions }}" as="gn" hint-placeholder-count="5"><option value="{{ gn.name }}"></option></sc-for>
+                    <sc-for list="{{ grnNameOptions }}" as="gn" hint-placeholder-count="5"><option value="{{ gn.name }}" label="{{ gn.brand }}"></option></sc-for>
                   </datalist>
                 </div>
                 <button onClick="{{ grnAddLine }}" style="align-self: flex-start; background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 12.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">+ Add line</button>
@@ -1320,7 +1326,7 @@
                         <sc-if value="{{ g.hasRemarks }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12.5px; color: #857D72; margin-bottom: 4px;">📝 {{ g.remarks }}</div></sc-if>
                         <sc-for list="{{ g.lines }}" as="gl" hint-placeholder-count="2">
                           <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 12.5px; color: #5C554B; background: #F6F0E6; border-radius: 8px; padding: 6px 10px;">
-                            <span style="flex: 1; min-width: 200px; font-weight: 600; color: #2E2A26;">{{ gl.name }} <span style="font-weight: 400; color: #A9A091;">{{ gl.code }}</span></span>
+                            <span style="flex: 1; min-width: 200px; font-weight: 600; color: #2E2A26;"><span style="font-weight: 700; color: #461610;">{{ gl.brand }}</span> {{ gl.name }} <span style="font-weight: 400; color: #A9A091;">{{ gl.code }}</span></span>
                             <span>Qty {{ gl.qty }}</span><span>Free {{ gl.free }}</span><span>Buy {{ gl.buy }}</span><span>Sell {{ gl.sell }}</span><span>Exp {{ gl.expiry }}</span>
                           </div>
                         </sc-for>
@@ -1359,13 +1365,13 @@
               <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
                 <h2 style="font-size: 15px; font-weight: 600; margin: 0;">{{ omFormTitle }}</h2>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; align-items: end;">
-                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Date
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Order date
                     <input value="{{ omD.date }}" onChange="{{ onOmDate }}" type="date" aria-label="Order date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                   </label>
-                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Invoice no *
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Order number *
                     <input value="{{ omD.invoice }}" onChange="{{ onOmInvoice }}" aria-label="Order invoice no" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                   </label>
-                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Source
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier
                     <div style="display: flex; gap: 6px; align-items: stretch;"><select value="{{ omD.source }}" onChange="{{ onOmSource }}" aria-label="Order source" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; flex: 1; min-width: 0; cursor: pointer; color: #2E2A26;" style-focus="border-color: #461610;"><sc-for list="{{ omSourceOpts }}" as="so" hint-placeholder-count="3"><option value="{{ so.v }}" selected="{{ so.selected }}">{{ so.l }}</option></sc-for></select><button type="button" onClick="{{ openMgrSupplier }}" title="Add / edit the list" aria-label="Manage list" style="background: none; border: 1px solid #D8CCBC; color: #461610; border-radius: 10px; padding: 0 11px; font-size: 14px; cursor: pointer; white-space: nowrap;" style-hover="border-color: #461610;">✎</button></div>
                     <datalist id="madzo-om-sources"><sc-for list="{{ omSourceOptions }}" as="so" hint-placeholder-count="3"><option value="{{ so.name }}"></option></sc-for></datalist>
                   </label>
@@ -1374,20 +1380,26 @@
                       <option value="cash">Cash</option><option value="card">Card</option><option value="credit">Credit</option>
                     </select>
                   </label>
-                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Total amount (QAR)
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Price (QAR)
                     <input value="{{ omD.total }}" onChange="{{ onOmTotal }}" type="number" min="0" step="0.01" aria-label="Order total amount" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                   </label>
-                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Expected delivery date
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Expected arrival
                     <input value="{{ omD.expected }}" onChange="{{ onOmExpected }}" type="date" aria-label="Order expected delivery date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                   </label>
-                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Package size
-                    <input value="{{ omD.size }}" onChange="{{ onOmSize }}" list="madzo-om-sizes" autocomplete="off" aria-label="Order package size" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
-                    <datalist id="madzo-om-sizes"><option value="Small"></option><option value="Medium"></option><option value="Large"></option><option value="Pallet"></option></datalist>
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Item type
+                    <input value="{{ omD.itemType }}" onChange="{{ onOmItemType }}" list="madzo-om-itemtypes" autocomplete="off" aria-label="Order item type" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                    <datalist id="madzo-om-itemtypes"><sc-for list="{{ omItemTypeOptions }}" as="oit" hint-placeholder-count="3"><option value="{{ oit.name }}"></option></sc-for></datalist>
                   </label>
                   <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Order status
                     <select value="{{ omD.status }}" onChange="{{ onOmStatus }}" aria-label="Order status" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
                       <sc-for list="{{ omStatusOptions }}" as="st" hint-placeholder-count="3"><option value="{{ st.v }}" selected="{{ st.selected }}">{{ st.l }}</option></sc-for>
                     </select>
+                  </label>
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Received date
+                    <input value="{{ omD.received }}" onChange="{{ onOmReceived }}" type="date" aria-label="Order received date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                  </label>
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Offer code
+                    <input value="{{ omD.offer }}" onChange="{{ onOmOffer }}" aria-label="Order offer code" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                   </label>
                 </div>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Remarks
@@ -1402,32 +1414,47 @@
             </sc-if>
 
             <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px;">
-              <input value="{{ omSearch }}" onChange="{{ onOmSearch }}" placeholder="Search invoice, source or remarks…" aria-label="Search orders" style="width: 320px; max-width: 100%; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13.5px; outline: none; box-sizing: border-box;" style-focus="border-color: #461610;">
-              <select value="{{ omStatusF }}" onChange="{{ onOmStatusF }}" aria-label="Filter by order status" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13px; outline: none; cursor: pointer;">
-                <sc-for list="{{ omStatusFilterOptions }}" as="sf" hint-placeholder-count="3"><option value="{{ sf.v }}" selected="{{ sf.selected }}">{{ sf.l }}</option></sc-for>
-              </select>
+              <input value="{{ omSearch }}" onChange="{{ onOmSearch }}" placeholder="Search order number, supplier, item, offer code or remarks…" aria-label="Search orders" style="width: 320px; max-width: 100%; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 14px; font-size: 13.5px; outline: none; box-sizing: border-box;" style-focus="border-color: #461610;">
               <span style="font-size: 12.5px; color: #857D72;">{{ omCountLabel }}</span>
             </div>
             <sc-if value="{{ noOMs }}" hint-placeholder-val="{{ false }}"><p style="color: #857D72; text-align: center; padding: 30px 0;">{{ noOmText }}</p></sc-if>
             <div style="overflow-x: auto;">
-              <div style="min-width: 1100px; display: flex; flex-direction: column; gap: 6px;">
-                <div style="display: grid; grid-template-columns: 100px 120px minmax(120px,1fr) 80px 110px 130px 100px 120px minmax(120px,1.2fr) 90px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
-                  <span>Date</span><span>Invoice no</span><span>Source</span><span>Payment</span><span>Total amount</span><span>Expected delivery</span><span>Package size</span><span>Order status</span><span>Remarks</span><span></span>
+              <div style="min-width: 1420px; display: flex; flex-direction: column; gap: 6px;">
+                <div style="display: grid; grid-template-columns: 44px 118px 98px minmax(110px,1fr) 78px 92px 108px 136px 98px 96px minmax(100px,1fr) 88px 80px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                  <span>SI No</span><span>Order number</span><span>Order date</span><span>Supplier</span><span>Payment mode</span><span>Price</span><span>Expected arrival</span><span>Order status</span><span>Received date</span><span>Item type</span><span>Remarks</span><span>Offer code</span><span></span>
+                </div>
+                <div style="display: grid; grid-template-columns: 44px 118px 98px minmax(110px,1fr) 78px 92px 108px 136px 98px 96px minmax(100px,1fr) 88px 80px; gap: 10px; align-items: center; padding: 0 14px 6px;">
+                  <span></span>
+                  <input value="{{ omFNo }}" onChange="{{ onOmFNo }}" placeholder="Filter…" aria-label="Filter by order number" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26;">
+                  <input type="date" value="{{ omFDate }}" onChange="{{ onOmFDate }}" aria-label="Filter by order date" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26;">
+                  <select onChange="{{ onOmFSup }}" aria-label="Filter by supplier" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26; cursor: pointer;"><sc-for list="{{ omFSupOpts }}" as="fo" hint-placeholder-count="2"><option value="{{ fo.v }}" selected="{{ fo.selected }}">{{ fo.l }}</option></sc-for></select>
+                  <select onChange="{{ onOmFPay }}" aria-label="Filter by payment mode" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26; cursor: pointer;"><sc-for list="{{ omFPayOpts }}" as="fo" hint-placeholder-count="2"><option value="{{ fo.v }}" selected="{{ fo.selected }}">{{ fo.l }}</option></sc-for></select>
+                  <input value="{{ omFPrice }}" onChange="{{ onOmFPrice }}" placeholder="Price…" aria-label="Filter by price" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26;">
+                  <input type="date" value="{{ omFExp }}" onChange="{{ onOmFExp }}" aria-label="Filter by expected arrival" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26;">
+                  <select value="{{ omStatusF }}" onChange="{{ onOmStatusF }}" aria-label="Filter by order status" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26; cursor: pointer;"><sc-for list="{{ omStatusFilterOptions }}" as="sf" hint-placeholder-count="3"><option value="{{ sf.v }}" selected="{{ sf.selected }}">{{ sf.l }}</option></sc-for></select>
+                  <input type="date" value="{{ omFRecv }}" onChange="{{ onOmFRecv }}" aria-label="Filter by received date" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26;">
+                  <input value="{{ omFItem }}" onChange="{{ onOmFItem }}" placeholder="Item…" aria-label="Filter by item type" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26;">
+                  <input value="{{ omFRemarks }}" onChange="{{ onOmFRemarks }}" placeholder="Remarks…" aria-label="Filter by remarks" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26;">
+                  <input value="{{ omFOffer }}" onChange="{{ onOmFOffer }}" placeholder="Code…" aria-label="Filter by offer code" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; color: #2E2A26;">
+                  <button onClick="{{ omClearFilters }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 8px; padding: 4px 0; font-size: 11px; cursor: pointer;">Clear</button>
                 </div>
                 <sc-for list="{{ pagedOMs }}" as="om" hint-placeholder-count="4">
-                  <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: grid; grid-template-columns: 100px 120px minmax(120px,1fr) 80px 110px 130px 100px 120px minmax(120px,1.2fr) 90px; gap: 10px; align-items: center; font-size: 12.5px; color: #2E2A26;">
-                      <span style="font-weight: 600;">{{ om.dateLabel }}</span>
-                      <span style="font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ om.invoice }}</span>
+                  <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: grid; grid-template-columns: 44px 118px 98px minmax(110px,1fr) 78px 92px 108px 136px 98px 96px minmax(100px,1fr) 88px 80px; gap: 10px; align-items: center; font-size: 12.5px; color: #2E2A26;">
+                      <span style="color: #857D72;">{{ om.si }}</span>
+                      <span style="font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ om.invoice }}</span>
+                      <span>{{ om.dateLabel }}</span>
                       <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ om.source }}</span>
                       <span>{{ om.payLabel }}</span>
                       <span style="font-weight: 600;">{{ om.totalLabel }}</span>
                       <span style="color: {{ om.expColor }}; font-weight: {{ om.expWeight }};">{{ om.expLabel }}</span>
-                      <span>{{ om.size }}</span>
-                      <span><select value="{{ om.status }}" onChange="{{ om.onStatus }}" aria-label="Change order status" style="font-size: 11.5px; font-weight: 600; padding: 4px 6px; border-radius: 999px; border: 1px solid {{ om.badgeColor }}; background: {{ om.badgeBg }}; color: {{ om.badgeColor }}; outline: none; cursor: pointer; max-width: 112px;">
+                      <span><select value="{{ om.status }}" onChange="{{ om.onStatus }}" aria-label="Change order status" style="font-size: 11.5px; font-weight: 600; padding: 4px 6px; border-radius: 999px; border: 1px solid {{ om.badgeColor }}; background: {{ om.badgeBg }}; color: {{ om.badgeColor }}; outline: none; cursor: pointer; max-width: 100%;">
                         <sc-for list="{{ om.statusOptions }}" as="ost" hint-placeholder-count="3"><option value="{{ ost.v }}" selected="{{ ost.selected }}">{{ ost.l }}</option></sc-for>
                       </select></span>
+                      <span>{{ om.recvLabel }}</span>
+                      <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ om.itemType }}</span>
                       <span style="color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ om.remarks }}">{{ om.remarks }}</span>
+                      <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ om.offer }}</span>
                       <span style="display: flex; align-items: center; gap: 6px; justify-self: end;">
                         <button onClick="{{ om.edit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 4px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">Edit</button>
                         <button onClick="{{ om.askRemove }}" aria-label="Delete order" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px;" style-hover="color: #C0392B;">×</button>
@@ -1516,7 +1543,7 @@
                 </sc-if>
                 <datalist id="madzo-inv-product-names">
                   <sc-for list="{{ poProductOptions }}" as="pn" hint-placeholder-count="5">
-                    <option value="{{ pn.name }}"></option>
+                    <option value="{{ pn.name }}" label="{{ pn.brand }}"></option>
                   </sc-for>
                 </datalist>
               </label>
@@ -2315,7 +2342,7 @@ class Component extends DCLogic {
       openOrderIds: {},
       poPage: 1,
       showPOForm: false,
-      poView: 'po', dbOMs: [], omMissing: false, omDraft: null, omError: '', savingOM: false, omSearch: '', omStatusF: 'all', omPage: 1, omConfirmDel: null, omMsg: '', dbGRNs: [], grnMissing: false, grnDraft: null, grnError: '', savingGRN: false, grnSearch: '', grnPage: 1, grnOpen: {}, grnConfirmDel: null, grnMsg: '',
+      poView: 'po', dbOMs: [], omMissing: false, omDraft: null, omError: '', savingOM: false, omF: { no: '', date: '', sup: 'all', pay: 'all', price: '', exp: '', recv: '', item: '', remarks: '', offer: '' }, omSearch: '', omStatusF: 'all', omPage: 1, omConfirmDel: null, omMsg: '', dbGRNs: [], grnMissing: false, grnDraft: null, grnError: '', savingGRN: false, grnSearch: '', grnPage: 1, grnOpen: {}, grnConfirmDel: null, grnMsg: '',
       poFormMode: 'new',
       newPO: { id: '', supplier: '', email: '', phone: '', date: '', delivery: '', terms: 'As Per Agreement', status: 'draft', paymentStatus: 'pending', preparedBy: '', approvedBy: '', remarks: '', items: [] },
       poError: '',
@@ -2676,11 +2703,12 @@ class Component extends DCLogic {
   }
   async loadOMs() {
     try {
-      const { data, error } = await window.getSupabase().from('order_monitor').select('*').order('order_date', { ascending: false }).order('created_at', { ascending: false });
+      const { data, error } = await window.getSupabase().from('order_monitor').select('*').order('created_at', { ascending: false });
       if (error) { if (this.isMissingTable(error)) this.setState({ omMissing: true, dbOMs: [] }); else console.warn('Madzo admin: could not load order monitoring', error); return; }
       this.setState({ omMissing: false, dbOMs: (data || []).map(o => ({
         id: o.id, date: o.order_date || '', invoice: o.invoice_no || '', source: o.source || '', payMode: o.payment_mode || 'cash',
-        total: Number(o.total_amount) || 0, expected: o.expected_date || '', size: o.package_size || '', status: o.status || 'ordered', remarks: o.remarks || ''
+        total: Number(o.total_amount) || 0, expected: o.expected_date || '', size: o.package_size || '', status: o.status || 'ordered', remarks: o.remarks || '',
+        itemType: o.item_type || o.package_size || '', received: o.received_date || '', offer: o.offer_code || '', ts: o.created_at ? new Date(o.created_at).getTime() : 0
       })) });
     } catch (e) { console.warn('Madzo admin: could not load order monitoring', e); }
   }
@@ -3578,7 +3606,7 @@ class Component extends DCLogic {
   poShareBodyHtml(po) {
     const itemsHtml = po.items.map(it => `
       <div style="border:1px solid #eee; border-radius:8px; padding:10px 12px; margin-bottom:8px;">
-        <div style="font-weight:700; font-size:13px; margin-bottom:2px; word-break:break-word;">${this.esc(it.desc)}</div>
+        <div style="font-weight:700; font-size:13px; margin-bottom:2px; word-break:break-word;">${this.esc(this.brandForName(it.desc) ? this.brandForName(it.desc) + ' ' + it.desc : it.desc)}</div>
         <div style="font-size:11px; color:#777; margin-bottom:6px;">${this.esc(it.code)}${it.unit ? ' · ' + this.esc(it.unit) : ''}</div>
         <div style="display:flex; justify-content:space-between; font-size:12px; color:#444;">
           <span>Qty: ${this.esc(it.qty)}</span><span>Bonus: ${this.esc(it.bonus)}</span>
@@ -3652,7 +3680,7 @@ class Component extends DCLogic {
     const rowsHtml = po.items.map(it => `
       <tr style="border-bottom:1px solid #eee;">
         <td style="padding:6px 4px; word-break:break-word;">${this.esc(it.code)}</td>
-        <td style="padding:6px 4px; word-break:break-word;">${this.esc(it.desc)}</td>
+        <td style="padding:6px 4px; word-break:break-word;">${this.esc(this.brandForName(it.desc) ? this.brandForName(it.desc) + ' ' + it.desc : it.desc)}</td>
         <td style="text-align:center;padding:6px 4px;">${this.esc(it.unit)}</td>
         <td style="text-align:center;padding:6px 4px;">${this.esc(it.qty)}</td>
         <td style="text-align:center;padding:6px 4px;">${this.esc(it.bonus)}</td>
@@ -3737,6 +3765,7 @@ class Component extends DCLogic {
   }
 
   // expiry helpers: the UI uses mm/yy, the database keeps the last day of that month
+  brandForName(name) { const n = String(name || '').trim().toLowerCase(); const p = n ? this.products().find(x => String(x.name || '').trim().toLowerCase() === n) : null; return p && p.brand ? p.brand : ''; }
   fmtExpiryInput(raw) {
     const v = String(raw || ''), d = v.replace(/\D/g, '').slice(0, 4);
     if (d.length > 2) return d.slice(0, 2) + '/' + d.slice(2);
@@ -3884,7 +3913,7 @@ class Component extends DCLogic {
       else this.setState({ pin: '', loginError: false });
     };
 
-    const orders = this.orders().slice().sort((a, b) => b.ts - a.ts);
+    const orders = this.orders().slice().sort((a, b) => (b.ts - a.ts) || String(b.id).localeCompare(String(a.id)));
     const orderQ = this.state.orderSearch.trim().toLowerCase();
     const platLabel = (o) => (!o.source || o.source === 'storefront') ? 'Website' : o.source;
     const qDay = (ts) => new Date(ts).toLocaleDateString('en-CA', { timeZone: 'Asia/Qatar' });
@@ -4295,13 +4324,13 @@ class Component extends DCLogic {
     // ---- Type-to-add product pickers (new order / edit order, normal + free) ----
     const pickVal = (k) => (this.state.pickText || {})[k] || '';
     const setPick = (k, v) => this.setState(s => ({ pickText: { ...(s.pickText || {}), [k]: v } }));
-    const prodLabel = (p, free) => free ? p.name : (p.name + ' — ' + p.price + ' QAR');
+    const prodLabel = (p, free) => { const nm = (p.brand ? p.brand + ' ' : '') + p.name; return free ? nm : (nm + ' — ' + p.price + ' QAR'); };
     const findPick = (v, free, loose) => {
       const t = String(v || '').trim().toLowerCase(); if (!t) return null;
       const list = free ? prods.filter(p => p.freeItem) : prods;
       const exact = list.find(p => prodLabel(p, free).toLowerCase() === t || String(p.sku).toLowerCase() === t);
       if (exact || !loose) return exact || null;
-      return list.find(p => (p.name + ' ' + p.sku + ' ' + (p.brand || '')).toLowerCase().indexOf(t) >= 0) || null;
+      return list.find(p => ((p.brand || '') + ' ' + p.name + ' ' + p.sku).toLowerCase().indexOf(t) >= 0) || null;
     };
     const mkPick = (k, free, push) => {
       const add = (pr) => push(free ? { name: pr.name, qty: 1, price: 0, free: true, sku: pr.sku, brand: pr.brand || '', nameEn: pr.name } : { name: pr.name, qty: 1, price: pr.price, sku: pr.sku, brand: pr.brand || '', nameEn: pr.name });
@@ -4317,8 +4346,9 @@ class Component extends DCLogic {
       const editing = this.state.editOrderId === o.id;
       const ed = editing ? (this.state.editOrderDraft || {}) : {};
       const edItemsRaw = ed.items || [];
+      const bOf = (it) => it.brand || ((prods.find(pp => pp.sku === it.sku) || {}).brand) || '';
       const edItems = edItemsRaw.map((it, i) => ({
-        name: it.name, qty: it.qty, price: it.price,
+        name: it.name, brand: bOf(it), hasBrand: !!bOf(it), qty: it.qty, price: it.price,
         isFree: !!it.free,
         onFree: (e) => { const on = !!e.target.checked; this.setState(s => {
           const items = s.editOrderDraft.items.slice(); const cur = items[i];
@@ -4343,7 +4373,7 @@ class Component extends DCLogic {
         detailsOpen: !!(this.state.openOrderIds || {})[o.id],
         chevron: (this.state.openOrderIds || {})[o.id] ? '▾' : '▸',
         toggleDetails: () => this.setState(s => ({ openOrderIds: { ...(s.openOrderIds || {}), [o.id]: !(s.openOrderIds || {})[o.id] } })),
-        itemLines: (o.lines || []).map(l => ({ qtyName: `${l.qty} × ${l.name}` + (l.free ? ' 🎁' : ''), price: l.free ? 'FREE' : fmt(l.total || 0) })),
+        itemLines: (o.lines || []).map(l => ({ qtyName: `${l.qty} × ` + (((l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand || '') && !String(l.name || '').toLowerCase().startsWith(String(l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand || '').toLowerCase())) ? (l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand) + ' ' : '') + l.name + (l.free ? ' 🎁' : ''), price: l.free ? 'FREE' : fmt(l.total || 0) })),
         phone: o.phone || '—',
         shipping: [o.address, o.zone].filter(Boolean).join(' — ') || '—',
         hasNotes: !!o.notes, notes: o.notes || '',
@@ -4471,7 +4501,7 @@ class Component extends DCLogic {
     } : null;
 
     // ---- Purchase Orders ----
-    const pos = this.state.dbPOs.slice().sort((a, b) => b.ts - a.ts);
+    const pos = this.state.dbPOs.slice().sort((a, b) => (b.ts - a.ts) || String(b.id).localeCompare(String(a.id)));
     const poQ = this.state.poSearch.trim().toLowerCase();
     const filteredPOs = poQ
       ? pos.filter(p => (p.id + ' ' + (p.supplier || '')).toLowerCase().includes(poQ))
@@ -4554,7 +4584,7 @@ class Component extends DCLogic {
       const c = poLineCalc(it);
       const matched = findProdByName(it.desc);
       return {
-        code: it.code, desc: it.desc, unit: it.unit, qty: it.qty, bonus: it.bonus,
+        code: it.code, desc: it.desc, brand: matched ? (matched.brand || '—') : '—', unit: it.unit, qty: it.qty, bonus: it.bonus,
         isFree: !!it.free, notFree: !it.free,
         onFree: (e) => { const on = !!e.target.checked; this.setState(s => {
           const items = s.newPO.items.slice(); const cur = items[i] || {};
@@ -4750,8 +4780,9 @@ class Component extends DCLogic {
       return { newOrder: { ...s.newOrder, items }, newOrderError: '' };
     });
     const pushItem = (item) => this.setState(s => ({ newOrder: { ...s.newOrder, items: [...s.newOrder.items, item] } }));
+    const brandOfLine = (it) => it.brand || ((prods.find(pp => pp.sku === it.sku) || {}).brand) || '';
     const orderItems = no.items.map((it, i) => ({
-      name: it.name, qty: it.qty, price: it.price,
+      name: it.name, brand: brandOfLine(it), hasBrand: !!brandOfLine(it), qty: it.qty, price: it.price,
       isFree: !!it.free,
       onFree: (e) => { const on = !!e.target.checked; this.setState(s => {
         const items = s.newOrder.items.slice(); const cur = items[i];
@@ -4832,7 +4863,7 @@ class Component extends DCLogic {
 
     // ---- GRN entry (goods received) ----
     const grnQ = String(this.state.grnSearch || '').trim().toLowerCase();
-    const grnAll = (this.state.dbGRNs || []).filter(g => !grnQ || (g.id + ' ' + g.invoice + ' ' + g.supplier).toLowerCase().indexOf(grnQ) >= 0);
+    const grnAll = (this.state.dbGRNs || []).slice().sort((a, b) => (b.ts - a.ts) || String(b.id).localeCompare(String(a.id))).filter(g => !grnQ || (g.id + ' ' + g.invoice + ' ' + g.supplier).toLowerCase().indexOf(grnQ) >= 0);
     const grnPager = makePager(grnAll.length, 'grnPage');
     const grnBlank = () => ({ code: '', name: '', qty: '', free: '', buy: '', sell: '', expiry: '', matched: '' });
     const grnD = this.state.grnDraft || { id: '', invoice: '', supplier: '', date: '', payMode: 'cash', currency: 'QAR', rate: '', remarks: '', updatePrices: true, items: [] };
@@ -4852,7 +4883,7 @@ class Component extends DCLogic {
     const grnLines = grnD.items.map((it, i) => {
       const q = Math.max(0, Number(it.qty) || 0), b = Math.max(0, Number(it.buy) || 0);
       return {
-        code: it.code, name: it.name, qty: it.qty, free: it.free, buy: it.buy, sell: it.sell, expiry: it.expiry,
+        code: it.code, name: it.name, brand: ((skuProd(it.code) || nameProd(it.name)) || {}).brand || '—', qty: it.qty, free: it.free, buy: it.buy, sell: it.sell, expiry: it.expiry,
         notMatched: !!(String(it.code || '').trim() || String(it.name || '').trim()) && !(skuProd(it.code) || nameProd(it.name)),
         onCode: (e) => { const v = e.target.value, p = skuProd(v); if (p && it.matched !== p.sku) fillGrnLine(i, p); else setGrnItem(i, { code: v, ...(p ? {} : { matched: '' }) }); },
         onName: (e) => { const v = e.target.value, p = nameProd(v); if (p && it.matched !== p.sku) fillGrnLine(i, p); else setGrnItem(i, { name: v, ...(p ? {} : { matched: '' }) }); },
@@ -4880,10 +4911,22 @@ class Component extends DCLogic {
     const omMeta = (v) => OM_STATUS.find(s => s.v === v) || OM_STATUS[0];
     const omToday = today;
     const omQ = String(this.state.omSearch || '').trim().toLowerCase(), omSF = this.state.omStatusF || 'all';
-    const omAll = (this.state.dbOMs || []).filter(o => (omSF === 'all' || o.status === omSF) && (!omQ || (o.invoice + ' ' + o.source + ' ' + o.remarks + ' ' + o.id).toLowerCase().indexOf(omQ) >= 0));
+    const omFx = this.state.omF || {}, lcs = (v) => String(v || '').trim().toLowerCase();
+    const omAll = (this.state.dbOMs || []).slice().sort((a, b) => (b.ts - a.ts) || String(b.id).localeCompare(String(a.id)))
+      .filter(o => (omSF === 'all' || o.status === omSF) && (!omQ || (o.invoice + ' ' + o.source + ' ' + o.remarks + ' ' + o.id + ' ' + o.itemType + ' ' + o.offer).toLowerCase().indexOf(omQ) >= 0))
+      .filter(o => !lcs(omFx.no) || lcs(o.invoice).includes(lcs(omFx.no)))
+      .filter(o => !omFx.date || o.date === omFx.date)
+      .filter(o => !omFx.sup || omFx.sup === 'all' || o.source === omFx.sup)
+      .filter(o => !omFx.pay || omFx.pay === 'all' || o.payMode === omFx.pay)
+      .filter(o => !lcs(omFx.price) || String(Math.round(Number(o.total) || 0)).includes(lcs(omFx.price)))
+      .filter(o => !omFx.exp || o.expected === omFx.exp)
+      .filter(o => !omFx.recv || o.received === omFx.recv)
+      .filter(o => !lcs(omFx.item) || lcs(o.itemType).includes(lcs(omFx.item)))
+      .filter(o => !lcs(omFx.remarks) || lcs(o.remarks).includes(lcs(omFx.remarks)))
+      .filter(o => !lcs(omFx.offer) || lcs(o.offer).includes(lcs(omFx.offer)));
     const omPager = makePager(omAll.length, 'omPage');
-    const omBlankDraft = () => ({ origId: null, id: this.nextOmId(), date: today, invoice: '', source: '', payMode: 'cash', total: '', expected: '', size: '', status: 'ordered', remarks: '' });
-    const omD = this.state.omDraft || { date: '', invoice: '', source: '', payMode: 'cash', total: '', expected: '', size: '', status: 'ordered', remarks: '' };
+    const omBlankDraft = () => ({ origId: null, id: this.nextOmId(), date: today, invoice: '', source: '', payMode: 'cash', total: '', expected: '', itemType: '', received: '', offer: '', status: 'ordered', remarks: '' });
+    const omD = this.state.omDraft || { date: '', invoice: '', source: '', payMode: 'cash', total: '', expected: '', itemType: '', received: '', offer: '', status: 'ordered', remarks: '' };
     const setOm = (patch) => this.setState(s => ({ omDraft: { ...s.omDraft, ...patch }, omError: '' }));
     const omDateLabel = (d) => d ? new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '—';
     const omOpen = (this.state.dbOMs || []).filter(o => o.status === 'ordered' || o.status === 'processed' || o.status === 'shipped' || o.status === 'delayed');
@@ -4904,7 +4947,8 @@ class Component extends DCLogic {
       omSourceOptions: [...new Set([...(this.state.dbOMs || []).map(o => o.source).filter(Boolean), ...(this.state.dbSuppliers || []).map(s => s.name)])].map(name => ({ name })),
       onOmDate: (e) => setOm({ date: e.target.value }), onOmInvoice: (e) => setOm({ invoice: e.target.value }), onOmSource: (e) => setOm({ source: e.target.value }),
       onOmPayMode: (e) => setOm({ payMode: e.target.value }), onOmTotal: (e) => setOm({ total: e.target.value }), onOmExpected: (e) => setOm({ expected: e.target.value }),
-      onOmSize: (e) => setOm({ size: e.target.value }), onOmStatus: (e) => setOm({ status: e.target.value }), onOmRemarks: (e) => setOm({ remarks: e.target.value }),
+      onOmItemType: (e) => setOm({ itemType: e.target.value }), onOmReceived: (e) => setOm({ received: e.target.value }), onOmOffer: (e) => setOm({ offer: e.target.value }),
+      omItemTypeOptions: [...new Set([...(this.state.dbOMs || []).map(o => o.itemType).filter(Boolean), 'Cosmetics', 'Skincare', 'Haircare', 'Fragrance', 'Accessories'])].map(name => ({ name })), onOmStatus: (e) => setOm({ status: e.target.value }), onOmRemarks: (e) => setOm({ remarks: e.target.value }),
       saveOmLabel: this.state.savingOM ? 'Saving…' : (this.state.omDraft && this.state.omDraft.origId ? 'Save changes' : 'Save order'),
       saveOM: async () => {
         if (this.state.savingOM) return;
@@ -4912,21 +4956,35 @@ class Component extends DCLogic {
         const fail = (m) => this.setState({ omError: m });
         const inv = String(d.invoice || '').trim();
         if (!d.date) return fail('Please set the date.');
-        if (!inv) return fail('Please enter the invoice no.');
+        if (!inv) return fail('Please enter the order number.');
         const total = String(d.total || '').trim() === '' ? 0 : Number(d.total);
         if (!isFinite(total) || total < 0) return fail('Total amount must be a number, 0 or more.');
-        if (d.expected && d.expected < d.date) return fail('The expected delivery date can\'t be before the order date.');
+        if (d.expected && d.expected < d.date) return fail('The expected arrival date can\'t be before the order date.');
         const dup = (this.state.dbOMs || []).find(o => o.id !== d.origId && o.invoice.trim().toLowerCase() === inv.toLowerCase() && o.source.trim().toLowerCase() === String(d.source || '').trim().toLowerCase());
         if (dup) return fail('Invoice ' + inv + ' is already being tracked (' + dup.id + ').');
         const sb = window.getSupabase(), isEdit = !!d.origId, id = isEdit ? d.origId : this.nextOmId();
-        const row = { order_date: d.date, invoice_no: inv, source: String(d.source || '').trim() || null, payment_mode: d.payMode || 'cash', total_amount: Math.round(total * 100) / 100, expected_date: d.expected || null, package_size: String(d.size || '').trim() || null, status: d.status || 'ordered', remarks: String(d.remarks || '').trim() || null };
+        const row = { order_date: d.date, invoice_no: inv, source: String(d.source || '').trim() || null, payment_mode: d.payMode || 'cash', total_amount: Math.round(total * 100) / 100, expected_date: d.expected || null, status: d.status || 'ordered', remarks: String(d.remarks || '').trim() || null };
+        const itemT = String(d.itemType || '').trim(), offerC = String(d.offer || '').trim();
+        if (d.received) row.received_date = d.received; else if (isEdit) row.received_date = null;
+        if (itemT) row.item_type = itemT; else if (isEdit) row.item_type = null;
+        if (offerC) row.offer_code = offerC; else if (isEdit) row.offer_code = null;
         this.setState({ savingOM: true, omError: '' });
         const res = isEdit ? await sb.from('order_monitor').update(row).eq('id', id) : await sb.from('order_monitor').insert({ id, ...row });
         this.setState({ savingOM: false });
-        if (res.error) { if (this.isMissingTable(res.error)) { this.setState({ omMissing: true }); return fail('Run madzo-update-11.sql in Supabase first, then save again.'); } return fail(res.error.message); }
+        if (res.error) { if (this.isMissingTable(res.error)) { this.setState({ omMissing: true }); return fail('Run madzo-update-11.sql in Supabase first, then save again.'); } if (/received_date|item_type|offer_code/.test(res.error.message || '')) return fail('Received date, Item type and Offer code need a one-time database update — run madzo-update-14.sql in Supabase, then save again.'); return fail(res.error.message); }
         this.setState({ omDraft: null, omError: '', omMsg: 'Order ' + inv + (isEdit ? ' updated.' : ' added to monitoring.') });
         this.loadOMs();
       },
+      omF: omFx,
+      omFNo: omFx.no || '', omFDate: omFx.date || '', omFPrice: omFx.price || '', omFExp: omFx.exp || '', omFRecv: omFx.recv || '', omFItem: omFx.item || '', omFRemarks: omFx.remarks || '', omFOffer: omFx.offer || '',
+      onOmFNo: (e) => this.setState(s => ({ omF: { ...s.omF, no: e.target.value }, omPage: 1 })), onOmFDate: (e) => this.setState(s => ({ omF: { ...s.omF, date: e.target.value }, omPage: 1 })),
+      onOmFPrice: (e) => this.setState(s => ({ omF: { ...s.omF, price: e.target.value }, omPage: 1 })), onOmFExp: (e) => this.setState(s => ({ omF: { ...s.omF, exp: e.target.value }, omPage: 1 })),
+      onOmFRecv: (e) => this.setState(s => ({ omF: { ...s.omF, recv: e.target.value }, omPage: 1 })), onOmFItem: (e) => this.setState(s => ({ omF: { ...s.omF, item: e.target.value }, omPage: 1 })),
+      onOmFRemarks: (e) => this.setState(s => ({ omF: { ...s.omF, remarks: e.target.value }, omPage: 1 })), onOmFOffer: (e) => this.setState(s => ({ omF: { ...s.omF, offer: e.target.value }, omPage: 1 })),
+      onOmFSup: (e) => this.setState(s => ({ omF: { ...s.omF, sup: e.target.value }, omPage: 1 })), onOmFPay: (e) => this.setState(s => ({ omF: { ...s.omF, pay: e.target.value }, omPage: 1 })),
+      omFSupOpts: [{ v: 'all', l: 'All' }, ...[...new Set((this.state.dbOMs || []).map(o => o.source).filter(Boolean))].sort((a, b) => a.localeCompare(b)).map(n => ({ v: n, l: n }))].map(x => ({ ...x, selected: x.v === (omFx.sup || 'all') })),
+      omFPayOpts: [{ v: 'all', l: 'All' }, { v: 'cash', l: 'Cash' }, { v: 'card', l: 'Card' }, { v: 'credit', l: 'Credit' }].map(x => ({ ...x, selected: x.v === (omFx.pay || 'all') })),
+      omClearFilters: () => this.setState({ omF: { no: '', date: '', sup: 'all', pay: 'all', price: '', exp: '', recv: '', item: '', remarks: '', offer: '' }, omStatusF: 'all', omSearch: '', omPage: 1 }),
       omSearch: this.state.omSearch, onOmSearch: (e) => this.setState({ omSearch: e.target.value, omPage: 1 }),
       omStatusF: omSF, onOmStatusF: (e) => this.setState({ omStatusF: e.target.value, omPage: 1 }),
       omCountLabel: omAll.length + (omAll.length === 1 ? ' order' : ' orders') + (omAll.length !== (this.state.dbOMs || []).length ? ' found' : ''),
@@ -4935,12 +4993,12 @@ class Component extends DCLogic {
       pagedOMs: omAll.slice((omPager.page - 1) * PAGE_SIZE, omPager.page * PAGE_SIZE).map(o => {
         const m = omMeta(o.status), late = !!o.expected && o.expected < omToday && (o.status === 'ordered' || o.status === 'processed' || o.status === 'shipped' || o.status === 'delayed');
         return {
-          id: o.id, invoice: o.invoice, source: o.source || '—', remarks: o.remarks || '—', size: o.size || '—',
+          id: o.id, invoice: o.invoice, source: o.source || '—', remarks: o.remarks || '—', itemType: o.itemType || '—', offer: o.offer || '—', recvLabel: omDateLabel(o.received), si: String((/(\d+)$/.exec(o.id || '') || [])[1] ? parseInt(/(\d+)$/.exec(o.id)[1], 10) : ''), rowBg: (omAll.indexOf(o) % 2 === 0) ? '#FDF9F4' : '#F7F1FA',
           dateLabel: omDateLabel(o.date), expLabel: omDateLabel(o.expected) + (late ? ' ⚠' : ''), expColor: late ? '#B03A2E' : '#2E2A26', expWeight: late ? '700' : '400',
           payLabel: ({ cash: 'Cash', card: 'Card', credit: 'Credit' })[o.payMode] || o.payMode, totalLabel: Number(o.total || 0).toFixed(2) + ' QAR',
           status: o.status, badgeBg: m.bg, badgeColor: m.c, statusOptions: OM_STATUS.map(s => ({ v: s.v, l: s.l, selected: s.v === o.status })),
-          onStatus: async (e) => { const v = e.target.value; await window.getSupabase().from('order_monitor').update({ status: v }).eq('id', o.id); this.loadOMs(); },
-          edit: () => this.setState({ omError: '', omMsg: '', omDraft: { origId: o.id, id: o.id, date: o.date || today, invoice: o.invoice, source: o.source, payMode: o.payMode || 'cash', total: o.total ? String(o.total) : '', expected: o.expected || '', size: o.size, status: o.status, remarks: o.remarks } }, () => window.scrollTo(0, 0)),
+          onStatus: async (e) => { const v = e.target.value; const patch = { status: v }; if (v === 'delivered' && !o.received) patch.received_date = today; let r = await window.getSupabase().from('order_monitor').update(patch).eq('id', o.id); if (r.error && patch.received_date) r = await window.getSupabase().from('order_monitor').update({ status: v }).eq('id', o.id); this.loadOMs(); },
+          edit: () => this.setState({ omError: '', omMsg: '', omDraft: { origId: o.id, id: o.id, date: o.date || today, invoice: o.invoice, source: o.source, payMode: o.payMode || 'cash', total: o.total ? String(o.total) : '', expected: o.expected || '', itemType: o.itemType, received: o.received, offer: o.offer, status: o.status, remarks: o.remarks } }, () => window.scrollTo(0, 0)),
           confirming: this.state.omConfirmDel === o.id, askRemove: () => this.setState({ omConfirmDel: o.id }), cancelRemove: () => this.setState({ omConfirmDel: null }),
           confirmRemove: async () => { const r = await window.getSupabase().from('order_monitor').delete().eq('id', o.id); this.setState({ omConfirmDel: null, omMsg: r.error ? '' : 'Entry for ' + o.invoice + ' deleted.', omError: r.error ? r.error.message : '' }); this.loadOMs(); }
         };
@@ -4962,7 +5020,7 @@ class Component extends DCLogic {
       onGrnDate: (e) => setGrn({ date: e.target.value }), onGrnPayMode: (e) => setGrn({ payMode: e.target.value }),
       onGrnRemarks: (e) => setGrn({ remarks: e.target.value }), onGrnUpdatePrices: (e) => setGrn({ updatePrices: !!e.target.checked }),
       grnItems: grnLines, grnAddLine: () => this.setState(s => ({ grnDraft: { ...s.grnDraft, items: s.grnDraft.items.concat([grnBlank()]) } })),
-      grnCodeOptions: prods.map(p => ({ sku: p.sku, label: p.name })), grnNameOptions: prods.map(p => ({ name: p.name })),
+      grnCodeOptions: prods.map(p => ({ sku: p.sku, label: (p.brand ? p.brand + ' · ' : '') + p.name })), grnNameOptions: prods.map(p => ({ name: p.name, brand: p.brand || '' })),
       grnTotal: grnForeignNow ? (grnTotalNum.toFixed(2) + ' ' + grnCur + (grnRateNum > 0 ? '  ≈  ' + (grnTotalNum * grnRateNum).toFixed(2) + ' QAR' : '  (enter the exchange rate)')) : (grnTotalNum.toFixed(2) + ' QAR'),
       grnForeign: grnForeignNow, grnBuyHead: 'Buy price (' + grnCur + ')', grnTotalHead: 'Total (' + grnCur + ')',
       grnRateLabel: '1 ' + grnCur + ' = ? QAR',
@@ -5055,7 +5113,7 @@ class Component extends DCLogic {
           itemCount: String((g.items || []).length), totalLabel: (g.currency && g.currency !== 'QAR' ? Number(g.totalOrig || 0).toFixed(2) + ' ' + g.currency + ' (≈ ' + Number(g.total || 0).toFixed(2) + ' QAR)' : Number(g.total || 0).toFixed(2) + ' QAR'),
           open, toggleLabel: open ? 'Hide items' : 'Show items', hasRemarks: !!g.remarks, remarks: g.remarks,
           toggle: () => this.setState(s => ({ grnOpen: { ...s.grnOpen, [g.id]: !(s.grnOpen || {})[g.id] } })),
-          lines: (g.items || []).map(l => ({ name: l.name || l.code, code: l.code, qty: l.qty || 0, free: l.free || 0, buy: Number(l.buy || 0).toFixed(2) + (g.currency && g.currency !== 'QAR' ? ' ' + g.currency : ''), sell: l.sell || 0, expiry: l.expiry || '—' })),
+          lines: (g.items || []).map(l => ({ brand: (prods.find(pp => pp.sku === l.code) || {}).brand || '', name: l.name || l.code, code: l.code, qty: l.qty || 0, free: l.free || 0, buy: Number(l.buy || 0).toFixed(2) + (g.currency && g.currency !== 'QAR' ? ' ' + g.currency : ''), sell: l.sell || 0, expiry: l.expiry || '—' })),
           edit: () => grnOpenForm(g),
           confirming, askRemove: () => this.setState({ grnConfirmDel: g.id }), cancelRemove: () => this.setState({ grnConfirmDel: null }),
           confirmRemove: async () => {
@@ -5199,7 +5257,7 @@ class Component extends DCLogic {
       poIsReturn, poIsPurchase: !poIsReturn,
       onPORefPo: setPO('refPo'),
       poReturnLabel: '+ Purchase return',
-      poProductCodes: prods.map(p => ({ sku: p.sku, label: p.name })),
+      poProductCodes: prods.map(p => ({ sku: p.sku, label: (p.brand ? p.brand + ' · ' : '') + p.name })),
       newPOReturn: () => {
         this.setState({
           showPOForm: true, poFormMode: 'new', poError: '', editingPOOriginalId: null,
@@ -5208,7 +5266,7 @@ class Component extends DCLogic {
         this.fetchNextPoId().then((id) => this.setState(s => (s.newPO.type === 'return' ? { newPO: { ...s.newPO, id: s.newPO.id || String(id).replace(/^PO-/i, 'PR-') } } : null)));
       },
       poItems,
-      poProductOptions: prods.map(p => ({ name: p.name })),
+      poProductOptions: prods.map(p => ({ name: p.name, brand: p.brand || '' })),
       supplierOptions: suppliers.map(s => ({ name: s.name })),
       poSupplierMatched: !!findSupplierByName(npo.supplier),
       poAmount: npoTotals.amount.toFixed(2) + ' QAR',
@@ -5435,10 +5493,10 @@ class Component extends DCLogic {
       onNOZone: setNO('zone'), onNOAddress: setNO('address'), onNONotes: setNO('notes'), onNOStatus: setNO('status'),
       onNOPaymentStatus: setNO('paymentStatus'),
       onNOPayMethod: setNO('payMethod'),
-      prodOptions: prods.map(p => ({ sku: p.sku, label: p.name + ' — ' + p.price + ' QAR' })),
+      prodOptions: prods.map(p => ({ sku: p.sku, label: (p.brand ? p.brand + ' ' : '') + p.name + ' — ' + p.price + ' QAR' })),
       pickNO: pickVal('no'), onPickProduct: pkNO.onChange, onPickProductKey: pkNO.onKey,
       pickNOF: pickVal('nof'), onPickFreeProduct: pkNOF.onChange, onPickFreeProductKey: pkNOF.onKey,
-      freeProdOptions: prods.filter(p => p.freeItem).map(p => ({ sku: p.sku, label: p.name })),
+      freeProdOptions: prods.filter(p => p.freeItem).map(p => ({ sku: p.sku, label: (p.brand ? p.brand + ' ' : '') + p.name })),
       noFreeProds: !prods.some(p => p.freeItem),
 
       addOrderItem: () => pushItem({ name: '', qty: 1, price: '' }),

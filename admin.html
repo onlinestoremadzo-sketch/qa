@@ -786,7 +786,7 @@
                 <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px;">
                   <div onClick="{{ o.toggleDetails }}" style="display: grid; grid-template-columns: 100px 88px 170px 110px 96px 100px 116px 110px 96px 74px; gap: 10px; align-items: center; padding: 9px 14px; cursor: pointer;">
                     <span style="font-size: 12.5px; font-weight: 600; color: #2E2A26; white-space: nowrap;">{{ o.dateLabel }}</span>
-                    <span style="font-size: 12px; color: #5C554B; white-space: nowrap;">{{ o.metaId }}</span>
+                    <span style="font-size: 12px; color: #5C554B; overflow-wrap: anywhere; word-break: break-word; line-height: 1.25;">{{ o.metaId }}</span>
                     <span style="font-weight: 600; font-size: 13px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ o.name }}</span>
                     <span style="font-size: 12.5px; color: #2E2A26;">{{ o.platform }}</span>
                     <span style="font-weight: 600; font-size: 13px; color: #2E2A26;">{{ o.total }}</span>
@@ -988,7 +988,7 @@
               <sc-if value="{{ repNoRows }}" hint-placeholder-val="{{ false }}"><p style="color: #857D72; text-align: center; padding: 26px 0; margin: 0;">No records match these filters.</p></sc-if>
               <sc-for list="{{ repRows }}" as="rr" hint-placeholder-count="6">
                 <div style="display: grid; grid-template-columns: {{ repGrid }}; gap: 10px; align-items: center; background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 10px; padding: 9px 14px; font-size: 12.5px; color: #2E2A26;">
-                  <sc-for list="{{ rr.cells }}" as="rc" hint-placeholder-count="6"><span style="text-align: {{ rc.align }}; font-weight: {{ rc.w }}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ rc.t }}</span></sc-for>
+                  <sc-for list="{{ rr.cells }}" as="rc" hint-placeholder-count="6"><span style="text-align: {{ rc.align }}; font-weight: {{ rc.w }}; overflow-wrap: anywhere; word-break: break-word; line-height: 1.25;">{{ rc.t }}</span></sc-for>
                 </div>
               </sc-for>
               <sc-if value="{{ repMore }}" hint-placeholder-val="{{ false }}"><p style="color: #A9A091; text-align: center; font-size: 12px; margin: 4px 0 0;">{{ repMoreText }}</p></sc-if>
@@ -1316,8 +1316,8 @@
                 <sc-for list="{{ pagedGRNs }}" as="g" hint-placeholder-count="4">
                   <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px;">
                     <div style="display: grid; grid-template-columns: 100px 130px minmax(140px,1fr) 100px 90px 70px 100px; gap: 10px; align-items: center; font-size: 13px; color: #2E2A26;">
-                      <span style="font-size: 12px; font-weight: 600; color: #8A7F70;">{{ g.id }}</span>
-                      <span style="font-weight: 600;">{{ g.invoice }}</span>
+                      <span style="font-size: 12px; font-weight: 600; color: #8A7F70; overflow-wrap: anywhere; word-break: break-word; line-height: 1.25;">{{ g.id }}</span>
+                      <span style="font-weight: 600; overflow-wrap: anywhere; word-break: break-word; line-height: 1.25;">{{ g.invoice }}</span>
                       <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ g.supplier }}</span>
                       <span>{{ g.dateLabel }}</span>
                       <span>{{ g.payLabel }}</span>
@@ -1388,9 +1388,24 @@
                       <option value="cash">Cash</option><option value="card">Card</option><option value="credit">Credit</option>
                     </select>
                   </label>
-                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Price (QAR)
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">{{ omPriceLabel }}
                     <input value="{{ omD.total }}" onChange="{{ onOmTotal }}" type="number" min="0" step="0.01" aria-label="Order total amount" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                   </label>
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Currency
+                    <select value="{{ omD.currency }}" onChange="{{ onOmCurrency }}" aria-label="Order currency" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                      <sc-for list="{{ omCurrencyOpts }}" as="cu" hint-placeholder-count="4"><option value="{{ cu.v }}" selected="{{ cu.selected }}">{{ cu.l }}</option></sc-for>
+                    </select>
+                  </label>
+                  <sc-if value="{{ omForeign }}" hint-placeholder-val="{{ false }}">
+                    <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">{{ omRateLabel }}
+                      <input value="{{ omD.rate }}" onChange="{{ onOmRate }}" type="number" min="0" step="0.0001" aria-label="Order exchange rate" placeholder="e.g. 3.64" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
+                    </label>
+                  </sc-if>
+                  <sc-if value="{{ omForeign }}" hint-placeholder-val="{{ false }}">
+                    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">In QAR
+                      <div style="padding: 10px 12px; font-size: 14px; font-weight: 600; color: #2E2A26;">{{ omQarNote }}</div>
+                    </div>
+                  </sc-if>
                   <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Expected arrival
                     <input value="{{ omD.expected }}" onChange="{{ onOmExpected }}" type="date" aria-label="Order expected delivery date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                   </label>
@@ -1450,7 +1465,7 @@
                   <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px;">
                     <div style="display: grid; grid-template-columns: 44px 118px 98px minmax(110px,1fr) 78px 92px 108px 136px 98px 96px minmax(100px,1fr) 88px 80px; gap: 10px; align-items: center; font-size: 12.5px; color: #2E2A26;">
                       <span style="color: #857D72;">{{ om.si }}</span>
-                      <span style="font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ om.invoice }}</span>
+                      <span style="font-weight: 700; overflow-wrap: anywhere; word-break: break-word; line-height: 1.25;">{{ om.invoice }}</span>
                       <span>{{ om.dateLabel }}</span>
                       <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ om.source }}</span>
                       <span>{{ om.payLabel }}</span>
@@ -1462,7 +1477,7 @@
                       <span>{{ om.recvLabel }}</span>
                       <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ om.itemType }}</span>
                       <span style="color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ om.remarks }}">{{ om.remarks }}</span>
-                      <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ om.offer }}</span>
+                      <span style="overflow-wrap: anywhere; word-break: break-word; line-height: 1.25;">{{ om.offer }}</span>
                       <span style="display: flex; align-items: center; gap: 6px; justify-self: end;">
                         <button onClick="{{ om.edit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 4px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">Edit</button>
                         <button onClick="{{ om.askRemove }}" aria-label="Delete order" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px;" style-hover="color: #C0392B;">×</button>
@@ -1514,7 +1529,7 @@
               </div>
               <sc-for list="{{ pagedInvStock }}" as="p" hint-placeholder-count="8">
                 <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; display: grid; grid-template-columns: 90px 40px minmax(150px,1fr) 100px 140px 110px; gap: 10px; align-items: center; padding: 8px 14px;">
-                  <span style="font-size: 11.5px; font-weight: 600; color: #461610; direction: ltr; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.sku }}</span>
+                  <span style="font-size: 11.5px; font-weight: 600; color: #461610; direction: ltr; overflow-wrap: anywhere; word-break: break-word; line-height: 1.25;">{{ p.sku }}</span>
                   <image-slot id="stk-{{ p.sku }}" src="{{ p.img }}" shape="rounded" radius="8" placeholder="Photo" style="width: 36px; height: 36px; display: block; background: #F1ECE2;"></image-slot>
                   <span style="font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ p.name }}">{{ p.name }}</span>
                   <span style="font-size: 12px; color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.brand }}</span>
@@ -1613,7 +1628,7 @@
               <sc-for list="{{ pagedBatches }}" as="b2" hint-placeholder-count="6">
                 <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px;">
                   <div style="display: grid; grid-template-columns: 78px minmax(120px,1fr) 84px 44px 90px 62px 62px 96px 90px 84px; gap: 10px; align-items: center; padding: 9px 14px;">
-                    <span style="font-size: 11.5px; font-weight: 600; color: #461610; direction: ltr; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ b2.sku }}</span>
+                    <span style="font-size: 11.5px; font-weight: 600; color: #461610; direction: ltr; overflow-wrap: anywhere; word-break: break-word; line-height: 1.25;">{{ b2.sku }}</span>
                     <span style="display: flex; align-items: center; gap: 6px; min-width: 0;">
                       <sc-if value="{{ b2.hasSourceTag }}" hint-placeholder-val="{{ false }}">
                         <span style="font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 999px; background: {{ b2.sourceTagBg }}; color: {{ b2.sourceTagColor }}; flex: none;">{{ b2.sourceTag }}</span>
@@ -1622,7 +1637,7 @@
                     </span>
                     <span style="font-size: 12px; color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ b2.brand }}">{{ b2.brand }}</span>
                     <span style="font-size: 13px; font-weight: 600; color: #2E2A26;">{{ b2.qty }}</span>
-                    <span style="font-size: 12px; color: #5C554B; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ b2.receivedTitle }}">{{ b2.batchNo }}</span>
+                    <span style="font-size: 12px; color: #5C554B; overflow-wrap: anywhere; word-break: break-word; line-height: 1.25;" title="{{ b2.receivedTitle }}">{{ b2.batchNo }}</span>
                     <span style="font-size: 12px; color: #5C554B;">{{ b2.buyPrice }}</span>
                     <span style="font-size: 12px; color: #5C554B;">{{ b2.sellPrice }}</span>
                     <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ b2.expiryBg }}; color: {{ b2.expiryColor }}; text-align: center; white-space: nowrap;">{{ b2.expiryLabel }}</span>
@@ -2715,7 +2730,7 @@ class Component extends DCLogic {
       if (error) { if (this.isMissingTable(error)) this.setState({ omMissing: true, dbOMs: [] }); else console.warn('Madzo admin: could not load order monitoring', error); return; }
       this.setState({ omMissing: false, dbOMs: (data || []).map(o => ({
         id: o.id, date: o.order_date || '', invoice: o.invoice_no || '', source: o.source || '', payMode: o.payment_mode || 'cash',
-        total: Number(o.total_amount) || 0, expected: o.expected_date || '', size: o.package_size || '', status: o.status || 'ordered', remarks: o.remarks || '',
+        total: Number(o.total_amount) || 0, currency: o.currency || 'QAR', rate: Number(o.exchange_rate) || 1, totalOrig: o.total_original != null ? Number(o.total_original) : (Number(o.total_amount) || 0), expected: o.expected_date || '', size: o.package_size || '', status: o.status || 'ordered', remarks: o.remarks || '',
         itemType: o.item_type || o.package_size || '', received: o.received_date || '', offer: o.offer_code || '', ts: o.created_at ? new Date(o.created_at).getTime() : 0
       })) });
     } catch (e) { console.warn('Madzo admin: could not load order monitoring', e); }
@@ -4933,8 +4948,8 @@ class Component extends DCLogic {
       .filter(o => !lcs(omFx.remarks) || lcs(o.remarks).includes(lcs(omFx.remarks)))
       .filter(o => !lcs(omFx.offer) || lcs(o.offer).includes(lcs(omFx.offer)));
     const omPager = makePager(omAll.length, 'omPage');
-    const omBlankDraft = () => ({ origId: null, id: this.nextOmId(), date: today, invoice: '', source: '', payMode: 'cash', total: '', expected: '', itemType: '', received: '', offer: '', status: 'ordered', remarks: '' });
-    const omD = this.state.omDraft || { date: '', invoice: '', source: '', payMode: 'cash', total: '', expected: '', itemType: '', received: '', offer: '', status: 'ordered', remarks: '' };
+    const omBlankDraft = () => ({ origId: null, id: this.nextOmId(), date: today, invoice: '', source: '', payMode: 'cash', currency: 'QAR', rate: '', total: '', expected: '', itemType: '', received: '', offer: '', status: 'ordered', remarks: '' });
+    const omD = this.state.omDraft || { date: '', invoice: '', source: '', payMode: 'cash', currency: 'QAR', rate: '', total: '', expected: '', itemType: '', received: '', offer: '', status: 'ordered', remarks: '' };
     const setOm = (patch) => this.setState(s => ({ omDraft: { ...s.omDraft, ...patch }, omError: '' }));
     const omDateLabel = (d) => d ? new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '—';
     const omOpen = (this.state.dbOMs || []).filter(o => o.status === 'ordered' || o.status === 'processed' || o.status === 'shipped' || o.status === 'delayed');
@@ -4954,6 +4969,12 @@ class Component extends DCLogic {
       omStatusFilterOptions: [{ v: 'all', l: 'All statuses' }].concat(OM_STATUS.map(s => ({ v: s.v, l: s.l }))).map(s => ({ ...s, selected: s.v === omSF })),
       omSourceOptions: [...new Set([...(this.state.dbOMs || []).map(o => o.source).filter(Boolean), ...(this.state.dbSuppliers || []).map(s => s.name)])].map(name => ({ name })),
       onOmDate: (e) => setOm({ date: e.target.value }), onOmInvoice: (e) => setOm({ invoice: e.target.value }), onOmSource: (e) => setOm({ source: e.target.value }),
+      omPriceLabel: 'Price (' + (omD.currency || 'QAR') + ')',
+      omForeign: (omD.currency || 'QAR') !== 'QAR', omRateLabel: '1 ' + (omD.currency || 'QAR') + ' = ? QAR',
+      omQarNote: (Number(omD.rate) > 0 ? (Number(omD.total || 0) * Number(omD.rate)).toFixed(2) + ' QAR' : '(enter the exchange rate)'),
+      omCurrencyOpts: GRN_CURRENCIES.map(c => ({ v: c.code, l: c.code === 'QAR' ? 'QAR — Qatari riyal' : c.code, selected: c.code === (omD.currency || 'QAR') })),
+      onOmCurrency: (e) => { const v = e.target.value, c = GRN_CURRENCIES.find(x => x.code === v); setOm({ currency: v, rate: v === 'QAR' ? '' : (c && c.rate ? String(c.rate) : '') }); },
+      onOmRate: (e) => setOm({ rate: e.target.value }),
       onOmPayMode: (e) => setOm({ payMode: e.target.value }), onOmTotal: (e) => setOm({ total: e.target.value }), onOmExpected: (e) => setOm({ expected: e.target.value }),
       onOmItemType: (e) => setOm({ itemType: e.target.value }), onOmReceived: (e) => setOm({ received: e.target.value }), onOmOffer: (e) => setOm({ offer: e.target.value }),
       omItemTypeOptions: [...new Set([...(this.state.dbOMs || []).map(o => o.itemType).filter(Boolean), 'Cosmetics', 'Skincare', 'Haircare', 'Fragrance', 'Accessories'])].map(name => ({ name })), onOmStatus: (e) => setOm({ status: e.target.value }), onOmRemarks: (e) => setOm({ remarks: e.target.value }),
@@ -4965,21 +4986,26 @@ class Component extends DCLogic {
         const inv = String(d.invoice || '').trim();
         if (!d.date) return fail('Please set the date.');
         if (!inv) return fail('Please enter the order number.');
-        const total = String(d.total || '').trim() === '' ? 0 : Number(d.total);
-        if (!isFinite(total) || total < 0) return fail('Total amount must be a number, 0 or more.');
+        const totalOrig = String(d.total || '').trim() === '' ? 0 : Number(d.total);
+        if (!isFinite(totalOrig) || totalOrig < 0) return fail('Price must be a number, 0 or more.');
+        const curS = d.currency || 'QAR', foreign = curS !== 'QAR', rate = foreign ? Number(d.rate) : 1;
+        if (foreign && !(rate > 0)) return fail('Enter the exchange rate: how many QAR is 1 ' + curS + '.');
+        const total = totalOrig * rate;
         if (d.expected && d.expected < d.date) return fail('The expected arrival date can\'t be before the order date.');
         const dup = (this.state.dbOMs || []).find(o => o.id !== d.origId && o.invoice.trim().toLowerCase() === inv.toLowerCase() && o.source.trim().toLowerCase() === String(d.source || '').trim().toLowerCase());
         if (dup) return fail('Invoice ' + inv + ' is already being tracked (' + dup.id + ').');
         const sb = window.getSupabase(), isEdit = !!d.origId, id = isEdit ? d.origId : this.nextOmId();
         const row = { order_date: d.date, invoice_no: inv, source: String(d.source || '').trim() || null, payment_mode: d.payMode || 'cash', total_amount: Math.round(total * 100) / 100, expected_date: d.expected || null, status: d.status || 'ordered', remarks: String(d.remarks || '').trim() || null };
         const itemT = String(d.itemType || '').trim(), offerC = String(d.offer || '').trim();
+        if (foreign) { row.currency = curS; row.exchange_rate = rate; row.total_original = Math.round(totalOrig * 100) / 100; }
+        else if (isEdit) { row.currency = 'QAR'; row.exchange_rate = 1; row.total_original = null; }
         if (d.received) row.received_date = d.received; else if (isEdit) row.received_date = null;
         if (itemT) row.item_type = itemT; else if (isEdit) row.item_type = null;
         if (offerC) row.offer_code = offerC; else if (isEdit) row.offer_code = null;
         this.setState({ savingOM: true, omError: '' });
         const res = isEdit ? await sb.from('order_monitor').update(row).eq('id', id) : await sb.from('order_monitor').insert({ id, ...row });
         this.setState({ savingOM: false });
-        if (res.error) { if (this.isMissingTable(res.error)) { this.setState({ omMissing: true }); return fail('Run madzo-update-11.sql in Supabase first, then save again.'); } if (/received_date|item_type|offer_code/.test(res.error.message || '')) return fail('Received date, Item type and Offer code need a one-time database update — run madzo-update-14.sql in Supabase, then save again.'); return fail(res.error.message); }
+        if (res.error) { if (this.isMissingTable(res.error)) { this.setState({ omMissing: true }); return fail('Run madzo-update-11.sql in Supabase first, then save again.'); } if (/currency|exchange_rate|total_original/.test(res.error.message || '')) return fail('Other currencies need a one-time database update — run madzo-update-16.sql in Supabase, then save again.'); if (/received_date|item_type|offer_code/.test(res.error.message || '')) return fail('Received date, Item type and Offer code need a one-time database update — run madzo-update-14.sql in Supabase, then save again.'); return fail(res.error.message); }
         this.setState({ omDraft: null, omError: '', omMsg: 'Order ' + inv + (isEdit ? ' updated.' : ' added to monitoring.') });
         this.loadOMs();
       },
@@ -5003,10 +5029,10 @@ class Component extends DCLogic {
         return {
           id: o.id, invoice: o.invoice, source: o.source || '—', remarks: o.remarks || '—', itemType: o.itemType || '—', offer: o.offer || '—', recvLabel: omDateLabel(o.received), si: String((/(\d+)$/.exec(o.id || '') || [])[1] ? parseInt(/(\d+)$/.exec(o.id)[1], 10) : ''), rowBg: (omAll.indexOf(o) % 2 === 0) ? '#FDF9F4' : '#F7F1FA',
           dateLabel: omDateLabel(o.date), expLabel: omDateLabel(o.expected) + (late ? ' ⚠' : ''), expColor: late ? '#B03A2E' : '#2E2A26', expWeight: late ? '700' : '400',
-          payLabel: ({ cash: 'Cash', card: 'Card', credit: 'Credit' })[o.payMode] || o.payMode, totalLabel: Number(o.total || 0).toFixed(2) + ' QAR',
+          payLabel: ({ cash: 'Cash', card: 'Card', credit: 'Credit' })[o.payMode] || o.payMode, totalLabel: (o.currency && o.currency !== 'QAR') ? Number(o.totalOrig || 0).toFixed(2) + ' ' + o.currency + ' (≈ ' + Number(o.total || 0).toFixed(2) + ' QAR)' : Number(o.total || 0).toFixed(2) + ' QAR',
           status: o.status, badgeBg: m.bg, badgeColor: m.c, statusOptions: OM_STATUS.map(s => ({ v: s.v, l: s.l, selected: s.v === o.status })),
           onStatus: async (e) => { const v = e.target.value; const patch = { status: v }; if (v === 'delivered' && !o.received) patch.received_date = today; let r = await window.getSupabase().from('order_monitor').update(patch).eq('id', o.id); if (r.error && patch.received_date) r = await window.getSupabase().from('order_monitor').update({ status: v }).eq('id', o.id); this.loadOMs(); },
-          edit: () => this.setState({ omError: '', omMsg: '', omDraft: { origId: o.id, id: o.id, date: o.date || today, invoice: o.invoice, source: o.source, payMode: o.payMode || 'cash', total: o.total ? String(o.total) : '', expected: o.expected || '', itemType: o.itemType, received: o.received, offer: o.offer, status: o.status, remarks: o.remarks } }, () => window.scrollTo(0, 0)),
+          edit: () => this.setState({ omError: '', omMsg: '', omDraft: { origId: o.id, id: o.id, date: o.date || today, invoice: o.invoice, source: o.source, payMode: o.payMode || 'cash', currency: o.currency || 'QAR', rate: (o.currency && o.currency !== 'QAR') ? String(o.rate) : '', total: (o.currency && o.currency !== 'QAR') ? String(o.totalOrig) : (o.total ? String(o.total) : ''), expected: o.expected || '', itemType: o.itemType, received: o.received, offer: o.offer, status: o.status, remarks: o.remarks } }, () => window.scrollTo(0, 0)),
           confirming: this.state.omConfirmDel === o.id, askRemove: () => this.setState({ omConfirmDel: o.id }), cancelRemove: () => this.setState({ omConfirmDel: null }),
           confirmRemove: async () => { const r = await window.getSupabase().from('order_monitor').delete().eq('id', o.id); this.setState({ omConfirmDel: null, omMsg: r.error ? '' : 'Entry for ' + o.invoice + ' deleted.', omError: r.error ? r.error.message : '' }); this.loadOMs(); }
         };

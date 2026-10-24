@@ -261,6 +261,8 @@
           <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px;">
             <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Products</h1>
             <span style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button onClick="{{ exportProducts }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 8px 16px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #461610; color: #FDF9F4;">⭳ Export</button>
+              <label style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 8px 16px; font-size: 12.5px; cursor: pointer; font-weight: 600; display: inline-block;" style-hover="background: #461610; color: #FDF9F4;">⭱ Import<input type="file" accept=".csv,text/csv" onChange="{{ onImportFile }}" aria-label="Import products file" style="display: none;"></label>
               <button onClick="{{ toggleAddForm }}" style="background: #461610; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #39120D;">{{ addFormLabel }}</button>
             </span>
           </div>
@@ -270,7 +272,33 @@
               <button onClick="{{ translateAllMissing }}" disabled="{{ bulkTranslating }}" style="background: none; border: 1px solid #C9A45F; color: #7A5F27; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer; font-weight: 600;">{{ bulkTranslateLabel }}</button>
             </div>
           </sc-if>
-          <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Changes apply to the storefront immediately. Set the stock count right in the <strong>Stock</strong> column (type a number and press Enter, or use − / +). Prices are changed from <strong>Edit</strong>.</p>
+          <sc-if value="{{ impMsg }}" hint-placeholder-val="{{ false }}"><div style="background: #E3F3E8; border: 1px solid #B6DEC3; border-radius: 12px; padding: 10px 14px; font-size: 13px; color: #1F6B3A; max-width: 760px; margin: 8px 0 14px;">{{ impMsg }}</div></sc-if>
+          <sc-if value="{{ impOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="position: fixed; inset: 0; background: rgba(46,42,38,.55); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px;">
+              <div style="background: #FDF9F4; width: 100%; max-width: 620px; max-height: 88vh; overflow-y: auto; border-radius: 16px; box-shadow: 0 24px 60px rgba(0,0,0,.35); padding: 22px; display: flex; flex-direction: column; gap: 12px;">
+                <h2 style="font-size: 17px; margin: 0;">Import products</h2>
+                <div style="font-size: 13px; color: #5C554B;">File: <strong>{{ impFile }}</strong></div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                  <span style="background: #E3F3E8; color: #1F6B3A; border-radius: 999px; padding: 5px 12px; font-size: 12.5px; font-weight: 600;">{{ impNewCount }} new</span>
+                  <span style="background: #EFE3D3; color: #461610; border-radius: 999px; padding: 5px 12px; font-size: 12.5px; font-weight: 600;">{{ impUpdCount }} to update</span>
+                  <span style="background: #FCE3E0; color: #B03A2E; border-radius: 999px; padding: 5px 12px; font-size: 12.5px; font-weight: 600;">{{ impErrCount }} with problems</span>
+                </div>
+                <sc-if value="{{ impHasErr }}" hint-placeholder-val="{{ false }}">
+                  <div style="background: #FDF1EF; border: 1px solid #F0C9C3; border-radius: 10px; padding: 10px 12px; font-size: 12.5px; color: #8E3128; max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;">
+                    <div style="font-weight: 600;">These rows will be skipped:</div>
+                    <sc-for list="{{ impErrs }}" as="ie" hint-placeholder-count="3"><div>Row {{ ie.row }}: {{ ie.msg }}</div></sc-for>
+                  </div>
+                </sc-if>
+                <div style="font-size: 12px; color: #857D72;">Existing products are matched by Product ID; empty cells keep the current value. Stock and expiry are not imported — they come from GRN entries.</div>
+                <sc-if value="{{ impFail }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12.5px; color: #C0392B;">{{ impFail }}</div></sc-if>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                  <button onClick="{{ cancelImport }}" style="background: none; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 18px; font-size: 13px; cursor: pointer; color: #5C554B;">Cancel</button>
+                  <button onClick="{{ runImport }}" disabled="{{ impDisabled }}" style="background: #461610; color: #FDF9F4; border: none; border-radius: 999px; padding: 9px 20px; font-size: 13px; font-weight: 600; cursor: pointer;">{{ impBtn }}</button>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+          <p style="color: #857D72; font-size: 13px; margin: 0 0 18px;">Changes apply to the storefront immediately. Stock comes from <strong>GRN entries</strong> and sales and can't be edited here. Prices are changed from <strong>Edit</strong>.</p>
 
           <sc-if value="{{ showCatManager }}" hint-placeholder-val="{{ false }}">
             <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
@@ -544,11 +572,7 @@
                     <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ p.expBg }}; color: {{ p.expColor }}; text-align: center; white-space: nowrap; justify-self: start;" title="{{ p.expTitle }}">{{ p.expLabel }}</span>
                     <span style="font-size: 13px; color: #5C554B;" title="Change prices from Edit">{{ p.buyPriceText }}</span>
                     <span style="font-size: 13px; font-weight: 600; color: {{ p.sellColor }};" title="Change prices from Edit">{{ p.sellPriceText }}<sc-if value="{{ p.hasCompare }}" hint-placeholder-val="{{ false }}"><span style="display: block; font-size: 11px; font-weight: 400; color: #9B9184; text-decoration: line-through;">{{ p.compareText }}</span></sc-if></span>
-                    <span style="display: flex; align-items: center; gap: 2px;">
-                      <button onClick="{{ p.decStock }}" aria-label="Decrease stock" style="background: none; border: none; color: #461610; font-size: 16px; cursor: pointer; padding: 0 3px; line-height: 1;">−</button>
-                      <input value="{{ p.stockShown }}" onChange="{{ p.onStockType }}" onBlur="{{ p.onStockCommit }}" onKeyDown="{{ p.onStockKey }}" type="number" min="0" aria-label="Stock" style="width: 100%; min-width: 0; box-sizing: border-box; text-align: center; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 6px 2px; font-size: 13px; font-weight: 600; color: {{ p.stockColor }}; outline: none;" style-focus="border-color: #461610;">
-                      <button onClick="{{ p.incStock }}" aria-label="Increase stock" style="background: none; border: none; color: #461610; font-size: 16px; cursor: pointer; padding: 0 3px; line-height: 1;">+</button>
-                    </span>
+                    <span style="font-size: 14px; font-weight: 600; color: #2E2A26; padding-inline-start: 6px;" title="Stock changes come from GRN entries and sales">{{ p.stockShown }}</span>
                     <button onClick="{{ p.toggleActive }}" title="Click to toggle visibility on the storefront" style="font-size: 10.5px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: {{ p.activeBg }}; color: {{ p.activeColor }}; border: none; cursor: pointer; white-space: nowrap; justify-self: start;">{{ p.activeLabel }}</button>
                     <span style="display: flex; gap: 6px; justify-self: end;">
                       <button onClick="{{ p.toggleEdit }}" title="Edit" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">{{ p.editLabel }}</button>
@@ -1534,9 +1558,7 @@
                   <span style="font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ p.name }}">{{ p.name }}</span>
                   <span style="font-size: 12px; color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.brand }}</span>
                   <span style="display: inline-flex; align-items: center; gap: 6px; border: 1px solid #D8CCBC; border-radius: 999px; padding: 3px 6px; background: #F1ECE2; justify-self: start;">
-                    <button onClick="{{ p.decStock }}" style="background: none; border: none; color: #461610; font-size: 15px; cursor: pointer; padding: 0 4px; line-height: 1;">−</button>
                     <span style="font-size: 13px; min-width: 18px; text-align: center; color: {{ p.stockColor }}; font-weight: 600;">{{ p.stock }}</span>
-                    <button onClick="{{ p.incStock }}" style="background: none; border: none; color: #461610; font-size: 15px; cursor: pointer; padding: 0 4px; line-height: 1;">+</button>
                   </span>
                   <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ p.badgeBg }}; color: {{ p.badgeColor }}; text-align: center; white-space: nowrap; justify-self: start;">{{ p.badge }}</span>
                 </div>
@@ -2179,9 +2201,15 @@
             <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #857D72;">Owner WhatsApp number (orders are sent here)
               <input value="{{ setWa }}" onChange="{{ onSetWa }}" placeholder="+974 …" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 12px 14px; font-size: 15px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
             </label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #857D72;">Instagram (shown in the store footer — handle or link)
+              <input value="{{ setIg }}" onChange="{{ onSetIg }}" placeholder="@madzo.qa" aria-label="Instagram handle" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 12px 14px; font-size: 15px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
+            </label>
             <button onClick="{{ saveSettings }}" style="background: #461610; color: #FDF9F4; border: none; border-radius: 999px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer;" style-hover="background: #39120D;">Save settings</button>
             <sc-if value="{{ savedMsg }}" hint-placeholder-val="{{ false }}">
               <p style="color: #1E8A4C; font-size: 13px; margin: 0; text-align: center;">Saved ✓</p>
+            </sc-if>
+            <sc-if value="{{ setErr }}" hint-placeholder-val="{{ false }}">
+              <p style="color: #C0392B; font-size: 13px; margin: 0; text-align: center;">{{ setErr }}</p>
             </sc-if>
           </div>
           <div style="background: #F6EDDB; border: 1px solid #E0C9A2; border-radius: 14px; padding: 14px 18px; margin-top: 16px; color: #7A5F27; font-size: 13px; line-height: 1.6;">
@@ -2336,7 +2364,7 @@ class Component extends DCLogic {
       email: '', pin: '', loginError: false, loginErrorMsg: '',
       tab: 'home',
       savedMsg: false,
-      setWa: '',
+      setWa: '', setIg: '', setErr: '', imp: null, impBusy: false, impMsg: '', impFail: '',
       showAddForm: false,
       newProd: { id: '', name: '', mainCat: 'cosmetics', cat: 'skincare', cat2: '', brand: '', desc: '', price: '', compare: '', stock: '', buyPrice: '', expiry: '', freeItem: false },
       newProdError: '',
@@ -3470,6 +3498,115 @@ class Component extends DCLogic {
     } catch (e) { console.warn('Madzo admin: could not load products', e); }
   }
 
+  // ---------- Products: export / import (CSV, opens in Excel) ----------
+  prodCsvHeaders() { return ['Product ID', 'Brand', 'Product name', 'Arabic name', 'Category', 'Sub category', 'Sub category II', 'Description', 'Arabic description', 'Buy price (QAR)', 'Sell price (QAR)', 'Discounted from (QAR)', 'Visible on store (yes/no)', 'Free item (yes/no)', 'Stock (info only)', 'Nearest expiry (info only)']; }
+  exportProducts() {
+    const { mains, subs, subs2 } = this.cats();
+    const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const nm = (list, id) => { const x = list.find(y => y.id === id); return x ? x.name : (id || ''); };
+    const exp = {};
+    (this.state.dbBatches || []).forEach(b => { if (b.sku && b.expiry && (b.qty == null || Number(b.qty) > 0) && (!exp[b.sku] || b.expiry < exp[b.sku])) exp[b.sku] = b.expiry; });
+    const rows = (this.state.dbProducts || []).map(p => [p.sku, p.brand, p.name, p.nameAr, nm(mains, p.mainCat), nm(subs, p.catKey), p.cat2 ? nm(subs2, p.cat2) : '', p.desc, p.descAr, p.buyPrice || '', p.price, p.compare || '', p.active ? 'yes' : 'no', p.freeItem ? 'yes' : 'no', p.stock, exp[p.sku] ? this.dateToExp(exp[p.sku]) : '']);
+    const lines = [this.prodCsvHeaders().map(q).join(',')].concat(rows.map(r => r.map(q).join(',')));
+    const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'madzo-products-' + new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Qatar' }) + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+  parseCsvText(text) {
+    text = String(text || '').replace(/^\ufeff/, '');
+    const first = text.split(/\r?\n/)[0] || '';
+    const delim = (first.match(/;/g) || []).length > (first.match(/,/g) || []).length ? ';' : (first.includes('\t') && !first.includes(',') ? '\t' : ',');
+    const rows = []; let row = [], cur = '', inQ = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (inQ) { if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else inQ = false; } else cur += c; }
+      else if (c === '"') inQ = true;
+      else if (c === delim) { row.push(cur); cur = ''; }
+      else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cur); cur = ''; rows.push(row); row = []; }
+      else cur += c;
+    }
+    if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+    return rows.filter(r => r.some(c => String(c).trim() !== ''));
+  }
+  async prepareImport(file) {
+    try {
+      const rows = this.parseCsvText(await file.text());
+      if (rows.length < 2) { this.setState({ impMsg: '', imp: { file: file.name, items: [], errs: [{ row: 1, msg: 'The file has no product rows.' }] } }); return; }
+      const norm = (h) => String(h || '').toLowerCase().replace(/\(.*?\)/g, '').replace(/[^a-z0-9]/g, '');
+      const map = [[/^(productid|id|sku|code)$/, 'sku'], [/^brand$/, 'brand'], [/^(productname|name|product|itemname)$/, 'name'], [/^(arabicname|namear|nameinarabic)$/, 'nameAr'], [/^(category|maincategory)$/, 'main'], [/^(subcategory|sub)$/, 'sub'], [/^(subcategoryii|subcategory2|sub2|subii)$/, 'sub2'], [/^description$/, 'desc'], [/^(arabicdescription|descriptionar)$/, 'descAr'], [/^buyprice$/, 'buy'], [/^(sellprice|price|saleprice)$/, 'sell'], [/^(discountedfrom|compareprice|oldprice)$/, 'compare'], [/^(visibleonstore|visible|active)$/, 'active'], [/^freeitem$/, 'free']];
+      const col = {};
+      rows[0].forEach((h, i) => { const n = norm(h); const m = map.find(x => x[0].test(n)); if (m && col[m[1]] === undefined) col[m[1]] = i; });
+      const get = (r, k) => col[k] === undefined ? '' : String(r[col[k]] == null ? '' : r[col[k]]).trim();
+      if (col.name === undefined && col.sku === undefined) { this.setState({ impMsg: '', imp: { file: file.name, items: [], errs: [{ row: 1, msg: 'Could not find the "Product ID" / "Product name" columns. Use a file exported from here.' }] } }); return; }
+      const { mains, subs, subs2 } = this.cats();
+      const find = (list, v) => { const t = v.toLowerCase(); return list.find(x => String(x.id).toLowerCase() === t || String(x.name || '').toLowerCase() === t); };
+      const yes = (v) => /^(y|yes|true|1|active|visible|on)$/i.test(v), no = (v) => /^(n|no|false|0|inactive|hidden|off)$/i.test(v);
+      const existing = new Map((this.state.dbProducts || []).map(p => [p.sku.toLowerCase(), p]));
+      const nums = (this.state.dbProducts || []).map(p => { const m = /^MZ-(\d+)$/i.exec(p.sku || ''); return m ? parseInt(m[1], 10) : 0; });
+      let nextN = Math.max(0, ...nums, (this.state.dbProducts || []).length) + 1;
+      const seen = new Set(), items = [], errs = [];
+      const num = (v, label, int) => { if (v === '') return { v: null }; const n = Number(v.replace(/,/g, '')); if (!isFinite(n) || n < 0) return { e: label + ' must be a number, 0 or more.' }; if (int && !Number.isInteger(n)) return { e: label + ' must be a whole number of QAR.' }; return { v: n }; };
+      rows.slice(1).forEach((r, idx) => {
+        const rowNo = idx + 2, fail = (m) => errs.push({ row: rowNo, msg: m });
+        let sku = get(r, 'sku'); const old = sku ? existing.get(sku.toLowerCase()) : null;
+        if (sku && seen.has(sku.toLowerCase())) return fail('Product ID ' + sku + ' appears twice in the file.');
+        const name = get(r, 'name');
+        const buy = num(get(r, 'buy'), 'Buy price'), sell = num(get(r, 'sell'), 'Sell price', true), cmp = num(get(r, 'compare'), 'Discounted from');
+        const bad = buy.e || sell.e || cmp.e; if (bad) return fail(bad);
+        const mainV = get(r, 'main'), subV = get(r, 'sub'), sub2V = get(r, 'sub2');
+        let main = null, sub = null, s2 = null;
+        if (mainV) { main = find(mains, mainV); if (!main) return fail('Category "' + mainV + '" does not exist — create it in Edit categories first.'); }
+        if (subV) { const pool = subs.filter(x => !main || x.main === main.id); sub = find(pool, subV); if (!sub) return fail('Sub category "' + subV + '"' + (main ? ' under ' + main.name : '') + ' does not exist — create it in Edit categories first.'); if (!main) main = mains.find(m => m.id === sub.main); }
+        if (sub2V) { s2 = find(subs2.filter(x => !sub || x.sub === sub.id), sub2V); if (!s2) return fail('Sub category II "' + sub2V + '" does not exist — create it in Edit categories first.'); }
+        const act = get(r, 'active'), fr = get(r, 'free');
+        if (act && !yes(act) && !no(act)) return fail('"Visible on store" must be yes or no.');
+        if (fr && !yes(fr) && !no(fr)) return fail('"Free item" must be yes or no.');
+        if (old) {
+          seen.add(sku.toLowerCase());
+          const patch = {}, set = (k, v) => { if (v !== '' && v !== null && v !== undefined) patch[k] = v; };
+          set('name', name); set('name_ar', get(r, 'nameAr')); set('brand', get(r, 'brand')); set('description', get(r, 'desc')); set('description_ar', get(r, 'descAr'));
+          if (main) patch.main_category = main.id; if (sub) patch.category = sub.id; if (s2) patch.category2 = s2.id; else if (sub && !sub2V) patch.category2 = null;
+          if (buy.v !== null) patch.buy_price = buy.v; if (sell.v !== null) patch.price = sell.v; if (cmp.v !== null) patch.compare_price = cmp.v;
+          if (act) patch.active = yes(act); if (fr) patch.free_item = yes(fr);
+          if (cmp.v !== null && cmp.v > 0 && cmp.v <= (sell.v !== null ? sell.v : old.price)) return fail('"Discounted from" must be higher than the sell price.');
+          items.push({ op: 'update', sku: old.sku, patch, label: old.sku });
+        } else {
+          if (!name) return fail('Product name is required for a new product.');
+          if (!main || !sub) return fail('Category and Sub category are required for a new product.');
+          if (cmp.v !== null && cmp.v > 0 && cmp.v <= (sell.v || 0)) return fail('"Discounted from" must be higher than the sell price.');
+          if (!sku) { do { sku = 'MZ-' + String(nextN++).padStart(4, '0'); } while (existing.has(sku.toLowerCase()) || seen.has(sku.toLowerCase())); }
+          seen.add(sku.toLowerCase());
+          const row = { sku, name, name_ar: get(r, 'nameAr') || null, main_category: main.id, category: sub.id, brand: get(r, 'brand') || null, description: get(r, 'desc') || null, description_ar: get(r, 'descAr') || null, price: sell.v || 0, stock: 0 };
+          if (s2) row.category2 = s2.id; if (buy.v) row.buy_price = buy.v; if (cmp.v) row.compare_price = cmp.v; if (fr && yes(fr)) row.free_item = true; if (act && no(act)) row.active = false;
+          items.push({ op: 'new', sku, row, label: sku });
+        }
+      });
+      this.setState({ impMsg: '', impFail: '', imp: { file: file.name, items, errs } });
+    } catch (e) { console.warn('Madzo admin: import read failed', e); this.setState({ imp: { file: file.name, items: [], errs: [{ row: 0, msg: 'Could not read this file: ' + (e.message || e) }] } }); }
+  }
+  async runImport() {
+    const imp = this.state.imp; if (!imp || this.state.impBusy || !imp.items.length) return;
+    this.setState({ impBusy: true, impFail: '' });
+    const sb = window.getSupabase(); let added = 0, updated = 0, failMsg = '';
+    const news = imp.items.filter(i => i.op === 'new'), upds = imp.items.filter(i => i.op === 'update' && Object.keys(i.patch).length);
+    for (let i = 0; i < news.length && !failMsg; i += 100) {
+      const chunk = news.slice(i, i + 100), { error } = await sb.from('products').insert(chunk.map(c => c.row));
+      if (error) failMsg = this.needsSql(error) ? 'Some columns need a one-time database update — run madzo-products-v2.sql and madzo-update-9.sql in Supabase, then import again.' : error.message; else added += chunk.length;
+    }
+    for (let i = 0; i < upds.length && !failMsg; i += 10) {
+      const chunk = upds.slice(i, i + 10), res = await Promise.all(chunk.map(c => sb.from('products').update(c.patch).eq('sku', c.sku)));
+      const bad = res.find(r => r.error);
+      if (bad) failMsg = this.needsSql(bad.error) ? 'Some columns need a one-time database update — run madzo-products-v2.sql and madzo-update-9.sql in Supabase, then import again.' : bad.error.message; else updated += chunk.length;
+    }
+    this.setState({ impBusy: false });
+    if (failMsg) { this.setState({ impFail: failMsg + (added || updated ? ' (' + added + ' added and ' + updated + ' updated before it stopped.)' : '') }); this.loadProducts(); return; }
+    this.setState({ imp: null, impMsg: 'Import finished: ' + added + ' product' + (added === 1 ? '' : 's') + ' added, ' + updated + ' updated' + (imp.errs.length ? ', ' + imp.errs.length + ' row' + (imp.errs.length === 1 ? '' : 's') + ' skipped' : '') + '.' });
+    this.loadProducts();
+  }
+
   // true when a save failed only because madzo-products-v2.sql hasn't been run yet
   needsSql(err) { return /buy_price|compare_price|expiry_date|category2|subcategories2|free_item|payment_method|show_on_front/.test((err && err.message) || ''); }
 
@@ -3829,13 +3966,10 @@ class Component extends DCLogic {
     } catch (e) { console.warn('Madzo admin: could not load orders', e); }
   }
 
+  // Preview/next order number — computed from the orders already saved (no counter is consumed),
+  // so refreshing or navigating never makes the number jump. Starts at IQ-01.
   async fetchNextOrderId() {
-    try {
-      const { data, error } = await window.getSupabase().rpc('next_order_id');
-      if (!error && data) return data;
-    } catch (e) { /* fall through */ }
-    // Fallback: compute locally from loaded orders
-    const nums = this.state.dbOrders.map(o => {
+    const nums = (this.state.dbOrders || []).map(o => {
       const m = /^IQ-(\d+)$/i.exec(o.id || '');
       return m ? parseInt(m[1], 10) : 0;
     });
@@ -3847,7 +3981,7 @@ class Component extends DCLogic {
       const sb = window.getSupabase();
       const { data, error } = await sb.from('settings').select('*').eq('id', 1).single();
       if (error) throw error;
-      this.setState({ setWa: (data && data.whatsapp) || '+974 3082 5852', showOthers: !!(data && data.show_others === true) });
+      this.setState({ setWa: (data && data.whatsapp) || '+974 3082 5852', setIg: (data && data.instagram) || '', showOthers: !!(data && data.show_others === true) });
     } catch (e) { console.warn('Madzo admin: could not load settings', e); }
   }
 
@@ -4935,7 +5069,7 @@ class Component extends DCLogic {
     const omToday = today;
     const omQ = String(this.state.omSearch || '').trim().toLowerCase(), omSF = this.state.omStatusF || 'all';
     const omFx = this.state.omF || {}, lcs = (v) => String(v || '').trim().toLowerCase();
-    const omAll = (this.state.dbOMs || []).slice().sort((a, b) => (b.ts - a.ts) || String(b.id).localeCompare(String(a.id)))
+    const omAll = (this.state.dbOMs || []).slice().sort((a, b) => ((a.status === 'delivered' ? 1 : 0) - (b.status === 'delivered' ? 1 : 0)) || (b.ts - a.ts) || String(b.id).localeCompare(String(a.id)))
       .filter(o => (omSF === 'all' || o.status === omSF) && (!omQ || (o.invoice + ' ' + o.source + ' ' + o.remarks + ' ' + o.id + ' ' + o.itemType + ' ' + o.offer).toLowerCase().indexOf(omQ) >= 0))
       .filter(o => !lcs(omFx.no) || lcs(o.invoice).includes(lcs(omFx.no)))
       .filter(o => !omFx.date || o.date === omFx.date)
@@ -5973,11 +6107,27 @@ class Component extends DCLogic {
       setWa: this.state.setWa,
       onSetWa: (e) => this.setState({ setWa: e.target.value, savedMsg: false }),
       savedMsg: this.state.savedMsg,
-      saveSettings: () => {
-        window.getSupabase().from('settings').update({ whatsapp: this.state.setWa.trim() }).eq('id', 1).then(({ error }) => {
-          if (error) console.warn('Madzo admin: settings save failed', error);
-        });
-        this.setState({ savedMsg: true });
+      setIg: this.state.setIg, setErr: this.state.setErr,
+      exportProducts: () => this.exportProducts(),
+      onImportFile: (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) this.prepareImport(f); },
+      impMsg: this.state.impMsg, impOpen: !!this.state.imp, impFile: this.state.imp ? this.state.imp.file : '',
+      impNewCount: this.state.imp ? this.state.imp.items.filter(i => i.op === 'new').length : 0,
+      impUpdCount: this.state.imp ? this.state.imp.items.filter(i => i.op === 'update').length : 0,
+      impErrCount: this.state.imp ? this.state.imp.errs.length : 0, impHasErr: !!(this.state.imp && this.state.imp.errs.length),
+      impErrs: this.state.imp ? this.state.imp.errs.slice(0, 40) : [], impFail: this.state.impFail,
+      impDisabled: this.state.impBusy || !(this.state.imp && this.state.imp.items.length), impBtn: this.state.impBusy ? 'Importing…' : 'Import',
+      cancelImport: () => this.setState({ imp: null, impFail: '' }), runImport: () => this.runImport(),
+      onSetIg: (e) => this.setState({ setIg: e.target.value, savedMsg: false, setErr: '' }),
+      saveSettings: async () => {
+        const sb = window.getSupabase(), wa = this.state.setWa.trim(), ig = String(this.state.setIg || '').trim();
+        let r = await sb.from('settings').update({ whatsapp: wa, instagram: ig || null }).eq('id', 1);
+        if (r.error && /instagram/i.test(r.error.message || '')) {
+          await sb.from('settings').update({ whatsapp: wa }).eq('id', 1);
+          this.setState({ savedMsg: false, setErr: 'WhatsApp saved. To save Instagram, run madzo-update-17.sql in Supabase once, then save again.' });
+          return;
+        }
+        if (r.error) { console.warn('Madzo admin: settings save failed', r.error); this.setState({ savedMsg: false, setErr: r.error.message }); return; }
+        this.setState({ savedMsg: true, setErr: '' });
       }
     };
   }

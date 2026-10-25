@@ -261,6 +261,7 @@
           <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px;">
             <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Products</h1>
             <span style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button onClick="{{ openBulkDisc }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 8px 16px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #461610; color: #FDF9F4;">% Discount all</button>
               <button onClick="{{ exportProducts }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 8px 16px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #461610; color: #FDF9F4;">⭳ Export</button>
               <label style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 8px 16px; font-size: 12.5px; cursor: pointer; font-weight: 600; display: inline-block;" style-hover="background: #461610; color: #FDF9F4;">⭱ Import<input type="file" accept=".csv,text/csv" onChange="{{ onImportFile }}" aria-label="Import products file" style="display: none;"></label>
               <button onClick="{{ toggleAddForm }}" style="background: #461610; border: none; color: #FDF9F4; border-radius: 999px; padding: 8px 18px; font-size: 12.5px; cursor: pointer; font-weight: 600;" style-hover="background: #39120D;">{{ addFormLabel }}</button>
@@ -273,6 +274,39 @@
             </div>
           </sc-if>
           <sc-if value="{{ impMsg }}" hint-placeholder-val="{{ false }}"><div style="background: #E3F3E8; border: 1px solid #B6DEC3; border-radius: 12px; padding: 10px 14px; font-size: 13px; color: #1F6B3A; max-width: 760px; margin: 8px 0 14px;">{{ impMsg }}</div></sc-if>
+          <sc-if value="{{ bdOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="position: fixed; inset: 0; background: rgba(46,42,38,.55); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px;">
+              <div style="background: #FDF9F4; width: 100%; max-width: 520px; max-height: 88vh; overflow-y: auto; border-radius: 16px; box-shadow: 0 24px 60px rgba(0,0,0,.35); padding: 22px; display: flex; flex-direction: column; gap: 12px;">
+                <h2 style="font-size: 17px; margin: 0;">Discount products</h2>
+                <div style="font-size: 12.5px; color: #857D72; line-height: 1.5;">Puts the products on sale on the storefront: the new price is shown with the old price crossed out. Applying again starts from the original price, so discounts never stack.</div>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Apply to
+                  <select value="{{ bdScope }}" onChange="{{ onBdScope }}" aria-label="Discount scope" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; cursor: pointer;">
+                    <sc-for list="{{ bdScopeOpts }}" as="so" hint-placeholder-count="3"><option value="{{ so.v }}" selected="{{ so.selected }}">{{ so.l }}</option></sc-for>
+                  </select>
+                </label>
+                <div style="display: flex; gap: 10px;">
+                  <label style="flex: 1; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Discount type
+                    <select value="{{ bdType }}" onChange="{{ onBdType }}" aria-label="Bulk discount type" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; cursor: pointer;">
+                      <option value="percent" selected="{{ bdIsPct }}">Percentage (%)</option>
+                      <option value="amount" selected="{{ bdIsAmt }}">Price off (QAR)</option>
+                    </select>
+                  </label>
+                  <label style="flex: 1; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Value
+                    <input value="{{ bdValue }}" onChange="{{ onBdValue }}" type="number" min="0" step="any" aria-label="Bulk discount value" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                  </label>
+                </div>
+                <div style="background: #F6EDDB; border-radius: 10px; padding: 10px 12px; font-size: 12.5px; color: #7A5F27;">{{ bdPreview }}</div>
+                <sc-if value="{{ bdErr }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12.5px; color: #C0392B;">{{ bdErr }}</div></sc-if>
+                <div style="display: flex; gap: 10px; justify-content: space-between; flex-wrap: wrap;">
+                  <button onClick="{{ bdRemove }}" disabled="{{ bdBusy }}" style="background: none; border: 1px solid #C0392B; color: #C0392B; border-radius: 999px; padding: 9px 16px; font-size: 12.5px; cursor: pointer;">Remove discounts</button>
+                  <span style="display: flex; gap: 10px;">
+                    <button onClick="{{ closeBulkDisc }}" style="background: none; border: 1px solid #D8CCBC; border-radius: 999px; padding: 9px 18px; font-size: 13px; cursor: pointer; color: #5C554B;">Close</button>
+                    <button onClick="{{ bdApply }}" disabled="{{ bdBusy }}" style="background: #461610; color: #FDF9F4; border: none; border-radius: 999px; padding: 9px 20px; font-size: 13px; font-weight: 600; cursor: pointer;">{{ bdBtn }}</button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </sc-if>
           <sc-if value="{{ impOpen }}" hint-placeholder-val="{{ false }}">
             <div style="position: fixed; inset: 0; background: rgba(46,42,38,.55); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px;">
               <div style="background: #FDF9F4; width: 100%; max-width: 620px; max-height: 88vh; overflow-y: auto; border-radius: 16px; box-shadow: 0 24px 60px rgba(0,0,0,.35); padding: 22px; display: flex; flex-direction: column; gap: 12px;">
@@ -758,6 +792,10 @@
                   <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #857D72;">Price
                     <input value="{{ it.price }}" onChange="{{ it.onPrice }}" type="number" min="0" disabled="{{ it.isFree }}" style="width: 64px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 10px; font-size: 13.5px; outline: none;" style-focus="border-color: #461610;">
                   </label>
+                  <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #857D72;">Disc.
+                    <select value="{{ it.discType }}" onChange="{{ it.onDiscType }}" disabled="{{ it.isFree }}" aria-label="Item discount type" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 8px 4px; font-size: 12.5px; cursor: pointer;"><option value="amount" selected="{{ it.discIsAmount }}">QAR</option><option value="percent" selected="{{ it.discIsPct }}">%</option></select>
+                    <input value="{{ it.discValue }}" onChange="{{ it.onDiscValue }}" type="number" min="0" step="any" placeholder="0" disabled="{{ it.isFree }}" aria-label="Item discount value" style="width: 58px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 8px 8px; font-size: 13px; outline: none;" style-focus="border-color: #461610;">
+                  </span>
                     <label style="display: flex; align-items: center; gap: 5px; font-size: 12px; color: #857D72; cursor: pointer;">
                       <input type="checkbox" checked="{{ it.isFree }}" onChange="{{ it.onFree }}" style="width: 15px; height: 15px; accent-color: #1E8A4C;">
                       🎁 Free
@@ -766,6 +804,17 @@
                   <button onClick="{{ it.remove }}" aria-label="Remove item" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 4px;" style-hover="color: #C0392B;">×</button>
                 </div>
               </sc-for>
+              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
+                  <span style="font-size: 12.5px; color: #857D72;">Discount</span>
+                  <select value="{{ noDiscType }}" onChange="{{ noOnDiscType }}" aria-label="Discount type" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 13px; cursor: pointer;">
+                    <option value="amount" selected="{{ noDiscIsAmount }}">Price (QAR)</option>
+                    <option value="percent" selected="{{ noDiscIsPct }}">Percentage (%)</option>
+                  </select>
+                  <input value="{{ noDiscValue }}" onChange="{{ noOnDiscValue }}" type="number" min="0" step="any" placeholder="0" aria-label="Discount value" style="width: 90px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 10px; font-size: 13.5px; outline: none; text-align: end;" style-focus="border-color: #461610;">
+                </div>
+                <sc-if value="{{ noHasDisc }}" hint-placeholder-val="{ false }"><div style="font-size: 12.5px; color: #857D72;">Subtotal: {{ noSubtotal }} &nbsp;·&nbsp; Discount: <span style="color: #B03A2E;">− {{ noDiscLabel }}</span></div></sc-if>
+              </div>
               <div style="display: flex; justify-content: flex-end; font-size: 14.5px; font-weight: 600; color: #2E2A26;">Total: {{ newOrderTotal }}</div>
               <sc-if value="{{ newOrderError }}" hint-placeholder-val="{{ false }}">
                 <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ newOrderError }}</p>
@@ -830,6 +879,9 @@
                             <span style="font-weight: 600; color: #2E2A26; white-space: nowrap;">{{ ln.price }}</span>
                           </div>
                         </sc-for>
+                        <sc-if value="{{ o.hasDiscount }}" hint-placeholder-val="{{ false }}">
+                          <div style="display: flex; align-items: baseline; gap: 10px; font-size: 13px; color: #B03A2E;"><span style="flex: 1;">{{ o.discountText }}</span><span style="font-weight: 600; white-space: nowrap;">− {{ o.discountAmt }}</span></div>
+                        </sc-if>
                       </div>
                       <div style="color: #857D72; font-size: 12.5px;">📞 {{ o.phone }}</div>
                       <div><button onClick="{{ o.toggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">{{ o.toggleLabel }}</button></div>
@@ -901,6 +953,10 @@
                         <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #857D72;">Price
                           <input value="{{ it.price }}" onChange="{{ it.onPrice }}" type="number" min="0" disabled="{{ it.isFree }}" style="width: 64px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 8px 10px; font-size: 13px; outline: none;" style-focus="border-color: #461610;">
                         </label>
+                        <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #857D72;">Disc.
+                          <select value="{{ it.discType }}" onChange="{{ it.onDiscType }}" disabled="{{ it.isFree }}" aria-label="Item discount type" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 8px 4px; font-size: 12.5px; cursor: pointer;"><option value="amount" selected="{{ it.discIsAmount }}">QAR</option><option value="percent" selected="{{ it.discIsPct }}">%</option></select>
+                          <input value="{{ it.discValue }}" onChange="{{ it.onDiscValue }}" type="number" min="0" step="any" placeholder="0" disabled="{{ it.isFree }}" aria-label="Item discount value" style="width: 58px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 8px 8px; font-size: 13px; outline: none;" style-focus="border-color: #461610;">
+                        </span>
                     <label style="display: flex; align-items: center; gap: 5px; font-size: 12px; color: #857D72; cursor: pointer;">
                       <input type="checkbox" checked="{{ it.isFree }}" onChange="{{ it.onFree }}" style="width: 15px; height: 15px; accent-color: #1E8A4C;">
                       🎁 Free
@@ -909,6 +965,17 @@
                         <button onClick="{{ it.remove }}" aria-label="Remove item" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 17px; padding: 0 4px;" style-hover="color: #C0392B;">×</button>
                       </div>
                     </sc-for>
+              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
+                  <span style="font-size: 12.5px; color: #857D72;">Discount</span>
+                  <select value="{{ o.edDiscType }}" onChange="{{ o.edOnDiscType }}" aria-label="Discount type" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 8px; font-size: 13px; cursor: pointer;">
+                    <option value="amount" selected="{{ o.edDiscIsAmount }}">Price (QAR)</option>
+                    <option value="percent" selected="{{ o.edDiscIsPct }}">Percentage (%)</option>
+                  </select>
+                  <input value="{{ o.edDiscValue }}" onChange="{{ o.edOnDiscValue }}" type="number" min="0" step="any" placeholder="0" aria-label="Discount value" style="width: 90px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 10px; font-size: 13.5px; outline: none; text-align: end;" style-focus="border-color: #461610;">
+                </div>
+                <sc-if value="{{ o.edHasDisc }}" hint-placeholder-val="{ false }"><div style="font-size: 12.5px; color: #857D72;">Subtotal: {{ o.edSubtotal }} &nbsp;·&nbsp; Discount: <span style="color: #B03A2E;">− {{ o.edDiscLabel }}</span></div></sc-if>
+              </div>
                     <div style="display: flex; justify-content: flex-end; font-size: 14px; font-weight: 600; color: #2E2A26;">Total: {{ o.edTotal }}</div>
                     <sc-if value="{{ o.editErr }}" hint-placeholder-val="{{ false }}">
                       <p style="color: #C0392B; font-size: 13px; margin: 0;">{{ o.editErr }}</p>
@@ -2331,8 +2398,13 @@
 
               <div style="border-top: 1px solid #333; margin-top: 8px; padding-top: 8px;">
                 <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 2px 0;">
-                  <span>Product Value / قيمة المنتج</span><span>{{ inv.total }}</span>
+                  <span>Product Value / قيمة المنتج</span><span>{{ inv.subtotal }}</span>
                 </div>
+                <sc-if value="{{ inv.hasDiscount }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 2px 0;">
+                    <span>{{ inv.discountText }}</span><span>− {{ inv.discountAmt }}</span>
+                  </div>
+                </sc-if>
                 <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; padding: 4px 0; border-top: 1px solid #333; margin-top: 4px;">
                   <span>TOTAL / المجموع</span><span>{{ inv.total }}</span>
                 </div>
@@ -2364,7 +2436,7 @@ class Component extends DCLogic {
       email: '', pin: '', loginError: false, loginErrorMsg: '',
       tab: 'home',
       savedMsg: false,
-      setWa: '', setIg: '', setErr: '', imp: null, impBusy: false, impMsg: '', impFail: '',
+      setWa: '', setIg: '', setErr: '', bd: null, imp: null, impBusy: false, impMsg: '', impFail: '',
       showAddForm: false,
       newProd: { id: '', name: '', mainCat: 'cosmetics', cat: 'skincare', cat2: '', brand: '', desc: '', price: '', compare: '', stock: '', buyPrice: '', expiry: '', freeItem: false },
       newProdError: '',
@@ -2372,7 +2444,7 @@ class Component extends DCLogic {
       editDraft: null,
       editError: '',
       showOrderForm: false,
-      newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', paymentStatus: 'pending', payMethod: 'cash', items: [] },
+      newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', paymentStatus: 'pending', payMethod: 'cash', discType: 'amount', discValue: '', items: [] },
       newOrderError: '',
       translating: false, transMsg: '',
       prodPage: 1,
@@ -3607,6 +3679,48 @@ class Component extends DCLogic {
     this.loadProducts();
   }
 
+  bulkTargets() {
+    const bd = this.state.bd || {}, v = Number(bd.value) || 0;
+    const list = (this.state.dbProducts || []).filter(p => !p.freeItem && (!bd.scope || bd.scope === 'all' || p.mainCat === bd.scope));
+    const rows = list.map(p => {
+      const base = p.compare > p.price ? p.compare : p.price;
+      let np = bd.type === 'amount' ? base - v : Math.round(base * (100 - v) / 100);
+      np = Math.round(np);
+      return { p, base, np, ok: v > 0 && base > 0 && np >= 1 && np < base };
+    });
+    return rows;
+  }
+  async applyBulkDisc() {
+    const bd = this.state.bd || {}, v = Number(bd.value) || 0;
+    if (!(v > 0)) { this.setState(s => ({ bd: { ...s.bd, err: 'Enter a discount value above 0.' } })); return; }
+    if (bd.type === 'percent' && v >= 100) { this.setState(s => ({ bd: { ...s.bd, err: 'Percentage must be less than 100.' } })); return; }
+    const rows = this.bulkTargets().filter(r => r.ok);
+    if (!rows.length) { this.setState(s => ({ bd: { ...s.bd, err: 'No products to discount with these settings.' } })); return; }
+    this.setState(s => ({ bd: { ...s.bd, busy: true, err: '' } }));
+    const sb = window.getSupabase(); let n = 0, fail = '';
+    for (let i = 0; i < rows.length && !fail; i += 10) {
+      const chunk = rows.slice(i, i + 10), res = await Promise.all(chunk.map(r => sb.from('products').update({ price: r.np, compare_price: r.base }).eq('sku', r.p.sku)));
+      const bad = res.find(x => x.error); if (bad) fail = this.needsSql(bad.error) ? 'Discount prices need a one-time database update — run madzo-products-v2.sql in Supabase first.' : bad.error.message; else n += chunk.length;
+    }
+    await this.loadProducts();
+    if (fail) { this.setState(s => ({ bd: { ...s.bd, busy: false, err: fail + (n ? ' (' + n + ' updated before it stopped.)' : '') } })); return; }
+    this.setState({ bd: null, impMsg: 'Discount applied to ' + n + ' product' + (n === 1 ? '' : 's') + '. The storefront now shows the sale prices.' });
+  }
+  async removeBulkDisc() {
+    const bd = this.state.bd || {};
+    const rows = (this.state.dbProducts || []).filter(p => p.compare > p.price && (!bd.scope || bd.scope === 'all' || p.mainCat === bd.scope));
+    if (!rows.length) { this.setState(s => ({ bd: { ...s.bd, err: 'There are no discounted products in this selection.' } })); return; }
+    this.setState(s => ({ bd: { ...s.bd, busy: true, err: '' } }));
+    const sb = window.getSupabase(); let n = 0, fail = '';
+    for (let i = 0; i < rows.length && !fail; i += 10) {
+      const chunk = rows.slice(i, i + 10), res = await Promise.all(chunk.map(p => sb.from('products').update({ price: p.compare, compare_price: null }).eq('sku', p.sku)));
+      const bad = res.find(x => x.error); if (bad) fail = bad.error.message; else n += chunk.length;
+    }
+    await this.loadProducts();
+    if (fail) { this.setState(s => ({ bd: { ...s.bd, busy: false, err: fail } })); return; }
+    this.setState({ bd: null, impMsg: 'Discount removed from ' + n + ' product' + (n === 1 ? '' : 's') + ' — original prices restored.' });
+  }
+
   // true when a save failed only because madzo-products-v2.sql hasn't been run yet
   needsSql(err) { return /buy_price|compare_price|expiry_date|category2|subcategories2|free_item|payment_method|show_on_front/.test((err && err.message) || ''); }
 
@@ -3656,7 +3770,8 @@ class Component extends DCLogic {
     <tbody>${rowsHtml}</tbody>
   </table>
   <div style="border-top:1px solid #333;margin-top:8px;padding-top:8px;">
-    <div style="display:flex;justify-content:space-between;font-size:13px;padding:2px 0;"><span>Product Value / قيمة المنتج</span><span>${this.esc(inv.total)}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;padding:2px 0;"><span>Product Value / قيمة المنتج</span><span>${this.esc(inv.subtotal || inv.total)}</span></div>
+    ${inv.hasDiscount ? `<div style="display:flex;justify-content:space-between;font-size:13px;padding:2px 0;"><span>${this.esc(inv.discountText)}</span><span>− ${this.esc(inv.discountAmt)}</span></div>` : ''}
     <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;padding:4px 0;border-top:1px solid #333;margin-top:4px;"><span>TOTAL / المجموع</span><span>${this.esc(inv.total)}</span></div>
   </div>
   <div style="text-align:center;margin-top:18px;padding-top:10px;border-top:1px dashed #bbb;font-size:12px;color:#444;">
@@ -3961,7 +4076,7 @@ class Component extends DCLogic {
       this.setState({ dbOrders: (data || []).map(o => ({
         id: o.id, ts: new Date(o.created_at).getTime(), name: o.customer_name, phone: o.phone,
         zone: o.zone, address: o.address, notes: o.notes, lines: o.lines || [], total: o.total, status: o.status,
-        source: o.source || 'storefront', paymentStatus: o.payment_status || 'pending', payMethod: o.payment_method || ''
+        source: o.source || 'storefront', discount: Number(o.discount) || 0, discType: o.discount_type || 'amount', discValue: o.discount_value != null ? Number(o.discount_value) : 0, paymentStatus: o.payment_status || 'pending', payMethod: o.payment_method || ''
       })) });
     } catch (e) { console.warn('Madzo admin: could not load orders', e); }
   }
@@ -4061,6 +4176,18 @@ class Component extends DCLogic {
   renderVals() {
     const authed = this.state.authed;
     const tab = this.state.tab;
+    const lineCalc = (qty, price, free, type, val) => {
+      const gross = free ? 0 : Math.round((Number(qty) || 0) * (Number(price) || 0)), v = Number(val) || 0;
+      let disc = 0;
+      if (!free && v > 0 && gross > 0) disc = type === 'percent' ? Math.round(gross * Math.min(v, 100)) / 100 : Math.min(v, gross);
+      return { gross, disc, net: Math.round((gross - disc) * 100) / 100 };
+    };
+    const calcDisc = (sub, type, val) => {
+      const v = Number(val) || 0; if (v <= 0 || sub <= 0) return { disc: 0, err: '' };
+      if (type === 'percent') { if (v > 100) return { disc: 0, err: 'Discount percentage can\'t be more than 100.' }; return { disc: Math.round(sub * v) / 100, err: '' }; }
+      if (v > sub) return { disc: 0, err: 'Discount can\'t be more than the order subtotal (' + sub + ' QAR).' };
+      return { disc: Math.round(v * 100) / 100, err: '' };
+    };
     const fmt = (n) => n + ' QAR';
 
     const doLogin = async () => {
@@ -4511,11 +4638,14 @@ class Component extends DCLogic {
           const items = s.editOrderDraft.items.slice(); const cur = items[i];
           items[i] = on ? { ...cur, free: true, prevPrice: cur.free ? cur.prevPrice : cur.price, price: 0 } : { ...cur, free: false, price: cur.prevPrice != null ? cur.prevPrice : '' };
           return { editOrderDraft: { ...s.editOrderDraft, items }, editOrderErr: '' }; }); },
-        lineTotal: it.free ? 'FREE' : fmt(Math.round((Number(it.qty) || 0) * (Number(it.price) || 0))),
+        lineTotal: it.free ? 'FREE' : fmt(lineCalc(it.qty, it.price, it.free, it.discType, it.discValue).net),
+        discType: it.discType || 'amount', discIsAmount: (it.discType || 'amount') === 'amount', discIsPct: it.discType === 'percent', discValue: it.discValue == null ? '' : it.discValue,
+        onDiscType: setEdItem(i, 'discType'), onDiscValue: setEdItem(i, 'discValue'),
         onName: setEdItem(i, 'name'), onQty: setEdItem(i, 'qty'), onPrice: setEdItem(i, 'price'),
         remove: () => this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, items: s.editOrderDraft.items.filter((_, j) => j !== i) } }))
       }));
-      const edTotalNum = edItemsRaw.reduce((a, it) => a + Math.round((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
+      const edSub = edItemsRaw.reduce((a, it) => a + lineCalc(it.qty, it.price, it.free, it.discType, it.discValue).net, 0);
+      const edDisc = calcDisc(edSub, ed.discType, ed.discValue).disc, edTotalNum = Math.round((edSub - edDisc) * 100) / 100;
 
       return {
         id: o.id,
@@ -4530,7 +4660,7 @@ class Component extends DCLogic {
         detailsOpen: !!(this.state.openOrderIds || {})[o.id],
         chevron: (this.state.openOrderIds || {})[o.id] ? '▾' : '▸',
         toggleDetails: () => this.setState(s => ({ openOrderIds: { ...(s.openOrderIds || {}), [o.id]: !(s.openOrderIds || {})[o.id] } })),
-        itemLines: (o.lines || []).map(l => ({ qtyName: `${l.qty} × ` + (((l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand || '') && !String(l.name || '').toLowerCase().startsWith(String(l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand || '').toLowerCase())) ? (l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand) + ' ' : '') + l.name + (l.free ? ' 🎁' : ''), price: l.free ? 'FREE' : fmt(l.total || 0) })),
+        itemLines: (o.lines || []).map(l => ({ qtyName: `${l.qty} × ` + (((l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand || '') && !String(l.name || '').toLowerCase().startsWith(String(l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand || '').toLowerCase())) ? (l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand) + ' ' : '') + l.name + (l.free ? ' 🎁' : '') + (l.disc > 0 ? '  (−' + (l.discType === 'percent' ? l.discValue + '%' : l.disc + ' QAR') + ')' : ''), price: l.free ? 'FREE' : fmt(l.total || 0) })),
         phone: o.phone || '—',
         shipping: [o.address, o.zone].filter(Boolean).join(' — ') || '—',
         hasNotes: !!o.notes, notes: o.notes || '',
@@ -4559,7 +4689,8 @@ class Component extends DCLogic {
             id: o.id, source: o.source && o.source !== 'storefront' ? o.source : '',
             name: o.name || '', phone: o.phone || '', zone: o.zone || '', address: o.address || '',
             notes: o.notes || '', status: o.status || 'new', paymentStatus: o.paymentStatus || 'pending', payMethod: o.payMethod || '',
-            items: (o.lines || []).map(l => ({ name: l.name, qty: l.qty, price: l.free ? 0 : Math.round((l.total || 0) / (l.qty || 1)), free: !!l.free, sku: l.sku || '', brand: l.brand || '', nameEn: l.nameEn || '' }))
+            discType: o.discType || 'amount', discValue: o.discount > 0 && o.discValue ? String(o.discValue) : '',
+            items: (o.lines || []).map(l => ({ name: l.name, qty: l.qty, price: l.free ? 0 : (l.disc > 0 && l.unit != null ? l.unit : Math.round((l.total || 0) / (l.qty || 1))), discType: l.disc > 0 ? (l.discType || 'amount') : 'amount', discValue: l.disc > 0 && l.discValue ? String(l.discValue) : '', free: !!l.free, sku: l.sku || '', brand: l.brand || '', nameEn: l.nameEn || '' }))
           }
         }),
         edId: ed.id || '', onEdId: setEd('id'),
@@ -4578,6 +4709,12 @@ class Component extends DCLogic {
         addEdItem: () => pushEdItem({ name: '', qty: 1, price: '' }),
         edItems,
         edTotal: fmt(edTotalNum),
+        edDiscType: ed.discType || 'amount', edDiscIsAmount: (ed.discType || 'amount') === 'amount', edDiscIsPct: ed.discType === 'percent',
+        edOnDiscType: (e) => { const v = e.target.value; this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, discType: v }, editOrderErr: '' })); },
+        edDiscValue: ed.discValue == null ? '' : ed.discValue, edOnDiscValue: setEd('discValue'),
+        edHasDisc: edDisc > 0, edSubtotal: fmt(edSub), edDiscLabel: fmt(edDisc) + (ed.discType === 'percent' ? ' (' + (Number(ed.discValue) || 0) + '%)' : ''),
+        hasDiscount: (Number(o.discount) || 0) > 0, discountAmt: fmt(Number(o.discount) || 0),
+        discountText: o.discType === 'percent' && o.discValue ? 'Discount (' + o.discValue + '%)' : 'Discount',
         editErr: this.state.editOrderErr && editing ? this.state.editOrderErr : '',
         saveEditLabel: this.state.savingOrderId === o.id ? 'Saving…' : 'Save changes',
         saveEditOrder: async () => {
@@ -4587,11 +4724,14 @@ class Component extends DCLogic {
           if (!String(dr.name || '').trim()) { this.setState({ editOrderErr: 'Please enter the customer name.' }); return; }
           if (newId !== o.id && orders.some(x => x.id === newId)) { this.setState({ editOrderErr: 'Order ID "' + newId + '" already exists.' }); return; }
           const items = (dr.items || [])
-            .map(it => ({ qty: Math.max(1, parseInt(it.qty, 10) || 1), name: String(it.name || '').trim(), unit: it.free ? 0 : (Number(it.price) || 0), free: !!it.free, sku: it.sku || '', brand: it.brand || '', nameEn: it.nameEn || '' }))
+            .map(it => ({ qty: Math.max(1, parseInt(it.qty, 10) || 1), name: String(it.name || '').trim(), unit: it.free ? 0 : (Number(it.price) || 0), free: !!it.free, sku: it.sku || '', brand: it.brand || '', nameEn: it.nameEn || '', discType: it.discType || 'amount', discValue: it.discValue }))
             .filter(it => it.name);
           if (!items.length) { this.setState({ editOrderErr: 'Add at least one item.' }); return; }
-          const lines = items.map(it => ({ ...(it.sku ? { sku: it.sku } : {}), ...(it.brand ? { brand: it.brand } : {}), qty: it.qty, name: it.name, ...(it.nameEn ? { nameEn: it.nameEn } : {}), unit: it.unit, total: it.free ? 0 : Math.round(it.qty * it.unit), ...(it.free ? { free: true } : {}) }));
-          const total = lines.reduce((a, l) => a + l.total, 0);
+          const lines = items.map(it => ({ ...(it.sku ? { sku: it.sku } : {}), ...(it.brand ? { brand: it.brand } : {}), qty: it.qty, name: it.name, ...(it.nameEn ? { nameEn: it.nameEn } : {}), unit: it.unit, total: it.free ? 0 : lineCalc(it.qty, it.unit, false, it.discType, it.discValue).net, ...(!it.free && lineCalc(it.qty, it.unit, false, it.discType, it.discValue).disc > 0 ? { disc: lineCalc(it.qty, it.unit, false, it.discType, it.discValue).disc, discType: it.discType || 'amount', discValue: Number(it.discValue) || 0 } : {}), ...(it.free ? { free: true } : {}) }));
+          const subE = lines.reduce((a, l) => a + l.total, 0);
+          const dcE = calcDisc(subE, dr.discType, dr.discValue);
+          if (dcE.err) { this.setState({ editOrderErr: dcE.err }); return; }
+          const total = Math.round((subE - dcE.disc) * 100) / 100;
           let phoneSave = String(dr.phone || '').trim();
           if (phoneSave !== String(o.phone || '').trim()) {
             const qp = this.qatarPhone(phoneSave);
@@ -4612,9 +4752,10 @@ class Component extends DCLogic {
             source: String(dr.source || '').trim() || 'storefront'
           };
           if ((dr.payMethod || '') !== (o.payMethod || '')) patchO.payment_method = dr.payMethod || null;
+          if (dcE.disc > 0 || (Number(o.discount) || 0) > 0) { patchO.discount = dcE.disc; patchO.discount_type = dcE.disc > 0 ? (dr.discType || 'amount') : null; patchO.discount_value = dcE.disc > 0 ? Number(dr.discValue) || 0 : null; }
           const { error } = await window.getSupabase().from('orders').update(patchO).eq('id', o.id);
           this.setState({ savingOrderId: null });
-          if (error) { this.setState({ editOrderErr: this.needsSql(error) ? 'The payment method needs a one-time database update — run madzo-update-3.sql in Supabase, then save again.' : error.message }); return; }
+          if (error) { this.setState({ editOrderErr: /discount/.test(error.message || '') ? 'Discounts need a one-time database update — run madzo-update-18.sql in Supabase, then save again.' : this.needsSql(error) ? 'The payment method needs a one-time database update — run madzo-update-3.sql in Supabase, then save again.' : error.message }); return; }
           if (newId !== o.id) await window.getSupabase().from('inventory_batches').delete().eq('source_type', 'sale').eq('source_id', o.id);
           this.syncOrderStock(newId, lines);
           this.rememberCustomer(patchO.customer_name, patchO.phone, patchO.zone, patchO.address);
@@ -4649,12 +4790,16 @@ class Component extends DCLogic {
       shipping: [invOrder.zone, invOrder.address].filter(Boolean).join(' — ') || '—',
       waLine: this.state.setWa ? ('Tel: ' + this.state.setWa) : '',
       rows: (invOrder.lines || []).map(l => ({
-        name: ((l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand || '') && !String(l.name || '').toLowerCase().startsWith(String(l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand || '').toLowerCase()) ? (l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand) + ' ' : '') + l.name,
+        name: ((l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand || '') && !String(l.name || '').toLowerCase().startsWith(String(l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand || '').toLowerCase()) ? (l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand) + ' ' : '') + l.name + (l.disc > 0 ? ' (−' + (l.discType === 'percent' ? l.discValue + '%' : l.disc + ' QAR') + ')' : ''),
         qty: l.qty,
-        unit: l.free ? 'FREE' : String(Math.round((l.total || 0) / (l.qty || 1))),
+        unit: l.free ? 'FREE' : (l.disc > 0 && l.unit != null ? String(l.unit) : String(Math.round((l.total || 0) / (l.qty || 1)))),
         amt: l.free ? 'FREE' : String(l.total || 0)
       })),
-      total: fmt(invOrder.total)
+      total: fmt(invOrder.total),
+      subtotal: fmt(Math.round(((Number(invOrder.total) || 0) + (Number(invOrder.discount) || 0)) * 100) / 100),
+      hasDiscount: (Number(invOrder.discount) || 0) > 0,
+      discountText: invOrder.discType === 'percent' && invOrder.discValue ? 'Discount ' + invOrder.discValue + '% / خصم' : 'Discount / خصم',
+      discountAmt: fmt(Number(invOrder.discount) || 0)
     } : null;
 
     // ---- Purchase Orders ----
@@ -4945,7 +5090,9 @@ class Component extends DCLogic {
         const items = s.newOrder.items.slice(); const cur = items[i];
         items[i] = on ? { ...cur, free: true, prevPrice: cur.free ? cur.prevPrice : cur.price, price: 0 } : { ...cur, free: false, price: cur.prevPrice != null ? cur.prevPrice : '' };
         return { newOrder: { ...s.newOrder, items }, newOrderError: '' }; }); },
-      lineTotal: it.free ? 'FREE' : fmt(Math.round((Number(it.qty) || 0) * (Number(it.price) || 0))),
+      lineTotal: it.free ? 'FREE' : fmt(lineCalc(it.qty, it.price, it.free, it.discType, it.discValue).net),
+      discType: it.discType || 'amount', discIsAmount: (it.discType || 'amount') === 'amount', discIsPct: it.discType === 'percent', discValue: it.discValue == null ? '' : it.discValue,
+      onDiscType: setItem(i, 'discType'), onDiscValue: setItem(i, 'discValue'),
       onName: setItem(i, 'name'), onQty: setItem(i, 'qty'), onPrice: setItem(i, 'price'),
       remove: () => this.setState(s => ({ newOrder: { ...s.newOrder, items: s.newOrder.items.filter((_, j) => j !== i) } }))
     }));
@@ -4979,7 +5126,8 @@ class Component extends DCLogic {
           id: o.id, source: o.source && o.source !== 'storefront' ? o.source : '',
           name: o.name || '', phone: o.phone || '', zone: o.zone || '', address: o.address || '',
           notes: o.notes || '', status: o.status || 'new', paymentStatus: o.paymentStatus || 'pending', payMethod: o.payMethod || '',
-          items: (o.lines || []).map(l => ({ name: l.name, qty: l.qty, price: l.free ? 0 : Math.round((l.total || 0) / (l.qty || 1)), free: !!l.free, sku: l.sku || '', brand: l.brand || '', nameEn: l.nameEn || '' }))
+          discType: o.discType || 'amount', discValue: o.discount > 0 && o.discValue ? String(o.discValue) : '',
+          items: (o.lines || []).map(l => ({ name: l.name, qty: l.qty, price: l.free ? 0 : (l.disc > 0 && l.unit != null ? l.unit : Math.round((l.total || 0) / (l.qty || 1))), discType: l.disc > 0 ? (l.discType || 'amount') : 'amount', discValue: l.disc > 0 && l.discValue ? String(l.discValue) : '', free: !!l.free, sku: l.sku || '', brand: l.brand || '', nameEn: l.nameEn || '' }))
         }
       }, () => window.scrollTo(0, 0));
       flash('Order ' + o.id + ' already exists — opened for editing.');
@@ -5295,7 +5443,9 @@ class Component extends DCLogic {
       })
     };
 
-    const newOrderTotalNum = no.items.reduce((a, it) => a + Math.round((Number(it.qty) || 0) * (Number(it.price) || 0)), 0);
+    const newOrderSubNum = no.items.reduce((a, it) => a + lineCalc(it.qty, it.price, it.free, it.discType, it.discValue).net, 0);
+    const newOrderDisc = calcDisc(newOrderSubNum, no.discType, no.discValue).disc;
+    const newOrderTotalNum = Math.round((newOrderSubNum - newOrderDisc) * 100) / 100;
 
     return {
       isLogin: !authed, isConsole: authed,
@@ -5678,9 +5828,13 @@ class Component extends DCLogic {
       addOrderItem: () => pushItem({ name: '', qty: 1, price: '' }),
       orderItems,
       newOrderTotal: fmt(newOrderTotalNum),
+      noDiscType: no.discType || 'amount', noDiscIsAmount: (no.discType || 'amount') === 'amount', noDiscIsPct: no.discType === 'percent',
+      noOnDiscType: (e) => { const v = e.target.value; this.setState(s => ({ newOrder: { ...s.newOrder, discType: v }, newOrderError: '' })); },
+      noDiscValue: no.discValue == null ? '' : no.discValue, noOnDiscValue: setNO('discValue'),
+      noHasDisc: newOrderDisc > 0, noSubtotal: fmt(newOrderSubNum), noDiscLabel: fmt(newOrderDisc) + (no.discType === 'percent' ? ' (' + (Number(no.discValue) || 0) + '%)' : ''),
       saveNewOrder: async () => {
         const items = no.items
-          .map(it => ({ qty: Math.max(1, parseInt(it.qty, 10) || 1), name: String(it.name || '').trim(), unit: it.free ? 0 : (Number(it.price) || 0), free: !!it.free, sku: it.sku || '', brand: it.brand || '', nameEn: it.nameEn || '' }))
+          .map(it => ({ qty: Math.max(1, parseInt(it.qty, 10) || 1), name: String(it.name || '').trim(), unit: it.free ? 0 : (Number(it.price) || 0), free: !!it.free, sku: it.sku || '', brand: it.brand || '', nameEn: it.nameEn || '', discType: it.discType || 'amount', discValue: it.discValue }))
           .filter(it => it.name);
         if (!no.name.trim()) { this.setState({ newOrderError: 'Please enter the customer name.' }); return; }
         const qPhone = this.qatarPhone(no.phone);
@@ -5689,8 +5843,11 @@ class Component extends DCLogic {
         let id = String(no.id || '').trim();
         if (!id) id = await this.fetchNextOrderId();
         if (orders.some(o => o.id === id)) { this.setState({ newOrderError: 'Order ID "' + id + '" already exists.' }); return; }
-        const lines = items.map(it => ({ ...(it.sku ? { sku: it.sku } : {}), ...(it.brand ? { brand: it.brand } : {}), qty: it.qty, name: it.name, ...(it.nameEn ? { nameEn: it.nameEn } : {}), unit: it.unit, total: it.free ? 0 : Math.round(it.qty * it.unit), ...(it.free ? { free: true } : {}) }));
-        const total = lines.reduce((a, l) => a + l.total, 0);
+        const lines = items.map(it => ({ ...(it.sku ? { sku: it.sku } : {}), ...(it.brand ? { brand: it.brand } : {}), qty: it.qty, name: it.name, ...(it.nameEn ? { nameEn: it.nameEn } : {}), unit: it.unit, total: it.free ? 0 : lineCalc(it.qty, it.unit, false, it.discType, it.discValue).net, ...(!it.free && lineCalc(it.qty, it.unit, false, it.discType, it.discValue).disc > 0 ? { disc: lineCalc(it.qty, it.unit, false, it.discType, it.discValue).disc, discType: it.discType || 'amount', discValue: Number(it.discValue) || 0 } : {}), ...(it.free ? { free: true } : {}) }));
+        const subN = lines.reduce((a, l) => a + l.total, 0);
+        const dcN = calcDisc(subN, no.discType, no.discValue);
+        if (dcN.err) { this.setState({ newOrderError: dcN.err }); return; }
+        const total = Math.round((subN - dcN.disc) * 100) / 100;
         const orderRow = {
           id,
           customer_name: no.name.trim(),
@@ -5702,19 +5859,20 @@ class Component extends DCLogic {
           status: no.status || 'new',
           payment_status: no.paymentStatus || 'pending',
           source: no.source.trim() || 'manual',
-          payment_method: no.payMethod || 'cash'
+          payment_method: no.payMethod || 'cash',
+          ...(dcN.disc > 0 ? { discount: dcN.disc, discount_type: no.discType || 'amount', discount_value: Number(no.discValue) || 0 } : {})
         };
         let ins = await window.getSupabase().from('orders').insert(orderRow);
         let methodNotSaved = false;
         if (ins.error && /payment_method/.test(ins.error.message || '')) { const { payment_method, ...plain } = orderRow; ins = await window.getSupabase().from('orders').insert(plain); methodNotSaved = true; }
         const error = ins.error;
-        if (error) { this.setState({ newOrderError: error.message }); return; }
+        if (error) { this.setState({ newOrderError: /discount/.test(error.message || '') ? 'Discounts need a one-time database update — run madzo-update-18.sql in Supabase, then save again.' : error.message }); return; }
         this.syncOrderStock(id, lines);
         this.rememberCustomer(orderRow.customer_name, orderRow.phone, orderRow.zone, orderRow.address);
         if (methodNotSaved) alert('Order saved — but its payment method could not be stored yet. Run madzo-update-3.sql in Supabase, then set it from Edit.');
         this.setState({
           showOrderForm: false, newOrderError: '', salesView: 'details',
-          newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', paymentStatus: 'pending', payMethod: 'cash', items: [] }
+          newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', paymentStatus: 'pending', payMethod: 'cash', discType: 'amount', discValue: '', items: [] }
         });
         this.loadOrders();
       },
@@ -6109,6 +6267,18 @@ class Component extends DCLogic {
       savedMsg: this.state.savedMsg,
       setIg: this.state.setIg, setErr: this.state.setErr,
       exportProducts: () => this.exportProducts(),
+      openBulkDisc: () => this.setState({ bd: { scope: 'all', type: 'percent', value: '', err: '', busy: false }, impMsg: '' }),
+      closeBulkDisc: () => this.setState({ bd: null }),
+      bdOpen: !!this.state.bd, bdBusy: !!(this.state.bd && this.state.bd.busy), bdBtn: this.state.bd && this.state.bd.busy ? 'Working…' : 'Apply discount',
+      bdScope: this.state.bd ? this.state.bd.scope : 'all',
+      bdScopeOpts: [{ v: 'all', l: 'All products' }, ...mainCats.map(m => ({ v: m.id, l: 'Category: ' + m.name }))].map(x => ({ ...x, selected: x.v === (this.state.bd ? this.state.bd.scope : 'all') })),
+      onBdScope: (e) => { const v = e.target.value; this.setState(s => ({ bd: { ...s.bd, scope: v, err: '' } })); },
+      bdType: this.state.bd ? this.state.bd.type : 'percent', bdIsPct: !this.state.bd || this.state.bd.type === 'percent', bdIsAmt: !!this.state.bd && this.state.bd.type === 'amount',
+      onBdType: (e) => { const v = e.target.value; this.setState(s => ({ bd: { ...s.bd, type: v, err: '' } })); },
+      bdValue: this.state.bd ? this.state.bd.value : '', onBdValue: (e) => { const v = e.target.value; this.setState(s => ({ bd: { ...s.bd, value: v, err: '' } })); },
+      bdErr: this.state.bd ? this.state.bd.err : '',
+      bdPreview: (() => { if (!this.state.bd) return ''; const rows = this.bulkTargets(), okr = rows.filter(r => r.ok), skip = rows.length - okr.length; if (!(Number(this.state.bd.value) > 0)) return rows.length + ' product' + (rows.length === 1 ? '' : 's') + ' selected. Enter a value to see the new prices.'; const ex = okr[0]; return okr.length + ' product' + (okr.length === 1 ? '' : 's') + ' will be discounted' + (skip ? ' (' + skip + ' skipped: free items or price too low)' : '') + '.' + (ex ? ' Example: ' + ex.p.name + ' ' + ex.base + ' → ' + ex.np + ' QAR.' : ''); })(),
+      bdApply: () => this.applyBulkDisc(), bdRemove: () => this.removeBulkDisc(),
       onImportFile: (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) this.prepareImport(f); },
       impMsg: this.state.impMsg, impOpen: !!this.state.imp, impFile: this.state.imp ? this.state.imp.file : '',
       impNewCount: this.state.imp ? this.state.imp.items.filter(i => i.op === 'new').length : 0,

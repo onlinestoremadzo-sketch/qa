@@ -20,6 +20,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="image-slot.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="offline-sync.js"></script>
   <script src="supabase-config.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -2500,10 +2501,17 @@ class Component extends DCLogic {
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (this.state.noteImp) this.setState({ noteImp: null }); else if (this._ed) this.closeNote(); } });
     const sb = window.getSupabase();
     sb.auth.getSession().then(({ data }) => {
-      this.setState({ authChecked: true, authed: !!(data && data.session) });
-      if (data && data.session) this.loadAll();
+      // Offline with a previously saved login: open the console with the saved data (changes are queued).
+      const okOffline = !(data && data.session) && !navigator.onLine && window.madzoOffline && window.madzoOffline.hasStoredSession();
+      this.setState({ authChecked: true, authed: !!(data && data.session) || !!okOffline });
+      if ((data && data.session) || okOffline) this.loadAll();
     });
+    // internet came back / queued changes were sent: refresh everything from the server
+    const resync = () => { if (this.state.authed) this.loadAll(); };
+    window.addEventListener('madzo-synced', resync);
+    window.addEventListener('madzo-online', resync);
     sb.auth.onAuthStateChange((_event, session) => {
+      if (!session && !navigator.onLine && window.madzoOffline && window.madzoOffline.hasStoredSession()) return; // offline: keep the saved login
       this.setState({ authed: !!session });
       if (session) this.loadAll();
     });

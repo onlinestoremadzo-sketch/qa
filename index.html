@@ -458,11 +458,18 @@
 
   <!-- ============ ABOUT ============ -->
   <sc-if value="{{ isAbout }}" hint-placeholder-val="{{ false }}">
-    <section data-screen-label="About" style="background: {{ headerBg }}; color: #F7F1EA; padding: 44px 18px 56px;">
+    <section data-screen-label="About" style="position: relative; background: {{ headerBg }}; color: #F7F1EA; padding: 44px 18px 56px;">
+      <button onClick="{{ goHome }}" aria-label="Close" style="position: absolute; top: 14px; inset-inline-end: 14px; background: rgba(253,249,244,.12); border: 1px solid rgba(253,249,244,.35); color: #FDF9F4; width: 40px; height: 40px; border-radius: 50%; font-size: 24px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center;">×</button>
       <div style="max-width: 680px; margin: 0 auto; text-align: center; display: flex; flex-direction: column; gap: 26px;">
         <div>
           <h1 style="font-size: 24px; font-weight: 600; margin: 0 0 16px;">{{ t.aboutTitle }}</h1>
           <p style="font-size: 15px; line-height: 1.9; margin: 0; color: #F3E8E1;">{{ t.aboutBody }}</p>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 16px; text-align: start;">
+          <h2 style="font-size: 19px; font-weight: 600; margin: 0; text-align: center;">{{ t.valuesTitle }}</h2>
+          <sc-for list="{{ valuesList }}" as="cv" hint-placeholder-count="5">
+            <p style="font-size: 15px; line-height: 1.8; margin: 0; color: #F3E8E1;"><span style="margin-inline-end: 6px;">{{ cv.icon }}</span><strong style="color: #FDF9F4; letter-spacing: .3px;">{{ cv.title }}</strong> — <span style="font-style: italic;">{{ cv.body }}</span></p>
+          </sc-for>
         </div>
         <div>
           <h2 style="font-size: 19px; font-weight: 600; margin: 0 0 12px;">{{ t.contactTitle }}</h2>
@@ -474,13 +481,15 @@
           <sc-if value="{{ hasIg }}" hint-placeholder-val="{{ false }}"><a href="{{ igUrl }}" target="_blank" rel="noopener" style="color: #FDF9F4; font-size: 15px; text-decoration: underline; cursor: pointer;">Instagram {{ igHandle }}</a></sc-if>
         </div>
         <button onClick="{{ contactWhatsApp }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 14px 30px; font-size: 15px; font-weight: 600; cursor: pointer; align-self: center;" style-hover="filter: brightness(1.07);">{{ t.chatWa }}</button>
+        <button onClick="{{ goHome }}" style="background: none; border: 1px solid rgba(253,249,244,.5); color: #FDF9F4; border-radius: 999px; padding: 12px 28px; font-size: 14.5px; cursor: pointer; align-self: center;">{{ t.backHome }}</button>
       </div>
     </section>
   </sc-if>
 
   <!-- ============ POLICY & EXCHANGES ============ -->
   <sc-if value="{{ isPolicy }}" hint-placeholder-val="{{ false }}">
-    <section data-screen-label="Policy" style="background: {{ headerBg }}; color: #F7F1EA; padding: 44px 18px 56px;">
+    <section data-screen-label="Policy" style="position: relative; background: {{ headerBg }}; color: #F7F1EA; padding: 44px 18px 56px;">
+      <button onClick="{{ goHome }}" aria-label="Close" style="position: absolute; top: 14px; inset-inline-end: 14px; background: rgba(253,249,244,.12); border: 1px solid rgba(253,249,244,.35); color: #FDF9F4; width: 40px; height: 40px; border-radius: 50%; font-size: 24px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center;">×</button>
       <div style="max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px;">
         <h1 style="font-size: 24px; font-weight: 600; margin: 0; text-align: center;">{{ t.policyTitle }}</h1>
         <sc-for list="{{ policyList }}" as="pb" hint-placeholder-count="4">
@@ -490,6 +499,7 @@
           </div>
         </sc-for>
         <button onClick="{{ contactWhatsApp }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 13px 28px; font-size: 15px; font-weight: 600; cursor: pointer; align-self: center;">{{ t.chatWa }}</button>
+        <button onClick="{{ goHome }}" style="background: none; border: 1px solid rgba(253,249,244,.5); color: #FDF9F4; border-radius: 999px; padding: 12px 28px; font-size: 14.5px; cursor: pointer; align-self: center;">{{ t.backHome }}</button>
       </div>
     </section>
   </sc-if>
@@ -815,6 +825,14 @@ class Component extends DCLogic {
         sendWa: 'Send order on WhatsApp', backHome: 'Back to home',
         aboutTitle: 'About Us',
         freeDelHeader: 'Free delivery across Qatar',
+        valuesTitle: 'Our Core Values',
+        coreValues: [
+          ['💎', 'PREMIUM QUALITY', 'We carefully select authentic beauty and skincare products to ensure the highest standards for our customers.'],
+          ['✨', 'BEAUTY FOR EVERYONE', 'Offering products for every skin type, tone, and beauty preference with confidence and care.'],
+          ['🤝', 'CUSTOMER FIRST', 'Building trust through excellent service, honest advice, and personalized beauty solutions.'],
+          ['🌿', 'CARE & WELLNESS', 'Supporting healthy beauty routines with safe, effective, and reliable products.'],
+          ['🚀', 'TREND & INNOVATION', 'Bringing the latest beauty trends, skincare innovations, and premium brands to our store.']
+        ],
         feat1T: '24/7 Live Support', feat1D: 'Our support team is here around the clock to assist you.',
         feat2T: 'Pay on Delivery', feat2D: 'Prefer cash? Pay securely when your order arrives.',
         feat3T: 'Hassle-Free Exchanges', feat3D: 'Not completely satisfied? Our simple exchange process makes it easy.',
@@ -854,6 +872,14 @@ class Component extends DCLogic {
         sendWa: 'إرسال الطلب عبر واتساب', backHome: 'العودة للرئيسية',
         aboutTitle: 'من نحن',
         freeDelHeader: 'توصيل مجاني داخل قطر',
+        valuesTitle: 'قيمنا الأساسية',
+        coreValues: [
+          ['💎', 'جودة فاخرة', 'نختار بعناية منتجات التجميل والعناية بالبشرة الأصلية لنضمن أعلى المعايير لعملائنا.'],
+          ['✨', 'الجمال للجميع', 'نقدم منتجات تناسب كل أنواع البشرة والدرجات واختلاف تفضيلات الجمال بثقة واهتمام.'],
+          ['🤝', 'العميل أولاً', 'نبني الثقة من خلال خدمة ممتازة ونصيحة صادقة وحلول جمال مخصصة.'],
+          ['🌿', 'العناية والعافية', 'ندعم روتين جمال صحي بمنتجات آمنة وفعالة وموثوقة.'],
+          ['🚀', 'الصيحات والابتكار', 'نجلب إلى متجرنا أحدث صيحات الجمال وابتكارات العناية بالبشرة وأرقى العلامات التجارية.']
+        ],
         feat1T: 'دعم مباشر على مدار الساعة', feat1D: 'فريق الدعم لدينا متواجد على مدار الساعة لمساعدتك.',
         feat2T: 'الدفع عند الاستلام', feat2D: 'تفضل الدفع نقداً؟ ادفع بأمان عند وصول طلبك.',
         feat3T: 'استبدال بدون عناء', feat3D: 'لست راضياً تماماً؟ عملية الاستبدال لدينا بسيطة وسهلة.',
@@ -1072,6 +1098,7 @@ class Component extends DCLogic {
       langLabel: lang === 'ar' ? 'EN' : 'عربي',
       toggleLang: () => this.setState({ lang: lang === 'ar' ? 'en' : 'ar' }, () => this.persist()),
       waDisplay: this.waNumber(),
+      valuesList: (t.coreValues || []).map(([icon, title, body]) => ({ icon, title, body })),
       policyList: (t.policyBlocks || []).map(([h, b]) => ({ h, b })),
       hasIg: !!this.igHandle(), igHandle: this.igHandle() ? '@' + this.igHandle() : '', igUrl: this.igHandle() ? 'https://www.instagram.com/' + this.igHandle() + '/' : '#',
 

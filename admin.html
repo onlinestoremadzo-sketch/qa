@@ -694,6 +694,52 @@
                       <button onClick="{{ p.retranslate }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 10px 18px; font-size: 13px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">{{ p.retranslateLabel }}</button>
                       <button onClick="{{ p.toggleEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 10px 20px; font-size: 13.5px; cursor: pointer;">Cancel</button>
                     </span>
+                    <span style="display: flex; gap: 10px; flex-wrap: wrap;">
+                      <button onClick="{{ p.toggleBuyRates }}" style="background: {{ p.buyRatesBg }}; border: 1px solid #461610; color: {{ p.buyRatesFg }}; border-radius: 999px; padding: 9px 16px; font-size: 13px; cursor: pointer;">Previous purchase rates</button>
+                      <button onClick="{{ p.toggleSellRates }}" style="background: {{ p.sellRatesBg }}; border: 1px solid #461610; color: {{ p.sellRatesFg }}; border-radius: 999px; padding: 9px 16px; font-size: 13px; cursor: pointer;">Previous sales rates</button>
+                    </span>
+                    <sc-if value="{{ p.rvBuy }}" hint-placeholder-val="{{ false }}">
+                      <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 12px; overflow-x: auto;">
+                        <div style="font-size: 13px; font-weight: 600; color: #461610; margin-bottom: 6px;">Previous purchase rates — from GRN entries</div>
+                        <sc-if value="{{ p.buyEmpty }}" hint-placeholder-val="{{ false }}"><p style="margin: 6px 0; font-size: 13px; color: #857D72;">No GRN entries found for this product yet.</p></sc-if>
+                        <table style="border-collapse: collapse; width: 100%; min-width: 460px;">
+                          <thead><tr><th style="text-align:left; padding:6px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">Date</th><th style="text-align:left; padding:6px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">Supplier</th><th style="text-align:left; padding:6px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">GRN</th><th style="text-align:left; padding:6px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">Qty</th><th style="text-align:left; padding:6px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">Purchase rate (QAR)</th></tr></thead>
+                          <tbody>
+                            <sc-for list="{{ p.buyRows }}" as="br" hint-placeholder-count="2">
+                              <tr><td style="padding:6px 8px; font-size:13px; border-bottom:1px solid #F0E8DA; white-space:nowrap;">{{ br.date }}</td><td style="padding:6px 8px; font-size:13px; border-bottom:1px solid #F0E8DA; white-space:nowrap;">{{ br.supplier }}</td><td style="padding:6px 8px; font-size:13px; border-bottom:1px solid #F0E8DA; white-space:nowrap;">{{ br.grn }}</td><td style="padding:6px 8px; font-size:13px; border-bottom:1px solid #F0E8DA; white-space:nowrap;">{{ br.qty }}</td><td style="padding:6px 8px; font-size:13px; border-bottom:1px solid #F0E8DA; white-space:nowrap; font-weight:600; color:#461610;">{{ br.rate }}<span style="font-weight:400; color:#857D72; font-size:11.5px;">{{ br.orig }}</span> <span style="color:{{ br.chgColor }}; font-size:11.5px; font-weight:600;">{{ br.chg }}</span></td></tr>
+                            </sc-for>
+                          </tbody>
+                        </table>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ p.rvSell }}" hint-placeholder-val="{{ false }}">
+                      <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 12px; overflow-x: auto; display: flex; flex-direction: column; gap: 14px;">
+                        <div>
+                          <div style="font-size: 13px; font-weight: 600; color: #461610; margin-bottom: 6px;">Sell rate set — date it was last updated (from GRN entries)</div>
+                          <sc-if value="{{ p.sellSetEmpty }}" hint-placeholder-val="{{ false }}"><p style="margin: 6px 0; font-size: 13px; color: #857D72;">No sell rate recorded in GRN entries yet.</p></sc-if>
+                          <table style="border-collapse: collapse; width: 100%; min-width: 380px;">
+                            <thead><tr><th style="text-align:left; padding:6px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">Date</th><th style="text-align:left; padding:6px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">Supplier</th><th style="text-align:left; padding:6px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">GRN</th><th style="text-align:left; padding:6px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">Sell rate (QAR)</th></tr></thead>
+                            <tbody>
+                              <sc-for list="{{ p.sellSetRows }}" as="sr" hint-placeholder-count="2">
+                                <tr><td style="padding:6px 8px; font-size:13px; border-bottom:1px solid #F0E8DA; white-space:nowrap;">{{ sr.date }}</td><td style="padding:6px 8px; font-size:13px; border-bottom:1px solid #F0E8DA; white-space:nowrap;">{{ sr.supplier }}</td><td style="padding:6px 8px; font-size:13px; border-bottom:1px solid #F0E8DA; white-space:nowrap;">{{ sr.grn }}</td><td style="padding:6px 8px; font-size:13px; border-bottom:1px solid #F0E8DA; white-space:nowrap; font-weight:600; color:#461610;">{{ sr.rate }} <span style="color:{{ sr.chgColor }}; font-size:11.5px; font-weight:600;">{{ sr.chg }}</span></td></tr>
+                              </sc-for>
+                            </tbody>
+                          </table>
+                        </div>
+                        <div>
+                          <div style="font-size: 13px; font-weight: 600; color: #461610; margin-bottom: 6px;">Actually sold — from sales orders</div>
+                          <sc-if value="{{ p.soldEmpty }}" hint-placeholder-val="{{ false }}"><p style="margin: 6px 0; font-size: 13px; color: #857D72;">Not sold in any order yet.</p></sc-if>
+                          <table style="border-collapse: collapse; width: 100%; min-width: 380px;">
+                            <thead><tr><th style="text-align:left; padding:6px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">Date</th><th style="text-align:left; padding:6px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">Order</th><th style="text-align:left; padding:6px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">Qty</th><th style="text-align:left; padding:6px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">Sold rate (QAR)</th></tr></thead>
+                            <tbody>
+                              <sc-for list="{{ p.soldRows }}" as="so" hint-placeholder-count="2">
+                                <tr><td style="padding:6px 8px; font-size:13px; border-bottom:1px solid #F0E8DA; white-space:nowrap;">{{ so.date }}</td><td style="padding:6px 8px; font-size:13px; border-bottom:1px solid #F0E8DA; white-space:nowrap;">{{ so.order }}</td><td style="padding:6px 8px; font-size:13px; border-bottom:1px solid #F0E8DA; white-space:nowrap;">{{ so.qty }}</td><td style="padding:6px 8px; font-size:13px; border-bottom:1px solid #F0E8DA; white-space:nowrap; font-weight:600; color:#461610;">{{ so.rate }}<span style="font-weight:400; color:#857D72; font-size:11.5px;">{{ so.note }}</span></td></tr>
+                              </sc-for>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </sc-if>
                   </div>
                 </sc-if>
               </div>
@@ -2447,7 +2493,7 @@ class Component extends DCLogic {
       newProdError: '',
       editSku: null,
       editDraft: null,
-      editError: '',
+      editError: '', rateView: null,
       showOrderForm: false,
       newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', paymentStatus: 'pending', payMethod: 'cash', discType: 'amount', discValue: '', items: [] },
       newOrderError: '',
@@ -2500,11 +2546,18 @@ class Component extends DCLogic {
   componentDidMount() {
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (this.state.noteImp) this.setState({ noteImp: null }); else if (this._ed) this.closeNote(); } });
     const sb = window.getSupabase();
+    // Offline (or a very slow connection) with a login saved on this phone: open straight away with the saved data.
+    // (The login library can spend ~30 seconds retrying a token refresh with no internet, so we do not wait for it.)
+    let entered = false;
+    const hasSaved = () => !!(window.madzoOffline && window.madzoOffline.hasStoredSession());
+    const enterOffline = () => { if (entered) return; entered = true; this.setState({ authChecked: true, authed: true }); this.loadAll(); };
+    if (!navigator.onLine && hasSaved()) enterOffline();
+    const slow = setTimeout(() => { if (hasSaved()) enterOffline(); }, 3500);
     sb.auth.getSession().then(({ data }) => {
-      // Offline with a previously saved login: open the console with the saved data (changes are queued).
-      const okOffline = !(data && data.session) && !navigator.onLine && window.madzoOffline && window.madzoOffline.hasStoredSession();
-      this.setState({ authChecked: true, authed: !!(data && data.session) || !!okOffline });
-      if ((data && data.session) || okOffline) this.loadAll();
+      clearTimeout(slow);
+      const real = !!(data && data.session);
+      if (real) { this.setState({ authChecked: true, authed: true }); this.loadAll(); entered = true; }
+      else if (!entered) { this.setState({ authChecked: true, authed: false }); }
     });
     // internet came back / queued changes were sent: refresh everything from the server
     const resync = () => { if (this.state.authed) this.loadAll(); };
@@ -4079,6 +4132,58 @@ class Component extends DCLogic {
     return 'MZ-' + String(n).padStart(4, '0');
   }
 
+  // Previous purchase / sales rates shown inside Edit product.
+  rateProps(sku) {
+    const rv = this.state.rateView, kind = rv && rv.sku === sku ? rv.kind : '';
+    const open = (k) => () => this.setState(s => ({ rateView: s.rateView && s.rateView.sku === sku && s.rateView.kind === k ? null : { sku, kind: k } }));
+    const out = {
+      toggleBuyRates: open('buy'), toggleSellRates: open('sell'),
+      buyRatesBg: kind === 'buy' ? '#461610' : 'transparent', buyRatesFg: kind === 'buy' ? '#fff' : '#461610',
+      sellRatesBg: kind === 'sell' ? '#461610' : 'transparent', sellRatesFg: kind === 'sell' ? '#fff' : '#461610',
+      rvBuy: kind === 'buy', rvSell: kind === 'sell',
+      buyRows: [], buyEmpty: false, sellSetRows: [], sellSetEmpty: false, soldRows: [], soldEmpty: false
+    };
+    if (!kind) return out;
+    const q2 = (n) => (Math.round(n * 100) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const dstr = (d, ts) => { const t = d ? new Date(String(d).slice(0, 10) + 'T00:00:00') : (ts ? new Date(ts) : null); return t && !isNaN(t) ? t.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'; };
+    const grn = [];
+    (this.state.dbGRNs || []).forEach(g => (g.items || []).forEach(it => {
+      if (String(it.code || '') === String(sku)) grn.push({ g, it, key: (g.date || '') + '|' + String(g.ts || 0).padStart(15, '0') });
+    }));
+    grn.sort((a, b) => (a.key < b.key ? 1 : a.key > b.key ? -1 : 0)); // newest first
+    const trend = (rows, get) => rows.map((r, i) => {
+      const prev = rows[i + 1]; if (!prev) return { chg: '', chgColor: '#857D72' };
+      const d = get(r) - get(prev); if (Math.abs(d) < 0.005) return { chg: '=', chgColor: '#857D72' };
+      return { chg: (d > 0 ? '▲ +' : '▼ ') + q2(d), chgColor: d > 0 ? '#C0392B' : '#21B858' };
+    });
+    if (kind === 'buy') {
+      const get = (r) => (Number(r.it.buy) || 0) * (r.g.rate || 1);
+      const tr = trend(grn, get);
+      out.buyRows = grn.map((r, i) => ({
+        date: dstr(r.g.date, r.g.ts), supplier: r.g.supplier || '—', grn: r.g.id, qty: (Number(r.it.qty) || 0) + (Number(r.it.free) > 0 ? ' + ' + Number(r.it.free) + ' free' : ''),
+        rate: q2(get(r)), orig: r.g.currency && r.g.currency !== 'QAR' ? '  (' + q2(Number(r.it.buy) || 0) + ' ' + r.g.currency + ')' : '', chg: tr[i].chg, chgColor: tr[i].chgColor
+      }));
+      out.buyEmpty = !out.buyRows.length;
+    } else {
+      const withSell = grn.filter(r => Number(r.it.sell) > 0);
+      const get = (r) => Number(r.it.sell) || 0;
+      const tr = trend(withSell, get);
+      out.sellSetRows = withSell.map((r, i) => ({ date: dstr(r.g.date, r.g.ts), supplier: r.g.supplier || '—', grn: r.g.id, rate: q2(get(r)), chg: tr[i].chg, chgColor: tr[i].chgColor }));
+      out.sellSetEmpty = !out.sellSetRows.length;
+      const sold = [];
+      (this.state.dbOrders || []).forEach(o => (o.lines || []).forEach(l => {
+        if (String(l.sku || '') !== String(sku) || l.free) return;
+        const qty = Number(l.qty) || 0; if (!qty) return;
+        const net = (Number(l.total) || 0) / qty;
+        sold.push({ ts: o.ts || 0, date: dstr(null, o.ts), order: o.id, qty, rate: net, listed: l.disc > 0 && l.unit != null ? Number(l.unit) : null });
+      }));
+      sold.sort((a, b) => b.ts - a.ts);
+      out.soldRows = sold.map(r => ({ date: r.date, order: r.order, qty: r.qty, rate: q2(r.rate), note: r.listed != null && Math.abs(r.listed - r.rate) > 0.005 ? '  (listed ' + q2(r.listed) + ', discounted)' : '' }));
+      out.soldEmpty = !out.soldRows.length;
+    }
+    return out;
+  }
+
   async loadOrders() {
     try {
       const sb = window.getSupabase();
@@ -4430,6 +4535,7 @@ class Component extends DCLogic {
         edNameAr: d.nameAr || '', onEdNameAr: setDraft('nameAr'),
         edDesc: d.desc || '', onEdDesc: setDraft('desc'),
         edDescAr: d.descAr || '', onEdDescAr: setDraft('descAr'),
+        ...this.rateProps(p.sku),
         saveEditLabel: this.state.savingEditSku === p.sku ? 'Saving…' : 'Save changes',
         retranslateLabel: this.state.retranslatingSku === p.sku ? 'Translating…' : 'Re-translate to Arabic',
         retranslate: async () => {

@@ -5,6 +5,7 @@
  * - Login/auth, file uploads and server counters (rpc) always need internet.
  */
 (function () {
+  if (window.madzoOffline) return; // already loaded (the page framework can run scripts twice)
   var nativeFetch = window.fetch.bind(window);
   var QUEUE_ON = /admin/i.test(location.pathname);
   var DB_NAME = 'madzo-offline', DB;
@@ -94,7 +95,8 @@
       pill.type = 'button';
       pill.setAttribute('style', 'position:fixed;left:12px;bottom:12px;z-index:99999;border:0;border-radius:999px;padding:9px 14px;font:600 12px Poppins,Arial,sans-serif;color:#fff;background:#461610;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer;display:none;max-width:calc(100vw - 24px)');
       pill.addEventListener('click', togglePanel);
-      document.body.appendChild(pill);
+      pill.id = 'madzo-offline-pill';
+      document.documentElement.appendChild(pill);
     }
     var txt = '', bg = '#461610';
     if (state.failed) { txt = '⚠ ' + state.failed + ' change' + (state.failed > 1 ? 's' : '') + ' could not sync — tap'; bg = '#b3261e'; }
@@ -111,7 +113,7 @@
     if (!state.failed && state.offline) return;
     panel = document.createElement('div');
     panel.setAttribute('style', 'position:fixed;left:12px;bottom:58px;z-index:99999;background:#fff;color:#222;border-radius:12px;padding:14px;width:min(380px,calc(100vw - 24px));max-height:60vh;overflow:auto;font:13px Poppins,Arial,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.3)');
-    document.body.appendChild(panel);
+    document.documentElement.appendChild(panel);
     renderPanel();
   }
   function renderPanel() {
@@ -163,6 +165,22 @@
     ]) : Promise.reject(new TypeError('offline'));
     return live.then(function (res) {
       setOffline(false);
+      // A request sent without a signed-in user (token still refreshing) gets an empty list for private tables.
+      // Never let that wipe the saved copy; show the saved data instead.
+      var auth = hget(init && init.headers, 'authorization'), key0 = hget(init && init.headers, 'apikey');
+      if (QUEUE_ON && res.ok && method === 'GET' && (!auth || auth === 'Bearer ' + key0)) {
+        return res.clone().text().then(function (t) {
+          if (t.replace(/\s/g, '') !== '[]') return store(res);
+          return new Promise(function (ok) {
+            open().then(function (d) { var r = d.transaction('cache', 'readonly').objectStore('cache').get(key); r.onsuccess = function () { ok(r.result); }; r.onerror = function () { ok(null); }; });
+          }).then(function (hit) {
+            if (hit && hit.body.replace(/\s/g, '') !== '[]') return new Response(hit.body, { status: hit.status, headers: hit.headers });
+            return res;
+          });
+        });
+      }
+      return store(res);
+      function store(res) {
       if (res.ok) {
         var c = res.clone();
         c.text().then(function (body) {
@@ -171,6 +189,7 @@
         });
       }
       return res;
+      }
     }, function (err) {
       if (!isNetErr(err)) throw err;
       setOffline(true);

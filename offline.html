@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#461610">
+<title>You're offline — MADZO</title>
+<style>
+  html,body{margin:0;height:100%;background:#461610;color:#F7F1EA;font-family:Poppins,system-ui,Segoe UI,Arial,sans-serif}
+  main{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:28px;text-align:center}
+  img{width:96px;height:96px;border-radius:22px}
+  h1{font-size:22px;margin:6px 0 0;font-weight:600}
+  p{margin:0;max-width:340px;line-height:1.7;color:#E8D9CF;font-size:15px}
+  button{margin-top:10px;background:#FDF9F4;color:#461610;border:none;border-radius:999px;padding:13px 30px;font-size:15px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<main>
+  <img src="icon-192.png" alt="MADZO">
+  <h1>You're offline</h1>
+  <p>Please check your internet connection. MADZO will reopen by itself as soon as you're back online.</p>
+  <h1 dir="rtl" style="font-size:19px">لا يوجد اتصال بالإنترنت</h1>
+  <p dir="rtl">يرجى التحقق من اتصالك بالإنترنت. سيُعاد فتح مدزو تلقائياً عند عودة الاتصال.</p>
+  <button onclick="location.reload()">Try again · إعادة المحاولة</button>
+</main>
+<script>window.addEventListener('online', function(){ location.reload(); });</script>
+</body>
+</html>

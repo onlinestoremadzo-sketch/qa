@@ -1350,36 +1350,36 @@
             <sc-if value="{{ grnFormOpen }}" hint-placeholder-val="{{ false }}">
               <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
                 <h2 style="font-size: 15px; font-weight: 600; margin: 0;">{{ grnFormTitle }}</h2>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px;">
-                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">GRN no.
+                <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72; flex: 0 1 110px; min-width: 100px;">GRN no.
                     <input value="{{ grnD.id }}" readonly style="background: #EAE3D6; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr; color: #5C554B;">
                   </label>
-                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Invoice number *
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72; flex: 2 1 280px; min-width: 200px;">Invoice number *
                     <input value="{{ grnD.invoice }}" onChange="{{ onGrnInvoice }}" aria-label="GRN invoice number" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                   </label>
-                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Supplier name *
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72; flex: 0 1 170px; min-width: 140px;">Supplier name *
                     <div style="display: flex; gap: 6px; align-items: stretch;"><select value="{{ grnD.supplier }}" onChange="{{ onGrnSupplier }}" aria-label="GRN supplier" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; flex: 1; min-width: 0; cursor: pointer; color: #2E2A26;" style-focus="border-color: #461610;"><sc-for list="{{ grnSupplierOpts }}" as="so" hint-placeholder-count="3"><option value="{{ so.v }}" selected="{{ so.selected }}">{{ so.l }}</option></sc-for></select><button type="button" onClick="{{ openMgrSupplier }}" title="Add / edit the list" aria-label="Manage list" style="background: none; border: 1px solid #D8CCBC; color: #461610; border-radius: 10px; padding: 0 11px; font-size: 14px; cursor: pointer; white-space: nowrap;" style-hover="border-color: #461610;">✎</button></div>
                     <datalist id="madzo-grn-suppliers">
                       <sc-for list="{{ supplierOptions }}" as="gsn" hint-placeholder-count="3"><option value="{{ gsn.name }}"></option></sc-for>
                     </datalist>
                   </label>
-                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Date
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72; flex: 0 1 150px; min-width: 130px;">Date
                     <input value="{{ grnD.date }}" onChange="{{ onGrnDate }}" type="date" aria-label="GRN date" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                   </label>
-                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Payment mode
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72; flex: 0 1 130px; min-width: 110px;">Payment mode
                     <select value="{{ grnD.payMode }}" onChange="{{ onGrnPayMode }}" aria-label="GRN payment mode" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
                       <option value="cash">Cash</option>
                       <option value="card">Card</option>
                       <option value="credit">Credit</option>
                     </select>
                   </label>
-                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Currency
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72; flex: 0 1 150px; min-width: 120px;">Currency
                     <select value="{{ grnD.currency }}" onChange="{{ onGrnCurrency }}" aria-label="GRN currency" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
                       <sc-for list="{{ grnCurrencyOpts }}" as="cu" hint-placeholder-count="4"><option value="{{ cu.v }}" selected="{{ cu.selected }}">{{ cu.l }}</option></sc-for>
                     </select>
                   </label>
                   <sc-if value="{{ grnForeign }}" hint-placeholder-val="{{ false }}">
-                    <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">{{ grnRateLabel }}
+                    <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72; flex: 0 1 150px; min-width: 120px;">{{ grnRateLabel }}
                       <input value="{{ grnD.rate }}" onChange="{{ onGrnRate }}" type="number" min="0" step="0.0001" aria-label="GRN exchange rate" placeholder="e.g. 3.64" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr;" style-focus="border-color: #461610;">
                     </label>
                   </sc-if>
@@ -1387,6 +1387,33 @@
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Remarks
                   <input value="{{ grnD.remarks }}" onChange="{{ onGrnRemarks }}" aria-label="GRN remarks" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                 </label>
+
+                <div style="background: #F6EFE2; border: 1px solid #E7DECF; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">🔎 Search product — see suppliers and previous purchase rates
+                    <input value="{{ grnPS }}" onChange="{{ onGrnPS }}" onInput="{{ onGrnPS }}" placeholder="Type product name, code or brand…" aria-label="Search product history" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
+                  </label>
+                  <sc-if value="{{ grnPEmpty }}" hint-placeholder-val="{{ false }}"><p style="margin: 0; font-size: 13px; color: #857D72;">No product matches.</p></sc-if>
+                  <sc-for list="{{ grnPResults }}" as="pr" hint-placeholder-count="1">
+                    <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 10px; padding: 10px 12px; overflow-x: auto;">
+                      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 4px;">
+                        <span style="font-size: 13.5px; font-weight: 600; color: #2E2A26;">{{ pr.name }}</span>
+                        <span style="font-size: 12px; color: #857D72;">{{ pr.sku }}{{ pr.brand }}</span>
+                        <span style="font-size: 12px; color: #5C554B;">Now: buy {{ pr.buyNow }} · sell {{ pr.sellNow }}</span>
+                        <button onClick="{{ pr.addLine }}" style="margin-inline-start: auto; background: #461610; color: #fff; border: none; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer;">+ Add to this GRN</button>
+                      </div>
+                      <div style="font-size: 12px; color: #461610; margin-bottom: 6px;"><b>Suppliers:</b> {{ pr.suppliers }}</div>
+                      <table style="border-collapse: collapse; width: 100%; min-width: 430px;">
+                        <thead><tr><th style="text-align:left; padding:5px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">Date</th><th style="text-align:left; padding:5px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">Supplier</th><th style="text-align:left; padding:5px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">GRN</th><th style="text-align:left; padding:5px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">Purchase rate (QAR)</th><th style="text-align:left; padding:5px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">Sell rate</th></tr></thead>
+                        <tbody>
+                          <sc-for list="{{ pr.rows }}" as="prw" hint-placeholder-count="2">
+                            <tr><td style="padding:5px 8px; font-size:12.5px; border-bottom:1px solid #F0E8DA; white-space:nowrap;">{{ prw.date }}</td><td style="padding:5px 8px; font-size:12.5px; border-bottom:1px solid #F0E8DA; white-space:nowrap;">{{ prw.supplier }}</td><td style="padding:5px 8px; font-size:12.5px; border-bottom:1px solid #F0E8DA; white-space:nowrap;">{{ prw.grn }}</td><td style="padding:5px 8px; font-size:12.5px; border-bottom:1px solid #F0E8DA; white-space:nowrap;"><b>{{ prw.rate }}</b></td><td style="padding:5px 8px; font-size:12.5px; border-bottom:1px solid #F0E8DA; white-space:nowrap;">{{ prw.sell }}</td></tr>
+                          </sc-for>
+                        </tbody>
+                      </table>
+                      <sc-if value="{{ pr.noHist }}" hint-placeholder-val="{{ false }}"><p style="margin: 6px 0 0; font-size: 12.5px; color: #857D72;">Never purchased through a GRN yet.</p></sc-if>
+                    </div>
+                  </sc-for>
+                </div>
 
                 <h3 style="font-size: 13.5px; font-weight: 600; margin: 6px 0 0; color: #2E2A26;">Items received</h3>
                 <div style="overflow-x: auto;">
@@ -1451,13 +1478,13 @@
             </div>
             <sc-if value="{{ noGRNs }}" hint-placeholder-val="{{ false }}"><p style="color: #857D72; text-align: center; padding: 30px 0;">{{ noGrnText }}</p></sc-if>
             <div style="overflow-x: auto;">
-              <div style="min-width: 760px; display: flex; flex-direction: column; gap: 6px;">
-                <div style="display: grid; grid-template-columns: 100px 130px minmax(140px,1fr) 100px 90px 70px 100px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+              <div style="min-width: 960px; display: flex; flex-direction: column; gap: 6px;">
+                <div style="display: grid; grid-template-columns: 100px minmax(240px,2.4fr) minmax(110px,0.7fr) 100px 90px 70px 100px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
                   <span>GRN no.</span><span>Invoice no.</span><span>Supplier</span><span>Date</span><span>Payment</span><span>Items</span><span>Total</span>
                 </div>
                 <sc-for list="{{ pagedGRNs }}" as="g" hint-placeholder-count="4">
                   <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: grid; grid-template-columns: 100px 130px minmax(140px,1fr) 100px 90px 70px 100px; gap: 10px; align-items: center; font-size: 13px; color: #2E2A26;">
+                    <div style="display: grid; grid-template-columns: 100px minmax(240px,2.4fr) minmax(110px,0.7fr) 100px 90px 70px 100px; gap: 10px; align-items: center; font-size: 13px; color: #2E2A26;">
                       <span style="font-size: 12px; font-weight: 600; color: #8A7F70; overflow-wrap: anywhere; word-break: break-word; line-height: 1.25;">{{ g.id }}</span>
                       <span style="font-weight: 600; overflow-wrap: anywhere; word-break: break-word; line-height: 1.25;">{{ g.invoice }}</span>
                       <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ g.supplier }}</span>
@@ -5453,6 +5480,34 @@ class Component extends DCLogic {
       onGrnInvoice: (e) => setGrn({ invoice: e.target.value }), onGrnSupplier: (e) => setGrn({ supplier: e.target.value }),
       onGrnDate: (e) => setGrn({ date: e.target.value }), onGrnPayMode: (e) => setGrn({ payMode: e.target.value }),
       onGrnRemarks: (e) => setGrn({ remarks: e.target.value }), onGrnUpdatePrices: (e) => setGrn({ updatePrices: !!e.target.checked }),
+      grnPS: this.state.grnPS || '', onGrnPS: (e) => { const v = e.target.value; this.setState({ grnPS: v }); },
+      ...(() => {
+        const q = String(this.state.grnPS || '').trim().toLowerCase();
+        const q2 = (n) => (Math.round(n * 100) / 100).toFixed(2);
+        const dstr = (d, ts) => { const t = d ? new Date(String(d).slice(0, 10) + 'T00:00:00') : (ts ? new Date(ts) : null); return t && !isNaN(t) ? t.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'; };
+        const found = !q ? [] : prods.filter(p => (p.sku + ' ' + p.name + ' ' + (p.brand || '')).toLowerCase().indexOf(q) > -1).slice(0, 5);
+        return {
+          grnPEmpty: !!q && !found.length,
+          grnPResults: found.map(p => {
+            const hist = [];
+            (this.state.dbGRNs || []).forEach(g => (g.items || []).forEach(it => { if (String(it.code || '') === String(p.sku)) hist.push({ g, it, key: (g.date || '') + '|' + String(g.ts || 0).padStart(15, '0') }); }));
+            hist.sort((a, b) => (a.key < b.key ? 1 : a.key > b.key ? -1 : 0));
+            const bySup = {}; hist.forEach(h => { const n = h.g.supplier || '—'; if (!bySup[n]) bySup[n] = h; });
+            return {
+              name: p.name, sku: p.sku, brand: p.brand ? ' · ' + p.brand : '', buyNow: p.buyPrice ? q2(p.buyPrice) : '—', sellNow: p.price == null ? '—' : q2(p.price),
+              suppliers: Object.keys(bySup).length ? Object.keys(bySup).map(n => n + ' (last ' + dstr(bySup[n].g.date, bySup[n].g.ts) + ' @ ' + q2((Number(bySup[n].it.buy) || 0) * (bySup[n].g.rate || 1)) + ')').join('  ·  ') : 'none yet',
+              noHist: !hist.length,
+              rows: hist.slice(0, 8).map(h => ({ date: dstr(h.g.date, h.g.ts), supplier: h.g.supplier || '—', grn: h.g.id, rate: q2((Number(h.it.buy) || 0) * (h.g.rate || 1)) + (h.g.currency && h.g.currency !== 'QAR' ? ' (' + q2(Number(h.it.buy) || 0) + ' ' + h.g.currency + ')' : ''), sell: Number(h.it.sell) > 0 ? q2(Number(h.it.sell)) : '—' })),
+              addLine: () => this.setState(s => {
+                const items = s.grnDraft.items.slice(), line = { ...grnBlank(), code: p.sku, name: p.name, ...((s.grnDraft.currency || 'QAR') === 'QAR' ? { buy: p.buyPrice ? String(p.buyPrice) : '' } : {}), sell: p.price == null ? '' : String(p.price), matched: p.sku };
+                const bi = items.findIndex(x => !String(x.code || '').trim() && !String(x.name || '').trim());
+                if (bi > -1) items[bi] = line; else items.push(line);
+                return { grnDraft: { ...s.grnDraft, items }, grnError: '' };
+              })
+            };
+          })
+        };
+      })(),
       grnItems: grnLines, grnAddLine: () => this.setState(s => ({ grnDraft: { ...s.grnDraft, items: s.grnDraft.items.concat([grnBlank()]) } })),
       grnCodeOptions: prods.map(p => ({ sku: p.sku, label: (p.brand ? p.brand + ' · ' : '') + p.name })), grnNameOptions: prods.map(p => ({ name: p.name, brand: p.brand || '' })),
       grnTotal: grnForeignNow ? (grnTotalNum.toFixed(2) + ' ' + grnCur + (grnRateNum > 0 ? '  ≈  ' + (grnTotalNum * grnRateNum).toFixed(2) + ' QAR' : '  (enter the exchange rate)')) : (grnTotalNum.toFixed(2) + ' QAR'),

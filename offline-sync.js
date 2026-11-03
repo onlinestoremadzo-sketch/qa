@@ -304,10 +304,22 @@
             if (res.status === 401 || res.status === 408 || res.status === 429 || res.status >= 500) { if (res.status === 401) state.needLogin = true; return; }
             return res.text().then(function (t) {
               var msg = t; try { msg = JSON.parse(t).message || t; } catch (x) {}
-              return tx('failed', 'readwrite', function (s) { s.add({ method: r.method, table: r.table, error: msg, req: r }); })
-                .then(function () { return tx('queue', 'readwrite', function (s) { s.delete(it.key); }); })
-                .then(function () { return next(i + 1); });
+              // Already on the server (e.g. the first try went through but the answer was lost on a weak connection):
+              // if the saved row is identical, count it as synced instead of reporting an error.
+              if (res.status === 409 && r.method === 'POST' && r.body) {
+                return sameOnServer(r, h).then(function (same) {
+                  if (same) { synced++; return tx('queue', 'readwrite', function (s) { s.delete(it.key); }).then(function () { return next(i + 1); }); }
+                  return failIt(r, it, msg).then(function () { return next(i + 1); });
+                });
+              }
+              return failIt(r, it, msg).then(function () { return next(i + 1); });
             });
+            function failIt(r, it, msg) {
+              return Promise.resolve(msg).then(function (msg) {
+              return tx('failed', 'readwrite', function (s) { s.add({ method: r.method, table: r.table, error: msg, req: r }); })
+                .then(function () { return tx('queue', 'readwrite', function (s) { s.delete(it.key); }); });
+              });
+            }
           }).catch(function (e) { if (!isNetErr(e)) throw e; setOffline(true); });
         }
         return next(0).then(function () { if (synced) fire('madzo-synced'); });
@@ -315,6 +327,25 @@
     }).catch(function () {}).then(function () {
       flushing = false; state.syncing = false; return refreshCounts();
     });
+  }
+  // true when the row we tried to add already exists on the server with the same content
+  function sameOnServer(r, h) {
+    var rows; try { rows = JSON.parse(r.body); } catch (e) { return Promise.resolve(false); }
+    if (!Array.isArray(rows)) rows = [rows];
+    var base = r.url.split('?')[0];
+    return Promise.all(rows.map(function (row) {
+      if (row.id === undefined || row.id === null) return false;
+      var hh = Object.assign({}, h, { Accept: 'application/json' });
+      return nativeFetch(base + '?select=*&id=eq.' + encodeURIComponent(row.id), { headers: hh }).then(function (x) { return x.ok ? x.json() : []; }).then(function (ex) {
+        ex = ex && ex[0]; if (!ex) return false;
+        return Object.keys(row).every(function (k) {
+          if (k === 'created_at' || k === 'updated_at') return true;
+          var a = row[k], b = ex[k];
+          if (a !== null && typeof a === 'object') return JSON.stringify(a) === JSON.stringify(b);
+          return String(a) === String(b);
+        });
+      }).catch(function () { return false; });
+    })).then(function (all) { return all.length > 0 && all.every(Boolean); });
   }
   function fire(n) { try { window.dispatchEvent(new Event(n)); } catch (e) {} }
   function setOffline(v) {

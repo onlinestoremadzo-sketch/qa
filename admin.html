@@ -962,6 +962,33 @@
                       <sc-if value="{{ o.hasNotes }}" hint-placeholder-val="{{ false }}">
                         <div style="color: #857D72; font-size: 12.5px;">📝 {{ o.notes }}</div>
                       </sc-if>
+                      <div onClick="{{ stopClick }}"><button onClick="{{ o.retToggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">↩ Return items</button></div>
+                      <sc-if value="{{ o.retOpen }}" hint-placeholder-val="{{ false }}">
+                      <div onClick="{{ stopClick }}" style="border: 1px solid #E0C9A2; background: #FBF4E4; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="font-size: 13.5px; font-weight: 600; color: #461610;">↩ {{ o.retTitle }}</div>
+                        <div style="font-size: 12px; color: #857D72;">Tick the products being returned and set the quantity. {{ o.retHint }}</div>
+                        <sc-for list="{{ o.retLines }}" as="rl" hint-placeholder-count="2">
+                          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; color: #2E2A26; background: #FDF9F4; border: 1px solid #EFE6D8; border-radius: 8px; padding: 7px 10px;">
+                            <input type="checkbox" checked="{{ rl.checked }}" onChange="{{ rl.onCheck }}" aria-label="Return this product" style="width: 17px; height: 17px; accent-color: #461610;">
+                            <span style="flex: 1; min-width: 180px; font-weight: 600;">{{ rl.name }} <span style="font-weight: 400; color: #857D72; font-size: 12px;">{{ rl.info }}</span></span>
+                            <span style="font-size: 12px; color: #857D72;">Qty</span>
+                            <input type="number" min="1" value="{{ rl.qty }}" onChange="{{ rl.onQty }}" aria-label="Return quantity" style="width: 64px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 6px 8px; font-size: 13px; outline: none;">
+                            <span style="min-width: 90px; text-align: end; font-weight: 600;">{{ rl.amount }}</span>
+                          </div>
+                        </sc-for>
+                        <sc-if value="{{ o.retNone }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12.5px; color: #857D72;">Everything on this entry has already been returned.</div></sc-if>
+                        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Remarks
+                          <input value="{{ o.retRemarks }}" onChange="{{ o.onRetRemarks }}" aria-label="Return remarks" placeholder="Reason for the return (optional)" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;">
+                        </label>
+                        <sc-if value="{{ o.retError }}" hint-placeholder-val="{{ false }}"><p style="color: #C0392B; font-size: 13px; margin: 0;">{{ o.retError }}</p></sc-if>
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                          <button onClick="{{ o.retSave }}" style="background: #461610; color: #fff; border: none; border-radius: 999px; padding: 9px 20px; font-size: 13px; font-weight: 600; cursor: pointer;">{{ o.retSaveLabel }}</button>
+                          <button onClick="{{ o.retToggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 9px 18px; font-size: 13px; cursor: pointer;">Cancel</button>
+                          <span style="margin-inline-start: auto; font-weight: 700; font-size: 14px; color: #461610;">{{ o.retTotal }}</span>
+                        </div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ o.hasRets }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12.5px; color: #B03A2E;">↩ {{ o.retsText }}</div></sc-if>
                     </div>
                   </sc-if>
 
@@ -1063,6 +1090,24 @@
             </sc-for>
             </div>
           </div>
+<sc-if value="{{ hasSalesRets }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top: 26px;">
+              <h3 style="font-size: 14px; font-weight: 600; margin: 0 0 8px; color: #461610;">↩ Sales returns</h3>
+              <div style="overflow-x: auto;"><div style="min-width: 640px; display: flex; flex-direction: column; gap: 6px;">
+                <sc-for list="{{ salesRetRows }}" as="rr" hint-placeholder-count="2">
+                  <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 9px 14px; display: flex; gap: 14px; align-items: center; font-size: 13px; color: #2E2A26;">
+                    <span style="width: 70px; font-weight: 700; color: #461610;">{{ rr.id }}</span>
+                    <span style="width: 92px; white-space: nowrap;">{{ rr.date }}</span>
+                    <span style="width: 92px; font-weight: 600;">{{ rr.ref }}</span>
+                    <span style="width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ rr.party }}</span>
+                    <span style="flex: 1; min-width: 160px; color: #5C554B; font-size: 12.5px;">{{ rr.summary }}<span style="color: #857D72;">{{ rr.remarks }}</span></span>
+                    <span style="font-weight: 700; white-space: nowrap;">{{ rr.total }}</span>
+                    <button onClick="{{ rr.del }}" aria-label="Delete return" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 17px;" style-hover="color: #C0392B;">×</button>
+                  </div>
+                </sc-for>
+              </div></div>
+            </div>
+          </sc-if>
           <sc-if value="{{ orderPager.show }}" hint-placeholder-val="{{ false }}">
             <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 18px;">
               <button onClick="{{ orderPager.prev }}" disabled="{{ orderPager.atStart }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ orderPager.prevOpacity }};" style-hover="border-color: #461610; color: #461610;">← Prev</button>
@@ -1518,8 +1563,35 @@
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                       <button onClick="{{ g.toggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">{{ g.toggleLabel }}</button>
                       <button onClick="{{ g.edit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">Edit</button>
+                      <button onClick="{{ g.retToggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">↩ Return items</button>
                       <button onClick="{{ g.askRemove }}" aria-label="Delete GRN" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px; margin-inline-start: auto;" style-hover="color: #C0392B;">×</button>
                     </div>
+                    <sc-if value="{{ g.retOpen }}" hint-placeholder-val="{{ false }}">
+                      <div onClick="{{ stopClick }}" style="border: 1px solid #E0C9A2; background: #FBF4E4; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="font-size: 13.5px; font-weight: 600; color: #461610;">↩ {{ g.retTitle }}</div>
+                        <div style="font-size: 12px; color: #857D72;">Tick the products being returned and set the quantity. {{ g.retHint }}</div>
+                        <sc-for list="{{ g.retLines }}" as="rl" hint-placeholder-count="2">
+                          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; color: #2E2A26; background: #FDF9F4; border: 1px solid #EFE6D8; border-radius: 8px; padding: 7px 10px;">
+                            <input type="checkbox" checked="{{ rl.checked }}" onChange="{{ rl.onCheck }}" aria-label="Return this product" style="width: 17px; height: 17px; accent-color: #461610;">
+                            <span style="flex: 1; min-width: 180px; font-weight: 600;">{{ rl.name }} <span style="font-weight: 400; color: #857D72; font-size: 12px;">{{ rl.info }}</span></span>
+                            <span style="font-size: 12px; color: #857D72;">Qty</span>
+                            <input type="number" min="1" value="{{ rl.qty }}" onChange="{{ rl.onQty }}" aria-label="Return quantity" style="width: 64px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 6px 8px; font-size: 13px; outline: none;">
+                            <span style="min-width: 90px; text-align: end; font-weight: 600;">{{ rl.amount }}</span>
+                          </div>
+                        </sc-for>
+                        <sc-if value="{{ g.retNone }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12.5px; color: #857D72;">Everything on this entry has already been returned.</div></sc-if>
+                        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Remarks
+                          <input value="{{ g.retRemarks }}" onChange="{{ g.onRetRemarks }}" aria-label="Return remarks" placeholder="Reason for the return (optional)" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;">
+                        </label>
+                        <sc-if value="{{ g.retError }}" hint-placeholder-val="{{ false }}"><p style="color: #C0392B; font-size: 13px; margin: 0;">{{ g.retError }}</p></sc-if>
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                          <button onClick="{{ g.retSave }}" style="background: #461610; color: #fff; border: none; border-radius: 999px; padding: 9px 20px; font-size: 13px; font-weight: 600; cursor: pointer;">{{ g.retSaveLabel }}</button>
+                          <button onClick="{{ g.retToggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 9px 18px; font-size: 13px; cursor: pointer;">Cancel</button>
+                          <span style="margin-inline-start: auto; font-weight: 700; font-size: 14px; color: #461610;">{{ g.retTotal }}</span>
+                        </div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ g.hasRets }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12.5px; color: #B03A2E;">↩ {{ g.retsText }}</div></sc-if>
                     <sc-if value="{{ g.open }}" hint-placeholder-val="{{ false }}">
                       <div style="border-top: 1px solid #EFE6D8; padding-top: 8px; display: flex; flex-direction: column; gap: 4px;">
                         <sc-if value="{{ g.hasRemarks }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12.5px; color: #857D72; margin-bottom: 4px;">📝 {{ g.remarks }}</div></sc-if>
@@ -1544,6 +1616,24 @@
                 </sc-for>
               </div>
             </div>
+<sc-if value="{{ hasPurRets }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top: 26px;">
+              <h3 style="font-size: 14px; font-weight: 600; margin: 0 0 8px; color: #461610;">↩ Purchase returns</h3>
+              <div style="overflow-x: auto;"><div style="min-width: 640px; display: flex; flex-direction: column; gap: 6px;">
+                <sc-for list="{{ purRetRows }}" as="rr" hint-placeholder-count="2">
+                  <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 9px 14px; display: flex; gap: 14px; align-items: center; font-size: 13px; color: #2E2A26;">
+                    <span style="width: 70px; font-weight: 700; color: #461610;">{{ rr.id }}</span>
+                    <span style="width: 92px; white-space: nowrap;">{{ rr.date }}</span>
+                    <span style="width: 92px; font-weight: 600;">{{ rr.ref }}</span>
+                    <span style="width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ rr.party }}</span>
+                    <span style="flex: 1; min-width: 160px; color: #5C554B; font-size: 12.5px;">{{ rr.summary }}<span style="color: #857D72;">{{ rr.remarks }}</span></span>
+                    <span style="font-weight: 700; white-space: nowrap;">{{ rr.total }}</span>
+                    <button onClick="{{ rr.del }}" aria-label="Delete return" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 17px;" style-hover="color: #C0392B;">×</button>
+                  </div>
+                </sc-for>
+              </div></div>
+            </div>
+          </sc-if>
             <sc-if value="{{ grnPager.show }}" hint-placeholder-val="{{ false }}">
               <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 18px;">
                 <button onClick="{{ grnPager.prev }}" disabled="{{ grnPager.atStart }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 13px; cursor: pointer; opacity: {{ grnPager.prevOpacity }};">← Prev</button>
@@ -2542,7 +2632,7 @@ class Component extends DCLogic {
       newProdError: '',
       editSku: null,
       editDraft: null,
-      editError: '', rateView: null, dbAudit: [], auditMissing: false,
+      editError: '', rateView: null, dbReturns: [], retMissing: false, retDraft: null, retError: '', savingRet: false, dbAudit: [], auditMissing: false,
       showOrderForm: false,
       newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', paymentStatus: 'pending', payMethod: 'cash', discType: 'amount', discValue: '', items: [] },
       newOrderError: '',
@@ -2620,7 +2710,7 @@ class Component extends DCLogic {
   }
 
   async loadAll() {
-    await Promise.all([this.loadStockAudit(), this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadGRNs(), this.loadOMs(), this.loadSuppliers(), this.loadPlatforms(), this.loadBatches(), this.loadCategories(), this.loadBrands(), this.loadNotes(), this.loadCustomers(), this.loadViews()]);
+    await Promise.all([this.loadReturns(), this.loadStockAudit(), this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadGRNs(), this.loadOMs(), this.loadSuppliers(), this.loadPlatforms(), this.loadBatches(), this.loadCategories(), this.loadBrands(), this.loadNotes(), this.loadCustomers(), this.loadViews()]);
     this.backfillCustomersAndSuppliers();
   }
 
@@ -2673,6 +2763,101 @@ class Component extends DCLogic {
       if (error) throw error;
       this.setState({ dbViews: (data || []).map(v => ({ sku: v.sku, day: String(v.day).slice(0, 10), views: Number(v.views) || 0 })), viewsMissing: false });
     } catch (e) { this.setState({ viewsMissing: true }); }
+  }
+
+  async loadReturns() {
+    try {
+      const { data, error } = await window.getSupabase().from('returns').select('*').order('created_at', { ascending: false });
+      if (error) { if (this.isMissingTable(error)) this.setState({ retMissing: true, dbReturns: [] }); return; }
+      this.setState({ retMissing: false, dbReturns: (data || []).map(r => ({ id: r.id, kind: r.kind, ref: r.ref_id, party: r.party || '', date: r.return_date || '', items: r.items || [], total: Number(r.total) || 0, paid: r.paid !== false, remarks: r.remarks || '', ts: r.created_at ? new Date(r.created_at).getTime() : 0 })) });
+    } catch (e) { /* returns are optional until update-21 is run */ }
+  }
+  // What can still be returned for an order (sales) or a GRN (purchase): one row per product.
+  returnBase(kind, ref) {
+    const map = {}, order = [];
+    const add = (sku, name, qty, unit, paidQty) => { if (!sku || !(qty > 0)) return; if (!map[sku]) { map[sku] = { sku, name, qty: 0, paidQty: 0, unitSum: 0 }; order.push(sku); } const m = map[sku]; m.qty += qty; m.paidQty += paidQty; m.unitSum += unit * paidQty; };
+    if (kind === 'sales') {
+      const o = (this.state.dbOrders || []).find(x => x.id === ref); if (!o) return [];
+      const sumNet = (o.lines || []).reduce((a, l) => a + (l.free ? 0 : Number(l.total) || 0), 0);
+      const scale = o.discount > 0 && sumNet > 0 ? Math.max(0, (sumNet - o.discount) / sumNet) : 1;
+      (o.lines || []).forEach(l => { const q = Number(l.qty) || 0; const unit = l.free || !q ? 0 : ((Number(l.total) || 0) / q) * scale; add(l.sku, l.name, q, unit, q); });
+    } else {
+      const g = (this.state.dbGRNs || []).find(x => x.id === ref); if (!g) return [];
+      (g.items || []).forEach(it => { const q = Number(it.qty) || 0, f = Number(it.free) || 0; add(it.code, it.name || it.code, q + f, (Number(it.buy) || 0) * (g.rate || 1), q); });
+    }
+    const done = {};
+    (this.state.dbReturns || []).filter(r => r.kind === kind && r.ref === ref).forEach(r => (r.items || []).forEach(i => { done[i.sku] = (done[i.sku] || 0) + (Number(i.qty) || 0); }));
+    return order.map(sku => { const m = map[sku]; return { sku, name: m.name, max: m.qty - (done[sku] || 0), returned: done[sku] || 0, paidQty: m.paidQty, unit: m.paidQty ? m.unitSum / m.paidQty : 0 }; }).filter(x => x.max > 0 || x.returned > 0);
+  }
+  nextReturnId(kind) {
+    const pre = kind === 'sales' ? 'SR-' : 'PR-';
+    const nums = (this.state.dbReturns || []).filter(r => r.kind === kind).map(r => parseInt(String(r.id).slice(3), 10) || 0);
+    return pre + String(Math.max(0, ...nums) + 1).padStart(2, '0');
+  }
+  retProps(kind, ref, partyName) {
+    const d = this.state.retDraft, open = !!d && d.kind === kind && d.ref === ref;
+    const q2 = (n) => (Math.round(n * 100) / 100).toFixed(2);
+    const lineAmt = (l) => { const q = Math.max(0, Math.min(Number(l.qty) || 0, l.max)); return l.unit * Math.min(q, l.paidQty); };
+    const setLine = (i, patch) => this.setState(s => { const lines = s.retDraft.lines.slice(); lines[i] = { ...lines[i], ...patch }; return { retDraft: { ...s.retDraft, lines }, retError: '' }; });
+    const done = (this.state.dbReturns || []).filter(r => r.kind === kind && r.ref === ref);
+    const lines = open ? d.lines.map((l, i) => ({
+      name: l.name, info: l.sku + ' · can return up to ' + l.max, checked: !!l.checked, qty: l.qty,
+      onCheck: (e) => setLine(i, { checked: !!e.target.checked }), onQty: (e) => setLine(i, { qty: e.target.value, checked: true }),
+      amount: q2(l.checked ? lineAmt(l) : (l.unit * Math.min(Number(l.qty) || 0, l.paidQty))) + ' QAR'
+    })) : [];
+    const total = open ? d.lines.reduce((a, l) => a + (l.checked ? lineAmt(l) : 0), 0) : 0;
+    return {
+      retOpen: open, retLines: lines, retNone: open && !d.lines.length,
+      retTitle: kind === 'sales' ? 'Sales return — ' + ref : 'Purchase return — ' + ref,
+      retHint: kind === 'sales' ? 'Returned items go back into stock; the full price paid is refunded.' : 'Returned items leave your stock; the full purchase price comes back from the supplier.',
+      retRemarks: open ? d.remarks : '', onRetRemarks: (e) => { const v = e.target.value; this.setState(s => ({ retDraft: { ...s.retDraft, remarks: v } })); },
+      retError: open ? this.state.retError : '', retTotal: (kind === 'sales' ? 'Refund: ' : 'Credit: ') + q2(total) + ' QAR',
+      retSaveLabel: this.state.savingRet ? 'Saving…' : (kind === 'sales' ? 'Save sales return' : 'Save purchase return'),
+      retSave: () => this.saveReturn(partyName),
+      retToggle: () => this.setState({ retError: '', retDraft: open ? null : { kind, ref, remarks: '', lines: this.returnBase(kind, ref).filter(x => x.max > 0).map(x => ({ sku: x.sku, name: x.name, max: x.max, unit: x.unit, paidQty: x.paidQty, qty: String(x.max), checked: false })) } }),
+      hasRets: done.length > 0, retsText: done.map(r => r.id + ' (' + q2(r.total) + ' QAR)').join(', ')
+    };
+  }
+  async saveReturn(partyName) {
+    const d = this.state.retDraft; if (!d || this.state.savingRet) return;
+    const fail = (m) => { this.setState({ retError: m, savingRet: false }); };
+    const items = [];
+    for (const l of d.lines) {
+      if (!l.checked) continue;
+      const q = Number(l.qty);
+      if (!(q > 0) || q !== Math.floor(q)) return fail('Enter a whole quantity for ' + l.name + '.');
+      if (q > l.max) return fail(l.name + ': only ' + l.max + ' can be returned.');
+      items.push({ sku: l.sku, name: l.name, qty: q, unit: Math.round(l.unit * 100) / 100, amount: Math.round(l.unit * Math.min(q, l.paidQty) * 100) / 100 });
+    }
+    if (!items.length) return fail('Tick at least one product to return.');
+    const sb = window.getSupabase(), id = this.nextReturnId(d.kind), total = Math.round(items.reduce((a, i) => a + i.amount, 0) * 100) / 100;
+    const sales = d.kind === 'sales';
+    let paid = true;
+    if (sales) { const o = (this.state.dbOrders || []).find(x => x.id === d.ref); paid = !!o && String(o.paymentStatus || '').toLowerCase() === 'paid'; }
+    else { const g = (this.state.dbGRNs || []).find(x => x.id === d.ref); paid = !!g && g.payMode !== 'credit'; }
+    this.setState({ savingRet: true, retError: '' });
+    const today = new Date().toISOString().slice(0, 10);
+    const r1 = await sb.from('returns').insert({ id, kind: d.kind, ref_id: d.ref, party: partyName || '', return_date: today, items, total, paid, remarks: String(d.remarks || '').trim() || null });
+    if (r1.error) return fail(this.isMissingTable(r1.error) ? 'Run madzo-update-21.sql in Supabase (SQL Editor) first.' : r1.error.message);
+    const rows = items.map(i => ({ sku: i.sku, quantity: sales ? i.qty : -i.qty, buying_price: 0, selling_price: 0, received_date: today, source_type: sales ? 'sales_return' : 'purchase_return', source_id: id, notes: (sales ? 'Sales return ' : 'Purchase return ') + id + ' (' + d.ref + ')' }));
+    const r2 = await sb.from('inventory_batches').insert(rows);
+    if (r2.error) { await sb.from('returns').delete().eq('id', id); return fail('Stock could not be updated: ' + r2.error.message); }
+    this.setState({ savingRet: false, retDraft: null, retError: '' });
+    this.loadReturns(); this.loadBatches(); this.loadProducts();
+  }
+  retRows(kind) {
+    const q2 = (n) => (Math.round(n * 100) / 100).toFixed(2);
+    return (this.state.dbReturns || []).filter(r => r.kind === kind).map(r => ({
+      id: r.id, date: r.date ? new Date(r.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '—', ref: r.ref, party: r.party || '—',
+      summary: (r.items || []).map(i => i.qty + ' × ' + i.name).join(', '), remarks: r.remarks ? '  — ' + r.remarks : '', total: q2(r.total) + ' QAR',
+      del: async () => {
+        if (!window.confirm('Delete ' + r.id + '? Its stock change will be reversed.')) return;
+        const sb = window.getSupabase();
+        await sb.from('inventory_batches').delete().eq('source_id', r.id).in('source_type', ['sales_return', 'purchase_return']);
+        await sb.from('returns').delete().eq('id', r.id);
+        this.loadReturns(); this.loadBatches(); this.loadProducts();
+      }
+    }));
   }
 
   async loadStockAudit() {
@@ -4219,7 +4404,7 @@ class Component extends DCLogic {
       const batches = (this.state.dbBatches || []).filter(b => b.sku === sku);
       const total = batches.reduce((a, b) => a + (Number(b.qty) || 0), 0), cur = Number(prod.stock) || 0;
       const when = (ts, day) => { const t = ts ? new Date(ts) : (day ? new Date(String(day).slice(0, 10) + 'T00:00:00') : null); return t && !isNaN(t) ? t.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + (ts ? ' ' + t.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '') : '—'; };
-      const kindLabel = { grn: 'GRN received', purchase: 'Purchase order', sale: 'Sale' };
+      const kindLabel = { grn: 'GRN received', purchase: 'Purchase order', sale: 'Sale', sales_return: 'Sales return (back in stock)', purchase_return: 'Purchase return (sent back)' };
       const rows = [];
       batches.forEach(b => {
         const q = Number(b.qty) || 0;
@@ -4860,6 +5045,7 @@ class Component extends DCLogic {
         itemCount: (o.lines || []).length + (((o.lines || []).length === 1) ? ' item' : ' items'),
         detailsOpen: !!(this.state.openOrderIds || {})[o.id],
         chevron: (this.state.openOrderIds || {})[o.id] ? '▾' : '▸',
+        ...this.retProps('sales', o.id, o.name),
         toggleDetails: () => this.setState(s => ({ openOrderIds: { ...(s.openOrderIds || {}), [o.id]: !(s.openOrderIds || {})[o.id] } })),
         itemLines: (o.lines || []).map(l => ({ qtyName: `${l.qty} × ` + (((l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand || '') && !String(l.name || '').toLowerCase().startsWith(String(l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand || '').toLowerCase())) ? (l.brand || (prods.find(pp => pp.sku === l.sku) || {}).brand) + ' ' : '') + l.name + (l.free ? ' 🎁' : '') + (l.disc > 0 ? '  (−' + (l.discType === 'percent' ? l.discValue + '%' : l.disc + ' QAR') + ')' : ''), price: l.free ? 'FREE' : fmt(l.total || 0) })),
         phone: o.phone || '—',
@@ -5660,6 +5846,7 @@ class Component extends DCLogic {
           toggle: () => this.setState(s => ({ grnOpen: { ...s.grnOpen, [g.id]: !(s.grnOpen || {})[g.id] } })),
           lines: (g.items || []).map(l => ({ brand: (prods.find(pp => pp.sku === l.code) || {}).brand || '', name: l.name || l.code, code: l.code, qty: l.qty || 0, free: l.free || 0, buy: Number(l.buy || 0).toFixed(2) + (g.currency && g.currency !== 'QAR' ? ' ' + g.currency : ''), sell: l.sell || 0, expiry: l.expiry || '—' })),
           edit: () => grnOpenForm(g),
+          ...this.retProps('purchase', g.id, g.supplier),
           confirming, askRemove: () => this.setState({ grnConfirmDel: g.id }), cancelRemove: () => this.setState({ grnConfirmDel: null }),
           confirmRemove: async () => {
             const sb = window.getSupabase();
@@ -5776,6 +5963,8 @@ class Component extends DCLogic {
       ordMethodOptions: (() => { const base = [{ v: 'all', l: 'All' }, { v: 'cash', l: 'Cash' }, { v: 'credit', l: 'Credit' }, { v: 'card', l: 'Card' }]; if (orders.some(o => o.payMethod === 'fawran')) base.push({ v: 'fawran', l: 'Fawran (old)' }); return base.map(x => ({ ...x, selected: x.v === (oF.method || 'all') })); })(),
       clearOrdFilters: () => this.setState({ ordF: { date: '', id: '', cust: '', platform: 'all', total: '', method: 'all' }, orderDeliveryFilter: 'all', orderPaymentFilter: 'all', orderSearch: '', orderPage: 1 }),
       pagedOrders, orderPager,
+      salesRetRows: this.retRows('sales'), hasSalesRets: (this.state.dbReturns || []).some(r => r.kind === 'sales'),
+      purRetRows: this.retRows('purchase'), hasPurRets: (this.state.dbReturns || []).some(r => r.kind === 'purchase'),
 
       pagedPOs, noPOs: pos.length === 0, poPager,
       showPOForm: this.state.showPOForm,

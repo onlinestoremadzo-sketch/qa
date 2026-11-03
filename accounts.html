@@ -99,6 +99,7 @@
         </div>
       </div>
       <p style="color: #B0A697; font-size: 11.5px; margin: 0 0 24px;">Sales counts every order placed in this period. Purchases counts GRN entries only (goods actually received) — purchase orders are not included. Pick <strong>All time</strong> above to see everything.</p>
+      <sc-if value="{{ returnsNote }}" hint-placeholder-val="{{ false }}"><p style="color: #B03A2E; font-size: 11.5px; margin: -16px 0 24px;">↩ {{ returnsNote }}</p></sc-if>
 
       <!-- Fund in hand -->
       <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 18px 20px; margin-bottom: 26px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
@@ -282,7 +283,7 @@ class Component extends DCLogic {
       authChecked: false, authed: false,
       email: '', pin: '', loginError: false, loginErrorMsg: '',
       period: 'month',
-      dbOrders: [], dbPOs: [], dbGRNs: [], dbExpenses: [],
+      dbOrders: [], dbPOs: [], dbGRNs: [], dbExpenses: [], dbReturns: [],
       openingBalance: 0, openingBalanceInput: '0', savingOB: false,
       showExpenseForm: false, expenseFormMode: 'new', editingExpenseId: null,
       newExpense: { date: '', category: 'Other', description: '', amount: '', paymentMethod: '' },
@@ -307,7 +308,7 @@ class Component extends DCLogic {
   }
 
   async loadAll() {
-    await Promise.all([this.loadOrders(), this.loadPOs(), this.loadGRNs(), this.loadExpenses(), this.loadAccountSettings()]);
+    await Promise.all([this.loadOrders(), this.loadPOs(), this.loadGRNs(), this.loadReturns(), this.loadExpenses(), this.loadAccountSettings()]);
   }
 
   async loadOrders() {
@@ -336,6 +337,13 @@ class Component extends DCLogic {
     } catch (e) { console.warn('Madzo accounts: could not load purchase orders', e); }
   }
 
+  async loadReturns() {
+    try {
+      const { data, error } = await window.getSupabase().from('returns').select('*');
+      if (error) { this.setState({ dbReturns: [] }); return; }
+      this.setState({ dbReturns: (data || []).map(r => ({ id: r.id, kind: r.kind, ref: r.ref_id, total: Number(r.total) || 0, paid: r.paid !== false, ts: r.return_date ? new Date(r.return_date + 'T12:00:00').getTime() : new Date(r.created_at).getTime() })) });
+    } catch (e) { /* returns are optional */ }
+  }
   async loadGRNs() {
     try {
       const sb = window.getSupabase();
@@ -421,9 +429,13 @@ class Component extends DCLogic {
       return inRange(t);
     });
 
-    const totalSalesNum = periodOrders.reduce((a, o) => a + (o.total || 0), 0);
+    // Returns: sales returns reduce sales, purchase returns reduce purchases (full price, as entered in the admin).
+    const rets = this.state.dbReturns || [];
+    const salesRetPeriod = rets.filter(r => r.kind === 'sales' && inRange(r.ts)), purRetPeriod = rets.filter(r => r.kind === 'purchase' && inRange(r.ts));
+    const salesRetNum = salesRetPeriod.reduce((a, r) => a + r.total, 0), purRetNum = purRetPeriod.reduce((a, r) => a + r.total, 0);
+    const totalSalesNum = periodOrders.reduce((a, o) => a + (o.total || 0), 0) - salesRetNum;
     const confirmedPOs = periodPOs.filter(p => p.status !== 'draft');
-    const totalPurchasesNum = confirmedPOs.reduce((a, p) => a + (p.netAmount || 0), 0);
+    const totalPurchasesNum = confirmedPOs.reduce((a, p) => a + (p.netAmount || 0), 0) - purRetNum;
     const totalExpensesNum = periodExpensesAll.reduce((a, e) => a + (e.amount || 0), 0);
     const netProfitNum = totalSalesNum - totalPurchasesNum - totalExpensesNum;
 
@@ -431,7 +443,8 @@ class Component extends DCLogic {
     const paidSales = orders.filter(o => o.paymentStatus === 'paid').reduce((a, o) => a + (o.total || 0), 0);
     const paidPurchases = pos.filter(p => p.paymentStatus === 'paid').reduce((a, p) => a + (p.netAmount || 0), 0);
     const allExpensesNum = expenses.reduce((a, e) => a + (e.amount || 0), 0);
-    const fundInHandNum = (this.state.openingBalance || 0) + paidSales - paidPurchases - allExpensesNum;
+    const paidSalesRet = rets.filter(r => r.kind === 'sales' && r.paid).reduce((a, r) => a + r.total, 0), paidPurRet = rets.filter(r => r.kind === 'purchase' && r.paid).reduce((a, r) => a + r.total, 0);
+    const fundInHandNum = (this.state.openingBalance || 0) + paidSales - paidSalesRet - paidPurchases + paidPurRet - allExpensesNum;
 
     const payMeta = (ps) => ps === 'paid'
       ? { label: 'Paid', bg: '#DDF0E2', color: '#1E8A4C' }
@@ -447,6 +460,7 @@ class Component extends DCLogic {
     // ---- Sales by platform ----
     const platMap = {};
     periodOrders.forEach(o => { const k = o.platform || 'Website'; (platMap[k] = platMap[k] || { name: k, n: 0, sum: 0 }); platMap[k].n++; platMap[k].sum += (o.total || 0); });
+    salesRetPeriod.forEach(r => { const o = orders.find(x => x.id === r.ref); const k = (o && o.platform) || 'Website'; (platMap[k] = platMap[k] || { name: k, n: 0, sum: 0 }); platMap[k].sum -= r.total; });
     const platformRows = Object.values(platMap).sort((a, b) => b.sum - a.sum).map(x => ({ name: x.name, count: x.n + (x.n === 1 ? ' order' : ' orders'), amountFmt: fmt(x.sum), share: totalSalesNum > 0 ? Math.round(x.sum / totalSalesNum * 100) + '%' : '0%' }));
 
     // ---- Sales log ----
@@ -525,7 +539,7 @@ class Component extends DCLogic {
       pAllBg: pm4.bg, pAllColor: pm4.color,
 
       totalSales: fmt(totalSalesNum), salesCount: periodOrders.length,
-      totalPurchases: fmt(totalPurchasesNum), purchaseCount: confirmedPOs.length, platformRows,
+      returnsNote: (salesRetPeriod.length || purRetPeriod.length) ? ('Returns in this period are already deducted: sales returns ' + fmt(salesRetNum) + ' (' + salesRetPeriod.length + '), purchase returns ' + fmt(purRetNum) + ' (' + purRetPeriod.length + ').') : '', totalPurchases: fmt(totalPurchasesNum), purchaseCount: confirmedPOs.length, platformRows,
       totalExpensesFmt: fmt(totalExpensesNum), expenseCount: periodExpensesAll.length,
       profitLabel: netProfitNum >= 0 ? 'Net profit' : 'Net loss',
       profitFmt: fmt(Math.abs(netProfitNum)),

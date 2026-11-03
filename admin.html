@@ -904,11 +904,11 @@
             <p style="color: #857D72; text-align: center; padding: 30px 0;">{{ noOrdersText }}</p>
           </sc-if>
           <div style="overflow-x: auto;">
-            <div style="min-width: 1240px; display: flex; flex-direction: column; gap: 6px;">
-              <div style="display: grid; grid-template-columns: 100px 88px 170px 110px 96px 100px 116px 110px 96px 74px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+            <div style="min-width: 1300px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: grid; grid-template-columns: 100px 88px 170px 110px 96px 136px 156px 110px 96px 74px; gap: 10px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
                 <span>Date</span><span>Order ID</span><span>Customer name</span><span>Platform</span><span>Total cost</span><span>Status</span><span>Payment status</span><span>Payment method</span><span>Invoice</span><span>Edit</span>
               </div>
-              <div style="display: grid; grid-template-columns: 100px 88px 170px 110px 96px 100px 116px 110px 96px 74px; gap: 10px; align-items: center; padding: 0 14px 4px;">
+              <div style="display: grid; grid-template-columns: 100px 88px 170px 110px 96px 136px 156px 110px 96px 74px; gap: 10px; align-items: center; padding: 0 14px 4px;">
                 <input type="date" value="{{ ordFDate }}" onChange="{{ on_ordFDate }}" aria-label="Filter by date" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;" style-focus="border-color: #461610;">
                 <input value="{{ ordFId }}" onChange="{{ on_ordFId }}" placeholder="ID…" aria-label="Filter by order ID" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;" style-focus="border-color: #461610;">
                 <input value="{{ ordFCust }}" onChange="{{ on_ordFCust }}" placeholder="Customer…" aria-label="Filter by customer" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;" style-focus="border-color: #461610;">
@@ -930,7 +930,7 @@
               </div>
               <sc-for list="{{ pagedOrders }}" as="o" hint-placeholder-count="6">
                 <div class="madzo-prod-row" style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px;">
-                  <div onClick="{{ o.toggleDetails }}" style="display: grid; grid-template-columns: 100px 88px 170px 110px 96px 100px 116px 110px 96px 74px; gap: 10px; align-items: center; padding: 9px 14px; cursor: pointer;">
+                  <div onClick="{{ o.toggleDetails }}" style="display: grid; grid-template-columns: 100px 88px 170px 110px 96px 136px 156px 110px 96px 74px; gap: 10px; align-items: center; padding: 9px 14px; cursor: pointer;">
                     <span style="font-size: 12.5px; font-weight: 600; color: #2E2A26; white-space: nowrap;">{{ o.dateLabel }}</span>
                     <span style="font-size: 12px; color: #5C554B; overflow-wrap: anywhere; word-break: break-word; line-height: 1.25;">{{ o.metaId }}</span>
                     <span style="font-weight: 600; font-size: 13px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ o.name }}</span>
@@ -1563,6 +1563,10 @@
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                       <button onClick="{{ g.toggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">{{ g.toggleLabel }}</button>
                       <button onClick="{{ g.edit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">Edit</button>
+                      <sc-if value="{{ g.hasRetStatus }}" hint-placeholder-val="{{ false }}">
+                        <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ g.retBg }}; color: {{ g.retColor }}; white-space: nowrap;">{{ g.retStatus }}</span>
+                        <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ g.retBg }}; color: {{ g.retColor }}; white-space: nowrap;">Payment: {{ g.retPay }}</span>
+                      </sc-if>
                       <button onClick="{{ g.retToggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">↩ Return items</button>
                       <button onClick="{{ g.askRemove }}" aria-label="Delete GRN" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px; margin-inline-start: auto;" style-hover="color: #C0392B;">×</button>
                     </div>
@@ -2789,6 +2793,12 @@ class Component extends DCLogic {
     (this.state.dbReturns || []).filter(r => r.kind === kind && r.ref === ref).forEach(r => (r.items || []).forEach(i => { done[i.sku] = (done[i.sku] || 0) + (Number(i.qty) || 0); }));
     return order.map(sku => { const m = map[sku]; return { sku, name: m.name, max: m.qty - (done[sku] || 0), returned: done[sku] || 0, paidQty: m.paidQty, unit: m.paidQty ? m.unitSum / m.paidQty : 0 }; }).filter(x => x.max > 0 || x.returned > 0);
   }
+  // 'none' | 'partial' | 'full' — how much of an order / GRN has been returned
+  retState(kind, ref) {
+    const b = this.returnBase(kind, ref);
+    const ret = b.reduce((a, x) => a + x.returned, 0), left = b.reduce((a, x) => a + x.max, 0);
+    return ret <= 0 ? 'none' : (left <= 0 ? 'full' : 'partial');
+  }
   nextReturnId(kind) {
     const pre = kind === 'sales' ? 'SR-' : 'PR-';
     const nums = (this.state.dbReturns || []).filter(r => r.kind === kind).map(r => parseInt(String(r.id).slice(3), 10) || 0);
@@ -2906,6 +2916,9 @@ class Component extends DCLogic {
       (st.dbGRNs || []).forEach(g => {
         rows.push({ day: g.date || this.qDayOf(g.ts), kind: 'grn', kindLabel: 'GRN entry', ref: g.id + (g.invoice ? ' · ' + g.invoice : '') + (g.currency && g.currency !== 'QAR' ? ' · ' + Number(g.totalOrig || 0).toFixed(2) + ' ' + g.currency : ''), supplier: g.supplier || '—', pay: this.repLabel(g.payMode), payKey: String(g.payMode || '').toLowerCase(), amt: Number(g.total) || 0 });
       });
+      (st.dbReturns || []).filter(x => x.kind === 'purchase').forEach(x => {
+        rows.push({ day: x.date || this.qDayOf(x.ts), kind: 'return', kindLabel: 'Purchase return', ref: x.id + ' · ' + x.ref, supplier: x.party || '—', pay: x.paid ? 'Credited' : 'Credit note', payKey: x.paid ? 'paid' : 'pending', amt: -x.total });
+      });
       const out = rows
         .filter(r => inRange(r.day))
         .filter(r => st.repKind === 'all' || r.kind === st.repKind)
@@ -2929,7 +2942,7 @@ class Component extends DCLogic {
     }
     // sales
     const platOf = (o) => (!o.source || o.source === 'storefront') ? 'Website' : o.source;
-    let rows = (st.dbOrders || []).map(o => ({ o, day: this.qDayOf(o.ts), time: new Date(o.ts).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Qatar' }), plat: platOf(o), status: String(o.status || 'new').toLowerCase(), pay: String(o.paymentStatus || 'pending').toLowerCase(), method: o.payMethod || '', total: Number(o.total) || 0 }))
+    let rows = (st.dbOrders || []).map(o => ({ o, day: this.qDayOf(o.ts), time: new Date(o.ts).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Qatar' }), plat: platOf(o), status: String(o.status || 'new').toLowerCase(), pay: String(o.paymentStatus || 'pending').toLowerCase(), method: o.payMethod || '', rs: this.retState('sales', o.id), ret: (st.dbReturns || []).filter(x => x.kind === 'sales' && x.ref === o.id).reduce((a, x) => a + x.total, 0), total: Math.max(0, (Number(o.total) || 0) - (st.dbReturns || []).filter(x => x.kind === 'sales' && x.ref === o.id).reduce((a, x) => a + x.total, 0)) }))
       .filter(r => inRange(r.day))
       .filter(r => st.repPlat === 'all' || r.plat === st.repPlat)
       .filter(r => st.repStatus === 'all' ? r.status !== 'cancelled' : r.status === st.repStatus)
@@ -2944,9 +2957,9 @@ class Component extends DCLogic {
       type: 'sales', title: 'Sales report',
       head: [A('Date'), A('Time'), A('Order ID'), A('Customer'), A('Platform'), R('Total (QAR)'), A('Status'), A('Payment status'), A('Method')],
       grid: '100px 80px 90px minmax(150px,1.2fr) 120px 110px 100px 130px 110px',
-      cells: rows.map(r => [A(r.day), A(r.time), A(r.o.id), A(r.o.name || '—'), A(r.plat), { ...R(money(r.total)), w: 600 }, A(this.repLabel(r.status)), A(this.repLabel(r.pay)), A(mLabel(r.method))]),
+      cells: rows.map(r => [A(r.day), A(r.time), A(r.o.id), A(r.o.name || '—'), A(r.plat), { ...R(money(r.total) + (r.ret > 0 ? ' (−' + money(r.ret) + ' returned)' : '')), w: 600 }, A(({ full: 'Returned', partial: 'Partially returned' })[r.rs] || this.repLabel(r.status)), A(({ full: 'Cancelled', partial: 'Partially cancelled' })[r.rs] || this.repLabel(r.pay)), A(r.rs === 'full' ? 'Cancelled' : mLabel(r.method))]),
       tiles: [
-        { label: 'Orders', value: String(rows.length) }, { label: 'Total sales', value: money(total) + ' QAR' },
+        { label: 'Orders', value: String(rows.length) }, { label: 'Total sales (after returns)', value: money(total) + ' QAR' }, { label: 'Sales returns', value: money(rows.reduce((a, r) => a + r.ret, 0)) + ' QAR' },
         { label: 'Paid', value: money(paid) + ' QAR' }, { label: 'Pending / unpaid', value: money(total - paid) + ' QAR' },
         { label: 'Average order', value: money(rows.length ? total / rows.length : 0) + ' QAR' }, { label: 'Items sold', value: String(items) }
       ],
@@ -4950,9 +4963,9 @@ class Component extends DCLogic {
       name: o.name,
       meta: o.id + ' · ' + new Date(o.ts).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Qatar' }),
       total: fmt(o.total),
-      status: o.status === 'new' ? 'New' : 'Delivered',
-      badgeBg: o.status === 'new' ? '#FBEFD4' : '#DDF0E2',
-      badgeColor: o.status === 'new' ? '#9A6E12' : '#1E8A4C'
+      status: ({ full: 'Returned', partial: 'Partially returned' })[this.retState('sales', o.id)] || (o.status === 'new' ? 'New' : 'Delivered'),
+      badgeBg: this.retState('sales', o.id) === 'full' ? '#F9E0DC' : this.retState('sales', o.id) === 'partial' ? '#F6E6D2' : (o.status === 'new' ? '#FBEFD4' : '#DDF0E2'),
+      badgeColor: this.retState('sales', o.id) === 'full' ? '#B03A2E' : this.retState('sales', o.id) === 'partial' ? '#9A5A12' : (o.status === 'new' ? '#9A6E12' : '#1E8A4C')
     }));
 
     // ---- Customers (saved ones + anyone found in orders) ----
@@ -5039,7 +5052,7 @@ class Component extends DCLogic {
         metaId: o.id,
         dateLabel: new Date(o.ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Qatar' }),
         platform: platLabel(o),
-        methodLabel: ({ cash: 'Cash', card: 'Card', credit: 'Credit', fawran: 'Fawran' })[o.payMethod] || '—',
+        methodLabel: this.retState('sales', o.id) === 'full' ? 'Cancelled' : (({ cash: 'Cash', card: 'Card', credit: 'Credit', fawran: 'Fawran' })[o.payMethod] || '—'),
         meta: o.id + ' · ' + new Date(o.ts).toLocaleDateString('en', { day: 'numeric', month: 'short' })
           + (o.source && o.source !== 'storefront' ? ' · via ' + o.source : ''),
         itemCount: (o.lines || []).length + (((o.lines || []).length === 1) ? ' item' : ' items'),
@@ -5052,12 +5065,12 @@ class Component extends DCLogic {
         shipping: [o.address, o.zone].filter(Boolean).join(' — ') || '—',
         hasNotes: !!o.notes, notes: o.notes || '',
         total: fmt(o.total),
-        status: o.status === 'new' ? 'New' : 'Delivered',
-        badgeBg: o.status === 'new' ? '#FBEFD4' : '#DDF0E2',
-        badgeColor: o.status === 'new' ? '#9A6E12' : '#1E8A4C',
-        paymentLabel: paymentBadgeMeta(o.paymentStatus).label,
-        paymentBg: paymentBadgeMeta(o.paymentStatus).bg,
-        paymentColor: paymentBadgeMeta(o.paymentStatus).color,
+        status: ({ full: 'Returned', partial: 'Partially returned' })[this.retState('sales', o.id)] || (o.status === 'new' ? 'New' : 'Delivered'),
+        badgeBg: this.retState('sales', o.id) === 'full' ? '#F9E0DC' : this.retState('sales', o.id) === 'partial' ? '#F6E6D2' : (o.status === 'new' ? '#FBEFD4' : '#DDF0E2'),
+        badgeColor: this.retState('sales', o.id) === 'full' ? '#B03A2E' : this.retState('sales', o.id) === 'partial' ? '#9A5A12' : (o.status === 'new' ? '#9A6E12' : '#1E8A4C'),
+        paymentLabel: ({ full: 'Cancelled', partial: 'Partially cancelled' })[this.retState('sales', o.id)] || paymentBadgeMeta(o.paymentStatus).label,
+        paymentBg: this.retState('sales', o.id) === 'full' ? '#F9E0DC' : this.retState('sales', o.id) === 'partial' ? '#F6E6D2' : paymentBadgeMeta(o.paymentStatus).bg,
+        paymentColor: this.retState('sales', o.id) === 'full' ? '#B03A2E' : this.retState('sales', o.id) === 'partial' ? '#9A5A12' : paymentBadgeMeta(o.paymentStatus).color,
         toggleLabel: o.status === 'new' ? 'Mark delivered' : 'Mark new',
         toggle: () => {
           window.getSupabase().from('orders').update({ status: o.status === 'new' ? 'delivered' : 'new' }).eq('id', o.id).then(({ error }) => {
@@ -5847,6 +5860,9 @@ class Component extends DCLogic {
           lines: (g.items || []).map(l => ({ brand: (prods.find(pp => pp.sku === l.code) || {}).brand || '', name: l.name || l.code, code: l.code, qty: l.qty || 0, free: l.free || 0, buy: Number(l.buy || 0).toFixed(2) + (g.currency && g.currency !== 'QAR' ? ' ' + g.currency : ''), sell: l.sell || 0, expiry: l.expiry || '—' })),
           edit: () => grnOpenForm(g),
           ...this.retProps('purchase', g.id, g.supplier),
+          hasRetStatus: this.retState('purchase', g.id) !== 'none',
+          retStatus: this.retState('purchase', g.id) === 'full' ? 'Returned' : 'Partially returned', retPay: this.retState('purchase', g.id) === 'full' ? 'Cancelled' : 'Partially cancelled',
+          retBg: this.retState('purchase', g.id) === 'full' ? '#F9E0DC' : '#F6E6D2', retColor: this.retState('purchase', g.id) === 'full' ? '#B03A2E' : '#9A5A12',
           confirming, askRemove: () => this.setState({ grnConfirmDel: g.id }), cancelRemove: () => this.setState({ grnConfirmDel: null }),
           confirmRemove: async () => {
             const sb = window.getSupabase();

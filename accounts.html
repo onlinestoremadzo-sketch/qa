@@ -469,7 +469,9 @@ class Component extends DCLogic {
       .slice((salesPager.page - 1) * PAGE_SIZE, salesPager.page * PAGE_SIZE)
       .map(o => {
         const pm = payMeta(o.paymentStatus);
-        return { date: dfmt(o.ts), label: o.id + ' · ' + (o.name || '—') + ' · ' + o.platform, payLabel: pm.label, payBg: pm.bg, payColor: pm.color, amountFmt: fmt(o.total) };
+        const rt = rets.filter(r => r.kind === 'sales' && r.ref === o.id).reduce((x, r) => x + r.total, 0);
+        const full = rt > 0 && rt >= (o.total || 0) - 0.01, part = rt > 0 && !full;
+        return { date: dfmt(o.ts), label: o.id + ' · ' + (o.name || '—') + ' · ' + o.platform + (rt > 0 ? ' · ' + (full ? 'Returned' : 'Partially returned') : ''), payLabel: full ? 'Cancelled' : part ? 'Partially cancelled' : pm.label, payBg: rt > 0 ? '#F9E0DC' : pm.bg, payColor: rt > 0 ? '#B03A2E' : pm.color, amountFmt: rt > 0 ? fmt(Math.max(0, (o.total || 0) - rt)) + ' (−' + fmt(rt) + ')' : fmt(o.total) };
       });
 
     // ---- Purchases log ----
@@ -479,7 +481,9 @@ class Component extends DCLogic {
       .map(p => {
         const sm = poStatusMeta(p.status);
         const pm = payMeta(p.paymentStatus);
-        return { date: dfmt(p.ts), label: (p.supplier || '—') + ' · ' + p.id + (p.kind === 'GRN' ? ' (GRN)' : ''), statusLabel: sm.label, statusBg: sm.bg, statusColor: sm.color, payLabel: pm.label, payBg: pm.bg, payColor: pm.color, amountFmt: fmt(p.netAmount) };
+        const prt = p.kind === 'GRN' ? rets.filter(r => r.kind === 'purchase' && r.ref === p.id).reduce((x, r) => x + r.total, 0) : 0;
+        const pfull = prt > 0 && prt >= (p.netAmount || 0) - 0.01, ppart = prt > 0 && !pfull;
+        return { date: dfmt(p.ts), label: (p.supplier || '—') + ' · ' + p.id + (p.kind === 'GRN' ? ' (GRN)' : ''), statusLabel: pfull ? 'Returned' : ppart ? 'Partially returned' : sm.label, statusBg: prt > 0 ? '#F9E0DC' : sm.bg, statusColor: prt > 0 ? '#B03A2E' : sm.color, payLabel: pfull ? 'Cancelled' : ppart ? 'Partially cancelled' : pm.label, payBg: prt > 0 ? '#F9E0DC' : pm.bg, payColor: prt > 0 ? '#B03A2E' : pm.color, amountFmt: prt > 0 ? fmt(Math.max(0, (p.netAmount || 0) - prt)) + ' (−' + fmt(prt) + ')' : fmt(p.netAmount) };
       });
 
     // ---- Expenses ----

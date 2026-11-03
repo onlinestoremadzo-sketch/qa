@@ -1212,9 +1212,23 @@ class Component extends DCLogic {
             lines: newOrder.lines, total: newOrder.total, status: 'new', source: 'storefront', payment_status: 'pending',
             payment_method: newOrder.payMethod
           };
-          let ins = await sb.from('orders').insert(orderRow);
-          // An order must never be lost: if the database hasn't got the payment_method column yet, save it without.
-          if (ins.error && /payment_method/.test(ins.error.message || '')) { const { payment_method, ...plain } = orderRow; ins = await sb.from('orders').insert(plain); }
+          let ins = null, tries = 0, withPm = true;
+          while (true) {
+            const row = withPm ? orderRow : (({ payment_method, ...plain }) => plain)(orderRow);
+            ins = await sb.from('orders').insert(row);
+            // An order must never be lost: if the database hasn't got the payment_method column yet, save it without.
+            if (ins.error && withPm && /payment_method/.test(ins.error.message || '')) { withPm = false; continue; }
+            // That order number is already taken (e.g. an order added by hand in the admin): take the next free number.
+            if (ins.error && (ins.error.code === '23505' || /duplicate key/i.test(ins.error.message || '')) && tries < 10) {
+              tries++;
+              let nid = '';
+              try { const { data } = await sb.rpc('next_order_id'); if (data && data !== orderRow.id) nid = data; } catch (e) { /* below */ }
+              orderRow.id = nid || ('MZO-' + String(Date.now()).slice(-6));
+              newOrder.id = orderRow.id;
+              continue;
+            }
+            break;
+          }
           if (ins.error) throw ins.error;
           // Deduct sold quantities from stock. A failure here never blocks the
           // order itself — the sale is already placed; this just keeps the

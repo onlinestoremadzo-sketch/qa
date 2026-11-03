@@ -697,7 +697,29 @@
                     <span style="display: flex; gap: 10px; flex-wrap: wrap;">
                       <button onClick="{{ p.toggleBuyRates }}" style="background: {{ p.buyRatesBg }}; border: 1px solid #461610; color: {{ p.buyRatesFg }}; border-radius: 999px; padding: 9px 16px; font-size: 13px; cursor: pointer;">Previous purchase rates</button>
                       <button onClick="{{ p.toggleSellRates }}" style="background: {{ p.sellRatesBg }}; border: 1px solid #461610; color: {{ p.sellRatesFg }}; border-radius: 999px; padding: 9px 16px; font-size: 13px; cursor: pointer;">Previous sales rates</button>
+                      <button onClick="{{ p.toggleStockHist }}" style="background: {{ p.stockHistBg }}; border: 1px solid #461610; color: {{ p.stockHistFg }}; border-radius: 999px; padding: 9px 16px; font-size: 13px; cursor: pointer;">Stock history</button>
                     </span>
+                    <sc-if value="{{ p.rvStock }}" hint-placeholder-val="{{ false }}">
+                      <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 12px; overflow-x: auto; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="font-size: 13px; font-weight: 600; color: #461610;">Stock history — why the stock is what it is</div>
+                        <div style="font-size: 13px; color: #2E2A26;">Stock shown: <b>{{ p.shStock }}</b> · Total of all stock records: <b>{{ p.shBatchTotal }}</b></div>
+                        <sc-if value="{{ p.shMismatch }}" hint-placeholder-val="{{ false }}">
+                          <div style="background: #F6EDDB; border: 1px solid #E0C9A2; border-radius: 10px; padding: 9px 12px; font-size: 12.5px; color: #7A5F27;">{{ p.shMismatchText }}</div>
+                        </sc-if>
+                        <sc-if value="{{ p.shAuditMissing }}" hint-placeholder-val="{{ false }}">
+                          <div style="font-size: 12px; color: #857D72;">To also record <b>who</b> changes stock from now on, run <b>madzo-update-19.sql</b> in Supabase (SQL Editor) once.</div>
+                        </sc-if>
+                        <table style="border-collapse: collapse; width: 100%; min-width: 560px;">
+                          <thead><tr><th style="text-align:left; padding:5px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">When</th><th style="text-align:left; padding:5px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">What</th><th style="text-align:left; padding:5px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">Reference</th><th style="text-align:left; padding:5px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">Change</th><th style="text-align:left; padding:5px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">By</th><th style="text-align:left; padding:5px 8px; font-size:11.5px; color:#857D72; font-weight:600; border-bottom:1px solid #E7DECF; white-space:nowrap;">Details</th></tr></thead>
+                          <tbody>
+                            <sc-for list="{{ p.shRows }}" as="hr" hint-placeholder-count="3">
+                              <tr><td style="padding:5px 8px; font-size:12.5px; border-bottom:1px solid #F0E8DA; white-space:nowrap;">{{ hr.when }}</td><td style="padding:5px 8px; font-size:12.5px; border-bottom:1px solid #F0E8DA; white-space:nowrap;">{{ hr.what }}</td><td style="padding:5px 8px; font-size:12.5px; border-bottom:1px solid #F0E8DA; white-space:nowrap;">{{ hr.ref }}</td><td style="padding:5px 8px; font-size:12.5px; border-bottom:1px solid #F0E8DA; white-space:nowrap; font-weight:700; color:{{ hr.color }};">{{ hr.change }}</td><td style="padding:5px 8px; font-size:12.5px; border-bottom:1px solid #F0E8DA; white-space:nowrap;">{{ hr.by }}</td><td style="padding:5px 8px; font-size:12px; border-bottom:1px solid #F0E8DA; color:#857D72;">{{ hr.detail }}</td></tr>
+                            </sc-for>
+                          </tbody>
+                        </table>
+                        <sc-if value="{{ p.shEmpty }}" hint-placeholder-val="{{ false }}"><p style="margin: 0; font-size: 12.5px; color: #857D72;">No stock records for this product.</p></sc-if>
+                      </div>
+                    </sc-if>
                     <sc-if value="{{ p.rvBuy }}" hint-placeholder-val="{{ false }}">
                       <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px; padding: 12px; overflow-x: auto;">
                         <div style="font-size: 13px; font-weight: 600; color: #461610; margin-bottom: 6px;">Previous purchase rates — from GRN entries</div>
@@ -2520,7 +2542,7 @@ class Component extends DCLogic {
       newProdError: '',
       editSku: null,
       editDraft: null,
-      editError: '', rateView: null,
+      editError: '', rateView: null, dbAudit: [], auditMissing: false,
       showOrderForm: false,
       newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', paymentStatus: 'pending', payMethod: 'cash', discType: 'amount', discValue: '', items: [] },
       newOrderError: '',
@@ -2598,7 +2620,7 @@ class Component extends DCLogic {
   }
 
   async loadAll() {
-    await Promise.all([this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadGRNs(), this.loadOMs(), this.loadSuppliers(), this.loadPlatforms(), this.loadBatches(), this.loadCategories(), this.loadBrands(), this.loadNotes(), this.loadCustomers(), this.loadViews()]);
+    await Promise.all([this.loadStockAudit(), this.loadProducts(), this.loadOrders(), this.loadSettings(), this.loadSiteImages(), this.loadPOs(), this.loadGRNs(), this.loadOMs(), this.loadSuppliers(), this.loadPlatforms(), this.loadBatches(), this.loadCategories(), this.loadBrands(), this.loadNotes(), this.loadCustomers(), this.loadViews()]);
     this.backfillCustomersAndSuppliers();
   }
 
@@ -2653,6 +2675,13 @@ class Component extends DCLogic {
     } catch (e) { this.setState({ viewsMissing: true }); }
   }
 
+  async loadStockAudit() {
+    try {
+      const { data, error } = await window.getSupabase().from('stock_audit').select('*').order('at', { ascending: false });
+      if (error) { if (this.isMissingTable(error)) this.setState({ auditMissing: true, dbAudit: [] }); return; }
+      this.setState({ auditMissing: false, dbAudit: data || [] });
+    } catch (e) { /* history log is optional */ }
+  }
   async loadBatches() {
     try {
       const sb = window.getSupabase();
@@ -2662,7 +2691,7 @@ class Component extends DCLogic {
         id: b.id, sku: b.sku, batchNo: b.batch_no || '', expiry: b.expiry_date || '',
         supplier: b.supplier_name || '', buyPrice: b.buying_price || 0, sellPrice: b.selling_price || 0,
         qty: b.quantity || 0, received: b.received_date || '', notes: b.notes || '',
-        sourceType: b.source_type || '', sourceId: b.source_id || ''
+        sourceType: b.source_type || '', sourceId: b.source_id || '', createdAt: b.created_at || '', createdBy: b.created_by || ''
       })) });
     } catch (e) { console.warn('Madzo admin: could not load inventory batches', e); }
   }
@@ -4167,6 +4196,8 @@ class Component extends DCLogic {
       toggleBuyRates: open('buy'), toggleSellRates: open('sell'),
       buyRatesBg: kind === 'buy' ? '#461610' : 'transparent', buyRatesFg: kind === 'buy' ? '#fff' : '#461610',
       sellRatesBg: kind === 'sell' ? '#461610' : 'transparent', sellRatesFg: kind === 'sell' ? '#fff' : '#461610',
+      toggleStockHist: open('stock'), stockHistBg: kind === 'stock' ? '#461610' : 'transparent', stockHistFg: kind === 'stock' ? '#fff' : '#461610',
+      rvStock: kind === 'stock', shRows: [], shEmpty: false, shStock: '', shBatchTotal: '', shMismatch: false, shMismatchText: '', shAuditMissing: false,
       rvBuy: kind === 'buy', rvSell: kind === 'sell',
       buyRows: [], buyEmpty: false, sellSetRows: [], sellSetEmpty: false, soldRows: [], soldEmpty: false
     };
@@ -4183,6 +4214,30 @@ class Component extends DCLogic {
       const d = get(r) - get(prev); if (Math.abs(d) < 0.005) return { chg: '=', chgColor: '#857D72' };
       return { chg: (d > 0 ? '▲ +' : '▼ ') + q2(d), chgColor: d > 0 ? '#C0392B' : '#21B858' };
     });
+    if (kind === 'stock') {
+      const prod = (this.state.dbProducts || []).find(x => x.sku === sku) || {};
+      const batches = (this.state.dbBatches || []).filter(b => b.sku === sku);
+      const total = batches.reduce((a, b) => a + (Number(b.qty) || 0), 0), cur = Number(prod.stock) || 0;
+      const when = (ts, day) => { const t = ts ? new Date(ts) : (day ? new Date(String(day).slice(0, 10) + 'T00:00:00') : null); return t && !isNaN(t) ? t.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + (ts ? ' ' + t.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '') : '—'; };
+      const kindLabel = { grn: 'GRN received', purchase: 'Purchase order', sale: 'Sale' };
+      const rows = [];
+      batches.forEach(b => {
+        const q = Number(b.qty) || 0;
+        rows.push({ ts: b.createdAt ? new Date(b.createdAt).getTime() : (b.received ? new Date(b.received).getTime() : 0), when: when(b.createdAt, b.received), what: kindLabel[b.sourceType] || 'Stock added manually', ref: b.sourceId || '—', change: (q > 0 ? '+' : '') + q, color: q < 0 ? '#C0392B' : '#21B858', by: b.createdBy || '—', detail: [b.supplier, b.batchNo ? 'batch ' + b.batchNo : '', b.notes].filter(Boolean).join(' · ') });
+      });
+      (this.state.dbAudit || []).filter(a => a.sku === sku && a.event === 'stock set directly').forEach(a => {
+        const d = Number(a.delta) || 0;
+        rows.push({ ts: new Date(a.at).getTime(), when: when(a.at), what: 'Stock number changed directly', ref: '—', change: (d > 0 ? '+' : '') + d, color: d < 0 ? '#C0392B' : '#21B858', by: (!a.changed_by || a.changed_by.indexOf('@') < 0) ? 'Corrected stock by backend' : a.changed_by, detail: a.old_stock + ' → ' + a.new_stock });
+      });
+      rows.sort((x, y) => y.ts - x.ts);
+      out.shRows = rows; out.shEmpty = !rows.length; out.shStock = String(cur); out.shBatchTotal = String(total);
+      if (cur !== total) {
+        out.shMismatch = true;
+        out.shMismatchText = 'The stock shown (' + cur + ') is ' + (cur > total ? Math.abs(cur - total) + ' more' : Math.abs(cur - total) + ' less') + ' than the total of the GRN / purchase / sale records (' + total + '). The difference of ' + (cur - total > 0 ? '+' : '') + (cur - total) + ' did not come from any GRN, purchase or sale — it is an older manual stock number change (for example the former + / − buttons, or an opening stock), or a record that was deleted. Older changes were not logged with a name.';
+      }
+      out.shAuditMissing = !!this.state.auditMissing;
+      return out;
+    }
     if (kind === 'buy') {
       const get = (r) => (Number(r.it.buy) || 0) * (r.g.rate || 1);
       const tr = trend(grn, get);
@@ -4284,7 +4339,8 @@ class Component extends DCLogic {
     try {
       const sb = window.getSupabase();
       await sb.from('inventory_batches').delete().eq('source_type', 'purchase').eq('source_id', poId);
-      if (!apply) { this.loadBatches(); return; }
+      // Purchase orders no longer change stock — only GRN entries add stock (and sales remove it).
+      if (true) { this.loadBatches(); return; }
       const today = new Date().toISOString().slice(0, 10);
       const rows = (items || [])
         .filter(it => it.code && (Number(it.qty) > 0 || Number(it.bonus) > 0))

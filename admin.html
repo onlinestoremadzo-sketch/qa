@@ -4440,9 +4440,16 @@ class Component extends DCLogic {
       const when = (ts, day) => { const t = ts ? new Date(ts) : (day ? new Date(String(day).slice(0, 10) + 'T00:00:00') : null); return t && !isNaN(t) ? t.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + (ts ? ' ' + t.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '') : '—'; };
       const kindLabel = { grn: 'GRN received', purchase: 'Purchase order', sale: 'Sale', sales_return: 'Sales return (back in stock)', purchase_return: 'Purchase return (sent back)' };
       const rows = [];
+      const plat = (b) => {
+        let oid = null;
+        if (b.sourceType === 'sale') oid = b.sourceId;
+        else if (b.sourceType === 'sales_return') { const r = (this.state.dbReturns || []).find(x => x.id === b.sourceId); oid = r ? r.ref : null; }
+        const o = oid ? (this.state.dbOrders || []).find(x => x.id === oid) : null;
+        return o ? ((!o.source || o.source === 'storefront') ? 'Website' : o.source) : '';
+      };
       batches.forEach(b => {
         const q = Number(b.qty) || 0;
-        rows.push({ ts: b.createdAt ? new Date(b.createdAt).getTime() : (b.received ? new Date(b.received).getTime() : 0), when: when(b.createdAt, b.received), what: kindLabel[b.sourceType] || 'Stock added manually', ref: b.sourceId || '—', change: (q > 0 ? '+' : '') + q, color: q < 0 ? '#C0392B' : '#21B858', by: b.createdBy || '—', detail: [b.supplier, b.batchNo ? 'batch ' + b.batchNo : '', b.notes].filter(Boolean).join(' · ') });
+        rows.push({ ts: b.createdAt ? new Date(b.createdAt).getTime() : (b.received ? new Date(b.received).getTime() : 0), when: when(b.createdAt, b.received), what: (kindLabel[b.sourceType] || 'Stock added manually') + (plat(b) ? ' · ' + plat(b) : ''), ref: b.sourceId || '—', change: (q > 0 ? '+' : '') + q, color: q < 0 ? '#C0392B' : '#21B858', by: b.createdBy || '—', detail: [b.supplier, b.batchNo ? 'batch ' + b.batchNo : '', b.notes].filter(Boolean).join(' · ') });
       });
       (this.state.dbAudit || []).filter(a => a.sku === sku && a.event === 'stock set directly').forEach(a => {
         const d = Number(a.delta) || 0;
@@ -4537,10 +4544,11 @@ class Component extends DCLogic {
       const sb = window.getSupabase();
       await sb.from('inventory_batches').delete().eq('source_type', 'sale').eq('source_id', orderId);
       const today = new Date().toISOString().slice(0, 10);
-      const rows = (lines || [])
-        .filter(l => l.sku && Number(l.qty) > 0)
-        .map(l => ({
-          sku: l.sku, quantity: -Math.abs(Number(l.qty) || 0),
+      const bySku = {};
+      (lines || []).filter(l => l.sku && Number(l.qty) > 0).forEach(l => { bySku[l.sku] = (bySku[l.sku] || 0) + (Number(l.qty) || 0); });
+      const rows = Object.keys(bySku)
+        .map(sku => ({
+          sku, quantity: -Math.abs(bySku[sku]),
           buying_price: 0, selling_price: 0, received_date: today,
           source_type: 'sale', source_id: orderId, notes: 'Order ' + orderId
         }));
@@ -6300,6 +6308,9 @@ class Component extends DCLogic {
       noAdj: no.adj == null ? '' : no.adj, noOnAdj: setNO('adj'),
       noHasDisc: newOrderDisc > 0, noSubtotal: fmt(newOrderSubNum), noDiscLabel: fmt(newOrderDisc) + (no.discType === 'percent' ? ' (' + (Number(no.discValue) || 0) + '%)' : ''),
       saveNewOrder: async () => {
+        if (this._savingNewOrder) return;
+        this._savingNewOrder = true;
+        try {
         const items = no.items
           .map(it => ({ qty: Math.max(1, parseInt(it.qty, 10) || 1), name: String(it.name || '').trim(), unit: it.free ? 0 : (Number(it.price) || 0), free: !!it.free, sku: it.sku || '', brand: it.brand || '', nameEn: it.nameEn || '', discType: it.discType || 'amount', discValue: it.discValue }))
           .filter(it => it.name);
@@ -6335,6 +6346,7 @@ class Component extends DCLogic {
         let methodNotSaved = false;
         if (ins.error && /payment_method/.test(ins.error.message || '')) { const { payment_method, ...plain } = orderRow; ins = await window.getSupabase().from('orders').insert(plain); methodNotSaved = true; }
         const error = ins.error;
+        if (error && (error.code === '23505' || /duplicate key/i.test(error.message || ''))) { this.setState({ newOrderError: 'Order ID "' + id + '" already exists — it may have just been saved. Check the Sales list before adding again.' }); this.loadOrders(); return; }
         if (error) { this.setState({ newOrderError: /adjustment/.test(error.message || '') ? 'Adjustments need a one-time database update — run madzo-update-23.sql in Supabase, then save again.' : /discount/.test(error.message || '') ? 'Discounts need a one-time database update — run madzo-update-18.sql in Supabase, then save again.' : error.message }); return; }
         this.syncOrderStock(id, lines);
         this.rememberCustomer(orderRow.customer_name, orderRow.phone, orderRow.zone, orderRow.address);
@@ -6344,6 +6356,7 @@ class Component extends DCLogic {
           newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', paymentStatus: 'pending', payMethod: 'cash', discType: 'amount', discValue: '', adj: '', items: [] }
         });
         this.loadOrders();
+        } finally { this._savingNewOrder = false; }
       },
 
       showAddForm: this.state.showAddForm,

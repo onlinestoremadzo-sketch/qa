@@ -2973,6 +2973,8 @@ class Component extends DCLogic {
     const paid = rows.filter(r => r.pay === 'paid').reduce((a, r) => a + r.total, 0);
     const items = rows.reduce((a, r) => a + (r.o.lines || []).reduce((b, l) => b + (l.free ? 0 : (Number(l.qty) || 0)), 0), 0);
     const mLabel = (m) => ({ cash: 'Cash', card: 'Card', credit: 'Credit', fawran: 'Fawran' })[m] || '—';
+    // fully returned / cancelled orders don't count in the platform and payment-method summaries
+    const live = rows.filter(r => r.rs !== 'full' && r.status !== 'cancelled');
     return {
       type: 'sales', title: 'Sales report',
       head: [A('Date'), A('Time'), A('Order ID'), A('Customer'), A('Platform'), R('Total (QAR)'), A('Status'), A('Payment status'), A('Method')],
@@ -2983,7 +2985,7 @@ class Component extends DCLogic {
         { label: 'Paid', value: money(paid) + ' QAR' }, { label: 'Pending / unpaid', value: money(total - paid) + ' QAR' },
         { label: 'Average order', value: money(rows.length ? total / rows.length : 0) + ' QAR' }, { label: 'Items sold', value: String(items) }
       ],
-      groups: [groupBy(rows, r => r.plat, r => r.total, 'By platform', total), groupBy(rows, r => mLabel(r.method), r => r.total, 'By payment method', total)],
+      groups: [groupBy(live, r => r.plat, r => r.total, 'By platform', total), groupBy(live, r => mLabel(r.method), r => r.total, 'By payment method', total)],
       count: rows.length, total
     };
   }

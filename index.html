@@ -89,6 +89,8 @@
     .madzo-brand-arrow:hover { background: #461610; border-color: #461610; }
     .madzo-brand-arrow:hover svg { stroke: #FDF9F4; }
     @media (max-width: 600px) { .madzo-brand-arrow { width: 34px; height: 34px; } }
+    .madzo-wa-float { top: 112px; inset-inline-end: 16px; }
+    @media (max-width: 759px) { .madzo-wa-float { top: 202px; inset-inline-end: 10px; padding: 8px 14px 8px 10px !important; } .madzo-wa-float svg { width: 22px; height: 22px; } .madzo-wa-float span span:first-child { font-size: 13px !important; } .madzo-wa-float span span:last-child { font-size: 10.5px !important; } }
     @media (prefers-reduced-motion: reduce) {
       .madzo-brand-tile[data-clone="1"] { display: none; }
       .madzo-brand-arrow { display: none; }
@@ -480,7 +482,6 @@
         <div>
           <h2 style="font-size: 19px; font-weight: 600; margin: 0 0 12px;">{{ t.contactTitle }}</h2>
           <p style="margin: 0 0 6px; font-size: 15px;"><a onClick="{{ contactWhatsApp }}" style="color: #FDF9F4; cursor: pointer; text-decoration: underline; direction: ltr; unicode-bidi: embed;">{{ waDisplay }}</a></p>
-          <p style="margin: 0; font-size: 13.5px; color: #D9C2B4;">{{ t.aboutLoc }}</p>
         </div>
         <div>
           <h2 style="font-size: 19px; font-weight: 600; margin: 0 0 12px;">{{ t.followTitle }}</h2>
@@ -595,12 +596,11 @@
           </sc-if>
         </div>
       </div>
-      <a href="admin.html" onClick="{{ goManager }}" style="color: #D9C2B4; font-size: 12px; text-decoration: underline; margin-top: 14px;">{{ t.managerLink }}</a>
     </div>
   </footer>
 
   <!-- Floating WhatsApp pill -->
-  <button onClick="{{ contactWhatsApp }}" style="position: fixed; bottom: 20px; inset-inline-end: 20px; z-index: 60; background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 12px 20px 12px 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; box-shadow: 0 6px 18px rgba(20,90,45,.35);" style-hover="filter: brightness(1.07);">
+  <button onClick="{{ contactWhatsApp }}" class="madzo-wa-float" style="position: fixed; z-index: 60; background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 12px 20px 12px 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; box-shadow: 0 6px 18px rgba(20,90,45,.35);" style-hover="filter: brightness(1.07);">
     <svg width="26" height="26" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="15" stroke="#fff" stroke-width="2"></circle><path d="M22.5 18.9c-.3-.2-1.9-1-2.2-1.1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.3-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.3.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.1 1.1-1.1 2.7s1.2 3.1 1.3 3.3c.2.2 2.3 3.5 5.5 4.9.8.3 1.4.5 1.9.7.8.2 1.5.2 2 .1.6-.1 1.9-.8 2.2-1.5.3-.8.3-1.4.2-1.5-.1-.1-.3-.2-.7-.4z" fill="#fff"></path></svg>
     <span style="display: flex; flex-direction: column; align-items: flex-start; line-height: 1.25;">
       <span style="font-size: 14.5px; font-weight: 700;">{{ t.talkToUs }}</span>
@@ -840,9 +840,9 @@ class Component extends DCLogic {
           ['🚀', 'TREND & INNOVATION', 'Bringing the latest beauty trends, skincare innovations, and premium brands to our store.']
         ],
         feat1T: '24/7 Live Support', feat1D: 'Our support team is here around the clock to assist you.',
-        feat2T: 'Pay on Delivery', feat2D: 'Prefer cash? Pay securely when your order arrives.',
+        feat2T: '100% Authentic', feat2D: 'Our products are 100% authentic and sourced from authorized distributors.',
         feat3T: 'Hassle-Free Exchanges', feat3D: 'Not completely satisfied? Our simple exchange process makes it easy.',
-        feat4T: 'Fast Delivery', feat4D: 'Free, quick delivery to your door anywhere in Qatar.',
+        feat4T: 'Fast Delivery', feat4D: 'Quick and reliable delivery to your doorstep anywhere in Qatar.',
         getToKnow: 'GET TO KNOW US', touchTitle: 'GET IN TOUCH WITH US', navPolicy: 'Policy & Exchanges', phoneLbl: 'Phone', emailLbl: 'Email',
         policyTitle: 'Policy & Exchanges',
         policyBlocks: [
@@ -852,7 +852,7 @@ class Component extends DCLogic {
           ['Delivery & payment', 'Delivery is free across Qatar. You can pay on delivery when your order arrives.'],
           ['Privacy', 'We only use your name, phone number and address to deliver your order and to contact you about it. We never sell your details.']
         ],
-        aboutBody: 'Madzo is a Qatar-based cosmetics boutique bringing together handpicked skin care, hair care, makeup and beauty accessories. Every product is chosen to glow — from silk-soft creams to statement shades. We deliver across all of Qatar, free of charge, with cash on delivery.',
+        aboutBody: 'Madzo is a Qatar-based cosmetics boutique bringing together handpicked skin care, hair care, makeup and beauty accessories. Every product is chosen to glow — from silk-soft creams to statement shades. We deliver across all of Qatar.',
         contactTitle: 'Contact Us', followTitle: 'Follow Us',
         aboutLoc: 'Based in Doha · delivering everywhere in Qatar', chatWa: 'Chat with us on WhatsApp',
         talkToUs: 'Talk to Us.', replyFast: 'response in 1 minute!', managerLink: 'Manager login',
@@ -887,9 +887,9 @@ class Component extends DCLogic {
           ['🚀', 'الصيحات والابتكار', 'نجلب إلى متجرنا أحدث صيحات الجمال وابتكارات العناية بالبشرة وأرقى العلامات التجارية.']
         ],
         feat1T: 'دعم مباشر على مدار الساعة', feat1D: 'فريق الدعم لدينا متواجد على مدار الساعة لمساعدتك.',
-        feat2T: 'الدفع عند الاستلام', feat2D: 'تفضل الدفع نقداً؟ ادفع بأمان عند وصول طلبك.',
+        feat2T: 'أصلية 100%', feat2D: 'منتجاتنا أصلية 100% ومن موزعين معتمدين.',
         feat3T: 'استبدال بدون عناء', feat3D: 'لست راضياً تماماً؟ عملية الاستبدال لدينا بسيطة وسهلة.',
-        feat4T: 'توصيل سريع', feat4D: 'توصيل مجاني وسريع إلى باب منزلك في أي مكان في قطر.',
+        feat4T: 'توصيل سريع', feat4D: 'توصيل سريع وموثوق إلى باب منزلك في أي مكان في قطر.',
         getToKnow: 'تعرف علينا', touchTitle: 'تواصل معنا', navPolicy: 'السياسة والاستبدال', phoneLbl: 'الهاتف', emailLbl: 'البريد الإلكتروني',
         policyTitle: 'السياسة والاستبدال',
         policyBlocks: [
@@ -899,7 +899,7 @@ class Component extends DCLogic {
           ['التوصيل والدفع', 'التوصيل مجاني داخل قطر، ويمكنك الدفع عند الاستلام.'],
           ['الخصوصية', 'نستخدم اسمك ورقم هاتفك وعنوانك فقط لتوصيل طلبك والتواصل معك بشأنه، ولا نشارك بياناتك مع أي جهة.']
         ],
-        aboutBody: 'مدزو متجر قطري لمستحضرات التجميل يجمع بين العناية بالبشرة والعناية بالشعر والمكياج والإكسسوارات المختارة بعناية. كل منتج اخترناه ليتألق — من الكريمات الحريرية إلى الألوان المميزة. نوصل لجميع مناطق قطر مجاناً، مع الدفع عند الاستلام.',
+        aboutBody: 'مدزو متجر قطري لمستحضرات التجميل يجمع بين العناية بالبشرة والعناية بالشعر والمكياج والإكسسوارات المختارة بعناية. كل منتج اخترناه ليتألق — من الكريمات الحريرية إلى الألوان المميزة. نوصل لجميع مناطق قطر.',
         contactTitle: 'تواصل معنا', followTitle: 'تابعنا',
         aboutLoc: 'مقرنا الدوحة · نوصل لجميع مناطق قطر', chatWa: 'تواصل معنا عبر واتساب',
         talkToUs: 'تحدث معنا', replyFast: 'نرد خلال دقيقة!', managerLink: 'دخول المدير',
@@ -1094,10 +1094,7 @@ class Component extends DCLogic {
     const headerBgDark = this.darken(headerBg, 0.82);
 
     return {
-      t: { ...t, footerLine: [
-        frontMains.map(loc).join(lang === 'ar' ? '، ' : ', '),
-        lang === 'ar' ? 'الدوحة، قطر' : 'Doha, Qatar'
-      ].join(' · ') },
+      t: { ...t, footerLine: lang === 'ar' ? 'عالم من الجمال والعناية' : 'A World of Beauty and Care' },
       dir: lang === 'ar' ? 'rtl' : 'ltr',
       showBar: this.props.showAnnouncement ?? true,
       headerBg, headerBgDark,

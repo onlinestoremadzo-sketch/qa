@@ -211,24 +211,26 @@
             </div>
           </div>
 
-          <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 22px;">
+          <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 22px; min-width: 0; max-width: 100%; box-sizing: border-box;">
             <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px;">
               <h2 style="font-size: 15px; font-weight: 600; margin: 0;">Revenue per day (QAR)</h2>
               <span style="color: #857D72; font-size: 12px;">14 days</span>
             </div>
-            <div style="display: flex; align-items: flex-end; gap: 6px; height: 160px;">
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px;">
+            <div style="display: flex; align-items: flex-end; gap: 6px; height: 160px; min-width: 560px;">
               <sc-for list="{{ chart }}" as="bar" hint-placeholder-count="14">
-                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;" title="{{ bar.tip }}">
+                <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;" title="{{ bar.tip }}">
                   <span style="font-size: 10px; color: #857D72;">{{ bar.valLabel }}</span>
                   <div style="width: 100%; max-width: 34px; border-radius: 6px 6px 2px 2px; background: linear-gradient(180deg, #B98680, #461610); height: {{ bar.h }};"></div>
                   <span style="font-size: 10px; color: #B0A697;">{{ bar.day }}</span>
                 </div>
               </sc-for>
             </div>
+            </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px;">
-            <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 18px;">
+            <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; min-width: 0;">
               <h2 style="font-size: 15px; font-weight: 600; margin: 0 0 12px;">Best sellers</h2>
               <div style="display: flex; flex-direction: column; gap: 10px;">
                 <sc-for list="{{ bestSellers }}" as="b" hint-placeholder-count="4">
@@ -245,12 +247,12 @@
               <div style="display: flex; flex-direction: column; gap: 8px;">
                 <sc-for list="{{ recentOrders }}" as="o" hint-placeholder-count="5">
                   <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #F1ECE2; padding-bottom: 8px;">
-                    <span style="flex: 1; display: flex; flex-direction: column;">
-                      <span style="font-size: 13.5px; color: #2E2A26;">{{ o.name }}</span>
-                      <span style="font-size: 11.5px; color: #B0A697;">{{ o.meta }}</span>
+                    <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+                      <span style="font-size: 13.5px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ o.name }}</span>
+                      <span style="font-size: 11.5px; color: #B0A697; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ o.meta }}</span>
                     </span>
-                    <span style="font-size: 13.5px; font-weight: 600;">{{ o.total }}</span>
-                    <span style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{ o.badgeBg }}; color: {{ o.badgeColor }};">{{ o.status }}</span>
+                    <span style="font-size: 13.5px; font-weight: 600; white-space: nowrap;">{{ o.total }}</span>
+                    <span style="font-size: 11px; font-weight: 600; white-space: nowrap; padding: 4px 10px; border-radius: 999px; background: {{ o.badgeBg }}; color: {{ o.badgeColor }};">{{ o.status }}</span>
                   </div>
                 </sc-for>
               </div>

@@ -614,7 +614,10 @@
                     <span style="font-size: 13px; color: #5C554B;" title="Change prices from Edit">{{ p.buyPriceText }}</span>
                     <span style="font-size: 13px; font-weight: 600; color: {{ p.sellColor }};" title="Change prices from Edit">{{ p.sellPriceText }}<sc-if value="{{ p.hasCompare }}" hint-placeholder-val="{{ false }}"><span style="display: block; font-size: 11px; font-weight: 400; color: #9B9184; text-decoration: line-through;">{{ p.compareText }}</span></sc-if></span>
                     <span style="font-size: 14px; font-weight: 600; color: #2E2A26; padding-inline-start: 6px;" title="Stock changes come from GRN entries and sales">{{ p.stockShown }}</span>
-                    <button onClick="{{ p.toggleActive }}" title="Click to toggle visibility on the storefront" style="font-size: 10.5px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: {{ p.activeBg }}; color: {{ p.activeColor }}; border: none; cursor: pointer; white-space: nowrap; justify-self: start;">{{ p.activeLabel }}</button>
+                    <span style="display: flex; flex-direction: column; gap: 5px; justify-self: start;">
+                      <button onClick="{{ p.toggleActive }}" title="Click to toggle visibility on the storefront" style="font-size: 10.5px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: {{ p.activeBg }}; color: {{ p.activeColor }}; border: none; cursor: pointer; white-space: nowrap; justify-self: start;">{{ p.activeLabel }}</button>
+                      <button onClick="{{ p.toggleOos }}" title="Show 'Out of stock' on the storefront only. Your stock count is not changed." style="font-size: 10.5px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: {{ p.oosBg }}; color: {{ p.oosColor }}; border: none; cursor: pointer; white-space: nowrap; justify-self: start;">{{ p.oosLabel }}</button>
+                    </span>
                     <span style="display: flex; gap: 6px; justify-self: end;">
                       <button onClick="{{ p.toggleEdit }}" title="Edit" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">{{ p.editLabel }}</button>
                       <button onClick="{{ p.askRemove }}" class="madzo-del-btn" aria-label="Delete product" title="Delete product" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px; line-height: 1;">×</button>
@@ -680,6 +683,10 @@
                       <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #5C554B; cursor: pointer; align-self: end; padding-bottom: 10px;">
                         <input type="checkbox" checked="{{ p.edFree }}" onChange="{{ p.onEdFree }}">
                         <span>🎁 Can be given as a free product</span>
+                      </label>
+                      <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #5C554B; cursor: pointer; align-self: end; padding-bottom: 10px;">
+                        <input type="checkbox" checked="{{ p.edOos }}" onChange="{{ p.onEdOos }}">
+                        <span>🚫 Mark as out of stock (storefront only)</span>
                       </label>
                     </div>
                     <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Description (English)
@@ -3908,7 +3915,7 @@ class Component extends DCLogic {
         mainCat: p.main_category || 'cosmetics', catKey: p.category,
         brand: p.brand || '', desc: p.description || '', descAr: p.description_ar || '',
         price: p.price, stock: p.stock, img: p.image_url, active: p.active !== false,
-        cat2: p.category2 || '', buyPrice: Number(p.buy_price) || 0, compare: Number(p.compare_price) || 0, expiry: p.expiry_date || '', freeItem: p.free_item === true
+        cat2: p.category2 || '', buyPrice: Number(p.buy_price) || 0, compare: Number(p.compare_price) || 0, expiry: p.expiry_date || '', freeItem: p.free_item === true, oos: p.out_of_stock === true
       })) });
     } catch (e) { console.warn('Madzo admin: could not load products', e); }
   }
@@ -4065,7 +4072,7 @@ class Component extends DCLogic {
   }
 
   // true when a save failed only because madzo-products-v2.sql hasn't been run yet
-  needsSql(err) { return /buy_price|compare_price|expiry_date|category2|subcategories2|free_item|payment_method|show_on_front/.test((err && err.message) || ''); }
+  needsSql(err) { return /buy_price|compare_price|expiry_date|category2|subcategories2|free_item|payment_method|show_on_front|out_of_stock/.test((err && err.message) || ''); }
 
   esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -4688,7 +4695,8 @@ class Component extends DCLogic {
       window.getSupabase().from('products').update(patch).eq('sku', sku).then(({ error }) => {
         if (error) {
           console.warn('Madzo admin: update failed', error);
-          if (this.needsSql(error)) alert('This field needs a one-time database update — run madzo-products-v2.sql in Supabase (SQL Editor), then reload this page.');
+          if (/out_of_stock/.test(error.message || '')) alert('"Out of stock" needs a one-time database update — run madzo-update-25.sql in Supabase (SQL Editor), then reload this page.');
+          else if (this.needsSql(error)) alert('This field needs a one-time database update — run madzo-products-v2.sql in Supabase (SQL Editor), then reload this page.');
         }
         this.loadProducts();
       });
@@ -4801,6 +4809,10 @@ class Component extends DCLogic {
         activeBg: p.active ? '#DDF0E2' : '#F1ECE2',
         activeColor: p.active ? '#1E8A4C' : '#857D72',
         toggleActive: () => updateProduct(p.sku, { active: !p.active }),
+        oosLabel: p.oos ? 'Out of stock' : 'In stock',
+        oosBg: p.oos ? '#F9DDD8' : '#F1ECE2',
+        oosColor: p.oos ? '#B3261E' : '#857D72',
+        toggleOos: () => updateProduct(p.sku, { out_of_stock: !p.oos }),
         stockShown: stockDraftOf(p.sku) !== undefined ? stockDraftOf(p.sku) : String(p.stock),
         onStockType: (e) => { const v = e.target.value; this.setState(s => ({ stockDraft: { ...(s.stockDraft || {}), [p.sku]: v } })); },
         onStockCommit: () => {
@@ -4823,7 +4835,7 @@ class Component extends DCLogic {
             id: p.sku, name: p.name || '', nameAr: p.nameAr || '',
             mainCat: p.mainCat || 'cosmetics', cat: p.catKey || 'skincare', cat2: p.cat2 || '',
             brand: p.brand || '', desc: p.desc || '', descAr: p.descAr || '',
-            buyPrice: p.buyPrice ? String(p.buyPrice) : '', price: (p.price == null ? '' : String(p.price)), compare: p.compare ? String(p.compare) : '', expiry: this.dateToExp(p.expiry), freeItem: !!p.freeItem
+            buyPrice: p.buyPrice ? String(p.buyPrice) : '', price: (p.price == null ? '' : String(p.price)), compare: p.compare ? String(p.compare) : '', expiry: this.dateToExp(p.expiry), freeItem: !!p.freeItem, oos: !!p.oos
           }
         }),
         edId: d.id || '', onEdId: setDraft('id'),
@@ -4843,6 +4855,7 @@ class Component extends DCLogic {
         edPrice: d.price == null ? '' : d.price, onEdPrice: setDraft('price'),
         edCompare: d.compare || '', onEdCompare: setDraft('compare'),
         edExpiry: d.expiry || '', onEdExpiry: (e) => { const v = this.fmtExpiryInput(e.target.value); this.setState(s => ({ editDraft: { ...s.editDraft, expiry: v }, editError: '' })); },
+        edOos: !!d.oos, onEdOos: (e) => { const on = !!e.target.checked; this.setState(s => ({ editDraft: { ...s.editDraft, oos: on }, editError: '' })); },
         edFree: !!d.freeItem, onEdFree: (e) => { const on = !!e.target.checked; this.setState(s => ({ editDraft: { ...s.editDraft, freeItem: on }, editError: '' })); },
         edBrand: d.brand || '', onEdBrand: setDraft('brand'),
         edName: d.name || '', onEdName: setDraft('name'),
@@ -4906,10 +4919,11 @@ class Component extends DCLogic {
           const expDate = this.expToDate(dr.expiry);
           if (expDate === false) { this.setState({ savingEditSku: null, editError: 'Expiry must be mm/yy, for example 08/27.' }); return; }
           if (!!dr.freeItem !== !!p.freeItem) patch.free_item = !!dr.freeItem;
+          if (!!dr.oos !== !!p.oos) patch.out_of_stock = !!dr.oos;
           if ((expDate || '') !== (p.expiry || '')) patch.expiry_date = expDate;
           const { error } = await window.getSupabase().from('products').update(patch).eq('sku', p.sku);
           this.setState({ savingEditSku: null });
-          if (error) { this.setState({ editError: this.needsSql(error) ? 'Buy price, discount price, expiry, Sub category II and the free-product tick need a one-time database update — run madzo-products-v2.sql, madzo-update-3.sql and madzo-update-9.sql in Supabase, then save again.' : error.message }); return; }
+          if (error) { this.setState({ editError: /out_of_stock/.test(error.message || '') ? '"Out of stock" needs a one-time database update — run madzo-update-25.sql in Supabase, then save again.' : this.needsSql(error) ? 'Buy price, discount price, expiry, Sub category II and the free-product tick need a one-time database update — run madzo-products-v2.sql, madzo-update-3.sql and madzo-update-9.sql in Supabase, then save again.' : error.message }); return; }
           this.setState({ editSku: null, editDraft: null, editError: '' });
           this.loadProducts();
         },
@@ -5549,7 +5563,7 @@ class Component extends DCLogic {
           id: p.sku, name: p.name || '', nameAr: p.nameAr || '',
           mainCat: p.mainCat || 'cosmetics', cat: p.catKey || 'skincare', cat2: p.cat2 || '',
           brand: p.brand || '', desc: p.desc || '', descAr: p.descAr || '',
-          buyPrice: p.buyPrice ? String(p.buyPrice) : '', price: (p.price == null ? '' : String(p.price)), compare: p.compare ? String(p.compare) : '', expiry: this.dateToExp(p.expiry), freeItem: !!p.freeItem
+          buyPrice: p.buyPrice ? String(p.buyPrice) : '', price: (p.price == null ? '' : String(p.price)), compare: p.compare ? String(p.compare) : '', expiry: this.dateToExp(p.expiry), freeItem: !!p.freeItem, oos: !!p.oos
         }
       }, () => window.scrollTo(0, 0));
       flash('Product ' + p.sku + ' already exists — opened for editing.');

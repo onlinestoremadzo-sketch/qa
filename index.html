@@ -783,7 +783,7 @@ class Component extends DCLogic {
       const { data, error } = await sb.from('products').select('*').eq('active', true).order('created_at', { ascending: true });
       if (error) throw error;
       this.setState({ dbProducts: (data || []).map(p => ({
-        sku: p.sku, mainCat: p.main_category || 'cosmetics', cat: p.category, cat2: p.category2 || '', price: p.price, compare: p.compare_price, stock: p.stock,
+        sku: p.sku, mainCat: p.main_category || 'cosmetics', cat: p.category, cat2: p.category2 || '', price: p.price, compare: p.compare_price, stock: p.stock, oos: p.out_of_stock === true,
         name: p.name, nameAr: p.name_ar || p.name, img: p.image_url, created: p.created_at || '',
         brand: p.brand || '', desc: p.description || '', descAr: p.description_ar || p.description || ''
       })) });
@@ -984,7 +984,6 @@ class Component extends DCLogic {
 
     const decorate = (p) => {
       const qty = cart[p.sku] || 0;
-      const low = p.stock > 0 && p.stock <= 2;
       return {
         sku: p.sku,
         img: p.img || '',
@@ -998,11 +997,12 @@ class Component extends DCLogic {
         compareLabel: Number(p.compare) > Number(p.price) ? fmt(p.compare) : '',
         discLabel: Number(p.compare) > Number(p.price) ? '-' + Math.round((1 - Number(p.price) / Number(p.compare)) * 100) + '%' : '',
         priceColor: (Number(p.compare) > Number(p.price) && Number(p.price) > 0) ? '#E0242B' : '#2E2A26',
-        oos: p.stock === 0, notOos: p.stock > 0,
-        lowStock: low,
-        lowStockLabel: (p.stock === 1 ? t.onlyLeft : t.onlyLeftPl).replace('{n}', lang === 'ar' ? String(p.stock) : String(p.stock)),
+        // stock numbers are not shown to shoppers; 'Out of stock' appears only when marked in the admin
+        oos: !!p.oos, notOos: !p.oos,
+        lowStock: false,
+        lowStockLabel: '',
         qty, inCart: qty > 0, notInCart: qty === 0,
-        add: () => this.setCart(c => { if ((c[p.sku] || 0) < p.stock) c[p.sku] = (c[p.sku] || 0) + 1; return c; }),
+        add: () => this.setCart(c => { if (!p.oos) c[p.sku] = (c[p.sku] || 0) + 1; return c; }),
         dec: () => this.setCart(c => { if (c[p.sku] > 1) c[p.sku] -= 1; else delete c[p.sku]; return c; })
       };
     };

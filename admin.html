@@ -1587,6 +1587,9 @@
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                       <button onClick="{{ g.toggle }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">{{ g.toggleLabel }}</button>
                       <button onClick="{{ g.edit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="border-color: #461610; color: #461610;">Edit</button>
+                      <button onClick="{{ g.openPrint }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="background: #461610; color: #FDF9F4;">🖨 Print</button>
+                      <button onClick="{{ g.sharePdf }}" style="background: none; border: 1px solid #1E8A4C; color: #1E8A4C; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="background: #1E8A4C; color: #FDF9F4;">📄 Share PDF</button>
+                      <button onClick="{{ g.savePdf }}" style="background: none; border: 1px solid #461610; color: #461610; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;" style-hover="background: #461610; color: #FDF9F4;">💾 Save PDF</button>
                       <sc-if value="{{ g.hasRetStatus }}" hint-placeholder-val="{{ false }}">
                         <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ g.retBg }}; color: {{ g.retColor }}; white-space: nowrap;">{{ g.retStatus }}</span>
                         <span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{ g.retBg }}; color: {{ g.retColor }}; white-space: nowrap;">Payment: {{ g.retPay }}</span>
@@ -4238,13 +4241,13 @@ class Component extends DCLogic {
         <div style="font-weight:700; font-size:13px; margin-bottom:2px; word-break:break-word;">${this.esc(this.brandForName(it.desc) ? this.brandForName(it.desc) + ' ' + it.desc : it.desc)}</div>
         <div style="font-size:11px; color:#777; margin-bottom:6px;">${this.esc(it.code)}${it.unit ? ' · ' + this.esc(it.unit) : ''}</div>
         <div style="display:flex; justify-content:space-between; font-size:12px; color:#444;">
-          <span>Qty: ${this.esc(it.qty)}</span><span>Bonus: ${this.esc(it.bonus)}</span>
+          <span>Qty: ${this.esc(it.qty)}</span><span>${po.isGrn ? 'Free' : 'Bonus'}: ${this.esc(it.bonus)}</span>
         </div>
         <div style="display:flex; justify-content:space-between; font-size:12px; color:#444; margin-top:3px;">
-          <span>Unit: ${it.free ? 'FREE' : Number(it.unitPrice || 0).toFixed(2)}</span><span>Disc: ${Number(it.discount || 0).toFixed(2)}</span>
+          <span>Unit: ${it.free ? 'FREE' : Number(it.unitPrice || 0).toFixed(2)}</span><span>${po.isGrn ? 'Expiry: ' + this.esc(it.expiry || '—') : 'Disc: ' + Number(it.discount || 0).toFixed(2)}</span>
         </div>
         <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700; margin-top:6px; border-top:1px dashed #ddd; padding-top:6px;">
-          <span>Total</span><span>${Number(it.total || 0).toFixed(2)} QAR</span>
+          <span>Total</span><span>${Number(it.total || 0).toFixed(2)} ${this.esc(po.currency || 'QAR')}</span>
         </div>
       </div>`).join('');
     return `
@@ -4252,24 +4255,24 @@ class Component extends DCLogic {
     <div style="font-size:20px;letter-spacing:2px;font-family: Georgia, serif;">MADZO</div>
     <div style="font-size:12px;color:#555;">مدزو للمستحضرات التجميلية</div>
     <div style="font-size:11px;color:#777;margin-top:2px;">Doha, Qatar${po.waLine ? ' · ' + this.esc(po.waLine) : ''}</div>
-    <div style="font-size:13px;font-weight:700;margin-top:8px;letter-spacing:1px;">${po.type === 'return' ? 'PURCHASE RETURN' : 'PURCHASE ORDER'}</div>${po.type === 'return' && po.refPo ? '<div style="font-size:11px;color:#555;margin-top:3px;">Against invoice # ' + this.esc(po.refPo) + '</div>' : ''}
+    <div style="font-size:13px;font-weight:700;margin-top:8px;letter-spacing:1px;">${po.docTitle || (po.type === 'return' ? 'PURCHASE RETURN' : 'PURCHASE ORDER')}</div>${po.type === 'return' && po.refPo ? '<div style="font-size:11px;color:#555;margin-top:3px;">Against invoice # ' + this.esc(po.refPo) + '</div>' : ''}
   </div>
   <div style="border:1px solid #ccc;border-radius:6px;padding:10px 12px;font-size:12px;margin-bottom:12px;word-break:break-word;">
     <div style="margin-bottom:3px;"><strong>M/S:</strong> ${this.esc(po.supplier)}</div>
-    <div style="margin-bottom:3px;"><strong>Invoice #:</strong> ${this.esc(po.id)}</div>
+    ${po.isGrn ? '<div style="margin-bottom:3px;"><strong>GRN #:</strong> ' + this.esc(po.id) + '</div>' : ''}<div style="margin-bottom:3px;"><strong>Invoice #:</strong> ${this.esc(po.isGrn ? (po.invoice || '—') : po.id)}</div>
     <div style="margin-bottom:3px;"><strong>Date:</strong> ${this.esc(po.date)}</div>
   </div>
   <div style="font-size:12.5px;font-weight:700;margin-bottom:6px;">Items</div>
   ${itemsHtml}
   <div style="border-top:1px solid #333;margin-top:6px;padding-top:8px;">
-    <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:2px 0;"><span>Amount</span><span>${Number(po.amount || 0).toFixed(2)} QAR</span></div>
-    <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:2px 0;"><span>Discount</span><span>${Number(po.discount || 0).toFixed(2)} QAR</span></div>
-    <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;padding:5px 0;border-top:1px solid #333;margin-top:3px;"><span>Net Amount</span><span>${Number(po.netAmount || 0).toFixed(2)} QAR</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:2px 0;"><span>Amount</span><span>${Number(po.amount || 0).toFixed(2)} ${this.esc(po.currency || 'QAR')}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:2px 0;"><span>${po.isGrn ? 'Adjustment' : 'Discount'}</span><span>${po.isGrn ? (po.adjustment > 0 ? '+' : po.adjustment < 0 ? '−' : '') + Math.abs(Number(po.adjustment || 0)).toFixed(2) : Number(po.discount || 0).toFixed(2)} ${this.esc(po.currency || 'QAR')}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;padding:5px 0;border-top:1px solid #333;margin-top:3px;"><span>Net Amount</span><span>${Number(po.netAmount || 0).toFixed(2)} ${this.esc(po.currency || 'QAR')}</span></div>
   </div>
   ${po.remarks ? `<div style="margin-top:12px;font-size:12px;color:#444;word-break:break-word;"><strong>Remarks:</strong> ${this.esc(po.remarks)}</div>` : ''}
   <div style="display:flex;justify-content:space-between;margin-top:36px;font-size:12px;">
-    <div>Prepared By<br><br>${this.esc(po.preparedBy)}</div>
-    <div>Approved By<br><br>${this.esc(po.approvedBy)}</div>
+    <div>${po.isGrn ? 'Received By' : 'Prepared By'}<br><br>${this.esc(po.preparedBy)}</div>
+    <div>${po.isGrn ? 'Checked By' : 'Approved By'}<br><br>${this.esc(po.approvedBy)}</div>
   </div>`;
   }
 
@@ -4286,10 +4289,10 @@ class Component extends DCLogic {
   sharePOPdf(po) {
     this.shareBodyAsPdf({
       bodyHtml: this.poShareBodyHtml(po),
-      filename: 'PO-' + po.id + '.pdf',
+      filename: (po.isGrn ? '' : 'PO-') + po.id + '.pdf',
       widthPx: 380,
-      shareTitle: (po.type === 'return' ? 'Purchase Return ' : 'Purchase Order ') + po.id,
-      shareText: (po.type === 'return' ? 'Purchase Return ' : 'Purchase Order ') + po.id + ' — ' + po.supplier
+      shareTitle: (po.isGrn ? 'GRN ' : po.type === 'return' ? 'Purchase Return ' : 'Purchase Order ') + po.id,
+      shareText: (po.isGrn ? 'GRN ' : po.type === 'return' ? 'Purchase Return ' : 'Purchase Order ') + po.id + ' — ' + po.supplier
     });
   }
 
@@ -4301,12 +4304,46 @@ class Component extends DCLogic {
   }
 
   savePOPdf(po) {
-    this.downloadBodyAsPdf({ bodyHtml: this.poShareBodyHtml(po), filename: 'PO-' + po.id + '.pdf', widthPx: 380 });
+    this.downloadBodyAsPdf({ bodyHtml: this.poShareBodyHtml(po), filename: (po.isGrn ? '' : 'PO-') + po.id + '.pdf', widthPx: 380 });
   }
 
   // Inner content shared by the print window and the PDF-for-WhatsApp export.
+  // A GRN entry in the shape the purchase print / share layouts expect.
+  grnDoc(g) {
+    const prods = this.state.dbProducts || [];
+    const cur = g.currency || 'QAR';
+    const items = (g.items || []).map(l => {
+      const p = prods.find(pp => pp.sku === l.code) || {};
+      const qty = Number(l.qty) || 0, buy = Number(l.buy) || 0;
+      return { code: l.code, desc: (p.brand ? p.brand + ' ' : '') + (l.name || p.name || l.code), qty, bonus: Number(l.free) || 0, unitPrice: buy, total: qty * buy, expiry: l.expiry || '', unit: '', discount: 0, net: buy };
+    });
+    const amount = items.reduce((a, it) => a + it.total, 0);
+    const adj = Number(g.adjustment) || 0;
+    const net = cur !== 'QAR' ? Number(g.totalOrig || 0) : Number(g.total || 0);
+    return {
+      isGrn: true, docTitle: 'GOODS RECEIVED NOTE', id: g.id, invoice: g.invoice, supplier: g.supplier, currency: cur,
+      date: g.date ? new Date(g.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '—',
+      payLabel: ({ cash: 'Cash', card: 'Card', credit: 'Credit' })[g.payMode] || g.payMode || '',
+      waLine: this.state.setWa ? ('Tel: ' + this.state.setWa) : '',
+      items, amount, adjustment: adj, discount: 0, netAmount: net || (amount + adj),
+      qarNote: cur !== 'QAR' ? '≈ ' + Number(g.total || 0).toFixed(2) + ' QAR (rate ' + (g.rate || 1) + ')' : '',
+      remarks: g.remarks || '', preparedBy: '', approvedBy: '', type: 'grn'
+    };
+  }
+
   poBodyHtml(po, letterhead) {
-    const rowsHtml = po.items.map(it => `
+    const grn = !!po.isGrn;
+    const cur = po.currency || 'QAR';
+    const rowsHtml = grn ? po.items.map(it => `
+      <tr style="border-bottom:1px solid #E7DECF;">
+        <td style="padding:6px 4px; word-break:break-word;">${this.esc(it.code)}</td>
+        <td style="padding:6px 4px; word-break:break-word;">${this.esc(it.desc)}</td>
+        <td style="text-align:center;padding:6px 4px;">${this.esc(it.expiry || '—')}</td>
+        <td style="text-align:center;padding:6px 4px;">${this.esc(it.qty)}</td>
+        <td style="text-align:center;padding:6px 4px;">${it.bonus ? '<span style="color:#1E8A4C;font-weight:700;">' + this.esc(it.bonus) + '</span>' : '0'}</td>
+        <td style="text-align:end;padding:6px 4px;">${Number(it.unitPrice || 0).toFixed(2)}</td>
+        <td style="text-align:end;padding:6px 4px;font-weight:600;">${Number(it.total || 0).toFixed(2)}</td>
+      </tr>`).join('') : po.items.map(it => `
       <tr style="border-bottom:1px solid #E7DECF;">
         <td style="padding:6px 4px; word-break:break-word;">${this.esc(it.code)}</td>
         <td style="padding:6px 4px; word-break:break-word;">${this.esc(this.brandForName(it.desc) ? this.brandForName(it.desc) + ' ' + it.desc : it.desc)}</td>
@@ -4320,48 +4357,52 @@ class Component extends DCLogic {
       </tr>`).join('');
     return `
   ${letterhead ? `<div style="text-align:end;margin-bottom:14px;">
-    <div style="display:inline-block;font-size:14px;font-weight:700;margin-top:12px;letter-spacing:1.5px;background:#461610;color:#FDF9F4;padding:6px 18px;border-radius:999px;">${po.type === 'return' ? 'PURCHASE RETURN' : 'PURCHASE ORDER'}</div>${po.type === 'return' && po.refPo ? '<div style="font-size:12px;color:#555;margin-top:3px;">Against invoice # ' + this.esc(po.refPo) + '</div>' : ''}
+    <div style="display:inline-block;font-size:14px;font-weight:700;margin-top:12px;letter-spacing:1.5px;background:#461610;color:#FDF9F4;padding:6px 18px;border-radius:999px;">${po.docTitle || (po.type === 'return' ? 'PURCHASE RETURN' : 'PURCHASE ORDER')}</div>${po.type === 'return' && po.refPo ? '<div style="font-size:12px;color:#555;margin-top:3px;">Against invoice # ' + this.esc(po.refPo) + '</div>' : ''}
   </div>` : `  <div style="text-align:center;margin-bottom:16px;">
     <div style="font-size:26px;letter-spacing:4px;font-family: Georgia, serif;color:#461610;">MADZO</div>
     <div style="font-size:13px;color:#7A4A3E;">مدزو للمستحضرات التجميلية</div>
     <div style="font-size:12px;color:#777;margin-top:2px;">Doha, Qatar${po.waLine ? ' · ' + this.esc(po.waLine) : ''}</div>
-    <div style="display:inline-block;font-size:14px;font-weight:700;margin-top:12px;letter-spacing:1.5px;background:#461610;color:#FDF9F4;padding:6px 18px;border-radius:999px;">${po.type === 'return' ? 'PURCHASE RETURN' : 'PURCHASE ORDER'}</div>${po.type === 'return' && po.refPo ? '<div style="font-size:12px;color:#555;margin-top:3px;">Against invoice # ' + this.esc(po.refPo) + '</div>' : ''}
+    <div style="display:inline-block;font-size:14px;font-weight:700;margin-top:12px;letter-spacing:1.5px;background:#461610;color:#FDF9F4;padding:6px 18px;border-radius:999px;">${po.docTitle || (po.type === 'return' ? 'PURCHASE RETURN' : 'PURCHASE ORDER')}</div>${po.type === 'return' && po.refPo ? '<div style="font-size:12px;color:#555;margin-top:3px;">Against invoice # ' + this.esc(po.refPo) + '</div>' : ''}
   </div>`}
   <div style="display:flex;justify-content:space-between;gap:14px;border:1px solid #D9C2B4;background:#F7EFE6;border-radius:8px;padding:14px 16px;font-size:12.5px;margin-bottom:10px;">
     <div style="flex:1;min-width:0;word-break:break-word;">
       <div style="margin-bottom:4px;"><strong style="color:#461610;">M/S:</strong> ${this.esc(po.supplier)}</div>
-      <div><strong style="color:#461610;">Currency:</strong> QATAR RIYAL</div>
+      <div><strong style="color:#461610;">Currency:</strong> ${grn && cur !== 'QAR' ? this.esc(cur) : 'QATAR RIYAL'}</div>${grn && po.payLabel ? '<div style="margin-top:4px;"><strong style="color:#461610;">Payment:</strong> ' + this.esc(po.payLabel) + '</div>' : ''}
     </div>
     <div style="flex:1;min-width:0;word-break:break-word;">
-      <div style="margin-bottom:4px;"><strong style="color:#461610;">Invoice #:</strong> ${this.esc(po.id)}</div>
+      ${grn ? '<div style="margin-bottom:4px;"><strong style="color:#461610;">GRN #:</strong> ' + this.esc(po.id) + '</div>' : ''}<div style="margin-bottom:4px;"><strong style="color:#461610;">Invoice #:</strong> ${this.esc(grn ? (po.invoice || '—') : po.id)}</div>
       <div><strong style="color:#461610;">Date:</strong> ${this.esc(po.date)}</div>
     </div>
   </div>
   <table style="width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 12px; margin-top: 10px;">
-    <colgroup>
+    ${grn ? `<colgroup>
+      <col style="width:12%"><col style="width:36%"><col style="width:11%"><col style="width:8%">
+      <col style="width:8%"><col style="width:11%"><col style="width:14%">
+    </colgroup>
+    <thead><tr style="background:#461610;color:#FDF9F4;"><th style="text-align:start;padding:7px 4px;font-weight:700;">Code</th><th style="text-align:start;padding:7px 4px;font-weight:700;">Product Name</th><th style="text-align:center;padding:7px 4px;font-weight:700;">Expiry</th><th style="text-align:center;padding:7px 4px;font-weight:700;">Qty</th><th style="text-align:center;padding:7px 4px;font-weight:700;">Free</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Buy Price</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Total</th></tr></thead>` : `<colgroup>
       <col style="width:9%"><col style="width:26%"><col style="width:6%"><col style="width:6%">
       <col style="width:7%"><col style="width:11%"><col style="width:10%"><col style="width:11%"><col style="width:14%">
     </colgroup>
-    <thead><tr style="background:#461610;color:#FDF9F4;"><th style="text-align:start;padding:7px 4px;font-weight:700;">Code</th><th style="text-align:start;padding:7px 4px;font-weight:700;">Product Name</th><th style="text-align:center;padding:7px 4px;font-weight:700;">Unit</th><th style="text-align:center;padding:7px 4px;font-weight:700;">Qty</th><th style="text-align:center;padding:7px 4px;font-weight:700;">Bonus</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Unit Price</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Discount</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Net</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Total</th></tr></thead>
+    <thead><tr style="background:#461610;color:#FDF9F4;"><th style="text-align:start;padding:7px 4px;font-weight:700;">Code</th><th style="text-align:start;padding:7px 4px;font-weight:700;">Product Name</th><th style="text-align:center;padding:7px 4px;font-weight:700;">Unit</th><th style="text-align:center;padding:7px 4px;font-weight:700;">Qty</th><th style="text-align:center;padding:7px 4px;font-weight:700;">Bonus</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Unit Price</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Discount</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Net</th><th style="text-align:end;padding:7px 4px;font-weight:700;">Total</th></tr></thead>`}
     <tbody>${rowsHtml}</tbody>
   </table>
   <div style="display:flex;justify-content:flex-end;margin-top:10px;">
     <div style="min-width:220px;">
       <div style="display:flex;justify-content:space-between;padding:4px 8px;border-top:1px solid #461610;font-size:13px;"><span>Amount</span><span>${Number(po.amount || 0).toFixed(2)}</span></div>
-      <div style="display:flex;justify-content:space-between;padding:4px 8px;font-size:13px;color:#B3261E;"><span>Discount</span><span>${Number(po.discount || 0).toFixed(2)}</span></div>
-      <div style="display:flex;justify-content:space-between;padding:8px 8px;background:#461610;color:#FDF9F4;border-radius:6px;font-size:15px;font-weight:700;"><span>Net Amount</span><span>${Number(po.netAmount || 0).toFixed(2)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:4px 8px;font-size:13px;color:#B3261E;"><span>${grn ? 'Adjustment' : 'Discount'}</span><span>${grn ? (po.adjustment > 0 ? '+' : po.adjustment < 0 ? '−' : '') + Math.abs(Number(po.adjustment || 0)).toFixed(2) : Number(po.discount || 0).toFixed(2)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 8px;background:#461610;color:#FDF9F4;border-radius:6px;font-size:15px;font-weight:700;"><span>Net Amount</span><span>${Number(po.netAmount || 0).toFixed(2)}${grn ? ' ' + this.esc(cur) : ''}</span></div>${grn && po.qarNote ? '<div style="text-align:end;font-size:11.5px;color:#7A4A3E;padding:4px 8px 0;">' + this.esc(po.qarNote) + '</div>' : ''}
     </div>
   </div>
   ${po.remarks ? `<div style="margin-top:14px;font-size:12.5px;color:#444;"><strong style="color:#461610;">Remarks:</strong> ${this.esc(po.remarks)}</div>` : ''}
   <div style="display:flex;justify-content:space-between;margin-top:56px;font-size:13px;">
-    <div>Prepared By<br><br>${this.esc(po.preparedBy)}</div>
-    <div>Approved By<br><br>${this.esc(po.approvedBy)}</div>
+    <div>${grn ? 'Received By' : 'Prepared By'}<br><br>${this.esc(po.preparedBy)}</div>
+    <div>${grn ? 'Checked By' : 'Approved By'}<br><br>${this.esc(po.approvedBy)}</div>
   </div>`;
   }
 
   printPO(po) {
     const html = `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>${po.type === 'return' ? 'Purchase Return' : 'Purchase Order'} ${this.esc(po.id)}</title>
+<html><head><meta charset="utf-8"><title>${po.isGrn ? 'GRN' : po.type === 'return' ? 'Purchase Return' : 'Purchase Order'} ${this.esc(po.id)}</title>
 <style>
   @page { size: A4; margin: 0; }
   html, body { margin: 0; padding: 0; }
@@ -5930,6 +5971,7 @@ class Component extends DCLogic {
           toggle: () => this.setState(s => ({ grnOpen: { ...s.grnOpen, [g.id]: !(s.grnOpen || {})[g.id] } })),
           lines: (g.items || []).map(l => ({ brand: (prods.find(pp => pp.sku === l.code) || {}).brand || '', name: l.name || l.code, code: l.code, qty: l.qty || 0, free: l.free || 0, buy: Number(l.buy || 0).toFixed(2) + (g.currency && g.currency !== 'QAR' ? ' ' + g.currency : ''), sell: l.sell || 0, expiry: l.expiry || '—' })),
           edit: () => grnOpenForm(g),
+          openPrint: () => this.printPO(this.grnDoc(g)), sharePdf: () => this.sharePOPdf(this.grnDoc(g)), savePdf: () => this.savePOPdf(this.grnDoc(g)),
           ...this.retProps('purchase', g.id, g.supplier),
           hasRetStatus: this.retState('purchase', g.id) !== 'none',
           retStatus: this.retState('purchase', g.id) === 'full' ? 'Returned' : 'Partially returned', retPay: this.retState('purchase', g.id) === 'full' ? 'Cancelled' : 'Partially cancelled',

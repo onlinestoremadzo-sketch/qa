@@ -930,10 +930,10 @@
                 </select>
                 <input value="{{ ordFTotal }}" onChange="{{ on_ordFTotal }}" placeholder="Total…" aria-label="Filter by total cost" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;" style-focus="border-color: #461610;">
                 <select value="{{ ordFStatus }}" onChange="{{ on_ordFStatus }}" aria-label="Filter by status" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; cursor: pointer;">
-                  <option value="all">All</option><option value="new">New</option><option value="delivered">Delivered</option>
+                  <option value="all">All</option><option value="new">New</option><option value="delivered">Delivered</option><option value="returned">Returned</option><option value="partially_returned">Partially returned</option>
                 </select>
                 <select value="{{ ordFPay }}" onChange="{{ on_ordFPay }}" aria-label="Filter by payment status" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; cursor: pointer;">
-                  <option value="all">All</option><option value="paid">Paid</option><option value="pending">Pending</option><option value="partially_paid">Partially paid</option>
+                  <option value="all">All</option><option value="paid">Paid</option><option value="pending">Pending</option><option value="partially_paid">Partially paid</option><option value="cancelled">Cancelled</option><option value="partially_cancelled">Partially cancelled</option>
                 </select>
                 <select value="{{ ordFMethod }}" onChange="{{ on_ordFMethod }}" aria-label="Filter by payment method" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box; cursor: pointer;">
                   <sc-for list="{{ ordMethodOptions }}" as="mo" hint-placeholder-count="2"><option value="{{ mo.v }}" selected="{{ mo.selected }}">{{ mo.l }}</option></sc-for>
@@ -1030,16 +1030,18 @@
                         <input value="{{ o.edZone }}" onChange="{{ o.onEdZone }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                       </label>
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Status
-                        <select value="{{ o.edStatus }}" onChange="{{ o.onEdStatus }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                        <select value="{{ o.edStatus }}" onChange="{{ o.onEdStatus }}" disabled="{{ o.edRetLock }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; cursor: pointer;">
                           <option value="new">New</option>
                           <option value="delivered">Delivered</option>
+                          <option value="returned" disabled>Returned</option>
                         </select>
                       </label>
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Payment status
-                        <select value="{{ o.edPaymentStatus }}" onChange="{{ o.onEdPaymentStatus }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                        <select value="{{ o.edPaymentStatus }}" onChange="{{ o.onEdPaymentStatus }}" disabled="{{ o.edRetLock }}" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; cursor: pointer;">
                           <option value="paid">Paid</option>
                           <option value="pending">Pending</option>
                           <option value="partially_paid">Partially paid</option>
+                          <option value="cancelled" disabled>Cancelled</option>
                         </select>
                       </label>
                       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Payment method
@@ -4705,8 +4707,21 @@ class Component extends DCLogic {
       .filter(o => orderQ ? (
         o.id + ' ' + (o.name || '') + ' ' + (o.phone || '') + ' ' + (o.lines || []).map(l => l.name).join(' ')
       ).toLowerCase().includes(orderQ) : true)
-      .filter(o => this.state.orderDeliveryFilter === 'all' ? true : o.status === this.state.orderDeliveryFilter)
-      .filter(o => this.state.orderPaymentFilter === 'all' ? true : (o.paymentStatus || 'pending') === this.state.orderPaymentFilter);
+      .filter(o => {
+        // returned orders are shown by their return status, not the stored New / Delivered
+        const f = this.state.orderDeliveryFilter; if (f === 'all') return true;
+        const rs = this.retState('sales', o.id);
+        if (f === 'returned') return rs === 'full';
+        if (f === 'partially_returned') return rs === 'partial';
+        return rs !== 'full' && o.status === f;
+      })
+      .filter(o => {
+        const f = this.state.orderPaymentFilter; if (f === 'all') return true;
+        const rs = this.retState('sales', o.id);
+        if (f === 'cancelled') return rs === 'full';
+        if (f === 'partially_cancelled') return rs === 'partial';
+        return rs !== 'full' && (o.paymentStatus || 'pending') === f;
+      });
     const cutoff = Date.now() - 14 * 86400000;
     const recent14 = orders.filter(o => o.ts >= cutoff);
     const revenue = recent14.reduce((a, o) => a + o.total, 0);
@@ -5203,8 +5218,9 @@ class Component extends DCLogic {
         edZone: ed.zone || '', onEdZone: setEd('zone'),
         edAddress: ed.address || '', onEdAddress: setEd('address'),
         edNotes: ed.notes || '', onEdNotes: setEd('notes'),
-        edStatus: ed.status || 'new', onEdStatus: setEd('status'),
-        edPaymentStatus: ed.paymentStatus || 'pending', onEdPaymentStatus: setEd('paymentStatus'),
+        edRetLock: this.retState('sales', o.id) === 'full',
+        edStatus: this.retState('sales', o.id) === 'full' ? 'returned' : (ed.status || 'new'), onEdStatus: setEd('status'),
+        edPaymentStatus: this.retState('sales', o.id) === 'full' ? 'cancelled' : (ed.paymentStatus || 'pending'), onEdPaymentStatus: setEd('paymentStatus'),
         edPayMethod: ed.payMethod || '', onEdPayMethod: setEd('payMethod'),
         edPayOptions: [{ v: '', l: '— not set —' }, { v: 'cash', l: 'Cash' }, { v: 'credit', l: 'Credit' }, { v: 'card', l: 'Card' }].concat((ed.payMethod === 'fawran' || o.payMethod === 'fawran') ? [{ v: 'fawran', l: 'Fawran (old)' }] : []).map(x => ({ ...x, selected: x.v === (ed.payMethod || '') })),
         edPick: pickVal('ed'), onEdPickProduct: pkEd.onChange, onEdPickProductKey: pkEd.onKey,
@@ -6349,7 +6365,7 @@ class Component extends DCLogic {
       orderFormLabel: this.state.showOrderForm ? 'Close' : '+ Add order',
       salesDetails: this.state.salesView === 'details',
       salesMainHint: this.state.salesView !== 'details' && !this.state.showOrderForm,
-      salesHintCounts: orders.length + (orders.length === 1 ? ' order' : ' orders') + ' in total · ' + orders.filter(o => o.status === 'new').length + ' waiting for delivery.',
+      salesHintCounts: orders.length + (orders.length === 1 ? ' order' : ' orders') + ' in total · ' + orders.filter(o => o.status === 'new' && this.retState('sales', o.id) !== 'full').length + ' waiting for delivery.',
       odBtnBg: this.state.salesView === 'details' ? '#461610' : '#FDF9F4',
       odBtnColor: this.state.salesView === 'details' ? '#FDF9F4' : '#461610',
       toggleOrderDetails: () => this.setState(s => ({ salesView: s.salesView === 'details' ? 'main' : 'details', showOrderForm: false, newOrderError: '' })),
@@ -6610,7 +6626,7 @@ class Component extends DCLogic {
         return {
           homeTodayTotal: fmt(sum(td)), homeTodayCount: cnt(td.length),
           homeMonthTotal: fmt(sum(mo)), homeMonthCount: cnt(mo.length),
-          homeToDeliver: String(orders.filter(o => o.status === 'new').length),
+          homeToDeliver: String(orders.filter(o => o.status === 'new' && this.retState('sales', o.id) !== 'full').length),
           homeGoToDeliver: () => this.setState({ tab: 'orders', salesView: 'details', orderDeliveryFilter: 'new', orderPaymentFilter: 'all', orderSearch: '', ordF: { date: '', id: '', cust: '', platform: 'all', total: '', method: 'all' }, orderPage: 1 })
         };
       })(),

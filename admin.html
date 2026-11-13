@@ -190,7 +190,25 @@
         <section data-screen-label="Dashboard">
           <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px;">
             <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Dashboard</h1>
-            <span style="color: #857D72; font-size: 13px;">Last 14 days · {{ sampleNote }}</span>
+            <span style="color: #857D72; font-size: 13px;">{{ dashRangeLabel }} · {{ sampleNote }}</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 18px;">
+            <select value="{{ dashRange }}" onChange="{{ onDashRange }}" aria-label="Dashboard period" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 8px 14px; font-size: 13px; outline: none; cursor: pointer; font-family: inherit;">
+              <option value="today">Today</option>
+              <option value="7">Last 7 days</option>
+              <option value="14">Last 14 days</option>
+              <option value="30">Last 30 days</option>
+              <option value="month">This month</option>
+              <option value="lastmonth">Last month</option>
+              <option value="year">This year</option>
+              <option value="all">All time</option>
+              <option value="custom">Custom dates…</option>
+            </select>
+            <sc-if value="{{ dashIsCustom }}" hint-placeholder-val="{{ false }}">
+              <input type="date" value="{{ dashFrom }}" onChange="{{ onDashFrom }}" aria-label="From date" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 7px 12px; font-size: 13px; outline: none; font-family: inherit;">
+              <span style="color: #857D72; font-size: 13px;">to</span>
+              <input type="date" value="{{ dashTo }}" onChange="{{ onDashTo }}" aria-label="To date" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 7px 12px; font-size: 13px; outline: none; font-family: inherit;">
+            </sc-if>
           </div>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 22px;">
             <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 18px 20px;">
@@ -213,11 +231,11 @@
 
           <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 22px; min-width: 0; max-width: 100%; box-sizing: border-box;">
             <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px;">
-              <h2 style="font-size: 15px; font-weight: 600; margin: 0;">Revenue per day (QAR)</h2>
-              <span style="color: #857D72; font-size: 12px;">14 days</span>
+              <h2 style="font-size: 15px; font-weight: 600; margin: 0;">{{ dashChartTitle }}</h2>
+              <span style="color: #857D72; font-size: 12px;">{{ dashRangeLabel }}</span>
             </div>
             <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px;">
-            <div style="display: flex; align-items: flex-end; gap: 6px; height: 160px; min-width: 560px;">
+            <div style="display: flex; align-items: flex-end; gap: 6px; height: 160px; min-width: {{ dashChartMinW }};">
               <sc-for list="{{ chart }}" as="bar" hint-placeholder-count="14">
                 <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;" title="{{ bar.tip }}">
                   <span style="font-size: 10px; color: #857D72;">{{ bar.valLabel }}</span>
@@ -4722,25 +4740,52 @@ class Component extends DCLogic {
         if (f === 'partially_cancelled') return rs === 'partial';
         return rs !== 'full' && (o.paymentStatus || 'pending') === f;
       });
-    const cutoff = Date.now() - 14 * 86400000;
-    const recent14 = orders.filter(o => o.ts >= cutoff);
+    // dashboard period (default: last 14 days)
+    const DAY = 86400000;
+    const dRange = this.state.dashRange || '14';
+    const today0 = new Date(); today0.setHours(0, 0, 0, 0);
+    const tEnd = today0.getTime() + DAY;
+    const parseDay = (v) => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]).getTime() : null; };
+    const firstOrderTs = orders.length ? Math.min(...orders.map(o => o.ts)) : today0.getTime();
+    let dStart, dEnd = tEnd;
+    if (dRange === 'today') dStart = today0.getTime();
+    else if (dRange === 'month') dStart = new Date(today0.getFullYear(), today0.getMonth(), 1).getTime();
+    else if (dRange === 'lastmonth') { dStart = new Date(today0.getFullYear(), today0.getMonth() - 1, 1).getTime(); dEnd = new Date(today0.getFullYear(), today0.getMonth(), 1).getTime(); }
+    else if (dRange === 'year') dStart = new Date(today0.getFullYear(), 0, 1).getTime();
+    else if (dRange === 'all') { const f = new Date(firstOrderTs); f.setHours(0, 0, 0, 0); dStart = f.getTime(); }
+    else if (dRange === 'custom') {
+      const a = parseDay(this.state.dashFrom), b = parseDay(this.state.dashTo);
+      dStart = a != null ? a : (b != null ? b : today0.getTime() - 13 * DAY);
+      dEnd = (b != null ? b : (a != null ? Math.max(a, today0.getTime()) : today0.getTime())) + DAY;
+      if (dEnd <= dStart) dEnd = dStart + DAY;
+    } else dStart = tEnd - (Number(dRange) || 14) * DAY;
+    const recent14 = orders.filter(o => o.ts >= dStart && o.ts < dEnd);
     const revenue = recent14.reduce((a, o) => a + o.total, 0);
     const items = recent14.reduce((a, o) => a + o.lines.reduce((x, l) => x + l.qty, 0), 0);
+    const dFmt = (t) => new Date(t).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const dashRangeLabel = ({ today: 'Today', '7': 'Last 7 days', '14': 'Last 14 days', '30': 'Last 30 days', month: 'This month', lastmonth: 'Last month', year: 'This year', all: 'All time' })[dRange]
+      || (dFmt(dStart) + (dEnd - dStart > DAY ? ' – ' + dFmt(dEnd - DAY) : ''));
 
-    // chart: last 14 days
+    // chart: one bar per day; per week over 45 days; per month over 6 months
+    const nDays = Math.round((dEnd - dStart) / DAY);
+    const bucket = nDays > 183 ? 'month' : nDays > 45 ? 'week' : 'day';
     const days = [];
-    for (let d = 13; d >= 0; d--) {
-      const t0 = new Date(); t0.setHours(0, 0, 0, 0);
-      const start = t0.getTime() - d * 86400000;
-      const val = orders.filter(o => o.ts >= start && o.ts < start + 86400000).reduce((a, o) => a + o.total, 0);
-      days.push({ start, val });
+    if (bucket === 'month') {
+      let c = new Date(dStart); c = new Date(c.getFullYear(), c.getMonth(), 1);
+      while (c.getTime() < dEnd) { const nx = new Date(c.getFullYear(), c.getMonth() + 1, 1); days.push({ start: Math.max(c.getTime(), dStart), end: Math.min(nx.getTime(), dEnd) }); c = nx; }
+    } else {
+      const step = bucket === 'week' ? 7 : 1;
+      for (let i = 0; i < nDays; i += step) { const st = new Date(dStart); st.setDate(st.getDate() + i); const en = new Date(dStart); en.setDate(en.getDate() + i + step); days.push({ start: st.getTime(), end: Math.min(en.getTime(), dEnd) }); }
     }
+    days.forEach(x => { x.val = Math.round(recent14.filter(o => o.ts >= x.start && o.ts < x.end).reduce((a, o) => a + o.total, 0) * 100) / 100; });
+    const dashChartTitle = 'Revenue per ' + bucket + ' (QAR)';
+    const dashChartMinW = Math.max(240, days.length * 40) + 'px';
     const maxVal = Math.max(1, ...days.map(x => x.val));
     const chart = days.map(x => ({
       h: Math.max(3, Math.round((x.val / maxVal) * 100)) + '%',
       valLabel: x.val > 0 ? String(x.val) : '',
-      day: new Date(x.start).toLocaleDateString('en', { day: 'numeric' }),
-      tip: new Date(x.start).toLocaleDateString('en', { day: 'numeric', month: 'short' }) + ' — ' + fmt(x.val)
+      day: bucket === 'month' ? new Date(x.start).toLocaleDateString('en', { month: 'short' }) : bucket === 'week' ? new Date(x.start).toLocaleDateString('en', { day: 'numeric', month: 'short' }) : new Date(x.start).toLocaleDateString('en', { day: 'numeric' }),
+      tip: new Date(x.start).toLocaleDateString('en', { day: 'numeric', month: 'short' }) + (bucket === 'day' ? '' : ' – ' + new Date(x.end - DAY).toLocaleDateString('en', { day: 'numeric', month: 'short' })) + ' — ' + fmt(x.val)
     }));
 
     // best sellers
@@ -6584,6 +6629,10 @@ class Component extends DCLogic {
 
       sampleNote: 'live data',
       statRevenue: fmt(revenue), statOrders: String(recent14.length), statItems: String(items),
+      dashRange: dRange, dashIsCustom: dRange === 'custom', dashRangeLabel, dashChartTitle, dashChartMinW,
+      dashFrom: this.state.dashFrom || '', dashTo: this.state.dashTo || '',
+      onDashRange: (e) => this.setState({ dashRange: e.target.value }),
+      onDashFrom: (e) => this.setState({ dashFrom: e.target.value }), onDashTo: (e) => this.setState({ dashTo: e.target.value }),
       statLow: String(lowCount), lowStockColor: lowCount > 0 ? '#B03A2E' : '#1E8A4C',
       chart, bestSellers, recentOrders, adminProducts, pagedProducts, prodPager,
       prodSearch: this.state.prodSearch,

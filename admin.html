@@ -192,23 +192,17 @@
             <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0;">Dashboard</h1>
             <span style="color: #857D72; font-size: 13px;">{{ dashRangeLabel }} · {{ sampleNote }}</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 18px;">
-            <select value="{{ dashRange }}" onChange="{{ onDashRange }}" aria-label="Dashboard period" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 8px 14px; font-size: 13px; outline: none; cursor: pointer; font-family: inherit;">
-              <option value="today">Today</option>
-              <option value="7">Last 7 days</option>
-              <option value="14">Last 14 days</option>
-              <option value="30">Last 30 days</option>
-              <option value="month">This month</option>
-              <option value="lastmonth">Last month</option>
-              <option value="year">This year</option>
-              <option value="all">All time</option>
-              <option value="custom">Custom dates…</option>
-            </select>
-            <sc-if value="{{ dashIsCustom }}" hint-placeholder-val="{{ false }}">
-              <input type="date" value="{{ dashFrom }}" onChange="{{ onDashFrom }}" aria-label="From date" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 7px 12px; font-size: 13px; outline: none; font-family: inherit;">
-              <span style="color: #857D72; font-size: 13px;">to</span>
-              <input type="date" value="{{ dashTo }}" onChange="{{ onDashTo }}" aria-label="To date" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 999px; padding: 7px 12px; font-size: 13px; outline: none; font-family: inherit;">
-            </sc-if>
+          <div style="background: #fff; border: 1px solid #E7DECF; border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px;">
+            <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+              <span style="font-size: 12px; color: #857D72; margin-inline-end: 4px;">Quick range:</span>
+              <sc-for list="{{ dashPresets }}" as="pr" hint-placeholder-count="5">
+                <button onClick="{{ pr.go }}" style="background: {{ pr.bg }}; color: {{ pr.color }}; border: 1px solid #D8CCBC; border-radius: 999px; padding: 5px 13px; font-size: 12px; cursor: pointer;">{{ pr.label }}</button>
+              </sc-for>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; align-items: end; max-width: 460px;">
+              <label style="display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: #857D72; min-width: 0;">From date<input type="date" value="{{ dashFrom }}" onChange="{{ onDashFrom }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 11px; font-size: 13.5px; outline: none; width: 100%; box-sizing: border-box; font-family: inherit;"></label>
+              <label style="display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: #857D72; min-width: 0;">To date<input type="date" value="{{ dashTo }}" onChange="{{ onDashTo }}" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 11px; font-size: 13.5px; outline: none; width: 100%; box-sizing: border-box; font-family: inherit;"></label>
+            </div>
           </div>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 22px;">
             <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 18px 20px;">
@@ -593,8 +587,9 @@
           <sc-if value="{{ viewsNotice }}" hint-placeholder-val="{{ false }}">
             <div style="background: #F6EDDB; border: 1px solid #E0C9A2; border-radius: 12px; padding: 10px 14px; font-size: 13px; color: #7A5F27; max-width: 680px; margin-bottom: 12px;">View counts aren't being recorded yet — run <strong>madzo-update-8.sql</strong> in Supabase (SQL Editor). Sales counts already work.</div>
           </sc-if>
-          <div style="overflow-x: auto;">
+          <div style="overflow: auto; max-height: 78vh;">
             <div style="min-width: 1330px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="position: sticky; top: 0; z-index: 5; background: #F1ECE2; display: flex; flex-direction: column; gap: 6px; padding-top: 2px; box-shadow: 0 4px 6px -4px rgba(60,30,25,.18);">
               <div style="display: grid; grid-template-columns: 84px 52px 84px minmax(200px,1fr) 90px 96px 96px 90px 68px 68px 108px 72px 92px; gap: 8px; align-items: center; padding: 4px 14px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
                 <span>Product ID</span><span>Photo</span><span>Brand</span><span>Product name</span><span>Category</span><span>Sub category</span><span>Sub category II</span><span>Expiry</span><span>Buy price</span><span>Sell price</span><span>Stock</span><span>Active</span><span></span>
               </div>
@@ -612,6 +607,7 @@
                 <select value="{{ pfStock }}" onChange="{{ on_pfStock }}" aria-label="Filter stock" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;"><sc-for list="{{ pfStockOpts }}" as="fo" hint-placeholder-count="3"><option value="{{ fo.v }}" selected="{{ fo.selected }}">{{ fo.label }}</option></sc-for></select>
                 <select value="{{ pfActive }}" onChange="{{ on_pfActive }}" aria-label="Filter active" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 5px 6px; font-size: 11.5px; outline: none; width: 100%; box-sizing: border-box;"><sc-for list="{{ pfActiveOpts }}" as="fo" hint-placeholder-count="3"><option value="{{ fo.v }}" selected="{{ fo.selected }}">{{ fo.label }}</option></sc-for></select>
                 <button onClick="{{ clearProdFilters }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 4px 10px; font-size: 11px; cursor: pointer; justify-self: end; opacity: {{ pfClearOpacity }};" style-hover="border-color: #461610; color: #461610;">Clear filters</button>
+              </div>
               </div>
               <sc-for list="{{ pagedProducts }}" as="p" hint-placeholder-count="8">
                 <div class="madzo-prod-row" style="display: flex; flex-direction: column; background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 12px;">
@@ -4219,9 +4215,68 @@ class Component extends DCLogic {
     }
   }
 
+  // Purchase order / GRN as an A4 PDF on the MADZO letterhead — the same layout as Print.
+  // The content is captured once, then cut into A4 pages between table rows, and each
+  // page is laid over the letterhead.
+  async buildLetterheadPdfBlob(po) {
+    if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+      alert('PDF generation isn\'t available right now — please check your internet connection and try again.');
+      return null;
+    }
+    const MM = 96 / 25.4, PW = 794, PH = 1123;                 // A4 at 96dpi
+    const padL = Math.round(17 * MM), padR = Math.round(14 * MM);
+    const topPx = Math.round(40 * MM), usable = PH - topPx - Math.round(30 * MM);
+    const holder = document.createElement('div');
+    holder.style.cssText = `position:fixed; left:-9999px; top:0; width:${PW}px; box-sizing:border-box; background:transparent; font-family: Arial, Helvetica, sans-serif; color:#222; padding:0 ${padR}px 0 ${padL}px;`;
+    holder.innerHTML = '<style>*{box-sizing:border-box;}</style>' + this.poBodyHtml(po, true);
+    document.body.appendChild(holder);
+    try {
+      window.scrollTo(0, 0);
+      await new Promise((r) => setTimeout(r, 60));
+      const fullHeight = Math.ceil(holder.scrollHeight);
+      // safe places to cut a page: under each table row and each top-level block
+      const top0 = holder.getBoundingClientRect().top;
+      const cuts = Array.from(holder.querySelectorAll('tr')).concat(Array.from(holder.children))
+        .map(el => Math.round(el.getBoundingClientRect().bottom - top0)).filter(y => y > 0).sort((a, b) => a - b);
+      const content = await html2canvas(holder, {
+        scale: 2, backgroundColor: null, useCORS: true,
+        width: PW, height: fullHeight, windowWidth: PW, windowHeight: fullHeight,
+        x: 0, y: 0, scrollX: 0, scrollY: 0
+      });
+      const lh = await new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = MADZO_LETTERHEAD; });
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
+      const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
+      let start = 0, page = 0;
+      while (start < fullHeight && page < 40) {
+        let end = fullHeight;
+        if (fullHeight - start > usable) {
+          const limit = start + usable;
+          const fit = cuts.filter(y => y > start + 40 && y <= limit);
+          end = fit.length ? fit[fit.length - 1] : limit;
+        }
+        const pg = document.createElement('canvas'); pg.width = PW * 2; pg.height = PH * 2;
+        const ctx = pg.getContext('2d');
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, pg.width, pg.height);
+        if (lh) ctx.drawImage(lh, 0, 0, pg.width, pg.height);
+        ctx.drawImage(content, 0, start * 2, PW * 2, (end - start) * 2, 0, topPx * 2, PW * 2, (end - start) * 2);
+        if (page > 0) pdf.addPage('a4');
+        pdf.addImage(pg.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pw, ph);
+        start = end; page++;
+      }
+      return pdf.output('blob');
+    } catch (e) {
+      console.warn('Madzo admin: letterhead PDF failed', e);
+      alert('Could not create the PDF: ' + (e.message || e));
+      return null;
+    } finally {
+      document.body.removeChild(holder);
+    }
+  }
+
   // Always downloads the PDF to the device — for saving a copy locally.
-  async downloadBodyAsPdf({ bodyHtml, filename, widthPx }) {
-    const blob = await this.buildPdfBlob({ bodyHtml, widthPx });
+  async downloadBodyAsPdf({ bodyHtml, filename, widthPx, blob: ready }) {
+    const blob = ready !== undefined ? await ready : await this.buildPdfBlob({ bodyHtml, widthPx });
     if (!blob) return;
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -4232,8 +4287,8 @@ class Component extends DCLogic {
 
   // Builds the PDF and hands it to the device's native share sheet (WhatsApp shows up
   // there directly on phones). Falls back to downloading if native sharing isn't available.
-  async shareBodyAsPdf({ bodyHtml, filename, widthPx, shareTitle, shareText }) {
-    const blob = await this.buildPdfBlob({ bodyHtml, widthPx });
+  async shareBodyAsPdf({ bodyHtml, filename, widthPx, shareTitle, shareText, blob: ready }) {
+    const blob = ready !== undefined ? await ready : await this.buildPdfBlob({ bodyHtml, widthPx });
     if (!blob) return;
     try {
       const file = new File([blob], filename, { type: 'application/pdf' });
@@ -4308,9 +4363,8 @@ class Component extends DCLogic {
 
   sharePOPdf(po) {
     this.shareBodyAsPdf({
-      bodyHtml: this.poShareBodyHtml(po),
+      blob: this.buildLetterheadPdfBlob(po),
       filename: (po.isGrn ? '' : 'PO-') + po.id + '.pdf',
-      widthPx: 380,
       shareTitle: (po.isGrn ? 'GRN ' : po.type === 'return' ? 'Purchase Return ' : 'Purchase Order ') + po.id,
       shareText: (po.isGrn ? 'GRN ' : po.type === 'return' ? 'Purchase Return ' : 'Purchase Order ') + po.id + ' — ' + po.supplier
     });
@@ -4324,7 +4378,7 @@ class Component extends DCLogic {
   }
 
   savePOPdf(po) {
-    this.downloadBodyAsPdf({ bodyHtml: this.poShareBodyHtml(po), filename: (po.isGrn ? '' : 'PO-') + po.id + '.pdf', widthPx: 380 });
+    this.downloadBodyAsPdf({ blob: this.buildLetterheadPdfBlob(po), filename: (po.isGrn ? '' : 'PO-') + po.id + '.pdf' });
   }
 
   // Inner content shared by the print window and the PDF-for-WhatsApp export.
@@ -6631,8 +6685,10 @@ class Component extends DCLogic {
       statRevenue: fmt(revenue), statOrders: String(recent14.length), statItems: String(items),
       dashRange: dRange, dashIsCustom: dRange === 'custom', dashRangeLabel, dashChartTitle, dashChartMinW,
       dashFrom: this.state.dashFrom || '', dashTo: this.state.dashTo || '',
-      onDashRange: (e) => this.setState({ dashRange: e.target.value }),
-      onDashFrom: (e) => this.setState({ dashFrom: e.target.value }), onDashTo: (e) => this.setState({ dashTo: e.target.value }),
+      dashPresets: [['today', 'Today'], ['7', 'Last 7 days'], ['14', 'Last 14 days'], ['month', 'This month'], ['lastmonth', 'Last month'], ['year', 'This year'], ['all', 'All time']].map(([v, label]) => ({
+        label, bg: dRange === v ? '#461610' : '#FDF9F4', color: dRange === v ? '#FDF9F4' : '#5C554B', go: () => this.setState({ dashRange: v, dashFrom: '', dashTo: '' })
+      })),
+      onDashFrom: (e) => this.setState({ dashRange: 'custom', dashFrom: e.target.value }), onDashTo: (e) => this.setState({ dashRange: 'custom', dashTo: e.target.value }),
       statLow: String(lowCount), lowStockColor: lowCount > 0 ? '#B03A2E' : '#1E8A4C',
       chart, bestSellers, recentOrders, adminProducts, pagedProducts, prodPager,
       prodSearch: this.state.prodSearch,

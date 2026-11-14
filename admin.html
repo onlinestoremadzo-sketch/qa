@@ -913,6 +913,10 @@
                   <span style="font-size: 12.5px; color: #857D72;">Adjustment (+ / −) QAR</span>
                   <input value="{{ noAdj }}" onChange="{{ noOnAdj }}" type="number" step="any" placeholder="e.g. -2 or 1.5" aria-label="Adjustment amount" style="width: 110px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 10px; font-size: 13.5px; outline: none; text-align: end;">
                 </div>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
+                  <span style="font-size: 12.5px; color: #857D72;" title="Our own cost for this order (delivery, commission…). Never printed on the invoice — it goes to Accounts as an expense.">Our expense (not on invoice) QAR</span>
+                  <input value="{{ noExp }}" onChange="{{ noOnExp }}" type="number" min="0" step="any" placeholder="0" aria-label="Expense amount" style="width: 110px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 10px; font-size: 13.5px; outline: none; text-align: end;">
+                </div>
                 <sc-if value="{{ noHasDisc }}" hint-placeholder-val="{ false }"><div style="font-size: 12.5px; color: #857D72;">Subtotal: {{ noSubtotal }} &nbsp;·&nbsp; Discount: <span style="color: #B03A2E;">− {{ noDiscLabel }}</span></div></sc-if>
               </div>
               <div style="display: flex; justify-content: flex-end; font-size: 14.5px; font-weight: 600; color: #2E2A26;">Total: {{ newOrderTotal }}</div>
@@ -983,6 +987,9 @@
                           <div style="display: flex; align-items: baseline; gap: 10px; font-size: 13px; color: #B03A2E;"><span style="flex: 1;">{{ o.discountText }}</span><span style="font-weight: 600; white-space: nowrap;">− {{ o.discountAmt }}</span></div>
                         </sc-if>
                       </div>
+                      <sc-if value="{{ o.hasExp }}" hint-placeholder-val="{{ false }}">
+                        <div style="display: flex; gap: 10px; font-size: 12.5px; color: #857D72; padding: 0 12px;"><span style="flex: 1;">Our expense (not on invoice)</span><span style="font-weight: 600; white-space: nowrap;">{{ o.expText }}</span></div>
+                      </sc-if>
                       <sc-if value="{{ o.hasAdj }}" hint-placeholder-val="{{ false }}">
                         <div style="display: flex; gap: 10px; font-size: 13px; color: #5C554B; padding: 0 12px;"><span style="flex: 1;">Adjustment</span><span style="font-weight: 600; white-space: nowrap;">{{ o.adjText }}</span></div>
                       </sc-if>
@@ -1109,6 +1116,10 @@
                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
                   <span style="font-size: 12.5px; color: #857D72;">Adjustment (+ / −) QAR</span>
                   <input value="{{ o.edAdj }}" onChange="{{ o.edOnAdj }}" type="number" step="any" placeholder="e.g. -2 or 1.5" aria-label="Adjustment amount" style="width: 110px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 10px; font-size: 13.5px; outline: none; text-align: end;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
+                  <span style="font-size: 12.5px; color: #857D72;" title="Our own cost for this order (delivery, commission…). Never printed on the invoice — it goes to Accounts as an expense.">Our expense (not on invoice) QAR</span>
+                  <input value="{{ o.edExp }}" onChange="{{ o.edOnExp }}" type="number" min="0" step="any" placeholder="0" aria-label="Expense amount" style="width: 110px; background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 10px; font-size: 13.5px; outline: none; text-align: end;">
                 </div>
                 <sc-if value="{{ o.edHasDisc }}" hint-placeholder-val="{ false }"><div style="font-size: 12.5px; color: #857D72;">Subtotal: {{ o.edSubtotal }} &nbsp;·&nbsp; Discount: <span style="color: #B03A2E;">− {{ o.edDiscLabel }}</span></div></sc-if>
               </div>
@@ -1572,6 +1583,10 @@
                   <input value="{{ grnD.adj }}" onChange="{{ onGrnAdj }}" type="number" step="any" placeholder="e.g. -0.5 or 1" aria-label="GRN adjustment amount" style="width: 110px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 10px; font-size: 13.5px; outline: none; text-align: end;">
                 </div>
                 <div style="display: flex; justify-content: flex-end; font-size: 15px; font-weight: 700; color: #2E2A26;">Total: {{ grnTotal }}</div>
+                <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: #857D72;">
+                  <span title="Our own cost for this delivery (transport, clearing…). Not part of the supplier total and never printed — it goes to Accounts as an expense.">Our expense (not on invoice) QAR</span>
+                  <input value="{{ grnD.exp }}" onChange="{{ onGrnExp }}" type="number" min="0" step="any" placeholder="0" aria-label="GRN expense amount" style="width: 110px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 10px; font-size: 13.5px; outline: none; text-align: end;">
+                </div>
                 <sc-if value="{{ grnError }}" hint-placeholder-val="{{ false }}"><p style="color: #C0392B; font-size: 13px; margin: 0;">{{ grnError }}</p></sc-if>
                 <span style="display: flex; gap: 10px;">
                   <button onClick="{{ saveGRN }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 11px 22px; font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="filter: brightness(1.07);">{{ saveGrnLabel }}</button>
@@ -2689,7 +2704,7 @@ class Component extends DCLogic {
       editDraft: null,
       editError: '', rateView: null, dbReturns: [], retMissing: false, retDraft: null, retError: '', savingRet: false, dbAudit: [], auditMissing: false,
       showOrderForm: false,
-      newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', paymentStatus: 'pending', payMethod: 'cash', discType: 'amount', discValue: '', adj: '', items: [] },
+      newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', paymentStatus: 'pending', payMethod: 'cash', discType: 'amount', discValue: '', adj: '', exp: '', items: [] },
       newOrderError: '',
       translating: false, transMsg: '',
       prodPage: 1,
@@ -3192,7 +3207,7 @@ class Component extends DCLogic {
       this.setState({ grnMissing: false, dbGRNs: (data || []).map(g => ({
         id: g.id, ts: new Date(g.created_at).getTime(), invoice: g.invoice_no || '', supplier: g.supplier_name || '',
         date: g.grn_date || '', payMode: g.payment_mode || 'cash', remarks: g.remarks || '', items: g.items || [], total: Number(g.total_amount) || 0,
-        currency: g.currency || 'QAR', rate: Number(g.exchange_rate) || 1, totalOrig: g.total_original != null ? Number(g.total_original) : Number(g.total_amount) || 0, adjustment: Number(g.adjustment) || 0
+        currency: g.currency || 'QAR', rate: Number(g.exchange_rate) || 1, totalOrig: g.total_original != null ? Number(g.total_original) : Number(g.total_amount) || 0, adjustment: Number(g.adjustment) || 0, expense: Number(g.expense) || 0
       })) });
     } catch (e) { console.warn('Madzo admin: could not load GRNs', e); }
   }
@@ -4641,7 +4656,7 @@ class Component extends DCLogic {
       this.setState({ dbOrders: (data || []).map(o => ({
         id: o.id, ts: new Date(o.created_at).getTime(), name: o.customer_name, phone: o.phone,
         zone: o.zone, address: o.address, notes: o.notes, lines: o.lines || [], total: o.total, status: o.status,
-        source: o.source || 'storefront', adjustment: Number(o.adjustment) || 0, discount: Number(o.discount) || 0, discType: o.discount_type || 'amount', discValue: o.discount_value != null ? Number(o.discount_value) : 0, paymentStatus: o.payment_status || 'pending', payMethod: o.payment_method || ''
+        source: o.source || 'storefront', adjustment: Number(o.adjustment) || 0, expense: Number(o.expense) || 0, discount: Number(o.discount) || 0, discType: o.discount_type || 'amount', discValue: o.discount_value != null ? Number(o.discount_value) : 0, paymentStatus: o.payment_status || 'pending', payMethod: o.payment_method || ''
       })) });
     } catch (e) { console.warn('Madzo admin: could not load orders', e); }
   }
@@ -5306,7 +5321,7 @@ class Component extends DCLogic {
             id: o.id, source: o.source && o.source !== 'storefront' ? o.source : '',
             name: o.name || '', phone: o.phone || '', zone: o.zone || '', address: o.address || '',
             notes: o.notes || '', status: o.status || 'new', paymentStatus: o.paymentStatus || 'pending', payMethod: o.payMethod || '',
-            discType: o.discType || 'amount', discValue: o.discount > 0 && o.discValue ? String(o.discValue) : '', adj: o.adjustment ? String(o.adjustment) : '',
+            discType: o.discType || 'amount', discValue: o.discount > 0 && o.discValue ? String(o.discValue) : '', adj: o.adjustment ? String(o.adjustment) : '', exp: o.expense ? String(o.expense) : '',
             items: (o.lines || []).map(l => ({ name: l.name, qty: l.qty, price: l.free ? 0 : (l.disc > 0 && l.unit != null ? l.unit : Math.round((l.total || 0) / (l.qty || 1))), discType: l.disc > 0 ? (l.discType || 'amount') : 'amount', discValue: l.disc > 0 && l.discValue ? String(l.discValue) : '', free: !!l.free, sku: l.sku || '', brand: l.brand || '', nameEn: l.nameEn || '' }))
           }
         }),
@@ -5331,6 +5346,8 @@ class Component extends DCLogic {
         edOnDiscType: (e) => { const v = e.target.value; this.setState(s => ({ editOrderDraft: { ...s.editOrderDraft, discType: v }, editOrderErr: '' })); },
         edDiscValue: ed.discValue == null ? '' : ed.discValue, edOnDiscValue: setEd('discValue'),
         edAdj: ed.adj == null ? '' : ed.adj, edOnAdj: setEd('adj'),
+        edExp: ed.exp == null ? '' : ed.exp, edOnExp: setEd('exp'),
+        hasExp: (Number(o.expense) || 0) > 0, expText: fmt(Number(o.expense) || 0),
         hasAdj: (Number(o.adjustment) || 0) !== 0, adjText: ((Number(o.adjustment) || 0) > 0 ? '+ ' : '− ') + fmt(Math.abs(Number(o.adjustment) || 0)),
         edHasDisc: edDisc > 0, edSubtotal: fmt(edSub), edDiscLabel: fmt(edDisc) + (ed.discType === 'percent' ? ' (' + (Number(ed.discValue) || 0) + '%)' : ''),
         hasDiscount: (Number(o.discount) || 0) > 0, discountAmt: fmt(Number(o.discount) || 0),
@@ -5374,10 +5391,12 @@ class Component extends DCLogic {
           };
           if ((dr.payMethod || '') !== (o.payMethod || '')) patchO.payment_method = dr.payMethod || null;
           if (adjE !== (Number(o.adjustment) || 0)) patchO.adjustment = adjE;
+          const expE = Math.max(0, Math.round((Number(dr.exp) || 0) * 100) / 100);
+          if (expE !== (Number(o.expense) || 0)) patchO.expense = expE;
           if (dcE.disc > 0 || (Number(o.discount) || 0) > 0) { patchO.discount = dcE.disc; patchO.discount_type = dcE.disc > 0 ? (dr.discType || 'amount') : null; patchO.discount_value = dcE.disc > 0 ? Number(dr.discValue) || 0 : null; }
           const { error } = await window.getSupabase().from('orders').update(patchO).eq('id', o.id);
           this.setState({ savingOrderId: null });
-          if (error) { this.setState({ editOrderErr: /adjustment/.test(error.message || '') ? 'Adjustments need a one-time database update — run madzo-update-23.sql in Supabase, then save again.' : /discount/.test(error.message || '') ? 'Discounts need a one-time database update — run madzo-update-18.sql in Supabase, then save again.' : this.needsSql(error) ? 'The payment method needs a one-time database update — run madzo-update-3.sql in Supabase, then save again.' : error.message }); return; }
+          if (error) { this.setState({ editOrderErr: /expense/.test(error.message || '') ? 'Invoice expenses need a one-time database update — run madzo-update-26.sql in Supabase, then save again.' : /adjustment/.test(error.message || '') ? 'Adjustments need a one-time database update — run madzo-update-23.sql in Supabase, then save again.' : /discount/.test(error.message || '') ? 'Discounts need a one-time database update — run madzo-update-18.sql in Supabase, then save again.' : this.needsSql(error) ? 'The payment method needs a one-time database update — run madzo-update-3.sql in Supabase, then save again.' : error.message }); return; }
           if (newId !== o.id) await window.getSupabase().from('inventory_batches').delete().eq('source_type', 'sale').eq('source_id', o.id);
           this.syncOrderStock(newId, lines);
           this.rememberCustomer(patchO.customer_name, patchO.phone, patchO.zone, patchO.address);
@@ -5749,7 +5768,7 @@ class Component extends DCLogic {
           id: o.id, source: o.source && o.source !== 'storefront' ? o.source : '',
           name: o.name || '', phone: o.phone || '', zone: o.zone || '', address: o.address || '',
           notes: o.notes || '', status: o.status || 'new', paymentStatus: o.paymentStatus || 'pending', payMethod: o.payMethod || '',
-          discType: o.discType || 'amount', discValue: o.discount > 0 && o.discValue ? String(o.discValue) : '', adj: o.adjustment ? String(o.adjustment) : '',
+          discType: o.discType || 'amount', discValue: o.discount > 0 && o.discValue ? String(o.discValue) : '', adj: o.adjustment ? String(o.adjustment) : '', exp: o.expense ? String(o.expense) : '',
           items: (o.lines || []).map(l => ({ name: l.name, qty: l.qty, price: l.free ? 0 : (l.disc > 0 && l.unit != null ? l.unit : Math.round((l.total || 0) / (l.qty || 1))), discType: l.disc > 0 ? (l.discType || 'amount') : 'amount', discValue: l.disc > 0 && l.discValue ? String(l.discValue) : '', free: !!l.free, sku: l.sku || '', brand: l.brand || '', nameEn: l.nameEn || '' }))
         }
       }, () => window.scrollTo(0, 0));
@@ -5827,10 +5846,10 @@ class Component extends DCLogic {
     const grnOpenForm = (entry) => this.setState({
       grnError: '', grnMsg: '',
       grnDraft: entry ? {
-        origId: entry.id, adj: entry.adjustment ? String(entry.adjustment) : '', id: entry.id, invoice: entry.invoice, supplier: entry.supplier, date: entry.date || today, payMode: entry.payMode || 'cash', currency: entry.currency || 'QAR', rate: (entry.currency && entry.currency !== 'QAR' && entry.rate) ? String(entry.rate) : '', remarks: entry.remarks || '', updatePrices: false,
+        origId: entry.id, adj: entry.adjustment ? String(entry.adjustment) : '', exp: entry.expense ? String(entry.expense) : '', id: entry.id, invoice: entry.invoice, supplier: entry.supplier, date: entry.date || today, payMode: entry.payMode || 'cash', currency: entry.currency || 'QAR', rate: (entry.currency && entry.currency !== 'QAR' && entry.rate) ? String(entry.rate) : '', remarks: entry.remarks || '', updatePrices: false,
         items: (entry.items || []).map(l => ({ code: l.code || '', name: l.name || '', qty: String(l.qty || ''), free: l.free ? String(l.free) : '', buy: l.buy ? String(l.buy) : '', sell: l.sell ? String(l.sell) : '', expiry: l.expiry || '', matched: l.code || '' }))
       } : {
-        origId: null, adj: '', id: this.nextGrnId(), invoice: '', supplier: '', date: today, payMode: 'cash', currency: 'QAR', rate: '', remarks: '', updatePrices: true,
+        origId: null, adj: '', exp: '', id: this.nextGrnId(), invoice: '', supplier: '', date: today, payMode: 'cash', currency: 'QAR', rate: '', remarks: '', updatePrices: true,
         items: [grnBlank(), grnBlank(), grnBlank()]
       }
     }, () => window.scrollTo(0, 0));
@@ -5989,7 +6008,7 @@ class Component extends DCLogic {
       })(),
       grnItems: grnLines, grnAddLine: () => this.setState(s => ({ grnDraft: { ...s.grnDraft, items: s.grnDraft.items.concat([grnBlank()]) } })),
       grnCodeOptions: prods.map(p => ({ sku: p.sku, label: (p.brand ? p.brand + ' · ' : '') + p.name })), grnNameOptions: prods.map(p => ({ name: p.name, brand: p.brand || '' })),
-      grnAdjCur: grnCur, onGrnAdj: (e) => setGrn({ adj: e.target.value }),
+      grnAdjCur: grnCur, onGrnAdj: (e) => setGrn({ adj: e.target.value }), onGrnExp: (e) => setGrn({ exp: e.target.value }),
       grnTotal: grnForeignNow ? (grnTotalNum.toFixed(2) + ' ' + grnCur + (grnRateNum > 0 ? '  ≈  ' + (grnTotalNum * grnRateNum).toFixed(2) + ' QAR' : '  (enter the exchange rate)')) : (grnTotalNum.toFixed(2) + ' QAR'),
       grnForeign: grnForeignNow, grnBuyHead: 'Buy price (' + grnCur + ')', grnTotalHead: 'Total (' + grnCur + ')',
       grnRateLabel: '1 ' + grnCur + ' = ? QAR',
@@ -6038,11 +6057,13 @@ class Component extends DCLogic {
           items: lines.map(l => ({ code: l.sku, name: l.name, qty: l.qty, free: l.free, buy: l.buy, sell: l.sell, expiry: l.expiry })), total_amount: Math.round(total * 100) / 100
         };
         if (adjG !== 0 || (isEdit && ((this.state.dbGRNs || []).find(g => g.id === id) || {}).adjustment)) row.adjustment = adjG;
+        const expG = Math.max(0, Math.round((Number(d.exp) || 0) * 100) / 100);
+        if (expG !== 0 || (isEdit && ((this.state.dbGRNs || []).find(g => g.id === id) || {}).expense)) row.expense = expG;
         if (foreign) { row.currency = curS; row.exchange_rate = rate; row.total_original = Math.round(totalOrig * 100) / 100; }
         else if (isEdit && ((this.state.dbGRNs || []).find(g => g.id === id) || {}).currency && ((this.state.dbGRNs || []).find(g => g.id === id) || {}).currency !== 'QAR') { row.currency = 'QAR'; row.exchange_rate = 1; row.total_original = null; }
         this.setState({ savingGRN: true, grnError: '' });
         const res = isEdit ? await sb.from('grn_entries').update(row).eq('id', id) : await sb.from('grn_entries').insert({ id, ...row });
-        if (res.error) { this.setState({ savingGRN: false }); if (this.isMissingTable(res.error)) { this.setState({ grnMissing: true }); return fail('Run madzo-update-10.sql in Supabase first, then save again.'); } if (/adjustment/.test(res.error.message || '')) return fail('Adjustments need a one-time database update — run madzo-update-23.sql in Supabase, then save again.'); if (/currency|exchange_rate|total_original/.test(res.error.message || '')) return fail('Other currencies need a one-time database update — run madzo-update-13.sql in Supabase, then save again.'); return fail(res.error.message); }
+        if (res.error) { this.setState({ savingGRN: false }); if (this.isMissingTable(res.error)) { this.setState({ grnMissing: true }); return fail('Run madzo-update-10.sql in Supabase first, then save again.'); } if (/expense/.test(res.error.message || '')) return fail('Invoice expenses need a one-time database update — run madzo-update-26.sql in Supabase, then save again.'); if (/adjustment/.test(res.error.message || '')) return fail('Adjustments need a one-time database update — run madzo-update-23.sql in Supabase, then save again.'); if (/currency|exchange_rate|total_original/.test(res.error.message || '')) return fail('Other currencies need a one-time database update — run madzo-update-13.sql in Supabase, then save again.'); return fail(res.error.message); }
         // stock: replace this GRN's earlier movements (if any), then add the new ones (paid qty and free qty are separate so cost stays right)
         await sb.from('inventory_batches').delete().eq('source_type', 'grn').eq('source_id', id);
         const note = 'GRN ' + id + ' · Invoice ' + inv;
@@ -6082,7 +6103,7 @@ class Component extends DCLogic {
           dateLabel: g.date ? new Date(g.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '—',
           payLabel: ({ cash: 'Cash', card: 'Card', credit: 'Credit' })[g.payMode] || g.payMode,
           itemCount: String((g.items || []).length), totalLabel: (g.currency && g.currency !== 'QAR' ? Number(g.totalOrig || 0).toFixed(2) + ' ' + g.currency + ' (≈ ' + Number(g.total || 0).toFixed(2) + ' QAR)' : Number(g.total || 0).toFixed(2) + ' QAR'),
-          open, toggleLabel: open ? 'Hide items' : 'Show items', hasRemarks: !!g.remarks || !!g.adjustment, remarks: (g.remarks || '') + (g.adjustment ? (g.remarks ? '  ·  ' : '') + 'Adjustment: ' + (g.adjustment > 0 ? '+' : '−') + Math.abs(g.adjustment).toFixed(2) + ' ' + (g.currency || 'QAR') : ''),
+          open, toggleLabel: open ? 'Hide items' : 'Show items', hasRemarks: !!g.remarks || !!g.adjustment || !!g.expense, remarks: [g.remarks || '', g.adjustment ? 'Adjustment: ' + (g.adjustment > 0 ? '+' : '−') + Math.abs(g.adjustment).toFixed(2) + ' ' + (g.currency || 'QAR') : '', g.expense ? 'Our expense: ' + Number(g.expense).toFixed(2) + ' QAR' : ''].filter(Boolean).join('  ·  '),
           toggle: () => this.setState(s => ({ grnOpen: { ...s.grnOpen, [g.id]: !(s.grnOpen || {})[g.id] } })),
           lines: (g.items || []).map(l => ({ brand: (prods.find(pp => pp.sku === l.code) || {}).brand || '', name: l.name || l.code, code: l.code, qty: l.qty || 0, free: l.free || 0, buy: Number(l.buy || 0).toFixed(2) + (g.currency && g.currency !== 'QAR' ? ' ' + g.currency : ''), sell: l.sell || 0, expiry: l.expiry || '—' })),
           edit: () => grnOpenForm(g),
@@ -6495,6 +6516,7 @@ class Component extends DCLogic {
       noOnDiscType: (e) => { const v = e.target.value; this.setState(s => ({ newOrder: { ...s.newOrder, discType: v }, newOrderError: '' })); },
       noDiscValue: no.discValue == null ? '' : no.discValue, noOnDiscValue: setNO('discValue'),
       noAdj: no.adj == null ? '' : no.adj, noOnAdj: setNO('adj'),
+      noExp: no.exp == null ? '' : no.exp, noOnExp: setNO('exp'),
       noHasDisc: newOrderDisc > 0, noSubtotal: fmt(newOrderSubNum), noDiscLabel: fmt(newOrderDisc) + (no.discType === 'percent' ? ' (' + (Number(no.discValue) || 0) + '%)' : ''),
       saveNewOrder: async () => {
         if (this._savingNewOrder) return;
@@ -6529,20 +6551,21 @@ class Component extends DCLogic {
           source: no.source.trim() || 'manual',
           payment_method: no.payMethod || 'cash',
           ...(dcN.disc > 0 ? { discount: dcN.disc, discount_type: no.discType || 'amount', discount_value: Number(no.discValue) || 0 } : {}),
-          ...(adjN !== 0 ? { adjustment: adjN } : {})
+          ...(adjN !== 0 ? { adjustment: adjN } : {}),
+          ...((Number(no.exp) || 0) > 0 ? { expense: Math.round(Number(no.exp) * 100) / 100 } : {})
         };
         let ins = await window.getSupabase().from('orders').insert(orderRow);
         let methodNotSaved = false;
         if (ins.error && /payment_method/.test(ins.error.message || '')) { const { payment_method, ...plain } = orderRow; ins = await window.getSupabase().from('orders').insert(plain); methodNotSaved = true; }
         const error = ins.error;
         if (error && (error.code === '23505' || /duplicate key/i.test(error.message || ''))) { this.setState({ newOrderError: 'Order ID "' + id + '" already exists — it may have just been saved. Check the Sales list before adding again.' }); this.loadOrders(); return; }
-        if (error) { this.setState({ newOrderError: /adjustment/.test(error.message || '') ? 'Adjustments need a one-time database update — run madzo-update-23.sql in Supabase, then save again.' : /discount/.test(error.message || '') ? 'Discounts need a one-time database update — run madzo-update-18.sql in Supabase, then save again.' : error.message }); return; }
+        if (error) { this.setState({ newOrderError: /expense/.test(error.message || '') ? 'Invoice expenses need a one-time database update — run madzo-update-26.sql in Supabase, then save again.' : /adjustment/.test(error.message || '') ? 'Adjustments need a one-time database update — run madzo-update-23.sql in Supabase, then save again.' : /discount/.test(error.message || '') ? 'Discounts need a one-time database update — run madzo-update-18.sql in Supabase, then save again.' : error.message }); return; }
         this.syncOrderStock(id, lines);
         this.rememberCustomer(orderRow.customer_name, orderRow.phone, orderRow.zone, orderRow.address);
         if (methodNotSaved) alert('Order saved — but its payment method could not be stored yet. Run madzo-update-3.sql in Supabase, then set it from Edit.');
         this.setState({
           showOrderForm: false, newOrderError: '', salesView: 'details',
-          newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', paymentStatus: 'pending', payMethod: 'cash', discType: 'amount', discValue: '', adj: '', items: [] }
+          newOrder: { id: '', source: '', name: '', phone: '', zone: '', address: '', notes: '', status: 'new', paymentStatus: 'pending', payMethod: 'cash', discType: 'amount', discValue: '', adj: '', exp: '', items: [] }
         });
         this.loadOrders();
         } finally { this._savingNewOrder = false; }

@@ -321,7 +321,7 @@ class Component extends DCLogic {
       if (error) throw error;
       this.setState({ dbOrders: (data || []).map(o => ({
         id: o.id, ts: new Date(o.created_at).getTime(), name: o.customer_name,
-        total: o.total || 0, expense: Number(o.expense) || 0, paymentStatus: o.payment_status || 'pending',
+        total: o.total || 0, expense: Number(o.expense) || 0, expenseType: o.expense_type || '', paymentStatus: o.payment_status || 'pending',
         platform: (!o.source || o.source === 'storefront') ? 'Website' : (o.source === 'manual' ? 'Manual' : o.source)
       })) });
     } catch (e) { console.warn('Madzo accounts: could not load orders', e); }
@@ -356,7 +356,7 @@ class Component extends DCLogic {
         id: g.id, ts: g.grn_date ? new Date(g.grn_date + 'T12:00:00').getTime() : new Date(g.created_at).getTime(), date: g.grn_date,
         supplier: g.supplier_name || '', status: 'received', kind: 'GRN',
         // cash / card are paid at the time of receiving; credit stays unpaid
-        paymentStatus: g.payment_mode === 'credit' ? 'pending' : 'paid', netAmount: Number(g.total_amount) || 0, expense: Number(g.expense) || 0
+        paymentStatus: g.payment_mode === 'credit' ? 'pending' : 'paid', netAmount: Number(g.total_amount) || 0, expense: Number(g.expense) || 0, expenseType: g.expense_type || ''
       })) });
     } catch (e) { console.warn('Madzo accounts: could not load GRN entries', e); }
   }
@@ -425,8 +425,8 @@ class Component extends DCLogic {
     const pos = [...(this.state.dbGRNs || [])].sort((a, b) => b.ts - a.ts);
     // Expenses = entries added here + the "our expense" amount saved on sales orders and GRN entries.
     const isoDay = (ts) => { const d = new Date(ts); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
-    const invoiceExpenses = orders.filter(o => o.expense > 0).map(o => ({ id: 'order:' + o.id, date: isoDay(o.ts), category: 'Sales order', description: 'Order ' + o.id + (o.name ? ' — ' + o.name : ''), amount: o.expense, paymentMethod: '', fromInvoice: true }))
-      .concat(pos.filter(g => g.expense > 0).map(g => ({ id: 'grn:' + g.id, date: g.date || isoDay(g.ts), category: 'GRN', description: g.id + (g.supplier ? ' — ' + g.supplier : ''), amount: g.expense, paymentMethod: '', fromInvoice: true })));
+    const invoiceExpenses = orders.filter(o => o.expense > 0).map(o => ({ id: 'order:' + o.id, date: isoDay(o.ts), category: o.expenseType || 'Sales order', description: 'Order ' + o.id + (o.name ? ' — ' + o.name : ''), amount: o.expense, paymentMethod: '', fromInvoice: true }))
+      .concat(pos.filter(g => g.expense > 0).map(g => ({ id: 'grn:' + g.id, date: g.date || isoDay(g.ts), category: g.expenseType || 'GRN', description: g.id + (g.supplier ? ' — ' + g.supplier : ''), amount: g.expense, paymentMethod: '', fromInvoice: true })));
     const expenses = invoiceExpenses.length ? this.state.dbExpenses.concat(invoiceExpenses).sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))) : this.state.dbExpenses;
 
     const periodOrders = orders.filter(o => inRange(o.ts));

@@ -180,8 +180,11 @@
               <span style="font-size: 13px; font-weight: 600; color: #2E2A26;">{{ ex.amountFmt }}</span>
               <span style="font-size: 12px; color: #857D72; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ ex.paymentMethod }}</span>
               <span style="display: flex; gap: 6px; justify-self: end;">
+                <sc-if value="{{ ex.canEdit }}" hint-placeholder-val="{{ true }}">
                 <button onClick="{{ ex.startEdit }}" title="Edit" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;">Edit</button>
                 <button onClick="{{ ex.askRemove }}" class="madzo-del-btn" aria-label="Delete expense" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px; line-height: 1;">×</button>
+                </sc-if>
+                <sc-if value="{{ ex.fromInvoice }}" hint-placeholder-val="{{ false }}"><span title="Change this amount on the invoice in the admin" style="font-size: 10.5px; color: #B0A697; white-space: nowrap;">from invoice</span></sc-if>
               </span>
             </div>
             <sc-if value="{{ ex.confirmingDelete }}" hint-placeholder-val="{{ false }}">
@@ -318,7 +321,7 @@ class Component extends DCLogic {
       if (error) throw error;
       this.setState({ dbOrders: (data || []).map(o => ({
         id: o.id, ts: new Date(o.created_at).getTime(), name: o.customer_name,
-        total: o.total || 0, paymentStatus: o.payment_status || 'pending',
+        total: o.total || 0, expense: Number(o.expense) || 0, paymentStatus: o.payment_status || 'pending',
         platform: (!o.source || o.source === 'storefront') ? 'Website' : (o.source === 'manual' ? 'Manual' : o.source)
       })) });
     } catch (e) { console.warn('Madzo accounts: could not load orders', e); }
@@ -353,7 +356,7 @@ class Component extends DCLogic {
         id: g.id, ts: g.grn_date ? new Date(g.grn_date + 'T12:00:00').getTime() : new Date(g.created_at).getTime(), date: g.grn_date,
         supplier: g.supplier_name || '', status: 'received', kind: 'GRN',
         // cash / card are paid at the time of receiving; credit stays unpaid
-        paymentStatus: g.payment_mode === 'credit' ? 'pending' : 'paid', netAmount: Number(g.total_amount) || 0
+        paymentStatus: g.payment_mode === 'credit' ? 'pending' : 'paid', netAmount: Number(g.total_amount) || 0, expense: Number(g.expense) || 0
       })) });
     } catch (e) { console.warn('Madzo accounts: could not load GRN entries', e); }
   }
@@ -420,7 +423,11 @@ class Component extends DCLogic {
     const orders = this.state.dbOrders;
     // Only GRN entries (goods actually received) count as purchases — purchase orders / invoices are excluded.
     const pos = [...(this.state.dbGRNs || [])].sort((a, b) => b.ts - a.ts);
-    const expenses = this.state.dbExpenses;
+    // Expenses = entries added here + the "our expense" amount saved on sales orders and GRN entries.
+    const isoDay = (ts) => { const d = new Date(ts); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+    const invoiceExpenses = orders.filter(o => o.expense > 0).map(o => ({ id: 'order:' + o.id, date: isoDay(o.ts), category: 'Sales order', description: 'Order ' + o.id + (o.name ? ' — ' + o.name : ''), amount: o.expense, paymentMethod: '', fromInvoice: true }))
+      .concat(pos.filter(g => g.expense > 0).map(g => ({ id: 'grn:' + g.id, date: g.date || isoDay(g.ts), category: 'GRN', description: g.id + (g.supplier ? ' — ' + g.supplier : ''), amount: g.expense, paymentMethod: '', fromInvoice: true })));
+    const expenses = invoiceExpenses.length ? this.state.dbExpenses.concat(invoiceExpenses).sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))) : this.state.dbExpenses;
 
     const periodOrders = orders.filter(o => inRange(o.ts));
     const periodPOs = pos.filter(p => inRange(p.ts));
@@ -496,7 +503,7 @@ class Component extends DCLogic {
     const ne = this.state.newExpense;
 
     const pagedExpenses = pagedExpensesRaw.map(e => ({
-      date: dfmt(e.date), category: e.category, description: e.description || '—',
+      date: dfmt(e.date), category: e.category, description: e.description || '—', canEdit: !e.fromInvoice, fromInvoice: !!e.fromInvoice,
       amountFmt: fmt(e.amount), paymentMethod: e.paymentMethod || '—',
       confirmingDelete: this.state.confirmDeleteExpense === e.id,
       askRemove: () => this.setState({ confirmDeleteExpense: e.id }),

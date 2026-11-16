@@ -4817,7 +4817,8 @@ class Component extends DCLogic {
       if (v > sub) return { disc: 0, err: 'Discount can\'t be more than the order subtotal (' + sub + ' QAR).' };
       return { disc: Math.round(v * 100) / 100, err: '' };
     };
-    const fmt = (n) => n + ' QAR';
+    // amounts are rounded to 2 decimals (no long tails like 6241.849999)
+    const fmt = (n) => { const v = Number(n); return (n !== '' && n != null && isFinite(v) ? Math.round(v * 100) / 100 : n) + ' QAR'; };
 
     const doLogin = async () => {
       const sb = window.getSupabase();

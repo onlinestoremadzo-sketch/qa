@@ -1466,6 +1466,14 @@
             <sc-if value="{{ grnFormOpen }}" hint-placeholder-val="{{ false }}">
               <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 20px 22px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
                 <h2 style="font-size: 15px; font-weight: 600; margin: 0;">{{ grnFormTitle }}</h2>
+                <sc-if value="{{ grnHasOrders }}" hint-placeholder-val="{{ false }}">
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72; background: #F6EFE2; border: 1px solid #E7DECF; border-radius: 12px; padding: 12px;">📦 Bring in an order from Order monitoring — fills the supplier, order number, products and other expenses
+                    <select onChange="{{ onGrnFromOrder }}" aria-label="Bring in from order monitoring" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer; max-width: 520px;">
+                      <sc-for list="{{ grnOrderOpts }}" as="go" hint-placeholder-count="2"><option value="{{ go.v }}" selected="{{ go.selected }}">{{ go.l }}</option></sc-for>
+                    </select>
+                    <sc-if value="{{ grnOrderNote }}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: #1F6B3A;">{{ grnOrderNote }}</span></sc-if>
+                  </label>
+                </sc-if>
                 <div style="display: flex; flex-wrap: wrap; gap: 12px;">
                   <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72; flex: 0 1 110px; min-width: 100px;">GRN no.
                     <input value="{{ grnD.id }}" readonly style="background: #EAE3D6; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; direction: ltr; color: #5C554B;">
@@ -1770,6 +1778,41 @@
                   <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Offer code
                     <input value="{{ omD.offer }}" onChange="{{ onOmOffer }}" aria-label="Order offer code" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
                   </label>
+                </div>
+                <h3 style="font-size: 13.5px; font-weight: 600; margin: 6px 0 0; color: #2E2A26;">Products ordered <span style="font-weight: 400; color: #857D72; font-size: 12px;">(optional — they can be pulled into the GRN when the order arrives)</span></h3>
+                <div style="overflow-x: auto;">
+                  <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 560px;">
+                    <thead><tr style="text-align: start; color: #857D72;"><th style="padding: 6px 4px; font-weight: 600; text-align: start;">Product name</th><th style="padding: 6px 4px; font-weight: 600; text-align: start;">Qty</th><th style="padding: 6px 4px; font-weight: 600; text-align: start;">{{ omBuyHead }}</th><th style="padding: 6px 4px; font-weight: 600; text-align: end;">Total</th><th></th></tr></thead>
+                    <tbody>
+                      <sc-for list="{{ omItems }}" as="oi" hint-placeholder-count="2">
+                        <tr style="border-top: 1px solid #EDE4D3;">
+                          <td style="padding: 5px 4px;"><input value="{{ oi.name }}" onChange="{{ oi.onName }}" list="madzo-om-names" autocomplete="off" placeholder="Type or pick a product" aria-label="Ordered product name" style="width: 100%; min-width: 240px; box-sizing: border-box; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 9px; font-size: 13px; outline: none;"></td>
+                          <td style="padding: 5px 4px;"><input value="{{ oi.qty }}" onChange="{{ oi.onQty }}" type="number" min="0" aria-label="Ordered qty" style="width: 70px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 9px; font-size: 13px; outline: none;"></td>
+                          <td style="padding: 5px 4px;"><input value="{{ oi.buy }}" onChange="{{ oi.onBuy }}" type="number" min="0" step="0.01" aria-label="Ordered buy price" style="width: 90px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 9px; font-size: 13px; outline: none;"></td>
+                          <td style="padding: 5px 4px; text-align: end; font-weight: 600; white-space: nowrap;">{{ oi.lineTotal }}</td>
+                          <td style="padding: 5px 4px;"><button onClick="{{ oi.remove }}" aria-label="Remove ordered product" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; line-height: 1;">×</button></td>
+                        </tr>
+                      </sc-for>
+                    </tbody>
+                  </table>
+                  <datalist id="madzo-om-names"><sc-for list="{{ omNameOptions }}" as="on" hint-placeholder-count="5"><option value="{{ on.name }}" label="{{ on.brand }}"></option></sc-for></datalist>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                  <button onClick="{{ omAddItem }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 12.5px; cursor: pointer;">+ Add product</button>
+                  <span style="font-size: 12.5px; color: #5C554B;">{{ omItemsNote }}</span>
+                </div>
+
+                <h3 style="font-size: 13.5px; font-weight: 600; margin: 6px 0 0; color: #2E2A26;">Other expenses <span style="font-weight: 400; color: #857D72; font-size: 12px;">(shipping, customs… in QAR — for monitoring only, not counted in Accounts until received through a GRN)</span></h3>
+                <sc-for list="{{ omExps }}" as="ox" hint-placeholder-count="1">
+                  <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    <input value="{{ ox.type }}" onChange="{{ ox.onType }}" type="text" maxlength="40" placeholder="Type, e.g. Shipping" aria-label="Other expense type" style="width: 200px; max-width: 100%; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 9px; font-size: 13px; outline: none;">
+                    <input value="{{ ox.amount }}" onChange="{{ ox.onAmount }}" type="number" min="0" step="0.01" placeholder="Amount (QAR)" aria-label="Other expense amount" style="width: 130px; background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 8px; padding: 7px 9px; font-size: 13px; outline: none;">
+                    <button onClick="{{ ox.remove }}" aria-label="Remove other expense" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; line-height: 1;">×</button>
+                  </div>
+                </sc-for>
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                  <button onClick="{{ omAddExp }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 8px 16px; font-size: 12.5px; cursor: pointer;">+ Add expense</button>
+                  <span style="font-size: 12.5px; color: #5C554B;">{{ omExpNote }}</span>
                 </div>
                 <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Remarks
                   <input value="{{ omD.remarks }}" onChange="{{ onOmRemarks }}" aria-label="Order remarks" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
@@ -3221,7 +3264,8 @@ class Component extends DCLogic {
       this.setState({ omMissing: false, dbOMs: (data || []).map(o => ({
         id: o.id, date: o.order_date || '', invoice: o.invoice_no || '', source: o.source || '', payMode: o.payment_mode || 'cash',
         total: Number(o.total_amount) || 0, currency: o.currency || 'QAR', rate: Number(o.exchange_rate) || 1, totalOrig: o.total_original != null ? Number(o.total_original) : (Number(o.total_amount) || 0), expected: o.expected_date || '', size: o.package_size || '', status: o.status || 'ordered', remarks: o.remarks || '',
-        itemType: o.item_type || o.package_size || '', received: o.received_date || '', offer: o.offer_code || '', ts: o.created_at ? new Date(o.created_at).getTime() : 0
+        itemType: o.item_type || o.package_size || '', received: o.received_date || '', offer: o.offer_code || '',
+        items: Array.isArray(o.items) ? o.items : [], expenses: Array.isArray(o.expenses) ? o.expenses : [], ts: o.created_at ? new Date(o.created_at).getTime() : 0
       })) });
     } catch (e) { console.warn('Madzo admin: could not load order monitoring', e); }
   }
@@ -5878,9 +5922,17 @@ class Component extends DCLogic {
       .filter(o => !lcs(omFx.remarks) || lcs(o.remarks).includes(lcs(omFx.remarks)))
       .filter(o => !lcs(omFx.offer) || lcs(o.offer).includes(lcs(omFx.offer)));
     const omPager = makePager(omAll.length, 'omPage');
-    const omBlankDraft = () => ({ origId: null, id: this.nextOmId(), date: today, invoice: '', source: '', payMode: 'cash', currency: 'QAR', rate: '', total: '', expected: '', itemType: '', received: '', offer: '', status: 'ordered', remarks: '' });
+    const omBlankItem = () => ({ name: '', code: '', qty: '', buy: '' }), omBlankExp = () => ({ type: '', amount: '' });
+    const omBlankDraft = () => ({ origId: null, id: this.nextOmId(), date: today, invoice: '', source: '', payMode: 'cash', currency: 'QAR', rate: '', total: '', expected: '', itemType: '', received: '', offer: '', status: 'ordered', remarks: '', items: [omBlankItem()], expenses: [omBlankExp()] });
     const omD = this.state.omDraft || { date: '', invoice: '', source: '', payMode: 'cash', currency: 'QAR', rate: '', total: '', expected: '', itemType: '', received: '', offer: '', status: 'ordered', remarks: '' };
     const setOm = (patch) => this.setState(s => ({ omDraft: { ...s.omDraft, ...patch }, omError: '' }));
+    const omItemsD = Array.isArray(omD.items) && omD.items.length ? omD.items : [omBlankItem()];
+    const omExpsD = Array.isArray(omD.expenses) && omD.expenses.length ? omD.expenses : [omBlankExp()];
+    const setOmList = (key, list, i, patch) => { const next = list.slice(); next[i] = { ...next[i], ...patch }; setOm({ [key]: next }); };
+    const omCatalog = prods;
+    const omItemsSum = omItemsD.reduce((a, it) => a + (Number(it.qty) || 0) * (Number(it.buy) || 0), 0);
+    const omItemsCount = omItemsD.filter(it => String(it.name || '').trim()).length;
+    const omExpSum = omExpsD.reduce((a, x) => a + (Number(x.amount) || 0), 0);
     const omDateLabel = (d) => d ? new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '—';
     const omOpen = (this.state.dbOMs || []).filter(o => o.status === 'ordered' || o.status === 'processed' || o.status === 'shipped' || o.status === 'delayed');
     const omLate = omOpen.filter(o => o.expected && o.expected < omToday).length;
@@ -5895,6 +5947,27 @@ class Component extends DCLogic {
       omFormTitle: this.state.omDraft && this.state.omDraft.origId ? 'Edit order ' + this.state.omDraft.invoice : 'New order to track',
       omToggleForm: () => { if (this.state.omDraft) this.setState({ omDraft: null, omError: '' }); else this.setState({ omDraft: omBlankDraft(), omError: '', omMsg: '' }); },
       omD,
+      omBuyHead: 'Buy price (' + (omD.currency || 'QAR') + ')',
+      omNameOptions: omCatalog.map(p => ({ name: p.name, brand: p.brand || '' })),
+      omItems: omItemsD.map((it, i) => ({
+        name: it.name || '', qty: it.qty == null ? '' : it.qty, buy: it.buy == null ? '' : it.buy,
+        lineTotal: (Number(it.qty) || 0) * (Number(it.buy) || 0) ? ((Number(it.qty) || 0) * (Number(it.buy) || 0)).toFixed(2) : '—',
+        onName: (e) => {
+          const v = e.target.value, p = omCatalog.find(x => String(x.name || '').trim().toLowerCase() === String(v).trim().toLowerCase());
+          setOmList('items', omItemsD, i, { name: v, code: p ? p.sku : '', ...(p && !String(it.buy || '').trim() && (omD.currency || 'QAR') === 'QAR' && p.buyPrice ? { buy: String(p.buyPrice) } : {}) });
+        },
+        onQty: (e) => setOmList('items', omItemsD, i, { qty: e.target.value }), onBuy: (e) => setOmList('items', omItemsD, i, { buy: e.target.value }),
+        remove: () => { const next = omItemsD.filter((_, k) => k !== i); setOm({ items: next.length ? next : [omBlankItem()] }); }
+      })),
+      omAddItem: () => setOm({ items: omItemsD.concat([omBlankItem()]) }),
+      omItemsNote: omItemsCount ? omItemsCount + (omItemsCount === 1 ? ' product' : ' products') + ' · ' + omItemsSum.toFixed(2) + ' ' + (omD.currency || 'QAR') : '',
+      omExps: omExpsD.map((x, i) => ({
+        type: x.type || '', amount: x.amount == null ? '' : x.amount,
+        onType: (e) => setOmList('expenses', omExpsD, i, { type: e.target.value }), onAmount: (e) => setOmList('expenses', omExpsD, i, { amount: e.target.value }),
+        remove: () => { const next = omExpsD.filter((_, k) => k !== i); setOm({ expenses: next.length ? next : [omBlankExp()] }); }
+      })),
+      omAddExp: () => setOm({ expenses: omExpsD.concat([omBlankExp()]) }),
+      omExpNote: omExpSum ? 'Other expenses: ' + omExpSum.toFixed(2) + ' QAR' : '',
       omStatusOptions: OM_STATUS.map(s => ({ v: s.v, l: s.l, selected: s.v === omD.status })),
       omStatusFilterOptions: [{ v: 'all', l: 'All statuses' }].concat(OM_STATUS.map(s => ({ v: s.v, l: s.l }))).map(s => ({ ...s, selected: s.v === omSF })),
       omSourceOptions: [...new Set([...(this.state.dbOMs || []).map(o => o.source).filter(Boolean), ...(this.state.dbSuppliers || []).map(s => s.name)])].map(name => ({ name })),
@@ -5927,6 +6000,12 @@ class Component extends DCLogic {
         const sb = window.getSupabase(), isEdit = !!d.origId, id = isEdit ? d.origId : this.nextOmId();
         const row = { order_date: d.date, invoice_no: inv, source: String(d.source || '').trim() || null, payment_mode: d.payMode || 'cash', total_amount: Math.round(total * 100) / 100, expected_date: d.expected || null, status: d.status || 'ordered', remarks: String(d.remarks || '').trim() || null };
         const itemT = String(d.itemType || '').trim(), offerC = String(d.offer || '').trim();
+        const prev = isEdit ? ((this.state.dbOMs || []).find(o => o.id === id) || {}) : {};
+        const itemsC = (d.items || []).filter(it => String(it.name || '').trim()).map(it => ({ code: it.code || '', name: String(it.name).trim(), qty: Number(it.qty) || 0, buy: Number(it.buy) || 0 }));
+        const expsC = (d.expenses || []).filter(x => (Number(x.amount) || 0) > 0).map(x => ({ type: String(x.type || '').trim(), amount: Math.round(Number(x.amount) * 100) / 100 }));
+        if ((d.expenses || []).some(x => Number(x.amount) < 0)) return fail('An expense amount can\'t be negative.');
+        if (itemsC.length || (prev.items || []).length) row.items = itemsC;
+        if (expsC.length || (prev.expenses || []).length) row.expenses = expsC;
         if (foreign) { row.currency = curS; row.exchange_rate = rate; row.total_original = Math.round(totalOrig * 100) / 100; }
         else if (isEdit) { row.currency = 'QAR'; row.exchange_rate = 1; row.total_original = null; }
         if (d.received) row.received_date = d.received; else if (isEdit) row.received_date = null;
@@ -5935,7 +6014,7 @@ class Component extends DCLogic {
         this.setState({ savingOM: true, omError: '' });
         const res = isEdit ? await sb.from('order_monitor').update(row).eq('id', id) : await sb.from('order_monitor').insert({ id, ...row });
         this.setState({ savingOM: false });
-        if (res.error) { if (this.isMissingTable(res.error)) { this.setState({ omMissing: true }); return fail('Run madzo-update-11.sql in Supabase first, then save again.'); } if (/currency|exchange_rate|total_original/.test(res.error.message || '')) return fail('Other currencies need a one-time database update — run madzo-update-16.sql in Supabase, then save again.'); if (/received_date|item_type|offer_code/.test(res.error.message || '')) return fail('Received date, Item type and Offer code need a one-time database update — run madzo-update-14.sql in Supabase, then save again.'); return fail(res.error.message); }
+        if (res.error) { if (this.isMissingTable(res.error)) { this.setState({ omMissing: true }); return fail('Run madzo-update-11.sql in Supabase first, then save again.'); } if (/currency|exchange_rate|total_original/.test(res.error.message || '')) return fail('Other currencies need a one-time database update — run madzo-update-16.sql in Supabase, then save again.'); if (/items|expenses/.test(res.error.message || '')) return fail('Products and other expenses on orders need a one-time database update — run madzo-update-28.sql in Supabase, then save again.'); if (/received_date|item_type|offer_code/.test(res.error.message || '')) return fail('Received date, Item type and Offer code need a one-time database update — run madzo-update-14.sql in Supabase, then save again.'); return fail(res.error.message); }
         this.setState({ omDraft: null, omError: '', omMsg: 'Order ' + inv + (isEdit ? ' updated.' : ' added to monitoring.') });
         this.loadOMs();
       },
@@ -5957,12 +6036,12 @@ class Component extends DCLogic {
       pagedOMs: omAll.slice((omPager.page - 1) * PAGE_SIZE, omPager.page * PAGE_SIZE).map(o => {
         const m = omMeta(o.status), late = !!o.expected && o.expected < omToday && (o.status === 'ordered' || o.status === 'processed' || o.status === 'shipped' || o.status === 'delayed');
         return {
-          id: o.id, invoice: o.invoice, source: o.source || '—', remarks: o.remarks || '—', itemType: o.itemType || '—', offer: o.offer || '—', recvLabel: omDateLabel(o.received), si: String((/(\d+)$/.exec(o.id || '') || [])[1] ? parseInt(/(\d+)$/.exec(o.id)[1], 10) : ''), rowBg: (omAll.indexOf(o) % 2 === 0) ? '#FDF9F4' : '#F7F1FA',
+          id: o.id, invoice: o.invoice, source: o.source || '—', remarks: [o.remarks || '', (o.items || []).length ? (o.items.length + (o.items.length === 1 ? ' product' : ' products')) : '', (o.expenses || []).length ? 'Other expenses ' + o.expenses.reduce((a, x) => a + (Number(x.amount) || 0), 0).toFixed(2) + ' QAR' : ''].filter(Boolean).join(' · ') || '—', itemType: o.itemType || '—', offer: o.offer || '—', recvLabel: omDateLabel(o.received), si: String((/(\d+)$/.exec(o.id || '') || [])[1] ? parseInt(/(\d+)$/.exec(o.id)[1], 10) : ''), rowBg: (omAll.indexOf(o) % 2 === 0) ? '#FDF9F4' : '#F7F1FA',
           dateLabel: omDateLabel(o.date), expLabel: omDateLabel(o.expected) + (late ? ' ⚠' : ''), expColor: late ? '#B03A2E' : '#2E2A26', expWeight: late ? '700' : '400',
           payLabel: ({ cash: 'Cash', card: 'Card', credit: 'Credit' })[o.payMode] || o.payMode, totalLabel: (o.currency && o.currency !== 'QAR') ? Number(o.totalOrig || 0).toFixed(2) + ' ' + o.currency + ' (≈ ' + Number(o.total || 0).toFixed(2) + ' QAR)' : Number(o.total || 0).toFixed(2) + ' QAR',
           status: o.status, badgeBg: m.bg, badgeColor: m.c, statusOptions: OM_STATUS.map(s => ({ v: s.v, l: s.l, selected: s.v === o.status })),
           onStatus: async (e) => { const v = e.target.value; const patch = { status: v }; if (v === 'delivered' && !o.received) patch.received_date = today; let r = await window.getSupabase().from('order_monitor').update(patch).eq('id', o.id); if (r.error && patch.received_date) r = await window.getSupabase().from('order_monitor').update({ status: v }).eq('id', o.id); this.loadOMs(); },
-          edit: () => this.setState({ omError: '', omMsg: '', omDraft: { origId: o.id, id: o.id, date: o.date || today, invoice: o.invoice, source: o.source, payMode: o.payMode || 'cash', currency: o.currency || 'QAR', rate: (o.currency && o.currency !== 'QAR') ? String(o.rate) : '', total: (o.currency && o.currency !== 'QAR') ? String(o.totalOrig) : (o.total ? String(o.total) : ''), expected: o.expected || '', itemType: o.itemType, received: o.received, offer: o.offer, status: o.status, remarks: o.remarks } }, () => window.scrollTo(0, 0)),
+          edit: () => this.setState({ omError: '', omMsg: '', omDraft: { origId: o.id, id: o.id, date: o.date || today, invoice: o.invoice, source: o.source, payMode: o.payMode || 'cash', currency: o.currency || 'QAR', rate: (o.currency && o.currency !== 'QAR') ? String(o.rate) : '', total: (o.currency && o.currency !== 'QAR') ? String(o.totalOrig) : (o.total ? String(o.total) : ''), expected: o.expected || '', itemType: o.itemType, received: o.received, offer: o.offer, status: o.status, remarks: o.remarks, items: (o.items || []).length ? o.items.map(it => ({ name: it.name || '', code: it.code || '', qty: it.qty ? String(it.qty) : '', buy: it.buy ? String(it.buy) : '' })) : [omBlankItem()], expenses: (o.expenses || []).length ? o.expenses.map(x => ({ type: x.type || '', amount: x.amount ? String(x.amount) : '' })) : [omBlankExp()] } }, () => window.scrollTo(0, 0)),
           confirming: this.state.omConfirmDel === o.id, askRemove: () => this.setState({ omConfirmDel: o.id }), cancelRemove: () => this.setState({ omConfirmDel: null }),
           confirmRemove: async () => { const r = await window.getSupabase().from('order_monitor').delete().eq('id', o.id); this.setState({ omConfirmDel: null, omMsg: r.error ? '' : 'Entry for ' + o.invoice + ' deleted.', omError: r.error ? r.error.message : '' }); this.loadOMs(); }
         };
@@ -6013,6 +6092,28 @@ class Component extends DCLogic {
       })(),
       grnItems: grnLines, grnAddLine: () => this.setState(s => ({ grnDraft: { ...s.grnDraft, items: s.grnDraft.items.concat([grnBlank()]) } })),
       grnCodeOptions: prods.map(p => ({ sku: p.sku, label: (p.brand ? p.brand + ' · ' : '') + p.name })), grnNameOptions: prods.map(p => ({ name: p.name, brand: p.brand || '' })),
+      grnHasOrders: (this.state.dbOMs || []).length > 0,
+      grnOrderOpts: [{ v: '', l: '— choose an order —' }].concat((this.state.dbOMs || []).map(o => ({ v: o.id, l: (o.invoice || o.id) + (o.source ? ' — ' + o.source : '') + (o.date ? ' — ' + o.date : '') + ((o.items || []).length ? ' — ' + o.items.length + ' product' + (o.items.length === 1 ? '' : 's') : '') }))).map(x => ({ ...x, selected: x.v === (grnD.orderRef || '') })),
+      grnOrderNote: grnD.orderNote || '',
+      onGrnFromOrder: (e) => {
+        const o = (this.state.dbOMs || []).find(x => x.id === e.target.value);
+        if (!o) { setGrn({ orderRef: '', orderNote: '' }); return; }
+        const cur = o.currency || 'QAR', cat = prods;
+        const lines = (o.items || []).map(it => {
+          const p = cat.find(x => x.sku === it.code) || cat.find(x => String(x.name || '').trim().toLowerCase() === String(it.name || '').trim().toLowerCase());
+          return { ...grnBlank(), code: p ? p.sku : (it.code || ''), name: p ? p.name : (it.name || ''), qty: it.qty ? String(it.qty) : '', buy: it.buy ? String(it.buy) : '', sell: p && p.price != null ? String(p.price) : '', matched: p ? p.sku : '' };
+        });
+        const exps = (o.expenses || []).filter(x => (Number(x.amount) || 0) > 0);
+        const expSum = exps.reduce((a, x) => a + Number(x.amount), 0);
+        const types = [...new Set(exps.map(x => String(x.type || '').trim()).filter(Boolean))].join(' + ');
+        setGrn({
+          orderRef: o.id, supplier: o.source || grnD.supplier, invoice: o.invoice || grnD.invoice, payMode: o.payMode || grnD.payMode,
+          currency: cur, rate: cur === 'QAR' ? '' : String(o.rate || ''),
+          ...(lines.length ? { items: lines } : {}),
+          ...(expSum > 0 ? { exp: String(Math.round(expSum * 100) / 100), expType: types.slice(0, 40) } : {}),
+          orderNote: 'Brought in ' + (o.invoice || o.id) + ': ' + (lines.length ? lines.length + (lines.length === 1 ? ' product' : ' products') : 'no products saved on the order') + (expSum > 0 ? ', other expenses ' + expSum.toFixed(2) + ' QAR' : '') + '. Check quantities, prices and expiry before saving.'
+        });
+      },
       grnAdjCur: grnCur, onGrnAdj: (e) => setGrn({ adj: e.target.value }), onGrnExp: (e) => setGrn({ exp: e.target.value }), onGrnExpType: (e) => setGrn({ expType: e.target.value }),
       grnTotal: grnForeignNow ? (grnTotalNum.toFixed(2) + ' ' + grnCur + (grnRateNum > 0 ? '  ≈  ' + (grnTotalNum * grnRateNum).toFixed(2) + ' QAR' : '  (enter the exchange rate)')) : (grnTotalNum.toFixed(2) + ' QAR'),
       grnForeign: grnForeignNow, grnBuyHead: 'Buy price (' + grnCur + ')', grnTotalHead: 'Total (' + grnCur + ')',

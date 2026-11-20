@@ -64,6 +64,13 @@
 
     <main style="flex: 1; max-width: 980px; margin: 0 auto; width: 100%; padding: 22px 18px 60px; box-sizing: border-box;">
 
+      <!-- View switch -->
+      <div style="display: inline-flex; background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 999px; padding: 4px; gap: 4px; margin-bottom: 18px;">
+        <button onClick="{{ goOverview }}" style="border: none; border-radius: 999px; padding: 7px 16px; font-size: 13px; cursor: pointer; font-weight: 600; background: {{ tabOvBg }}; color: {{ tabOvColor }};">Overview</button>
+        <button onClick="{{ goLedger }}" style="border: none; border-radius: 999px; padding: 7px 16px; font-size: 13px; cursor: pointer; font-weight: 600; background: {{ tabLgBg }}; color: {{ tabLgColor }};">People &amp; companies</button>
+      </div>
+
+      <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
       <!-- Period selector -->
       <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 18px;">
         <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 22px; margin: 0;">Overview</h1>
@@ -184,7 +191,7 @@
                 <button onClick="{{ ex.startEdit }}" title="Edit" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;">Edit</button>
                 <button onClick="{{ ex.askRemove }}" class="madzo-del-btn" aria-label="Delete expense" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px; line-height: 1;">×</button>
                 </sc-if>
-                <sc-if value="{{ ex.fromInvoice }}" hint-placeholder-val="{{ false }}"><span title="Change this amount on the invoice in the admin" style="font-size: 10.5px; color: #B0A697; white-space: nowrap;">from invoice</span></sc-if>
+                <sc-if value="{{ ex.fromInvoice }}" hint-placeholder-val="{{ false }}"><span title="{{ ex.sourceTip }}" style="font-size: 10.5px; color: #B0A697; white-space: nowrap;">{{ ex.sourceLabel }}</span></sc-if>
               </span>
             </div>
             <sc-if value="{{ ex.confirmingDelete }}" hint-placeholder-val="{{ false }}">
@@ -273,6 +280,162 @@
         </div>
       </sc-if>
 
+      </sc-if>
+
+      <!-- ============ PEOPLE & COMPANIES ============ -->
+      <sc-if value="{{ isLedger }}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px;">
+          <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 22px; margin: 0;">People &amp; companies</h1>
+          <button onClick="{{ ledNewAccount }}" style="background: #461610; border: none; color: #FDF9F4; border-radius: 999px; padding: 7px 16px; font-size: 12.5px; cursor: pointer; font-weight: 600;">+ New account</button>
+        </div>
+        <p style="color: #857D72; font-size: 12.5px; margin: 0 0 16px;">A running balance for each person or company: money you give them, expenses they pay for MADZO, and money they hand back. Their expenses also count in the Overview totals.</p>
+
+        <sc-if value="{{ ledMissing }}" hint-placeholder-val="{{ false }}"><div style="background: #FBEFD4; border: 1px solid #EBD9A8; border-radius: 12px; padding: 10px 14px; font-size: 13px; color: #7A5F27; margin-bottom: 14px;">People &amp; companies needs a one-time database update — run <b>madzo-update-29.sql</b> in Supabase (SQL Editor), then reload this page.</div></sc-if>
+        <sc-if value="{{ ledMsg }}" hint-placeholder-val="{{ false }}"><div style="background: #E3F3E8; border: 1px solid #B6DEC3; border-radius: 12px; padding: 10px 14px; font-size: 13px; color: #1F6B3A; margin-bottom: 14px;">{{ ledMsg }}</div></sc-if>
+
+        <!-- account form -->
+        <sc-if value="{{ ledAccFormOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 16px; padding: 18px 20px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px;">
+            <h3 style="font-size: 14px; font-weight: 600; margin: 0;">{{ ledAccFormTitle }}</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px;">
+              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Name *
+                <input value="{{ ledAccD.name }}" onChange="{{ onLedAccName }}" maxlength="80" placeholder="e.g. Shibin, ABC Trading" aria-label="Account name" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;">
+              </label>
+              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Type
+                <select value="{{ ledAccD.kind }}" onChange="{{ onLedAccKind }}" aria-label="Account type" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                  <option value="person">Person</option>
+                  <option value="company">Company</option>
+                </select>
+              </label>
+              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Phone
+                <input value="{{ ledAccD.phone }}" onChange="{{ onLedAccPhone }}" maxlength="30" aria-label="Account phone" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; direction: ltr;">
+              </label>
+            </div>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Notes
+              <input value="{{ ledAccD.notes }}" onChange="{{ onLedAccNotes }}" maxlength="200" placeholder="Role, what this account is for…" aria-label="Account notes" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;">
+            </label>
+            <sc-if value="{{ ledAccErr }}" hint-placeholder-val="{{ false }}"><p style="color: #C0392B; font-size: 13px; margin: 0;">{{ ledAccErr }}</p></sc-if>
+            <span style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button onClick="{{ ledSaveAccount }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 10px 20px; font-size: 13.5px; font-weight: 600; cursor: pointer;">{{ ledSaveAccLabel }}</button>
+              <button onClick="{{ ledCloseAccForm }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 10px 20px; font-size: 13.5px; cursor: pointer;">Cancel</button>
+            </span>
+          </div>
+        </sc-if>
+
+        <!-- account cards -->
+        <sc-if value="{{ ledNoAccounts }}" hint-placeholder-val="{{ false }}"><p style="color: #857D72; text-align: center; padding: 24px 0;">No accounts yet. Add a person or company to start tracking.</p></sc-if>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(230px, 100%), 1fr)); gap: 12px; margin-bottom: 22px;">
+          <sc-for list="{{ ledCards }}" as="ac" hint-placeholder-count="3">
+            <button onClick="{{ ac.open }}" style="text-align: start; background: {{ ac.bg }}; border: 1px solid {{ ac.border }}; border-radius: 16px; padding: 14px 16px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; font-family: inherit;">
+              <span style="display: flex; align-items: center; gap: 8px; width: 100%;">
+                <span style="font-size: 14.5px; font-weight: 600; color: #2E2A26; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ ac.name }}</span>
+                <span style="font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #F1ECE2; color: #857D72; white-space: nowrap;">{{ ac.kindLabel }}</span>
+              </span>
+              <span style="font-size: 18px; font-weight: 700; color: {{ ac.balColor }};">{{ ac.balance }}</span>
+              <span style="font-size: 11.5px; color: #857D72;">{{ ac.balNote }}</span>
+            </button>
+          </sc-for>
+        </div>
+
+        <!-- selected account -->
+        <sc-if value="{{ ledHasSel }}" hint-placeholder-val="{{ false }}">
+          <div style="background: #FDF9F4; border: 1px solid #E7DECF; border-radius: 18px; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 200px;">
+                <div style="font-size: 17px; font-weight: 600; color: #2E2A26;">{{ ledSelName }} <span style="font-size: 12px; font-weight: 400; color: #857D72;">· {{ ledSelKind }}</span></div>
+                <sc-if value="{{ ledSelMeta }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12.5px; color: #857D72; margin-top: 3px;">{{ ledSelMeta }}</div></sc-if>
+              </div>
+              <span style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button onClick="{{ ledEditAccount }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer;">Edit account</button>
+                <button onClick="{{ ledAskDelAccount }}" style="background: none; border: 1px solid #E3B7B1; color: #96352C; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer;">Delete account</button>
+              </span>
+            </div>
+            <sc-if value="{{ ledConfirmAccDel }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #FCECEA; border: 1px solid #F3D9D6; border-radius: 10px; padding: 10px 14px;">
+                <span style="font-size: 13px; color: #96352C;">{{ ledDelAccText }}</span>
+                <span style="display: flex; gap: 8px; margin-inline-start: auto;">
+                  <button onClick="{{ ledDelAccount }}" style="background: #C0392B; color: #fff; border: none; border-radius: 999px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer;">Yes, delete</button>
+                  <button onClick="{{ ledCancelDelAccount }}" style="background: none; border: 1px solid #E3B7B1; color: #96352C; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer;">Cancel</button>
+                </span>
+              </div>
+            </sc-if>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
+              <div style="background: #F7F1E7; border-radius: 12px; padding: 10px 12px;"><div style="font-size: 10.5px; color: #857D72; text-transform: uppercase; letter-spacing: .5px;">Given to them</div><div style="font-size: 15px; font-weight: 600; margin-top: 3px;">{{ ledSelGiven }}</div></div>
+              <div style="background: #F7F1E7; border-radius: 12px; padding: 10px 12px;"><div style="font-size: 10.5px; color: #857D72; text-transform: uppercase; letter-spacing: .5px;">Expenses they paid</div><div style="font-size: 15px; font-weight: 600; margin-top: 3px;">{{ ledSelSpent }}</div></div>
+              <div style="background: #F7F1E7; border-radius: 12px; padding: 10px 12px;"><div style="font-size: 10.5px; color: #857D72; text-transform: uppercase; letter-spacing: .5px;">Returned to MADZO</div><div style="font-size: 15px; font-weight: 600; margin-top: 3px;">{{ ledSelBack }}</div></div>
+              <div style="background: {{ ledSelBalBg }}; border-radius: 12px; padding: 10px 12px;"><div style="font-size: 10.5px; color: #857D72; text-transform: uppercase; letter-spacing: .5px;">Balance</div><div style="font-size: 15px; font-weight: 700; margin-top: 3px; color: {{ ledSelBalColor }};">{{ ledSelBalance }}</div><div style="font-size: 11px; color: #857D72;">{{ ledSelBalNote }}</div></div>
+            </div>
+
+            <!-- entry form -->
+            <div style="background: #F6EFE2; border: 1px solid #E7DECF; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+              <div style="font-size: 13.5px; font-weight: 600; color: #2E2A26;">{{ ledEntryFormTitle }}</div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Date
+                  <input value="{{ ledEnD.date }}" onChange="{{ onLedEnDate }}" type="date" aria-label="Entry date" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Type
+                  <select value="{{ ledEnD.kind }}" onChange="{{ onLedEnKind }}" aria-label="Entry type" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                    <option value="given">Money given to them</option>
+                    <option value="expense">Expense they paid</option>
+                    <option value="returned">Money returned to MADZO</option>
+                  </select>
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Amount (QAR)
+                  <input value="{{ ledEnD.amount }}" onChange="{{ onLedEnAmount }}" type="number" min="0" step="0.01" aria-label="Entry amount" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;">
+                </label>
+                <sc-if value="{{ ledEnIsExpense }}" hint-placeholder-val="{{ false }}">
+                  <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Expense type
+                    <input value="{{ ledEnD.category }}" onChange="{{ onLedEnCategory }}" list="madzo-led-cats" maxlength="40" placeholder="e.g. Delivery" aria-label="Expense type" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;">
+                  </label>
+                </sc-if>
+              </div>
+              <datalist id="madzo-led-cats"><sc-for list="{{ ledCatOptions }}" as="lc" hint-placeholder-count="5"><option value="{{ lc.name }}"></option></sc-for></datalist>
+              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Description
+                <input value="{{ ledEnD.description }}" onChange="{{ onLedEnDescription }}" maxlength="200" placeholder="What was it for?" aria-label="Entry description" style="background: #FDF9F4; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;">
+              </label>
+              <sc-if value="{{ ledEnErr }}" hint-placeholder-val="{{ false }}"><p style="color: #C0392B; font-size: 13px; margin: 0;">{{ ledEnErr }}</p></sc-if>
+              <span style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button onClick="{{ ledSaveEntry }}" style="background: #21B858; color: #fff; border: none; border-radius: 999px; padding: 10px 20px; font-size: 13.5px; font-weight: 600; cursor: pointer;">{{ ledSaveEntryLabel }}</button>
+                <sc-if value="{{ ledEditingEntry }}" hint-placeholder-val="{{ false }}"><button onClick="{{ ledCancelEntryEdit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 10px 20px; font-size: 13.5px; cursor: pointer;">Cancel edit</button></sc-if>
+              </span>
+            </div>
+
+            <!-- entries -->
+            <sc-if value="{{ ledNoEntries }}" hint-placeholder-val="{{ false }}"><p style="color: #857D72; text-align: center; padding: 10px 0; margin: 0;">No entries yet for this account.</p></sc-if>
+            <div style="overflow-x: auto;">
+              <div style="min-width: 600px; display: flex; flex-direction: column; gap: 6px;">
+                <div style="display: grid; grid-template-columns: 96px 150px minmax(140px,1fr) 100px 100px 96px; gap: 10px; align-items: center; padding: 4px 12px; font-size: 10.5px; font-weight: 700; color: #A9A091; text-transform: uppercase; letter-spacing: .5px;">
+                  <span>Date</span><span>Type</span><span>Description</span><span>Amount</span><span>Balance</span><span></span>
+                </div>
+                <sc-for list="{{ ledRows }}" as="le" hint-placeholder-count="4">
+                  <div class="madzo-row" style="background: #fff; border: 1px solid #EDE4D3; border-radius: 12px; display: grid; grid-template-columns: 96px 150px minmax(140px,1fr) 100px 100px 96px; gap: 10px; align-items: center; padding: 10px 12px;">
+                    <span style="font-size: 12px; color: #5C554B;">{{ le.date }}</span>
+                    <span style="font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: {{ le.kindBg }}; color: {{ le.kindColor }}; justify-self: start; white-space: nowrap;">{{ le.kindLabel }}</span>
+                    <span style="font-size: 13px; color: #2E2A26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ le.description }}">{{ le.description }}</span>
+                    <span style="font-size: 13px; font-weight: 600; color: {{ le.amountColor }}; white-space: nowrap;">{{ le.amount }}</span>
+                    <span style="font-size: 12.5px; color: #5C554B; white-space: nowrap;">{{ le.balance }}</span>
+                    <span style="display: flex; gap: 6px; justify-self: end;">
+                      <button onClick="{{ le.edit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;">Edit</button>
+                      <button onClick="{{ le.askRemove }}" class="madzo-del-btn" aria-label="Delete entry" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px; line-height: 1;">×</button>
+                    </span>
+                  </div>
+                  <sc-if value="{{ le.confirming }}" hint-placeholder-val="{{ false }}">
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #FCECEA; border: 1px solid #F3D9D6; border-radius: 10px; padding: 10px 14px;">
+                      <span style="font-size: 13px; color: #96352C;">Delete this entry permanently?</span>
+                      <span style="display: flex; gap: 8px; margin-inline-start: auto;">
+                        <button onClick="{{ le.confirmRemove }}" style="background: #C0392B; color: #fff; border: none; border-radius: 999px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer;">Yes, delete</button>
+                        <button onClick="{{ le.cancelRemove }}" style="background: none; border: 1px solid #E3B7B1; color: #96352C; border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer;">Cancel</button>
+                      </span>
+                    </div>
+                  </sc-if>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </sc-if>
+
     </main>
   </sc-if>
 </div>
@@ -294,6 +457,10 @@ class Component extends DCLogic {
       confirmDeleteExpense: null,
       expensePage: 1, expenseSearch: '',
       salesPage: 1, purchasesPage: 1,
+      view: (typeof location !== 'undefined' && /account/i.test(location.hash || '')) ? 'ledger' : 'overview',
+      dbLedAccounts: [], dbLedEntries: [], ledMissing: false, ledSel: null,
+      ledAccDraft: null, ledAccErr: '', ledEnDraft: null, ledEnErr: '', ledMsg: '', ledSaving: false,
+      ledConfirmDel: null, ledConfirmAccDel: false,
       rev: 0
     };
   }
@@ -311,7 +478,7 @@ class Component extends DCLogic {
   }
 
   async loadAll() {
-    await Promise.all([this.loadOrders(), this.loadPOs(), this.loadGRNs(), this.loadReturns(), this.loadExpenses(), this.loadAccountSettings()]);
+    await Promise.all([this.loadOrders(), this.loadPOs(), this.loadGRNs(), this.loadReturns(), this.loadExpenses(), this.loadAccountSettings(), this.loadLedger()]);
   }
 
   async loadOrders() {
@@ -373,6 +540,27 @@ class Component extends DCLogic {
     } catch (e) { console.warn('Madzo accounts: could not load expenses', e); }
   }
 
+  async loadLedger() {
+    try {
+      const sb = window.getSupabase();
+      const [a, e] = await Promise.all([
+        sb.from('ledger_accounts').select('*').order('name', { ascending: true }),
+        sb.from('ledger_entries').select('*').order('entry_date', { ascending: false })
+      ]);
+      const err = a.error || e.error;
+      if (err) {
+        if (/does not exist|schema cache|42P01|PGRST205/i.test((err.message || '') + ' ' + (err.code || ''))) this.setState({ ledMissing: true });
+        else console.warn('Madzo accounts: could not load people & companies', err);
+        return;
+      }
+      this.setState({
+        ledMissing: false,
+        dbLedAccounts: (a.data || []).map(r => ({ id: r.id, name: r.name || '', kind: r.kind === 'company' ? 'company' : 'person', phone: r.phone || '', notes: r.notes || '' })),
+        dbLedEntries: (e.data || []).map(r => ({ id: r.id, accountId: r.account_id, date: r.entry_date, kind: r.kind, amount: Number(r.amount) || 0, category: r.category || '', description: r.description || '', ts: r.created_at ? new Date(r.created_at).getTime() : 0 }))
+      });
+    } catch (e) { console.warn('Madzo accounts: could not load people & companies', e); }
+  }
+
   async loadAccountSettings() {
     try {
       const sb = window.getSupabase();
@@ -427,6 +615,12 @@ class Component extends DCLogic {
     const isoDay = (ts) => { const d = new Date(ts); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
     const invoiceExpenses = orders.filter(o => o.expense > 0).map(o => ({ id: 'order:' + o.id, date: isoDay(o.ts), category: o.expenseType || 'Sales order', description: 'Order ' + o.id + (o.name ? ' — ' + o.name : ''), amount: o.expense, paymentMethod: '', fromInvoice: true }))
       .concat(pos.filter(g => g.expense > 0).map(g => ({ id: 'grn:' + g.id, date: g.date || isoDay(g.ts), category: g.expenseType || 'GRN', description: g.id + (g.supplier ? ' — ' + g.supplier : ''), amount: g.expense, paymentMethod: '', fromInvoice: true })));
+    // Expenses a person or company paid for MADZO (People & companies) also count.
+    const ledAccName = (id) => ((this.state.dbLedAccounts || []).find(a => a.id === id) || {}).name || 'Account';
+    (this.state.dbLedEntries || []).filter(le => le.kind === 'expense' && le.amount > 0).forEach(le => invoiceExpenses.push({
+      id: 'led:' + le.id, date: le.date, category: le.category || 'Other', description: ledAccName(le.accountId) + (le.description ? ' — ' + le.description : ''),
+      amount: le.amount, paymentMethod: 'Paid by ' + ledAccName(le.accountId), fromInvoice: true, fromAccount: true
+    }));
     const expenses = invoiceExpenses.length ? this.state.dbExpenses.concat(invoiceExpenses).sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))) : this.state.dbExpenses;
 
     const periodOrders = orders.filter(o => inRange(o.ts));
@@ -504,6 +698,7 @@ class Component extends DCLogic {
 
     const pagedExpenses = pagedExpensesRaw.map(e => ({
       date: dfmt(e.date), category: e.category, description: e.description || '—', canEdit: !e.fromInvoice, fromInvoice: !!e.fromInvoice,
+      sourceLabel: e.fromAccount ? 'from account' : 'from invoice', sourceTip: e.fromAccount ? 'Change this in People & companies' : 'Change this amount on the invoice in the admin',
       amountFmt: fmt(e.amount), paymentMethod: e.paymentMethod || '—',
       confirmingDelete: this.state.confirmDeleteExpense === e.id,
       askRemove: () => this.setState({ confirmDeleteExpense: e.id }),
@@ -530,7 +725,137 @@ class Component extends DCLogic {
     const pm3 = pillActive(this.state.period === 'year');
     const pm4 = pillActive(this.state.period === 'all');
 
+    // ---- People & companies ----
+    const LED_KIND = {
+      given: { label: 'Money given', bg: '#E1ECF8', color: '#2A5C99', sign: 1 },
+      expense: { label: 'Expense paid', bg: '#FBEFD4', color: '#9A6E12', sign: -1 },
+      returned: { label: 'Returned to MADZO', bg: '#DDF0E2', color: '#1E8A4C', sign: -1 }
+    };
+    const ledAccounts = this.state.dbLedAccounts || [], ledEntries = this.state.dbLedEntries || [];
+    const ledTotals = (accId) => {
+      const es = ledEntries.filter(x => x.accountId === accId);
+      const sum = (k) => es.filter(x => x.kind === k).reduce((a, x) => a + x.amount, 0);
+      const given = sum('given'), spent = sum('expense'), back = sum('returned');
+      return { given, spent, back, balance: Math.round((given - spent - back) * 100) / 100, count: es.length };
+    };
+    const balText = (b) => b > 0 ? { note: 'Holds MADZO money', color: '#2A5C99', bg: '#E1ECF8' } : b < 0 ? { note: 'MADZO owes them', color: '#B03A2E', bg: '#FCECEA' } : { note: 'Settled', color: '#1E8A4C', bg: '#DDF0E2' };
+    const selAcc = ledAccounts.find(a => a.id === this.state.ledSel) || null;
+    const selT = selAcc ? ledTotals(selAcc.id) : { given: 0, spent: 0, back: 0, balance: 0, count: 0 };
+    const selBT = balText(selT.balance);
+    const blankEntry = () => ({ origId: null, date: new Date().toISOString().slice(0, 10), kind: 'expense', amount: '', category: '', description: '' });
+    const enD = this.state.ledEnDraft || blankEntry();
+    const accD = this.state.ledAccDraft || { name: '', kind: 'person', phone: '', notes: '' };
+    const setAcc = (k) => (e) => { const v = e.target.value; this.setState(s => ({ ledAccDraft: { ...(s.ledAccDraft || {}), [k]: v }, ledAccErr: '' })); };
+    const setEn = (k) => (e) => { const v = e.target.value; this.setState(s => ({ ledEnDraft: { ...(s.ledEnDraft || blankEntry()), [k]: v }, ledEnErr: '' })); };
+    const ledErrMsg = (err) => /does not exist|schema cache|42P01|PGRST205/i.test((err.message || '') + ' ' + (err.code || '')) ? 'Run madzo-update-29.sql in Supabase first, then try again.' : (err.message || 'Could not save.');
+    // running balance per entry, oldest first
+    const selEntries = selAcc ? ledEntries.filter(x => x.accountId === selAcc.id).slice().sort((a, b) => String(a.date).localeCompare(String(b.date)) || (a.ts - b.ts)) : [];
+    let runBal = 0;
+    const selRows = selEntries.map(x => { runBal += (LED_KIND[x.kind] || LED_KIND.given).sign * x.amount; return { x, bal: Math.round(runBal * 100) / 100 }; }).reverse();
+    const ledProps = {
+      isOverview: this.state.view !== 'ledger', isLedger: this.state.view === 'ledger',
+      goOverview: () => { this.setState({ view: 'overview' }); try { history.replaceState(null, '', location.pathname); } catch (e) {} },
+      goLedger: () => { this.setState({ view: 'ledger' }); try { history.replaceState(null, '', location.pathname + '#account'); } catch (e) {} },
+      tabOvBg: this.state.view !== 'ledger' ? '#461610' : 'transparent', tabOvColor: this.state.view !== 'ledger' ? '#FDF9F4' : '#857D72',
+      tabLgBg: this.state.view === 'ledger' ? '#461610' : 'transparent', tabLgColor: this.state.view === 'ledger' ? '#FDF9F4' : '#857D72',
+      ledMissing: this.state.ledMissing, ledMsg: this.state.ledMsg,
+      ledNewAccount: () => this.setState({ ledAccDraft: { origId: null, name: '', kind: 'person', phone: '', notes: '' }, ledAccErr: '', ledMsg: '' }),
+      ledAccFormOpen: !!this.state.ledAccDraft, ledAccD: accD,
+      ledAccFormTitle: accD.origId ? 'Edit account' : 'New account',
+      ledSaveAccLabel: this.state.ledSaving ? 'Saving…' : (accD.origId ? 'Save changes' : 'Create account'),
+      onLedAccName: setAcc('name'), onLedAccKind: setAcc('kind'), onLedAccPhone: setAcc('phone'), onLedAccNotes: setAcc('notes'),
+      ledAccErr: this.state.ledAccErr,
+      ledCloseAccForm: () => this.setState({ ledAccDraft: null, ledAccErr: '' }),
+      ledSaveAccount: async () => {
+        if (this.state.ledSaving) return;
+        const d = this.state.ledAccDraft || {}, name = String(d.name || '').trim();
+        if (!name) return this.setState({ ledAccErr: 'Please enter a name.' });
+        if (ledAccounts.some(a => a.id !== d.origId && a.name.trim().toLowerCase() === name.toLowerCase())) return this.setState({ ledAccErr: 'There is already an account called ' + name + '.' });
+        const row = { name, kind: d.kind === 'company' ? 'company' : 'person', phone: String(d.phone || '').trim() || null, notes: String(d.notes || '').trim() || null };
+        this.setState({ ledSaving: true });
+        const sb = window.getSupabase();
+        const res = d.origId ? await sb.from('ledger_accounts').update(row).eq('id', d.origId).select() : await sb.from('ledger_accounts').insert(row).select();
+        this.setState({ ledSaving: false });
+        if (res.error) return this.setState({ ledAccErr: ledErrMsg(res.error) });
+        const saved = (res.data && res.data[0]) || null;
+        this.setState({ ledAccDraft: null, ledMsg: (d.origId ? 'Account updated: ' : 'Account created: ') + name, ...(saved ? { ledSel: saved.id } : {}) });
+        this.loadLedger();
+      },
+      ledNoAccounts: !this.state.ledMissing && ledAccounts.length === 0,
+      ledCards: ledAccounts.map(a => {
+        const t = ledTotals(a.id), bt = balText(t.balance), sel = a.id === this.state.ledSel;
+        return {
+          name: a.name, kindLabel: a.kind === 'company' ? 'Company' : 'Person',
+          balance: fmt(Math.abs(t.balance)), balColor: bt.color, balNote: bt.note + ' · ' + t.count + (t.count === 1 ? ' entry' : ' entries'),
+          bg: sel ? '#F6EFE2' : '#FDF9F4', border: sel ? '#461610' : '#E7DECF',
+          open: () => this.setState({ ledSel: a.id, ledEnDraft: null, ledEnErr: '', ledConfirmDel: null, ledConfirmAccDel: false, ledMsg: '' })
+        };
+      }),
+      ledHasSel: !!selAcc,
+      ledSelName: selAcc ? selAcc.name : '', ledSelKind: selAcc && selAcc.kind === 'company' ? 'Company' : 'Person',
+      ledSelMeta: selAcc ? [selAcc.phone, selAcc.notes].filter(Boolean).join(' · ') : '',
+      ledSelGiven: fmt(selT.given), ledSelSpent: fmt(selT.spent), ledSelBack: fmt(selT.back),
+      ledSelBalance: fmt(Math.abs(selT.balance)), ledSelBalNote: selBT.note, ledSelBalColor: selBT.color, ledSelBalBg: selBT.bg,
+      ledEditAccount: () => selAcc && this.setState({ ledAccDraft: { origId: selAcc.id, name: selAcc.name, kind: selAcc.kind, phone: selAcc.phone, notes: selAcc.notes }, ledAccErr: '', ledMsg: '' }, () => window.scrollTo(0, 0)),
+      ledAskDelAccount: () => this.setState({ ledConfirmAccDel: true }),
+      ledCancelDelAccount: () => this.setState({ ledConfirmAccDel: false }),
+      ledConfirmAccDel: this.state.ledConfirmAccDel,
+      ledDelAccText: selT.count ? 'Delete ' + (selAcc ? selAcc.name : '') + ' and all ' + selT.count + ' of its entries? Their expenses will also leave the Overview totals.' : 'Delete ' + (selAcc ? selAcc.name : '') + '?',
+      ledDelAccount: async () => {
+        if (!selAcc) return;
+        const sb = window.getSupabase();
+        const r1 = await sb.from('ledger_entries').delete().eq('account_id', selAcc.id);
+        const r2 = r1.error ? r1 : await sb.from('ledger_accounts').delete().eq('id', selAcc.id);
+        if (r2.error) return this.setState({ ledConfirmAccDel: false, ledMsg: '', ledEnErr: ledErrMsg(r2.error) });
+        this.setState({ ledConfirmAccDel: false, ledSel: null, ledMsg: 'Deleted ' + selAcc.name + '.' });
+        this.loadLedger();
+      },
+      ledEnD: enD, ledEnIsExpense: enD.kind === 'expense',
+      ledEntryFormTitle: enD.origId ? 'Edit entry' : 'Add an entry',
+      ledEditingEntry: !!enD.origId,
+      ledSaveEntryLabel: this.state.ledSaving ? 'Saving…' : (enD.origId ? 'Save changes' : 'Add entry'),
+      onLedEnDate: setEn('date'), onLedEnKind: setEn('kind'), onLedEnAmount: setEn('amount'), onLedEnCategory: setEn('category'), onLedEnDescription: setEn('description'),
+      ledCatOptions: [...new Set(['Delivery', 'Transport', 'Fuel', 'Supplies', 'Marketing', 'Salaries', 'Rent', 'Utilities', 'Maintenance', 'Other'].concat(ledEntries.map(x => x.category).filter(Boolean)))].map(name => ({ name })),
+      ledEnErr: this.state.ledEnErr,
+      ledCancelEntryEdit: () => this.setState({ ledEnDraft: null, ledEnErr: '' }),
+      ledSaveEntry: async () => {
+        if (this.state.ledSaving || !selAcc) return;
+        const d = this.state.ledEnDraft || blankEntry();
+        const amount = Math.round((Number(d.amount) || 0) * 100) / 100;
+        if (!d.date) return this.setState({ ledEnErr: 'Please set the date.' });
+        if (!(amount > 0)) return this.setState({ ledEnErr: 'Enter an amount greater than 0.' });
+        const kind = ['given', 'expense', 'returned'].indexOf(d.kind) >= 0 ? d.kind : 'expense';
+        const row = { account_id: selAcc.id, entry_date: d.date, kind, amount, category: kind === 'expense' ? (String(d.category || '').trim() || 'Other') : null, description: String(d.description || '').trim() || null };
+        this.setState({ ledSaving: true });
+        const sb = window.getSupabase();
+        const res = d.origId ? await sb.from('ledger_entries').update(row).eq('id', d.origId) : await sb.from('ledger_entries').insert(row);
+        this.setState({ ledSaving: false });
+        if (res.error) return this.setState({ ledEnErr: ledErrMsg(res.error) });
+        this.setState({ ledEnDraft: null, ledEnErr: '', ledMsg: (d.origId ? 'Entry updated for ' : 'Entry added for ') + selAcc.name + '.' });
+        this.loadLedger();
+      },
+      ledNoEntries: !!selAcc && selRows.length === 0,
+      ledRows: selRows.map(({ x, bal }) => {
+        const k = LED_KIND[x.kind] || LED_KIND.given, bt = balText(bal);
+        return {
+          date: dfmt(x.date), kindLabel: k.label, kindBg: k.bg, kindColor: k.color,
+          description: (x.kind === 'expense' && x.category ? x.category + (x.description ? ' — ' : '') : '') + (x.description || (x.kind === 'expense' && x.category ? '' : '—')),
+          amount: (k.sign > 0 ? '+' : '−') + fmt(x.amount), amountColor: k.sign > 0 ? '#2A5C99' : (x.kind === 'expense' ? '#9A6E12' : '#1E8A4C'),
+          balance: fmt(Math.abs(bal)) + (bal < 0 ? ' owed' : ''),
+          edit: () => this.setState({ ledEnDraft: { origId: x.id, date: x.date, kind: x.kind, amount: String(x.amount), category: x.category, description: x.description }, ledEnErr: '', ledMsg: '' }),
+          confirming: this.state.ledConfirmDel === x.id,
+          askRemove: () => this.setState({ ledConfirmDel: x.id }), cancelRemove: () => this.setState({ ledConfirmDel: null }),
+          confirmRemove: async () => {
+            const r = await window.getSupabase().from('ledger_entries').delete().eq('id', x.id);
+            this.setState({ ledConfirmDel: null, ...(r.error ? { ledEnErr: ledErrMsg(r.error) } : { ledMsg: 'Entry deleted.' }) });
+            this.loadLedger();
+          }
+        };
+      })
+    };
+
     return {
+      ...ledProps,
       isLogin: this.state.authChecked && !authed,
       isMain: this.state.authChecked && authed,
       email: this.state.email, onEmail: (e) => this.setState({ email: e.target.value, loginError: false }),

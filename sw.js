@@ -1,8 +1,8 @@
 // MADZO service worker — installable app + works offline.
 // Pages and scripts are saved on the device (always fetched fresh first when online);
 // data is handled separately by offline-sync.js (saved copy + queued changes).
-const SHELL = 'madzo-shell-v2';
-const RUNTIME = 'madzo-rt-v2';
+const SHELL = 'madzo-shell-v3';
+const RUNTIME = 'madzo-rt-v3';
 const OFFLINE = 'offline.html';
 const PRECACHE = [OFFLINE, 'index.html', 'admin.html', 'accounts.html', 'support.js', 'image-slot.js',
   'supabase-config.js', 'offline-sync.js', 'manifest.webmanifest', 'admin.webmanifest', 'icon-192.png', 'icon-512.png'];
@@ -31,6 +31,8 @@ function staleWhileRevalidate(r) {
 self.addEventListener('fetch', (e) => {
   const r = e.request;
   if (r.method !== 'GET') return;
+  // videos are streamed in parts (Range requests) — let the browser handle them directly
+  if (r.headers.has('range') || /\.(mp4|webm|mov)(\?|$)/i.test(r.url)) return;
   const u = new URL(r.url);
 
   if (r.mode === 'navigate') {

@@ -2062,11 +2062,17 @@
         <section data-screen-label="Image Manager">
           <h1 style="font-family: Marcellus, serif; font-weight: 400; font-size: 24px; margin: 0 0 6px;">Store images</h1>
           <p style="color: #857D72; font-size: 13px; margin: 0 0 20px;">Click any image to upload a new photo — the storefront uses the same image instantly.</p>
-          <h2 style="font-size: 15px; font-weight: 600; margin: 0 0 12px;">Hero banner</h2>
+          <h2 style="font-size: 15px; font-weight: 600; margin: 0 0 4px;">Hero banner</h2>
+          <p style="color: #857D72; font-size: 12.5px; margin: 0 0 12px;">A photo, or an MP4 video for an animated banner. Use MP4 instead of GIF — a GIF is many times bigger and every visitor downloads it.</p>
           <div style="position: relative; width: 100%; height: 200px; margin-bottom: 24px;">
-            <image-slot id="v3-hero" src="{{ imgHero }}" shape="rounded" radius="14" placeholder="Click to upload hero banner" style="width: 100%; height: 100%; display: block; background: #E4D7C4;"></image-slot>
-            <label style="position: absolute; inset: 0; cursor: pointer;" title="Click to upload photo">
-              <input type="file" accept="image/*" onChange="{{ onUpHero }}" style="display: none;">
+            <sc-if value="{{ heroIsVideo }}" hint-placeholder-val="{{ false }}">
+              <video src="{{ imgHero }}" autoplay="" muted="" loop="" playsinline="" style="width: 100%; height: 100%; display: block; object-fit: cover; border-radius: 14px; background: #E4D7C4;"></video>
+            </sc-if>
+            <sc-if value="{{ heroIsImage }}" hint-placeholder-val="{{ true }}">
+              <image-slot id="v3-hero" src="{{ imgHero }}" shape="rounded" radius="14" placeholder="Click to upload hero banner" style="width: 100%; height: 100%; display: block; background: #E4D7C4;"></image-slot>
+            </sc-if>
+            <label style="position: absolute; inset: 0; cursor: pointer;" title="Click to upload a photo or an MP4 video">
+              <input type="file" accept="image/*,video/mp4,video/webm" onChange="{{ onUpHero }}" style="display: none;">
             </label>
           </div>
           <h2 style="font-size: 15px; font-weight: 600; margin: 0 0 12px;">Category circles <span style="font-weight: 400; color: #A9A091; font-size: 12.5px;">— only categories switched on for the Home page (Products → ✎ Edit categories)</span></h2>
@@ -3855,13 +3861,14 @@ class Component extends DCLogic {
   }
 
   // Checks the file and shrinks anything over 1000px, so a phone photo never slows the storefront down.
-  async prepareBrandImage(file) {
+  async prepareBrandImage(file, maxSide) {
     if (!/^image\//.test(file.type || '')) throw new Error('“' + file.name + '” is not a picture.');
     if (file.size > 10 * 1024 * 1024) throw new Error('“' + file.name + '” is bigger than 10 MB — please use a smaller file.');
     const extOf = (t) => ({ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif', 'image/svg+xml': 'svg' })[t] || ((file.name.split('.').pop() || 'jpg').toLowerCase());
     if (/svg/.test(file.type)) return { blob: file, type: file.type, ext: 'svg' };
     const img = await this.decodeImage(file);
-    const MAX = 1000;
+    const MAX = maxSide || 1000;
+    if (/gif/.test(file.type)) return { blob: file, type: file.type, ext: 'gif' };   // canvas would drop the animation
     if (img.naturalWidth <= MAX && img.naturalHeight <= MAX) return { blob: file, type: file.type, ext: extOf(file.type) };
     const ratio = MAX / Math.max(img.naturalWidth, img.naturalHeight);
     const canvas = document.createElement('canvas'); canvas.width = Math.round(img.naturalWidth * ratio); canvas.height = Math.round(img.naturalHeight * ratio);
@@ -3876,7 +3883,7 @@ class Component extends DCLogic {
   async uploadBrandBlob(img) {
     const sb = window.getSupabase();
     const path = 'brand-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6) + '.' + img.ext;
-    const { error: upErr } = await sb.storage.from('product-images').upload(path, img.blob, { upsert: true, contentType: img.type });
+    const { error: upErr } = await sb.storage.from('product-images').upload(path, img.blob, { upsert: true, contentType: img.type, cacheControl: '31536000' });
     if (upErr) throw upErr;
     const { data: pub } = sb.storage.from('product-images').getPublicUrl(path);
     const url = pub && pub.publicUrl;
@@ -3977,9 +3984,15 @@ class Component extends DCLogic {
   async uploadSiteImage(key, file) {
     try {
       const sb = window.getSupabase();
-      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-      const path = 'site-' + key + '-' + Date.now() + '.' + ext;
-      const { error: upErr } = await sb.storage.from('product-images').upload(path, file, { upsert: true });
+      // Every storefront visit downloads these, and Supabase counts each download against the plan's
+      // data allowance — so keep them small: photos are shrunk, big GIFs must be uploaded as video.
+      const isVideo = /^video\//.test(file.type || '');
+      if (isVideo && key !== 'hero') throw new Error('Videos can only be used for the hero banner.');
+      if (isVideo && file.size > 8 * 1024 * 1024) throw new Error('This video is ' + (file.size / 1048576).toFixed(1) + ' MB — please keep it under 8 MB.');
+      if (/gif/.test(file.type || '') && file.size > 3 * 1024 * 1024) throw new Error('This GIF is ' + (file.size / 1048576).toFixed(1) + ' MB. Every visitor downloads it, which quickly uses up the Supabase data allowance — please upload it as an MP4 video instead (much smaller, same animation).');
+      const img = isVideo ? { blob: file, type: file.type, ext: (file.name.split('.').pop() || 'mp4').toLowerCase() } : await this.prepareBrandImage(file, key === 'hero' ? 1600 : 1000);
+      const path = 'site-' + key + '-' + Date.now() + '.' + img.ext;
+      const { error: upErr } = await sb.storage.from('product-images').upload(path, img.blob, { upsert: true, contentType: img.type, cacheControl: '31536000' });
       if (upErr) throw upErr;
       const { data: pub } = sb.storage.from('product-images').getPublicUrl(path);
       const url = pub && pub.publicUrl;
@@ -4790,9 +4803,9 @@ class Component extends DCLogic {
   async uploadProductImage(sku, file) {
     try {
       const sb = window.getSupabase();
-      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-      const path = sku + '-' + Date.now() + '.' + ext;
-      const { error: upErr } = await sb.storage.from('product-images').upload(path, file, { upsert: true });
+      const img = await this.prepareBrandImage(file, 1000);   // phone photos are shrunk to 1000px before upload
+      const path = sku + '-' + Date.now() + '.' + img.ext;
+      const { error: upErr } = await sb.storage.from('product-images').upload(path, img.blob, { upsert: true, contentType: img.type, cacheControl: '31536000' });
       if (upErr) throw upErr;
       const { data: pub } = sb.storage.from('product-images').getPublicUrl(path);
       const url = pub && pub.publicUrl;
@@ -7069,6 +7082,7 @@ class Component extends DCLogic {
         return rows;
       })(),
       imgHero: si['hero'] || 'assets/samples/hero.jpg',
+      heroIsVideo: /\.(mp4|webm|mov)(\?|#|$)/i.test(si['hero'] || ''), heroIsImage: !/\.(mp4|webm|mov)(\?|#|$)/i.test(si['hero'] || ''),
       onUpHero: siteUploader('hero'),
       catSlots, ...this.brandBindings(),
 

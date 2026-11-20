@@ -241,7 +241,12 @@
       <!-- Hero banner -->
       <div style="max-width: 1100px; margin: 18px auto 0; padding: 0 0;">
         <div style="position: relative; overflow: hidden;">
-          <image-slot id="v3-hero" src="{{ imgHero }}" shape="rect" placeholder="Drop a wide banner photo (model / hero shot)" style="width: 100%; height: clamp(220px, 38vw, 420px); display: block; background: #F1ECE2;"></image-slot>
+          <sc-if value="{{ heroIsVideo }}" hint-placeholder-val="{{ false }}">
+            <video class="madzo-hero-video" src="{{ imgHero }}" autoplay="" muted="" loop="" playsinline="" preload="auto" aria-hidden="true" style="width: 100%; height: clamp(220px, 38vw, 420px); display: block; object-fit: cover; background: #F1ECE2;"></video>
+          </sc-if>
+          <sc-if value="{{ heroIsImage }}" hint-placeholder-val="{{ true }}">
+            <image-slot id="v3-hero" src="{{ imgHero }}" shape="rect" placeholder="Drop a wide banner photo (model / hero shot)" style="width: 100%; height: clamp(220px, 38vw, 420px); display: block; background: #F1ECE2;"></image-slot>
+          </sc-if>
         </div>
       </div>
 
@@ -738,6 +743,14 @@ class Component extends DCLogic {
   componentWillUnmount() { if (this._brandRaf) cancelAnimationFrame(this._brandRaf); this._brandRaf = 0; }
 
   componentDidMount() {
+    // The hero video must be muted to autoplay on phones; set it in code as well as in the markup.
+    if (!window.__madzoHeroVideo) {
+      window.__madzoHeroVideo = true;
+      document.addEventListener('loadedmetadata', (e) => {
+        const v = e.target;
+        if (v && v.classList && v.classList.contains('madzo-hero-video')) { v.muted = true; v.playsInline = true; const p = v.play(); if (p && p.catch) p.catch(() => {}); }
+      }, true);
+    }
     this.startBrandSlider();
     this.loadBrands();
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && (this.state.megaOpen || this.state.menuOpen)) this.setState({ megaOpen: false, menuOpen: false }); });
@@ -1160,6 +1173,7 @@ class Component extends DCLogic {
       brandPrev: () => this.brandNudge(-1),
       brandNext: () => this.brandNudge(1),
       imgHero: sImg('hero'),
+      heroIsVideo: /\.(mp4|webm|mov)(\?|#|$)/i.test(sImg('hero')), heroIsImage: !/\.(mp4|webm|mov)(\?|#|$)/i.test(sImg('hero')),
       imgCatNew: sImg('cat-new'),
       // "Others": the Home-page doorway to everything that isn't a circle. Opens the All categories panel,
       // landing on the first category that is not shown on the front (or the usual first one if all are).

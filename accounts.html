@@ -17,6 +17,9 @@
   <script src="offline-sync.js"></script>
   <script src="supabase-config.js"></script>
   <style>
+    /* no up/down arrows on number boxes (and the mouse wheel doesn't change the amount) */
+    input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; appearance: textfield; }
     html, body { margin: 0; padding: 0; background: #F1ECE2; }
     * { box-sizing: border-box; }
     input, textarea, select, button { font-family: inherit; }
@@ -960,5 +963,6 @@ class Component extends DCLogic {
   }
 }
 </script>
+<script>document.addEventListener('wheel', function (e) { var t = e.target; if (t && t.type === 'number' && document.activeElement === t) t.blur(); }, { passive: true });</script>
 </body>
 </html>

@@ -154,6 +154,13 @@
             <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Amount (QAR)
               <input value="{{ newExpense.amount }}" onChange="{{ onExAmount }}" type="number" min="0" step="0.01" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
             </label>
+            <sc-if value="{{ hasLedAccounts }}" hint-placeholder-val="{{ false }}">
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Paid by
+              <select onChange="{{ onExPaidBy }}" aria-label="Expense paid by" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;">
+                <sc-for list="{{ exPaidByOpts }}" as="pb" hint-placeholder-count="2"><option value="{{ pb.v }}" selected="{{ pb.selected }}">{{ pb.l }}</option></sc-for>
+              </select>
+            </label>
+            </sc-if>
             <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #857D72;">Payment method
               <input value="{{ newExpense.paymentMethod }}" onChange="{{ onExPaymentMethod }}" placeholder="Cash, bank transfer…" style="background: #F1ECE2; border: 1px solid #D8CCBC; border-radius: 10px; padding: 9px 12px; font-size: 14px; outline: none;" style-focus="border-color: #461610;">
             </label>
@@ -362,7 +369,7 @@
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
               <div style="background: #F7F1E7; border-radius: 12px; padding: 10px 12px;"><div style="font-size: 10.5px; color: #857D72; text-transform: uppercase; letter-spacing: .5px;">Given to them</div><div style="font-size: 15px; font-weight: 600; margin-top: 3px;">{{ ledSelGiven }}</div></div>
-              <div style="background: #F7F1E7; border-radius: 12px; padding: 10px 12px;"><div style="font-size: 10.5px; color: #857D72; text-transform: uppercase; letter-spacing: .5px;">Expenses they paid</div><div style="font-size: 15px; font-weight: 600; margin-top: 3px;">{{ ledSelSpent }}</div></div>
+              <div style="background: #F7F1E7; border-radius: 12px; padding: 10px 12px;"><div style="font-size: 10.5px; color: #857D72; text-transform: uppercase; letter-spacing: .5px;">Expenses &amp; purchases they paid</div><div style="font-size: 15px; font-weight: 600; margin-top: 3px;">{{ ledSelSpent }}</div></div>
               <div style="background: #F7F1E7; border-radius: 12px; padding: 10px 12px;"><div style="font-size: 10.5px; color: #857D72; text-transform: uppercase; letter-spacing: .5px;">Returned to MADZO</div><div style="font-size: 15px; font-weight: 600; margin-top: 3px;">{{ ledSelBack }}</div></div>
               <div style="background: {{ ledSelBalBg }}; border-radius: 12px; padding: 10px 12px;"><div style="font-size: 10.5px; color: #857D72; text-transform: uppercase; letter-spacing: .5px;">Balance</div><div style="font-size: 15px; font-weight: 700; margin-top: 3px; color: {{ ledSelBalColor }};">{{ ledSelBalance }}</div><div style="font-size: 11px; color: #857D72;">{{ ledSelBalNote }}</div></div>
             </div>
@@ -416,8 +423,11 @@
                     <span style="font-size: 13px; font-weight: 600; color: {{ le.amountColor }}; white-space: nowrap;">{{ le.amount }}</span>
                     <span style="font-size: 12.5px; color: #5C554B; white-space: nowrap;">{{ le.balance }}</span>
                     <span style="display: flex; gap: 6px; justify-self: end;">
+<sc-if value="{{ le.canEdit }}" hint-placeholder-val="{{ true }}">
                       <button onClick="{{ le.edit }}" style="background: none; border: 1px solid #D8CCBC; color: #857D72; border-radius: 999px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;">Edit</button>
                       <button onClick="{{ le.askRemove }}" class="madzo-del-btn" aria-label="Delete entry" style="background: none; border: none; color: #B0A697; cursor: pointer; font-size: 18px; padding: 0 2px; line-height: 1;">×</button>
+                      </sc-if>
+                      <sc-if value="{{ le.linkedNote }}" hint-placeholder-val="{{ false }}"><span style="font-size: 10.5px; color: #B0A697; white-space: nowrap;" title="Change it there">{{ le.linkedNote }}</span></sc-if>
                     </span>
                   </div>
                   <sc-if value="{{ le.confirming }}" hint-placeholder-val="{{ false }}">
@@ -452,7 +462,7 @@ class Component extends DCLogic {
       dbOrders: [], dbPOs: [], dbGRNs: [], dbExpenses: [], dbReturns: [],
       openingBalance: 0, openingBalanceInput: '0', savingOB: false,
       showExpenseForm: false, expenseFormMode: 'new', editingExpenseId: null,
-      newExpense: { date: '', category: 'Other', description: '', amount: '', paymentMethod: '' },
+      newExpense: { date: '', category: 'Other', description: '', amount: '', paymentMethod: '', paidBy: '' },
       expenseError: '', savingExpense: false,
       confirmDeleteExpense: null,
       expensePage: 1, expenseSearch: '',
@@ -523,7 +533,7 @@ class Component extends DCLogic {
         id: g.id, ts: g.grn_date ? new Date(g.grn_date + 'T12:00:00').getTime() : new Date(g.created_at).getTime(), date: g.grn_date,
         supplier: g.supplier_name || '', status: 'received', kind: 'GRN',
         // cash / card are paid at the time of receiving; credit stays unpaid
-        paymentStatus: g.payment_mode === 'credit' ? 'pending' : 'paid', netAmount: Number(g.total_amount) || 0, expense: Number(g.expense) || 0, expenseType: g.expense_type || ''
+        paymentStatus: g.payment_mode === 'credit' ? 'pending' : 'paid', netAmount: Number(g.total_amount) || 0, expense: Number(g.expense) || 0, expenseType: g.expense_type || '', paidBy: g.paid_by_account || '', invoice: g.invoice_no || ''
       })) });
     } catch (e) { console.warn('Madzo accounts: could not load GRN entries', e); }
   }
@@ -535,7 +545,7 @@ class Component extends DCLogic {
       if (error) throw error;
       this.setState({ dbExpenses: (data || []).map(e => ({
         id: e.id, date: e.expense_date, category: e.category || 'Other',
-        description: e.description || '', amount: e.amount || 0, paymentMethod: e.payment_method || ''
+        description: e.description || '', amount: e.amount || 0, paymentMethod: e.payment_method || '', paidBy: e.paid_by_account || ''
       })) });
     } catch (e) { console.warn('Madzo accounts: could not load expenses', e); }
   }
@@ -699,7 +709,7 @@ class Component extends DCLogic {
     const pagedExpenses = pagedExpensesRaw.map(e => ({
       date: dfmt(e.date), category: e.category, description: e.description || '—', canEdit: !e.fromInvoice, fromInvoice: !!e.fromInvoice,
       sourceLabel: e.fromAccount ? 'from account' : 'from invoice', sourceTip: e.fromAccount ? 'Change this in People & companies' : 'Change this amount on the invoice in the admin',
-      amountFmt: fmt(e.amount), paymentMethod: e.paymentMethod || '—',
+      amountFmt: fmt(e.amount), paymentMethod: [e.paidBy ? 'Paid by ' + (((this.state.dbLedAccounts || []).find(x => x.id === e.paidBy) || {}).name || '—') : '', e.paymentMethod || ''].filter(Boolean).join(' · ') || '—',
       confirmingDelete: this.state.confirmDeleteExpense === e.id,
       askRemove: () => this.setState({ confirmDeleteExpense: e.id }),
       cancelRemove: () => this.setState({ confirmDeleteExpense: null }),
@@ -712,7 +722,7 @@ class Component extends DCLogic {
       },
       startEdit: () => this.setState({
         showExpenseForm: true, expenseFormMode: 'edit', editingExpenseId: e.id, expenseError: '',
-        newExpense: { date: e.date, category: e.category, description: e.description, amount: e.amount, paymentMethod: e.paymentMethod }
+        newExpense: { date: e.date, category: e.category, description: e.description, amount: e.amount, paymentMethod: e.paymentMethod, paidBy: e.paidBy || '' }
       })
     }));
 
@@ -729,13 +739,18 @@ class Component extends DCLogic {
     const LED_KIND = {
       given: { label: 'Money given', bg: '#E1ECF8', color: '#2A5C99', sign: 1 },
       expense: { label: 'Expense paid', bg: '#FBEFD4', color: '#9A6E12', sign: -1 },
-      returned: { label: 'Returned to MADZO', bg: '#DDF0E2', color: '#1E8A4C', sign: -1 }
+      returned: { label: 'Returned to MADZO', bg: '#DDF0E2', color: '#1E8A4C', sign: -1 },
+      purchase: { label: 'Purchase paid', bg: '#EEE6F6', color: '#6B3FA0', sign: -1 }
     };
-    const ledAccounts = this.state.dbLedAccounts || [], ledEntries = this.state.dbLedEntries || [];
+    const ledAccounts = this.state.dbLedAccounts || [];
+    // entries typed in the account + expenses and GRNs marked "Paid by" this account (read-only here)
+    const ledEntries = (this.state.dbLedEntries || [])
+      .concat((this.state.dbExpenses || []).filter(x => x.paidBy && x.amount > 0).map(x => ({ id: 'exp:' + x.id, accountId: x.paidBy, date: x.date, kind: 'expense', amount: Number(x.amount) || 0, category: x.category || '', description: x.description || '', ts: 0, linked: 'Expenses' })))
+      .concat((this.state.dbGRNs || []).filter(g => g.paidBy && g.netAmount > 0).map(g => ({ id: 'grn:' + g.id, accountId: g.paidBy, date: g.date, kind: 'purchase', amount: g.netAmount, category: '', description: g.id + (g.supplier ? ' — ' + g.supplier : '') + (g.invoice ? ' · inv ' + g.invoice : ''), ts: 0, linked: 'GRN' })));
     const ledTotals = (accId) => {
       const es = ledEntries.filter(x => x.accountId === accId);
       const sum = (k) => es.filter(x => x.kind === k).reduce((a, x) => a + x.amount, 0);
-      const given = sum('given'), spent = sum('expense'), back = sum('returned');
+      const given = sum('given'), spent = sum('expense') + sum('purchase'), back = sum('returned');
       return { given, spent, back, balance: Math.round((given - spent - back) * 100) / 100, count: es.length };
     };
     const balText = (b) => b > 0 ? { note: 'Holds MADZO money', color: '#2A5C99', bg: '#E1ECF8' } : b < 0 ? { note: 'MADZO owes them', color: '#B03A2E', bg: '#FCECEA' } : { note: 'Settled', color: '#1E8A4C', bg: '#DDF0E2' };
@@ -800,7 +815,7 @@ class Component extends DCLogic {
       ledAskDelAccount: () => this.setState({ ledConfirmAccDel: true }),
       ledCancelDelAccount: () => this.setState({ ledConfirmAccDel: false }),
       ledConfirmAccDel: this.state.ledConfirmAccDel,
-      ledDelAccText: selT.count ? 'Delete ' + (selAcc ? selAcc.name : '') + ' and all ' + selT.count + ' of its entries? Their expenses will also leave the Overview totals.' : 'Delete ' + (selAcc ? selAcc.name : '') + '?',
+      ledDelAccText: selT.count ? 'Delete ' + (selAcc ? selAcc.name : '') + ' and its own entries? Expenses and GRNs marked "Paid by" this account stay, without a payer.' : 'Delete ' + (selAcc ? selAcc.name : '') + '?',
       ledDelAccount: async () => {
         if (!selAcc) return;
         const sb = window.getSupabase();
@@ -840,7 +855,8 @@ class Component extends DCLogic {
         return {
           date: dfmt(x.date), kindLabel: k.label, kindBg: k.bg, kindColor: k.color,
           description: (x.kind === 'expense' && x.category ? x.category + (x.description ? ' — ' : '') : '') + (x.description || (x.kind === 'expense' && x.category ? '' : '—')),
-          amount: (k.sign > 0 ? '+' : '−') + fmt(x.amount), amountColor: k.sign > 0 ? '#2A5C99' : (x.kind === 'expense' ? '#9A6E12' : '#1E8A4C'),
+          canEdit: !x.linked, linkedNote: x.linked ? 'from ' + x.linked : '',
+          amount: (k.sign > 0 ? '+' : '−') + fmt(x.amount), amountColor: k.sign > 0 ? '#2A5C99' : (x.kind === 'expense' ? '#9A6E12' : x.kind === 'purchase' ? '#6B3FA0' : '#1E8A4C'),
           balance: fmt(Math.abs(bal)) + (bal < 0 ? ' owed' : ''),
           edit: () => this.setState({ ledEnDraft: { origId: x.id, date: x.date, kind: x.kind, amount: String(x.amount), category: x.category, description: x.description }, ledEnErr: '', ledMsg: '' }),
           confirming: this.state.ledConfirmDel === x.id,
@@ -904,12 +920,14 @@ class Component extends DCLogic {
         const opening = !this.state.showExpenseForm;
         this.setState({
           showExpenseForm: opening, expenseFormMode: 'new', editingExpenseId: null, expenseError: '',
-          newExpense: opening ? { date: today, category: 'Other', description: '', amount: '', paymentMethod: '' } : this.state.newExpense
+          newExpense: opening ? { date: today, category: 'Other', description: '', amount: '', paymentMethod: '', paidBy: '' } : this.state.newExpense
         });
       },
       newExpense: ne, expenseError: this.state.expenseError,
       onExDate: setEx('date'), onExCategory: setEx('category'), onExAmount: setEx('amount'),
-      onExPaymentMethod: setEx('paymentMethod'), onExDescription: setEx('description'),
+      onExPaymentMethod: setEx('paymentMethod'), onExDescription: setEx('description'), onExPaidBy: setEx('paidBy'),
+      hasLedAccounts: (this.state.dbLedAccounts || []).length > 0,
+      exPaidByOpts: [{ id: '', name: 'MADZO (company)' }].concat(this.state.dbLedAccounts || []).map(x => ({ v: x.id, l: x.name + (x.kind === 'company' ? ' · company' : ' · person'), selected: x.id === (ne.paidBy || '') })),
       saveExpenseLabel: this.state.savingExpense ? 'Saving…' : 'Save expense',
       saveExpense: async () => {
         const amount = Number(ne.amount);
@@ -919,15 +937,17 @@ class Component extends DCLogic {
         const payload = {
           expense_date: ne.date, category: ne.category || 'Other',
           description: String(ne.description || '').trim() || null,
-          amount, payment_method: String(ne.paymentMethod || '').trim() || null
+          amount, payment_method: String(ne.paymentMethod || '').trim() || null,
+          ...(ne.paidBy || (this.state.expenseFormMode === 'edit' && ((this.state.dbExpenses || []).find(x => x.id === this.state.editingExpenseId) || {}).paidBy) ? { paid_by_account: ne.paidBy || null } : {})
         };
         const sb = window.getSupabase();
         const { error } = this.state.expenseFormMode === 'edit'
           ? await sb.from('expenses').update(payload).eq('id', this.state.editingExpenseId)
           : await sb.from('expenses').insert(payload);
         this.setState({ savingExpense: false });
-        if (error) { this.setState({ expenseError: error.message }); return; }
-        this.setState({ showExpenseForm: false, expenseError: '', editingExpenseId: null, newExpense: { date: '', category: 'Other', description: '', amount: '', paymentMethod: '' } });
+        if (error) { this.setState({ expenseError: /paid_by_account/.test(error.message || '') ? 'Paid by needs a one-time database update — run madzo-update-30.sql in Supabase, then save again.' : error.message }); return; }
+        this.loadLedger();
+        this.setState({ showExpenseForm: false, expenseError: '', editingExpenseId: null, newExpense: { date: '', category: 'Other', description: '', amount: '', paymentMethod: '', paidBy: '' } });
         this.loadExpenses();
       },
       expenseSearch: this.state.expenseSearch,
